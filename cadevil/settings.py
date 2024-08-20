@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ["localhost", "157.90.94.126", "192.168.2.108", "127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    "channels",
     "daphne",
     "django.contrib.admin",
     "django.contrib.auth",

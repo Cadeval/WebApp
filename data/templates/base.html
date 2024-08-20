@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     {# Global annotations #}
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
@@ -16,30 +15,37 @@
     <link rel="alternate" hreflang="en" href="/en" />
 
     {# Reusable resources #}
-    <link href="{% static 'images/favicon.svg' %}" rel="icon">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
-{#    <script src="{% static 'js/sidebar.js' %}"></script>#}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <!-- <link rel="apple-touch-icon" sizes="180x180" href="https://www.herzzentrum18.at/apple-touch-icon.png"> -->
-    <!-- <link rel="icon" type="image/png" sizes="32x32" href="https://www.herzzentrum18.at/favicon-32x32.png"> -->
-    <!-- <link rel="icon" type="image/png" sizes="16x16" href="https://www.herzzentrum18.at/favicon-16x16.png"> -->
-    <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
-    <!-- <link rel="mask-icon" href="https://www.herzzentrum18.at/safari-pinned-tab.svg" color="#015d52"> -->
 
+    {# TODO Fix favicon not loading on safari #}
+    <!-- SVG Favicon for modern browsers -->
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- PNG Fallback for older browsers -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png" sizes="32x32">
+
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="{% static 'images/favicon.svg' %}" color="#5bbad5">
+
+    <!-- TODO Implement this maybe? -->
+    <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
 
     {# Metadata #}
     <title>Building Comparison Report</title>
-    <!-- <title>Herz Zentrum Währing &mdash; Alle Kassen &amp; Privat</title> -->
 
-    <!-- <meta name="description" content="Innere Medizin, Kardiologie und Rheumatologie &mdash; Priv.Doz. Distelmaier &amp; Goliasch. Spezialisten für Kreislauferkrankungen und Prävention." /> -->
-    <!-- <meta name="author" content="Herz Zentrum Währing" /> -->
+    <meta name="description" content="Cadevil - Computer Aided Design." />
+    <meta name="author" content="Iulia Radynska" />
 
-    <!-- <meta property="og:title" content="Herz Zentrum Währing &mdash; Alle Kassen &amp; Privat" /> -->
-    <!-- <meta property="og:site_name" content="herzzentrum18.at"/> -->
-    <!-- <meta property="og:url" content="https://herzzentrum18.at/" /> -->
-    <!-- <meta property="og:description" content="Innere Medizin, Kardiologie und Rheumatologie &mdash; Priv.Doz. Distelmaier &amp; Goliasch. Spezialisten für Kreislauferkrankungen und Prävention." /> -->
-    <!-- <meta property="og:image" content="https://herzzentrum18.at/images/fb-share.jpg" /> -->
+    <meta property="og:title" content="Computer Aided Design and Building Comparison." />
+    <meta property="og:site_name" content="herzzentrum18.at"/>
+    <meta property="og:url" content="https://herzzentrum18.at/" />
+    <meta property="og:description" content="Cadevil - Computer Aided Design and Building Comparison." />
+    <meta property="og:image" content="https://herzzentrum18.at/images/fb-share.jpg" />
 
 
 
@@ -55,7 +61,7 @@
       {% endblock %}
 
   </header>
-    <div popover class="popover" id="sidebar-popover" >
+    <div popover class="popover-big" id="sidebar-popover" >
         <div class="sidebar-content" id="sidebar-content">
             <ul>
 
@@ -96,7 +102,7 @@
         </div>
     </div>
 
-    <div popover id='menu-popover'>
+    <div popover class='popover-small' id='menu-popover'>
         {% if user.is_authenticated %}
           <a href="/accounts/user?id={{ user.id }}">
             <button class='button-wide fa fa-id-card'>
@@ -129,7 +135,7 @@
         {% else %}
 
           <a href="{% url 'login' %}">
-            <button class='button-wide'>
+            <button class='button-wide fa fa-sign-in'>
                     Log In
             </button>
           </a>
@@ -139,12 +145,14 @@
         <main>
             <!-- Main Container -->
             {% block content %}{% endblock %}
-        </main>
 
-            {#<footer class="footer">#}
-            {#<div class="copyright">&copy; {% now 'Y' %} - <strong>Yulia</strong></div>#}
-            {#</footer>$}#}
-    </div>
+        </main>
+            <!-- Footer Section -->
+            <!-- Copyrights Section -->
+            <!-- Main Container Ends -->
+            <footer class="footer">
+                <div class="copyright">&copy; {% now 'Y' %} - <strong>Yulia</strong></div>
+            </footer>
 
 </body>
 </html>

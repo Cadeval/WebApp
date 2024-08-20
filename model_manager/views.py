@@ -60,19 +60,19 @@ def model_manager(request):
         return redirect("/model_manager")
 
     elif request.GET.get("toggle"):
-        _id = request.GET.get("toggle")
+        _id = str(request.GET.get("toggle"))
         _is_active = not CadevilDocument.objects.filter(id=_id).get().is_active
         CadevilDocument.objects.filter(id=_id).update(is_active=_is_active)
         return redirect("/model_manager")
 
     elif request.GET.get("delete"):
-        _id = int(request.GET.get("delete"))
+        _id = str(request.GET.get("delete"))
 
-        # FIXME finish file cleanup routine
-        _object = f"media/{CadevilDocument.objects.filter(id=_id).values_list('document', flat=True).get()}"
-
-        if os.path.exists(_object):
-            os.remove(_object)
+        # # FIXME finish file cleanup routine
+        # _object = f"media/{CadevilDocument.objects.filter(id=_id).values_list('document', flat=True).get()}"
+        #
+        # if os.path.exists(_object):
+        #     os.remove(_object)
 
         CadevilDocument.objects.filter(id=_id).delete()
         return redirect("/model_manager")
