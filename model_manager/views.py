@@ -1,0 +1,172 @@
+# -*- coding: utf-8 -*-
+#
+
+# FIXME add argument parser
+# import argparse
+import os
+
+# from django.http import HttpResponse
+# Create your views here.
+from django.shortcuts import redirect, render
+
+from library.forms import DocumentForm, UploadForm
+from library.ifc_extractor import IfcExtractor
+from library.models import CadevilDocument, FileUpload  # , CadevilGroup
+
+
+# from django.template import loader
+# from django.template.response import TemplateResponse
+# from django.urls import reverse
+
+# example_properties = {
+#     "Area": "200",
+#     "EIKON": "3,40",
+#     "BGF": "1848,36",
+#     "NF": "12,82",
+#     "BF/BGF": "0,69",
+#     "Energy Rating": "C",
+#     "Walls": ["343.21.02", "m2", 130, 1111, 62073],
+#     "Ceiling": ["343.21.02", "m2", 130, 1111, 62073],
+#     "Floor Panels": ["343.21.02", "m2", 130, 1111, 62073],
+#     "Roof": ["343.21.02", "m2", 130, 1111, 62073],
+#     "Facade": ["343.21.02", "m2", 130, 1111, 62073],
+# }
+#
+
+
+def model_manager(request):
+    if not request.user.is_authenticated:
+        return redirect(to="/accounts/login")
+
+    form = DocumentForm()
+
+    if request.method == "POST":
+        form = UploadForm(
+            request.POST, request.FILES, user=request.user, user_id=request.user.id
+        )
+        if form.is_valid():
+            file_upload = form.save(commit=False)
+            file_upload.user = (
+                request.user
+            )  # Set the user to the currently logged-in user
+            file_upload.save()
+            return redirect("/model_manager")
+
+    elif request.GET.get("toggle_hidden"):
+        print(request.user)
+        # request.user.update(view_hidden=True)
+        # CadevilDocument.objects.filter(id=_id).update(properties=_document.properties)
+
+        return redirect("/model_manager")
+
+    elif request.GET.get("toggle"):
+        _id = request.GET.get("toggle")
+        _is_active = not CadevilDocument.objects.filter(id=_id).get().is_active
+        CadevilDocument.objects.filter(id=_id).update(is_active=_is_active)
+        return redirect("/model_manager")
+
+    elif request.GET.get("delete"):
+        _id = int(request.GET.get("delete"))
+
+        # FIXME finish file cleanup routine
+        _object = f"media/{CadevilDocument.objects.filter(id=_id).values_list('document', flat=True).get()}"
+
+        if os.path.exists(_object):
+            os.remove(_object)
+
+        CadevilDocument.objects.filter(id=_id).delete()
+        return redirect("/model_manager")
+
+    elif request.GET.get("calculate"):
+        _id = str(request.GET.get("calculate"))
+        _file = FileUpload.objects.filter(id=_id).get()
+        _document = IfcExtractor(_file.document.path)
+        _document.process_products()
+        # _document.extract_areas()
+        # properties["document_preview"] = _document.render_object()
+        doc = CadevilDocument()
+        doc.user = request.user
+        doc.description = _file
+        doc.properties = _document.properties
+        doc.materials = _document.material_dict
+        doc.save()
+        return redirect("/model_manager")
+
+    else:
+        return render(
+            request,
+            "cadevil/model_manager.html",
+            context={
+                "files": list(FileUpload.objects.filter(user=request.user)),
+                "data": CadevilDocument.objects.filter(user=request.user),
+                "form": form,
+            },
+        )
+
+
+def object_view(request):
+    if not request.user.is_authenticated:
+        return redirect(to="/accounts/login")
+    form = DocumentForm()
+    if request.GET.get("object"):
+        _id = request.GET.get("object")
+        _is_active = CadevilDocument.objects.filter(id=_id).get().is_active
+        if not _is_active:
+            return redirect("/model_manager")
+    else:
+        return redirect("/model_manager")
+
+    return render(
+        request,
+        "cadevil/object_view.html",
+        context={
+            "data": CadevilDocument.objects.filter(id=_id),
+            "form": form,
+        },
+    )
+
+
+def model_comparison(request):
+    if not request.user.is_authenticated:
+        return redirect(to="/accounts/login")
+    documents = CadevilDocument.objects.filter(is_active=True)
+
+    properties = {
+        # ÖNORM B 1800 / ÖNORM EN 15221-6
+        "TSA": 0,  # Total something FIXME
+        "BF": 0,  # Total Area of the plot Brutto Fläche
+        "BGF": 0,  # BruttGo-Grundfläche (ÖNORM B 1800)
+        "BGF/BF": 0,  # Ratio of BF to BGF
+        "NGF": 0,  # Netto-Grundfläche (ÖNORM B 1800)
+        "NF": 0,  # Nutzfläche (ÖNORM B 1800)
+        "KGF": 0,  # Konstruktions-Grundfläche (ÖNORM B 1800)
+        "BRI": 0,  # Brutto-Rauminhalt (ÖNORM B 1800)
+        "EIKON": 0,  # EIKON value (example placeholder)
+        "Energy Rating": "Unknown",  # Energy rating of the building
+        "Floors": 0,  # Number of floors
+        "Facade Area": 0,
+    }
+
+    # averages = dict()
+    # # Calculate averages for numeric properties
+    # for key in properties:
+    #     if key not in [
+    #         "Energy Rating",
+    #         "Units",
+    #         "Walls",
+    #         "Ceiling",
+    #         "Floor Panels",
+    #         "Roof",
+    #         "Facade",
+    #     ]:
+    #         avg = sum(properties[key]) / len(properties[key]) if properties[key] else 0
+    #         averages[key] = avg
+    #     else:
+    #         averages[key] = "N/A"
+
+    context = {
+        "data": documents,
+        "properties": properties,
+    }
+
+    return render(request, "cadevil/model_comparison.html", context)
