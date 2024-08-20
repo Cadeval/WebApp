@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load get_item %}
+{% load max_value %}
+
+{% block header %}
+  <!-- <button class="openbtn" onclick="openNav()">Computer Aided Design &#9776; </button> -->
+{% endblock %}
+
+{% block content %}
+
+    <h1>Building Comparison</h1>
+    <table>
+        <tr>
+            <th>Property</th>
+            <th>Average</th>
+            {% for item in data %}
+                {% if item.is_active %}
+                    <th>{{ item.description }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% for key in properties %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>{{ key|max_value:data |floatformat:-2 }}</td>
+                {% for item in data %}
+                    {% if item.is_active %}
+                        <td>{{ item.properties|get_item:key |floatformat:-2 }}</td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        {% endfor %}
+
+{% endblock %}
