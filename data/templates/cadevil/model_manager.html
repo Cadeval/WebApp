@@ -4,39 +4,83 @@
 {% load get_item %}
 
 {% block header %}
-  <button popovertarget='sidebar-popover'  class="openbtn" >Objects &#9776; </button>
+  <button popovertarget='filemanager-popover'  class="openbtn" >User Files &#9776; </button>
 {% endblock %}
 
 {% block content %}
   <!-- <button type="submit" class="button" name="toggle_hidden">TOGGLE HIDDEN</button> -->
-  <!-- {% for group in user.groups.all %} -->
-  <!--   {{ group }} -->
-  <!-- {% endfor %} -->
-  <!--   <hr> -->
-    <div class="grid-container">
+  {% for group in user.groups.all %}
+    <details>
+        <summary>Click to toggle</summary>
+        <span>{{ group }}</span>
+    </details>
+  {% endfor %}
+    <div class="flexgrid-container">
       {% for item in data %}
-              {% if item.is_active %}
-                <div class="grid-item-active">
+          <div {% if item.is_active %}
+                class="flex-item-active"
               {% else %}
-                <div class="grid-item-inactive">
-              {% endif %}
+                class="flex-item-inactive"
+              {% endif %}>
                   <a class="gallery" href="/object_view?object={{ item.id }}">
-                    <img alt="Render of House A" class="cards" src="{% static 'images/house_1.png' %}" />
+                    <img alt="Render of House A" class="thumbnail" src="{% static 'images/house_1.png' %}" />
                   </a>
                   <h4>{{ item.description }}</h4>
-                    <p class="tag">Render of Hochbau</p>
-                    <p class="text_column">Filename: {{ item.document }}<br>Total Area: 200m<br>Energyclass: A</p>
+                <p class="text_column">User: {{ item.user }}<br>Group: {{ item.group }}</p>
+                <form class='action-form' action="#" method="get" id={{ item.id }}>
+                {{ group_form }}
+                <button type="submit" class="button fa" value={{ item.id }} name="set_group">Update Group</button><br>
 
-                    <form class='action-form' action="#" method="get" id={{ item.id }}>
-                      {% if not item.is_active %}
-                          <button type="submit" class="button fa fa-eye" value={{ item.id }} name="toggle"></button>
-                      {% else %}
-                          <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>
-                      {% endif %}
-                      <button type="submit" class="button fa fa-trash" value={{ item.id }} name="delete"></button>
-                    </form>
-                </div>
+                  {% if not item.is_active %}
+                      <button type="submit" class="button fa fa-eye" value={{ item.id }} name="toggle"></button>
+                  {% else %}
+                      <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>
+                  {% endif %}
+                  <button type="submit" class="button fa fa-trash" value={{ item.id }} name="delete"></button>
+                </form>
+          </div>
       {% endfor %}
+    </div>
 
+    </div>
+        <div popover class="popover-big" id="filemanager-popover">
+        <div class="popover-content" id="popover-content">
+                <h4>File Upload</h4>
+                <form method="post" class="form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div>
+                      <label for="id_description">Description:</label><br>
+                      <input type="text" name="description" maxlength="255" id="id_description">
+                    </div>
+                    <div>
+                      <input class="button-wide" type="file" name="document" required="" id="id_document">
+                    </div>
+
+                    <button class="button-wide" type="submit">Upload</button>
+                </form>
+                <hr>
+                {% for item in files %}
+                    <li>
+                        <form action="#" method="get" id={{ item.id }}>
+                            <h5>
+                                {# Indicate item is currently disabled TODO communicate that more clearly #}
+{#                                {% if not item.is_active %} <s>{% endif %}#}
+{#                                {% if not item.is_active %}</s>{% endif %}#}
+
+{#                                {% if not item.is_active %}#}
+{#                                    <button type="submit" class="button fa fa-eye" value={{ item.id }} name="toggle"></button>#}
+{#                                {% else %}#}
+{#                                    <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>#}
+{#                                {% endif %}#}
+                                {{ item.description }}
+
+                                <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate</button>
+                                <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete"> Delete</button>
+                            </h5><hr>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endblock %}

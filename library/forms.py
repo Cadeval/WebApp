@@ -1,6 +1,13 @@
-from django.forms import ModelForm
+from django.forms import Form, ModelForm, ChoiceField
 from .models import CadevilDocument, FileUpload
 
+class GroupForm(Form):
+    group_field = ChoiceField()
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+        self.fields['group_field'].choices = ((i, _) for i, _ in enumerate(self.request.user.groups.all()))
+        self.fields['group_field'].initial=self.request.user.groups.first()
 
 class DocumentForm(ModelForm):
     class Meta:
@@ -20,7 +27,6 @@ class DocumentForm(ModelForm):
             instance.user = self.user
             instance.save()
         return instance
-
 
 class UploadForm(ModelForm):
     class Meta:

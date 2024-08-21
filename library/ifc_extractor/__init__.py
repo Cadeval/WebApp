@@ -40,7 +40,7 @@ import ifcopenshell.util.selector
 import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
-import ifcopenshell.api.owner
+# import ifcopenshell.api.owner
 
 # import ifcopenshell.api.owner.settings
 # import ifcopenshell.api.material
@@ -282,7 +282,7 @@ class IfcExtractor(object):
             if pset_common:
                 if pset_common.get("IsExternal", False):
                     # External spaces are not included in NGF according to ÖNORM B 1800
-                    measurements["NGF"] -= net_area
+                    self.properties["NGF"] -= net_area
 
     def calculate_facade_area(self, product) -> None:
         if product.is_a() in ["IfcWall", "IfcCurtainWall", "IfcWindow", "IfcDoor"]:

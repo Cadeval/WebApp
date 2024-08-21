@@ -1,29 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AnalysisUIOptions">
-    <option name="ANALYZE_INJECTED_CODE" value="false" />
-  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ae9127c2-939a-43ac-bc92-3862d481c3c6" name="Changes" comment="Update config for pycharm&#10;Enable editorconfig options">
+    <list default="true" id="c9b1e330-e644-4ea0-81d9-acdabf91c434" name="Changes" comment="Implement group ownership of documents.">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cadevil/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cadevil/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/css/bootstrap.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/css/font-awesome.min.css" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/data/static/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/bootstrap-4.4.1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/jquery-3.4.1.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/popper.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/sidebar.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/data/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_comparison.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/cadevil/model_comparison.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_manager.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/cadevil/model_manager.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/object_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/cadevil/object_view.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/registration/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/registration/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/registration/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/registration/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/ifc_extractor/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/model_manager/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_manager/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,43 +23,13 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager">
-    <option name="groupingKeys">
-      <option value="directory" />
-    </option>
-  </component>
-  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
-    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
-  </component>
-  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
-    <envs>
-      <env key="FLASK_APP" value="app" />
-    </envs>
-    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
-    <option name="myEnvs">
-      <map>
-        <entry key="FLASK_APP" value="app" />
-      </map>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="PREVIOUS_COMMIT_AUTHORS">
-      <list>
-        <option value="Hallas, Mia &lt;mia.hallas@nhm-wien.ac.at&gt;" />
-      </list>
-    </option>
-    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="SIGN_OFF_COMMIT" value="true" />
-  </component>
-  <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
-  <component name="ProjectId" id="2jz6cHzppLUiMWcOCiwjq7nULpi" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectId" id="2kwy8ARYNm3WziPfM3PxS0mprA2" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -75,33 +37,19 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;Django Server.cadevil.executor&quot;: &quot;Run&quot;,
-    &quot;HTTP Request.generated-requests | #1.executor&quot;: &quot;Run&quot;,
-    &quot;Makefile Target.run.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/mia/PycharmProjects/cadevil&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="PyDebuggerOptionsProvider">
-    <option name="mySaveCallSignatures" value="true" />
-  </component>
-  <component name="RunManager" selected="Django Server.cadevil">
-    <configuration name="run" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="run" workingDirectory="" arguments="">
-        <envs />
-      </makefile>
-      <method v="2" />
-    </configuration>
+  <component name="RunManager">
     <configuration name="cadevil" type="Python.DjangoServer" factoryName="Django server">
       <module name="cadevil" />
       <option name="ENV_FILES" value="" />
@@ -127,104 +75,32 @@
       <option name="customRunCommand" value="" />
       <method v="2" />
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Makefile Target.run" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.18034.82" />
-        <option value="bundled-python-sdk-975db3bf15a3-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.18034.82" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-PY-242.20224.347" />
+        <option value="bundled-python-sdk-c2d6afa66fbe-39cff9de6eef-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.20224.347" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="ae9127c2-939a-43ac-bc92-3862d481c3c6" name="Changes" comment="" />
-      <created>1722377635289</created>
+      <changelist id="c9b1e330-e644-4ea0-81d9-acdabf91c434" name="Changes" comment="" />
+      <created>1724208771685</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1722377635289</updated>
-      <workItem from="1722377636316" duration="900000" />
-      <workItem from="1722378995767" duration="3338000" />
-      <workItem from="1722415671082" duration="1194000" />
-      <workItem from="1722417400360" duration="1435000" />
-      <workItem from="1722510066240" duration="985000" />
-      <workItem from="1724146719903" duration="2295000" />
-      <workItem from="1724149064945" duration="51000" />
-      <workItem from="1724149202556" duration="25349000" />
+      <updated>1724208771685</updated>
+      <workItem from="1724208772724" duration="26489000" />
     </task>
-    <task id="LOCAL-00001" summary="Initial commit">
-      <option name="closed" value="true" />
-      <created>1724154403830</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1724154403831</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Add project files">
-      <option name="closed" value="true" />
-      <created>1724154549137</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1724154549137</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Add static files&#10;Update git ignore to ignore ipynb files">
-      <option name="closed" value="true" />
-      <created>1724154635539</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1724154635539</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Add schema files for ifc definition, energy data and prices">
-      <option name="closed" value="true" />
-      <created>1724154677852</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1724154677852</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Update config for pycharm&#10;Enable editorconfig options">
-      <option name="closed" value="true" />
-      <created>1724154824847</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1724154824847</updated>
-    </task>
-    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
-    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
-    <ignored-roots>
-      <path value="$PROJECT_DIR$/data/GeoJSON-TopoJSON-Austria" />
-    </ignored-roots>
-    <MESSAGE value="Initial commit" />
-    <MESSAGE value="Add project files" />
-    <MESSAGE value="Add static files&#10;Update git ignore to ignore ipynb files" />
-    <MESSAGE value="Add schema files for ifc definition, energy data and prices" />
-    <MESSAGE value="Update config for pycharm&#10;Enable editorconfig options" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update config for pycharm&#10;Enable editorconfig options" />
+    <MESSAGE value="Implement group ownership of documents." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement group ownership of documents." />
   </component>
 </project>

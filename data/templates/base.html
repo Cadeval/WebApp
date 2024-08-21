@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+<!--<!DOCTYPE html>-->
 <html lang="en">
 <head>
     {# Global annotations #}
@@ -32,6 +32,9 @@
     <!-- Safari Pinned Tab Icon -->
     <link rel="mask-icon" href="{% static 'images/favicon.svg' %}" color="#5bbad5">
 
+    <!-- Mobile specific -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <!-- TODO Implement this maybe? -->
     <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
 
@@ -54,55 +57,19 @@
 <body>
     <header>
       <button popovertarget='menu-popover' class='menu-button'>
-        <img alt="Menu Button" class="menu_icon" src="{% static 'images' %}/favicon.svg">
+        <img alt="Menu Button" class="menu_icon" src="{% static 'images' %}/favicon.svg">Cadevil
       </button>
 
       {% block header %}
       {% endblock %}
 
   </header>
-    <div popover class="popover-big" id="sidebar-popover" >
-        <div class="sidebar-content" id="sidebar-content">
-            <ul>
 
-                <form method="post" class="form" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div>
-                      <label for="id_description">Description:</label><br>
-                      <input type="text" name="description" maxlength="255" id="id_description">
-                    </div>
-                    <div>
-                      <input class="button-wide" type="file" name="document" required="" id="id_document">
-                    </div>
-
-                    <button class="button-wide" type="submit">Upload</button>
-                </form>
-                {% for item in files %}
-                    <li>
-                        <form action="#" method="get" id={{ item.id }}>
-                            <h5>
-                                {# Indicate item is currently disabled TODO communicate that more clearly #}
-                                {% if not item.is_active %} <s>{% endif %}
-                                    {{ item.description }}
-                                {% if not item.is_active %}</s>{% endif %}
-
-                                {% if not item.is_active %}
-                                    <button type="submit" class="button fa fa-eye" value={{ item.id }} name="toggle"></button>
-                                {% else %}
-                                    <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>
-                                {% endif %}
-
-                                <button type="submit" class="button fa fa-bolt" value={{ item.id }} name="calculate"></button>
-                                <button type="submit" class="button fa fa-trash" value={{ item.id }} name="delete"></button>
-                            </h5>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
 
     <div popover class='popover-small' id='menu-popover'>
+{#        <input type="checkbox" id="toggleMode">#}
+{#        <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
+{#        <label for="toggleMode" class="toggleLight">Light Mode</label>#}
         {% if user.is_authenticated %}
           <a href="/accounts/user?id={{ user.id }}">
             <button class='button-wide fa fa-id-card'>
@@ -112,11 +79,11 @@
 
           <a href="/admin">
             <button class='button-wide fa fa-shield'>
-                    Admin
+                Admin
             </button>
           </a>
 
-          <a href="/model_manager ">
+          <a href="/model_manager">
             <button class='button-wide fa fa-list'>
                Model Manager
             </button>
@@ -124,7 +91,7 @@
 
           <a href="/model_comparison">
             <button class='button-wide fa fa-balance-scale'>
-                    Model Comparison
+                Model Comparison
             </button>
           </a>
 
@@ -136,7 +103,7 @@
 
           <a href="{% url 'login' %}">
             <button class='button-wide fa fa-sign-in'>
-                    Log In
+                Log In
             </button>
           </a>
         {% endif %}
@@ -151,7 +118,7 @@
             <!-- Copyrights Section -->
             <!-- Main Container Ends -->
             <footer class="footer">
-                <div class="copyright">&copy; {% now 'Y' %} - <strong>Yulia</strong></div>
+                <div class="copyright">&copy; {% now 'Y' %} - <strong>Iulia</strong></div>
             </footer>
 
 </body>

@@ -3,13 +3,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    {# Global annotations #}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    {# Language information #}
+    <link rel="alternate" hreflang="de" href="" />
+    <link rel="alternate" hreflang="en" href="/en" />
+
+    {# Reusable resources #}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    {# TODO Fix favicon not loading on safari #}
+    <!-- SVG Favicon for modern browsers -->
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- PNG Fallback for older browsers -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png" sizes="32x32">
+
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="{% static 'images/favicon.svg' %}" color="#5bbad5">
+
+    <!-- Mobile specific -->
+    <meta name=apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- TODO Implement this maybe? -->
+    <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
+
+    {# Metadata #}
     <title>Building Comparison Report</title>
-    <link href="{% static 'images/favicon.svg' %}" rel="icon">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css">
+
+    <meta name="description" content="Cadevil - Computer Aided Design." />
+    <meta name="author" content="Iulia Radynska" />
+
+    <meta property="og:title" content="Computer Aided Design and Building Comparison." />
+    <meta property="og:site_name" content="herzzentrum18.at"/>
+    <meta property="og:url" content="https://herzzentrum18.at/" />
+    <meta property="og:description" content="Cadevil - Computer Aided Design and Building Comparison." />
+    <meta property="og:image" content="https://herzzentrum18.at/images/fb-share.jpg" />
+
+
 
 </head>
 

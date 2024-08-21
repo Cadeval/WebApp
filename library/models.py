@@ -1,11 +1,11 @@
 import uuid
 
-from django.contrib.auth.models import AbstractUser, Permission, Group, GroupManager
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser, Permission, Group
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 user_model = settings.AUTH_USER_MODEL
 # group_model = settings.AUTH_GROUP_MODEL
@@ -125,6 +125,7 @@ class FileUpload(models.Model):
     )
 
     user = models.ForeignKey(CadevilUser, on_delete=models.CASCADE)
+
     document = models.FileField(upload_to=user_directory_path)
 
     description = models.CharField(db_index=True, max_length=255, blank=True)
@@ -143,19 +144,23 @@ class CadevilDocument(models.Model):
     )
 
     user = models.ForeignKey(CadevilUser, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    # TODO migrations break if not run via 'python manage.py makemigrations library'
+    # idek why the heck but apparently it really wants to get told which apps to create
+    # the migrations for???
     # groups = models.ManyToManyField(
     #     CadevilGroup,
     #     verbose_name="groups",
     #     blank=True,
     #     help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
     #     related_name="cadeviluser_set",
-    #     related_query_name="user",
+    #     related_query_name="user"
     # )
 
-    # group = models.ForeignKey(CadevilGroup, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     description = models.CharField(db_index=True, max_length=255, blank=True)
     # TODO render image
+    # TODO implement using dataclasses
     # preview_image = models.ImageField()
     type = "Wohnbau"
     structure = "Rohbau"

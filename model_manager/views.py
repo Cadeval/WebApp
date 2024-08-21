@@ -5,11 +5,12 @@
 # import argparse
 import os
 
+from django.forms import ChoiceField
 # from django.http import HttpResponse
 # Create your views here.
 from django.shortcuts import redirect, render
 
-from library.forms import DocumentForm, UploadForm
+from library.forms import DocumentForm, UploadForm, GroupForm
 from library.ifc_extractor import IfcExtractor
 from library.models import CadevilDocument, FileUpload  # , CadevilGroup
 
@@ -38,14 +39,16 @@ def model_manager(request):
     if not request.user.is_authenticated:
         return redirect(to="/accounts/login")
 
-    form = DocumentForm()
+    document_form = DocumentForm()
+    group_form = GroupForm(request=request)
+
 
     if request.method == "POST":
-        form = UploadForm(
+        document_form = UploadForm(
             request.POST, request.FILES, user=request.user, user_id=request.user.id
         )
-        if form.is_valid():
-            file_upload = form.save(commit=False)
+        if document_form.is_valid():
+            file_upload = document_form.save(commit=False)
             file_upload.user = (
                 request.user
             )  # Set the user to the currently logged-in user
@@ -59,10 +62,20 @@ def model_manager(request):
 
         return redirect("/model_manager")
 
+    elif request.GET.get("set_group"):
+        _id = str(request.GET.get("set_group"))
+        _group_choice_id = int(request.GET.get("group_field"))
+        # if group_form.is_valid():
+        group = group_form.fields["group_field"].choices[_group_choice_id]
+        CadevilDocument.objects.filter(id=_id).update(group=group[1])
+        return redirect("/model_manager")
+
     elif request.GET.get("toggle"):
         _id = str(request.GET.get("toggle"))
         _is_active = not CadevilDocument.objects.filter(id=_id).get().is_active
         CadevilDocument.objects.filter(id=_id).update(is_active=_is_active)
+        if group_form.is_valid():
+            print(group_form.cleaned_data)
         return redirect("/model_manager")
 
     elif request.GET.get("delete"):
@@ -86,6 +99,7 @@ def model_manager(request):
         # properties["document_preview"] = _document.render_object()
         doc = CadevilDocument()
         doc.user = request.user
+        doc.group = request.user.groups.all()[0]
         doc.description = _file
         doc.properties = _document.properties
         doc.materials = _document.material_dict
@@ -99,7 +113,8 @@ def model_manager(request):
             context={
                 "files": list(FileUpload.objects.filter(user=request.user)),
                 "data": CadevilDocument.objects.filter(user=request.user),
-                "form": form,
+                "form": document_form,
+                "group_form": group_form,
             },
         )
 
