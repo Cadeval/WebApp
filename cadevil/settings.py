@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "data/static"]
-STATIC_ROOT = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "/static/")
 TEMPLATE_URL = "templates/"
 TEMPLATEFILES_DIRS = [BASE_DIR / "data/templates"]
 MEDIA_URL = "media/"
@@ -38,7 +38,7 @@ LOGOUT_REDIRECT_URL = "/"
 SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # ALLOWED_HOSTS = ["localhost", "cadevil.org", "cadevil.at"]
 ALLOWED_HOSTS = ['*']
@@ -127,10 +127,11 @@ else:
             'NAME': 'defaultdb',
             'USER': 'doadmin',
             'PASSWORD': '',
-            'HOST': 'private-cadevil-pg-do-user-17774226-0.e.db.ondigitalocean.com',
+            'HOST': 'cadevil-pg-do-user-17774226-0.e.db.ondigitalocean.com',
             'PORT': '25060',
         }
     }
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
