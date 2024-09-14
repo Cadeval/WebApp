@@ -102,34 +102,13 @@ WSGI_APPLICATION = "cadevil.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-#DATABASES = {
-#    "default": {
-#        "ENGINE": "django.db.backends.sqlite3",
-#        "NAME": BASE_DIR / "data/db-instance.sqlite3",
-#    }
-#}
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'testdb',
-            'USER': 'doadmin',
-            'PASSWORD': '',
-            'HOST': 'dbaas-db-8277326-do-user-17713365-0.h.db.ondigitalocean.com',
-            'PORT': '25060',
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'defaultdb',
-            'USER': 'doadmin',
-            'PASSWORD': '',
-            'HOST': 'private-dbaas-db-8277326-do-user-17713365-0.h.db.ondigitalocean.com',
-            'PORT': '25060',
-        }
-    }
+DATABASES = {
+   "default": {
+       "ENGINE": "django.db.backends.sqlite3",
+       "NAME": BASE_DIR / "data/db-instance.sqlite3",
+   }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
