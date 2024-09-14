@@ -38,7 +38,7 @@ LOGOUT_REDIRECT_URL = "/"
 SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["localhost", "cadevil.org", "cadevil.at"]
 INTERNAL_IPS = ["localhost"]
