@@ -112,7 +112,7 @@ def model_manager(request):
             "cadevil/model_manager.html",
             context={
                 "files": list(FileUpload.objects.filter(user=request.user)),
-                "data": CadevilDocument.objects.filter(user=request.user),
+                "data": CadevilDocument.objects.all(),
                 "form": document_form,
                 "group_form": group_form,
             },

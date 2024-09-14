@@ -2,10 +2,14 @@
 #
 
 run:
-	# gunicorn cadevil.asgi:application -k uvicorn.workers.UvicornWorker 127.0.0.1:8000
-	# uvicorn --reload --workers 3 cadevil.asgi:application --lifespan off --host 127.0.0.1 --port 8000
-	#python manage.py runserver_plus --threaded 127.0.0.1:8000
-	 python manage.py runserver 0.0.0.0:8000
+	uvicorn --workers 4 cadevil.asgi:application --lifespan off --host 127.0.0.1 --port 8000
+
+debug:
+	python manage.py runserver 0.0.0.0:8000
+
+testrun:
+	gunicorn cadevil.asgi:application -k uvicorn.workers.UvicornWorker --reload --preload --threads 8 --reuse-port -b 127.0.0.1:8000
+# python manage.py runserver_plus --threaded 127.0.0.1:8000
 
 migrate:
 	python manage.py makemigrations

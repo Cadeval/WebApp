@@ -9,13 +9,16 @@
 
 {% block content %}
 
-    <h1>Building Comparison</h1>
+  {% for group in user.groups.all %}
+              {# TODO Check if this is the proper placement for the group check, as in if this query takes more resources than necessary #}
+              {# Maybe we should put this in the doc.filter params? idk future me will love this <3 #}
+    <h1>Building Comparison of items in {{ group }}</h1>
     <table>
         <tr>
             <th>Property</th>
             <th>Average</th>
             {% for item in data %}
-                {% if item.is_active %}
+                {% if item.is_active and item.group == group %}
                     <th>{{ item.description }}</th>
                 {% endif %}
             {% endfor %}
@@ -25,11 +28,12 @@
                 <td>{{ key }}</td>
                 <td>{{ key|max_value:data |floatformat:-2 }}</td>
                 {% for item in data %}
-                    {% if item.is_active %}
+                    {% if item.is_active and item.group == group %}
                         <td>{{ item.properties|get_item:key |floatformat:-2 }}</td>
                     {% endif %}
                 {% endfor %}
             </tr>
         {% endfor %}
     </table>
+    {% endfor %}
 {% endblock %}

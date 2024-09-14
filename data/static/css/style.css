@@ -167,6 +167,22 @@ main {
     align-items: center;
 }
 
+.collapsible-details{
+   overflow: hidden; /* Hide the rest of the content */
+   transition: max-height 400ms ease-out; /* Animate the change */
+
+}
+@keyframes collapsible-animation {
+    0% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0.5em);
+    }
+}
+
 .flexgrid-container {
     display: flex;
     flex-wrap: wrap;
@@ -242,6 +258,7 @@ main {
 .popover-small, .popover-big {
     position: fixed;
     z-index: 2;
+    top: calc(var(--header-height) + 0.25em);
     border-radius: var(--border-radius);
     padding: var(--padding-small);
     color: var(--primary-color);
@@ -269,14 +286,14 @@ main {
 
 .popover-small {
     width: 12em;
-    top: calc(var(--header-height) + 0.5em);
-    left: 1em;
+    top: calc(var(--header-height) + 0.25em);
+    left: 0.5em;
 }
 
 .popover-big {
-    width: clamp(20em, 60%, 40em);
+    width: clamp(20em, 60%, 80em);
     height: 70%;
-    top: calc(var(--header-height) + 0.5em);
+    top: calc(var(--header-height) + 0.25em);
     left: 25%;
     transform: translateX(-50%);
 }

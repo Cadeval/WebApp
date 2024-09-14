@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,13 +40,12 @@ SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "157.90.94.126", "192.168.2.108", "127.0.0.1", "10.0.0.74"]
-
+ALLOWED_HOSTS = ["localhost", "cadevil.org", "cadevil.at"]
+INTERNAL_IPS = ["localhost"]
+CSRF_TRUSTED_ORIGINS = ["https://cadevil.org", "https://cadevil.at"]
 # Application definition
 
 INSTALLED_APPS = [
-    "channels",
-    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,22 +102,34 @@ WSGI_APPLICATION = "cadevil.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "data/db-instance.sqlite3",
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.sqlite3",
+#        "NAME": BASE_DIR / "data/db-instance.sqlite3",
+#    }
+#}
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'testdb',
+            'USER': 'doadmin',
+            'PASSWORD': '',
+            'HOST': 'dbaas-db-8277326-do-user-17713365-0.h.db.ondigitalocean.com',
+            'PORT': '25060',
+        }
     }
-}
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'cadevil',
-#         'USER': 'cadevil',
-#         'PASSWORD': 'cadevil',
-#         'HOST': '127.0.0.1',
-#         'PORT': '5432',
-#     }
-# }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'defaultdb',
+            'USER': 'doadmin',
+            'PASSWORD': '',
+            'HOST': 'private-dbaas-db-8277326-do-user-17713365-0.h.db.ondigitalocean.com',
+            'PORT': '25060',
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 

@@ -11,13 +11,12 @@
     <meta name="theme-color" content="#ffffff">
 
     {# Language information #}
-    <link rel="alternate" hreflang="de" href="" />
+    <link rel="alternate" hreflang="de" href="/de" />
     <link rel="alternate" hreflang="en" href="/en" />
 
     {# Reusable resources #}
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
 
     {# TODO Fix favicon not loading on safari #}
     <!-- SVG Favicon for modern browsers -->
@@ -76,12 +75,13 @@
                 {{ user.username }}
             </button>
           </a>
-
+            {% if user.username == "admin" %}
           <a href="/admin">
             <button class='button-wide fa fa-shield'>
                 Admin
             </button>
           </a>
+            {% endif %}
 
           <a href="/model_manager">
             <button class='button-wide fa fa-list'>
@@ -110,6 +110,10 @@
     </div>
 
         <main>
+
+            <!-- This is where the Debug Toolbar will be injected -->
+{#            {% if debug %}#}
+{#            {% endif %}#}
             <!-- Main Container -->
             {% block content %}{% endblock %}
 

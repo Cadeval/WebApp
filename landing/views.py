@@ -8,7 +8,6 @@
 # Create your views here.
 from django.shortcuts import redirect, render
 
-
 # from django.template import loader
 # from django.template.response import TemplateResponse
 # from django.urls import reverse

@@ -2,7 +2,7 @@ import openstudio
 
 # Set the path to your IFC file and weather file
 ifc_file_path = "path_to_your_file.ifc"
-weather_file_path = "path_to_your_weather_file.epw"
+weather_file_path = "../../data/schema/AUT_Vienna.Schwechat.110360_IWEC.epw"
 
 # Create a new OpenStudio model
 model = openstudio.model.Model()

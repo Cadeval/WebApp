@@ -1,14 +1,16 @@
-from openstudio import energyplus
+import os
 
+import openstudio
+# from openstudio import energyplus
 # from energyplus import ForwardTranslator
 # from openstudio.example import ExampleModel
 # from openstudio.osversion import VersionTranslator
-from openstudio.openstudioutilitiescore import StringVector
+# from openstudio.openstudioutilitiescore import StringVector
 
 
-def calculate_energy_metrics(ifc_model):
-    # Create a new OpenStudio model
-    model = openstudio.model.Model()
+def calculate_energy_metrics():
+    # Create a new OpenStudio model.
+    # model = openstudio.model.Model()
 
     # Import the IFC file
     # ifc_to_osm = openstudio.model.ModelTranslator()
