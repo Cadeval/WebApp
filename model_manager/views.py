@@ -4,6 +4,7 @@
 # FIXME add argument parser
 # import argparse
 import os
+from pprint import pprint
 
 from django.forms import ChoiceField
 # from django.http import HttpResponse
@@ -11,7 +12,10 @@ from django.forms import ChoiceField
 from django.shortcuts import redirect, render
 
 from library.forms import DocumentForm, UploadForm, GroupForm
-from library.ifc_extractor import IfcExtractor
+try:
+    from library.ifc_extractor import IfcExtractor
+except ImportError as e:
+    pprint(e)
 from library.models import CadevilDocument, FileUpload  # , CadevilGroup
 
 
