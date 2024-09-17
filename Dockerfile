@@ -1,6 +1,7 @@
-FROM --platform=linux/amd64 python
+FROM --platform=linux/amd64 pypy
+RUN apt update && apt install -yq libzstd-dev cargo build-essential
 WORKDIR /srv
 COPY ./ /srv/cadevil/
 WORKDIR /srv/cadevil
 RUN pip install -r requirements.txt && python manage.py collectstatic
-ENTRYPOINT python manage.py runserver 0.0.0.0:8000
+ENTRYPOINT make debug

@@ -71,10 +71,10 @@ class IfcExtractor(object):
 
         # Set the path to your IFC file and weather file TODO dynamically override this based on the user config
         self.weather_file_path = "data/schema/AUT_Vienna.Schwechat.110360_IWEC.epw"
-        self.ifc_file_path = ifc_file_path
 
         # Open the IFC model from the given file path
-        self.ifc_model = ifcopenshell.open(self.ifc_file_path)
+        self.ifc_model = ifcopenshell.open(ifc_file_path)
+        pprint(self.ifc_model.schema)
 
         # Retrieve the application information from the IFC model
         self.application = self.ifc_model.by_type("IfcApplication")
@@ -173,8 +173,8 @@ class IfcExtractor(object):
         self.roof = []
         self.facade = []
 
-        # Probably metric or imperial
-        self.units = self.get_ifc_units()
+        # Probably metric or imperial TODO do we need this?
+        # self.units = self.get_ifc_units()
         # pprint(self.units)
 
     # Retrieve the units used in the IFC file

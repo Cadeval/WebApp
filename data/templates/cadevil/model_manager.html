@@ -40,7 +40,7 @@
                               <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>
                           {% endif %}
                         {% if item.user == user %}
-                          <button type="submit" class="button fa fa-trash" value={{ item.id }} name="delete"></button>
+                          <button type="submit" class="button fa fa-trash" value={{ item.id }} name="delete_model"></button>
                         {% endif %}
                         </form>
                   </div>
@@ -81,7 +81,7 @@
                                 {{ item.description }}
 
                                 <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate</button>
-                                <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete"> Delete</button>
+                                <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete</button>
                             </h5><hr>
                         </form>
                     </li>

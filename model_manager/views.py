@@ -65,7 +65,6 @@ def model_manager(request):
     elif request.GET.get("set_group"):
         _id = str(request.GET.get("set_group"))
         _group_choice_id = int(request.GET.get("group_field"))
-        # if group_form.is_valid():
         group = group_form.fields["group_field"].choices[_group_choice_id]
         CadevilDocument.objects.filter(id=_id).update(group=group[1])
         return redirect("/model_manager")
@@ -78,7 +77,7 @@ def model_manager(request):
             print(group_form.cleaned_data)
         return redirect("/model_manager")
 
-    elif request.GET.get("delete"):
+    elif request.GET.get("delete_file"):
         _id = str(request.GET.get("delete"))
 
         # # FIXME finish file cleanup routine
@@ -91,12 +90,17 @@ def model_manager(request):
             print(f"{_object} not found")
         return redirect("/model_manager")
 
+    elif request.GET.get("delete_model"):
+        _id = str(request.GET.get("delete"))
+        CadevilDocument.objects.filter(id=_id).delete()
+
+        return redirect("/model_manager")
+
     elif request.GET.get("calculate"):
         _id = str(request.GET.get("calculate"))
         _file = FileUpload.objects.filter(id=_id).get()
         _document = IfcExtractor(_file.document.path)
         _document.process_products()
-        # _document.extract_areas()
         # properties["document_preview"] = _document.render_object()
         doc = CadevilDocument()
         doc.user = request.user
