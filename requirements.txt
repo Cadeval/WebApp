@@ -6,8 +6,8 @@ django-debug-toolbar
 django-extensions
 django-stubs
 gunicorn
-#git+https://github.com/IfcOpenShell/IfcOpenShell
-ifcopenshell
+git+https://github.com/IfcOpenShell/IfcOpenShell
+#ifcopenshell
 Jinja2
 jupyter
 lark
@@ -21,6 +21,5 @@ shapely
 sphinx
 uvicorn
 werkzeug
-zstandard
 mathutils
-bpy
+#bpy
