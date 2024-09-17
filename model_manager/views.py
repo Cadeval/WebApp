@@ -78,7 +78,7 @@ def model_manager(request):
         return redirect("/model_manager")
 
     elif request.GET.get("delete_file"):
-        _id = str(request.GET.get("delete"))
+        _id = str(request.GET.get("delete_file"))
 
         # # FIXME finish file cleanup routine
         _object = f"data/media/{FileUpload.objects.filter(id=_id).values_list('document', flat=True).get()}"
@@ -91,7 +91,7 @@ def model_manager(request):
         return redirect("/model_manager")
 
     elif request.GET.get("delete_model"):
-        _id = str(request.GET.get("delete"))
+        _id = str(request.GET.get("delete_model"))
         CadevilDocument.objects.filter(id=_id).delete()
 
         return redirect("/model_manager")
