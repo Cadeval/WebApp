@@ -22,3 +22,5 @@ sphinx
 uvicorn
 werkzeug
 zstandard
+mathutils
+bpy
