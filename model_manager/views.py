@@ -86,12 +86,12 @@ def model_manager(request):
 
         # # FIXME finish file cleanup routine
         _object = f"data/media/{FileUpload.objects.filter(id=_id).values_list('document', flat=True).get()}"
-        print(_object)
         if os.path.exists(_object):
             os.remove(_object)
-            FileUpload.objects.filter(id=_id).delete()
-        else:
             print(f"{_object} not found")
+        else:
+            print(_object)
+        FileUpload.objects.filter(id=_id).delete()
         return redirect("/model_manager")
 
     elif request.GET.get("delete_model"):

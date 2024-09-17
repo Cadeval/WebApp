@@ -21,7 +21,7 @@ sphinx
 uvicorn
 werkzeug
 mathutils
-bpy
+#bpy
 bcf-client
 bsdd
 ifc4d
