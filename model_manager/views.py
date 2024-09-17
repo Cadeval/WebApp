@@ -82,12 +82,13 @@ def model_manager(request):
         _id = str(request.GET.get("delete"))
 
         # # FIXME finish file cleanup routine
-        # _object = f"media/{CadevilDocument.objects.filter(id=_id).values_list('document', flat=True).get()}"
-        #
-        # if os.path.exists(_object):
-        #     os.remove(_object)
-
-        CadevilDocument.objects.filter(id=_id).delete()
+        _object = f"data/media/{FileUpload.objects.filter(id=_id).values_list('document', flat=True).get()}"
+        print(_object)
+        if os.path.exists(_object):
+            os.remove(_object)
+            FileUpload.objects.filter(id=_id).delete()
+        else:
+            print(f"{_object} not found")
         return redirect("/model_manager")
 
     elif request.GET.get("calculate"):

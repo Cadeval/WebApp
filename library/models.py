@@ -51,13 +51,11 @@ class CadevilUser(AbstractUser):
     )
 
     is_staff = models.BooleanField(
-        _("view hidden"),
-        default=False,
-        help_text=_("Designates whether this user can view hidden content."),
+        _("is staff"), default=False, help_text=_("Designates whether the user can log into this admin site.")
     )
 
     is_superuser = models.BooleanField(
-        _("view hidden"),
+        _("is superuser"),
         default=False,
         help_text=_("Designates whether this user can view hidden content."),
     )
