@@ -6,7 +6,6 @@ django-debug-toolbar
 django-extensions
 django-stubs
 gunicorn
-#git+https://github.com/IfcOpenShell/IfcOpenShell
 ifcopenshell
 Jinja2
 jupyter
@@ -22,4 +21,13 @@ sphinx
 uvicorn
 werkzeug
 mathutils
-#bpy
+bpy
+bcf-client
+bsdd
+ifc4d
+ifc5d
+ifccityjson
+ifcclash
+ifccsv
+ifcdiff
+ifcfm
