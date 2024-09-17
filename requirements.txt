@@ -6,7 +6,7 @@ django-debug-toolbar
 django-extensions
 django-stubs
 gunicorn
-ifcopenshell
+git+https://github.com/IfcOpenShell/IfcOpenShell
 Jinja2
 jupyter
 lark
@@ -14,7 +14,7 @@ lxml
 MarkupSafe
 matplotlib
 numpy
-psycopg
+psycopg[binary,pool]
 requests
 shapely
 sphinx
