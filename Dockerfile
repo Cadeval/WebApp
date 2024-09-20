@@ -8,7 +8,10 @@ RUN apt update &&\
     useradd -m cadevil
 WORKDIR /home/cadevil
 ADD requirements.txt requirements.txt
+ADD templates templates
 ADD src src
+ADD schema schema
+ADD static static
 ADD Makefile Makefile
 RUN mkdir collected_static && chown -R cadevil:cadevil /home/cadevil
 USER cadevil
