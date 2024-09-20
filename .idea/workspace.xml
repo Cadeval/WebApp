@@ -4,26 +4,93 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9b1e330-e644-4ea0-81d9-acdabf91c434" name="Changes" comment="Remove unnecessary filter for documents to allow group based sharing.">
-      <change afterPath="$PROJECT_DIR$/check_debug_toolbar.py" afterDir="false" />
+    <list default="true" id="c9b1e330-e644-4ea0-81d9-acdabf91c434" name="Changes" comment="Delete file metadata even if file does not exist.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cadevil/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cadevil/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/css/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/data/static/css/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/css/style.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_comparison.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/cadevil/model_comparison.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_manager.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/templates/cadevil/model_manager.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/landing/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/landing/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/landing/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/landing/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/ifc_extractor/energy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/energy_modeling.py" beforeDir="false" afterPath="$PROJECT_DIR$/library/ifc_extractor/energy_modeling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model_manager/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_manager/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/asgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/consumers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/routing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cadevil/wsgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/check_debug_toolbar.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/schema/AUT_Vienna.Schwechat.110360_IWEC.epw" beforeDir="false" afterPath="$PROJECT_DIR$/schema/AUT_Vienna.Schwechat.110360_IWEC.epw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/schema/ifcXML4.xsd" beforeDir="false" afterPath="$PROJECT_DIR$/schema/ifcXML4.xsd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/schema/prices.csv" beforeDir="false" afterPath="$PROJECT_DIR$/schema/prices.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/css/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/Carousel_Placeholder.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/bkg_06.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/chart_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/chart_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/energy_rating.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/favicon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/house_1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/house_2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/menu-icon.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/static/images/profile.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_comparison.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/model_manager.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/object_view.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/cadevil/room.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/registration/base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/registration/login.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/templates/registration/user.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/landing/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/forms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/data_models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/energy.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/energy_modeling.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/ifc_extractor/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/mixins.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/templatetags/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/templatetags/get_item.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/templatetags/max_value.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/library/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_editor/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/model_manager/views.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="DatabaseLocalColorSettings">
+    <colors>
+      <entry key="67134cf1-f818-4534-8e21-66404cd3a1d0" value="Blue" />
+    </colors>
   </component>
   <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
     <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
@@ -38,86 +105,121 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitLabMergeRequestFiltersHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPENED&quot;,
+    &quot;assignee&quot;: {
+      &quot;type&quot;: &quot;org.jetbrains.plugins.gitlab.mergerequest.ui.filters.GitLabMergeRequestsFiltersValue.MergeRequestsMemberFilterValue.MergeRequestsAssigneeFilterValue&quot;,
+      &quot;username&quot;: &quot;Adminisnyator&quot;,
+      &quot;fullname&quot;: &quot;Mia Hallas&quot;
+    }
+  }
+}</component>
+  <component name="GitLabMergeRequestsSettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;first&quot;: &quot;git@gitlab.com:cadevil/cadevil.git&quot;,
+    &quot;second&quot;: &quot;545b6b32-ca38-4c90-8f09-f6a179a145d9&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="Make.Settings">
+    <option name="path" value="/opt/homebrew/Cellar/make/4.4.1/bin/gmake" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+  </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 4
+  &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="2kwy8ARYNm3WziPfM3PxS0mprA2" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Django Server.cadevil.executor&quot;: &quot;Run&quot;,
-    &quot;Makefile Target.run.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;django.template.preview.state&quot;: &quot;SHOW_EDITOR&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/mia/Desktop/projects/ImageGenerator&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Django Server.Django.executor": "ConcurrencyExecutor",
+    "Django Server.cadevil.executor": "Run",
+    "Docker.Docker Image.executor": "Run",
+    "Docker.Dockerfile (1).executor": "Run",
+    "Docker.Dockerfile (2).executor": "Run",
+    "Docker.Dockerfile base.executor": "Run",
+    "Docker.Dockerfile.executor": "Run",
+    "Makefile Target.Makefile.executor": "Run",
+    "Makefile Target.debug.executor": "Run",
+    "Makefile Target.migrate.executor": "Run",
+    "Makefile Target.run.executor": "Run",
+    "Makefile Target.testrun.executor": "Run",
+    "Python.manage.executor": "ConcurrencyExecutor",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "django.template.preview.state": "SHOW_EDITOR",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/mia/Desktop/projects/cadevil-webapp",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.intellij.python.django.customization.DjangoModulesConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ],
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "Python"
+    ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/library" />
+      <recent name="$PROJECT_DIR$/data/static/js" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/data" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/src" />
+      <recent name="$PROJECT_DIR$/schema" />
+      <recent name="$PROJECT_DIR$/cadevil" />
     </key>
   </component>
-  <component name="RunManager" selected="Django Server.cadevil">
-    <configuration name="run" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="run" workingDirectory="" arguments="">
+  <component name="RunManager">
+    <configuration name="debug" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="debug" workingDirectory="" arguments="">
         <envs />
       </makefile>
       <method v="2" />
     </configuration>
-    <configuration name="cadevil" type="Python.DjangoServer" factoryName="Django server">
-      <module name="cadevil" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-        <env name="DJANGO_SETTINGS_MODULE" value="cadevil.settings" />
-        <env name="DEBUG" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="SDK_NAME" value="cadevil" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <option name="port" value="8000" />
-      <option name="host" value="0.0.0.0" />
-      <option name="additionalOptions" value="" />
-      <option name="browserUrl" value="" />
-      <option name="runTestServer" value="false" />
-      <option name="runNoReload" value="false" />
-      <option name="useCustomRunCommand" value="false" />
-      <option name="customRunCommand" value="" />
+    <configuration default="true" type="docker-deploy" factoryName="docker-image" temporary="true">
+      <deployment type="docker-image">
+        <settings />
+      </deployment>
       <method v="2" />
     </configuration>
-    <list>
-      <item itemvalue="Django Server.cadevil" />
-      <item itemvalue="Makefile Target.run" />
-    </list>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Makefile Target.run" />
+        <item itemvalue="Makefile Target.debug" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-PY-242.21829.153" />
-        <option value="bundled-python-sdk-464836ebc622-b74155a9e76b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.21829.153" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.22855.92" />
+        <option value="bundled-python-sdk-b068d85d1acf-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.22855.92" />
       </set>
     </attachedChunks>
   </component>
@@ -157,6 +259,29 @@
       <workItem from="1725564770918" duration="417000" />
       <workItem from="1725567292637" duration="7082000" />
       <workItem from="1725588243955" duration="508000" />
+      <workItem from="1726276268806" duration="1804000" />
+      <workItem from="1726315467987" duration="3304000" />
+      <workItem from="1726321981675" duration="186000" />
+      <workItem from="1726322314803" duration="2131000" />
+      <workItem from="1726325645229" duration="43000" />
+      <workItem from="1726325747630" duration="113000" />
+      <workItem from="1726325995253" duration="168000" />
+      <workItem from="1726326686335" duration="27779000" />
+      <workItem from="1726581395744" duration="1064000" />
+      <workItem from="1726583597038" duration="3199000" />
+      <workItem from="1726600661040" duration="3075000" />
+      <workItem from="1726604464771" duration="12145000" />
+      <workItem from="1726647497699" duration="32000" />
+      <workItem from="1726647557455" duration="500000" />
+      <workItem from="1726668503442" duration="83000" />
+      <workItem from="1726668616404" duration="12000" />
+      <workItem from="1726668685389" duration="1041000" />
+      <workItem from="1726836661843" duration="1768000" />
+      <workItem from="1726841668846" duration="2321000" />
+      <workItem from="1726844387136" duration="7847000" />
+      <workItem from="1726867110660" duration="432000" />
+      <workItem from="1726867554046" duration="27000" />
+      <workItem from="1726867626173" duration="4365000" />
     </task>
     <task id="LOCAL-00001" summary="Implement group ownership of documents.">
       <option name="closed" value="true" />
@@ -166,15 +291,343 @@
       <option name="project" value="LOCAL" />
       <updated>1724265853037</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Add more run options and add improvements">
+      <option name="closed" value="true" />
+      <created>1726276301035</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1726276301035</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add Dockerfile as well as .dockerignore&#10;adapt Makefile run order to be more useful">
+      <option name="closed" value="true" />
+      <created>1726326773003</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1726326773003</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Attempt to make the Dockerfile deploy on droplet infrastructure.">
+      <option name="closed" value="true" />
+      <created>1726328630138</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1726328630138</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Remove Entrypoint">
+      <option name="closed" value="true" />
+      <created>1726328917660</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1726328917660</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Attempt at reworking the workdir">
+      <option name="closed" value="true" />
+      <created>1726329581050</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1726329581050</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Fix build on prod">
+      <option name="closed" value="true" />
+      <created>1726333555355</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1726333555355</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fix build on prod">
+      <option name="closed" value="true" />
+      <created>1726338063205</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1726338063205</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Fix networking">
+      <option name="closed" value="true" />
+      <created>1726339239659</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1726339239659</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Use external route.">
+      <option name="closed" value="true" />
+      <created>1726339529886</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1726339529886</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Try to allow all hosts">
+      <option name="closed" value="true" />
+      <created>1726340018630</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1726340018630</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Attempt at fixing static dir">
+      <option name="closed" value="true" />
+      <created>1726343979019</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1726343979019</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Enable DEBUG">
+      <option name="closed" value="true" />
+      <created>1726344345790</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1726344345790</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Also move staticfiles collection into the same dir">
+      <option name="closed" value="true" />
+      <created>1726345026846</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1726345026846</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Improve models.py user properties&#10;Fix deletion of file uploads not working&#10;Use local sqlite for now">
+      <option name="closed" value="true" />
+      <created>1726581836618</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1726581836618</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Attempt 1 at fixing db access to postgres">
+      <option name="closed" value="true" />
+      <created>1726584086798</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1726584086798</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Use env vars for db managment">
+      <option name="closed" value="true" />
+      <created>1726584585279</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1726584585279</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Use different methods for deleting files vs models&#10;Use pypy to hopefully improve the speed a bit">
+      <option name="closed" value="true" />
+      <created>1726606201896</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1726606201896</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Switch to pypy some more">
+      <option name="closed" value="true" />
+      <created>1726606988874</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1726606988874</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Add libgeos-dev to deps">
+      <option name="closed" value="true" />
+      <created>1726607230486</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1726607230486</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Add libgeos-dev to deps">
+      <option name="closed" value="true" />
+      <created>1726607504892</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1726607504892</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Try to use dev version of python :3">
+      <option name="closed" value="true" />
+      <created>1726608392588</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1726608392588</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Remove references to pypy">
+      <option name="closed" value="true" />
+      <created>1726608470890</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1726608470890</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Switch to stable python smh">
+      <option name="closed" value="true" />
+      <created>1726608671682</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1726608671682</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Clean up database config">
+      <option name="closed" value="true" />
+      <created>1726608937126</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1726608937126</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Attempt to use newer ifcopenshell and python">
+      <option name="closed" value="true" />
+      <created>1726609520305</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1726609520305</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Try to fix psycopg config in settings.py">
+      <option name="closed" value="true" />
+      <created>1726609691371</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1726609691371</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Revert ifcopenshell and python version change">
+      <option name="closed" value="true" />
+      <created>1726610054245</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1726610054245</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Yoink font-family from digitalocean.com error page css&#10;hehehe&#10;Also fix deletion not working because of incorrect argument parsing&#10;Tried to get the id arg from delete instead of delete_model or delete_file smh my head">
+      <option name="closed" value="true" />
+      <created>1726610537360</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1726610537360</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Add mathutils and bpy to requirements.txt">
+      <option name="closed" value="true" />
+      <created>1726611071496</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1726611071496</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Attempt to fix again :3">
+      <option name="closed" value="true" />
+      <created>1726612301052</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1726612301052</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Remove fatal error on import error">
+      <option name="closed" value="true" />
+      <created>1726612798929</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1726612798929</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Switch back from pypy">
+      <option name="closed" value="true" />
+      <created>1726614273508</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1726614273508</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Switch back from pypy">
+      <option name="closed" value="true" />
+      <created>1726614432721</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1726614432721</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Switch back from pypy">
+      <option name="closed" value="true" />
+      <created>1726614648211</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1726614648211</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Add dependencies">
+      <option name="closed" value="true" />
+      <created>1726615391174</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1726615391174</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Delete file metadata even if file does not exist.">
+      <option name="closed" value="true" />
+      <created>1726615670752</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1726615670752</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Implement group ownership of documents." />
-    <MESSAGE value="Remove unnecessary filter for documents to allow group based sharing." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove unnecessary filter for documents to allow group based sharing." />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/src/celery-progress" />
+    </ignored-roots>
+    <MESSAGE value="Use external route." />
+    <MESSAGE value="Try to allow all hosts" />
+    <MESSAGE value="Attempt at fixing static dir" />
+    <MESSAGE value="Enable DEBUG" />
+    <MESSAGE value="Also move staticfiles collection into the same dir" />
+    <MESSAGE value="Improve models.py user properties&#10;Fix deletion of file uploads not working&#10;Use local sqlite for now" />
+    <MESSAGE value="Attempt 1 at fixing db access to postgres" />
+    <MESSAGE value="Use env vars for db managment" />
+    <MESSAGE value="Use different methods for deleting files vs models&#10;Use pypy to hopefully improve the speed a bit" />
+    <MESSAGE value="Switch to pypy some more" />
+    <MESSAGE value="Add libgeos-dev to deps" />
+    <MESSAGE value="Try to use dev version of python :3" />
+    <MESSAGE value="Remove references to pypy" />
+    <MESSAGE value="Switch to stable python smh" />
+    <MESSAGE value="Clean up database config" />
+    <MESSAGE value="Attempt to use newer ifcopenshell and python" />
+    <MESSAGE value="Try to fix psycopg config in settings.py" />
+    <MESSAGE value="Revert ifcopenshell and python version change" />
+    <MESSAGE value="Yoink font-family from digitalocean.com error page css&#10;hehehe&#10;Also fix deletion not working because of incorrect argument parsing&#10;Tried to get the id arg from delete instead of delete_model or delete_file smh my head" />
+    <MESSAGE value="Add mathutils and bpy to requirements.txt" />
+    <MESSAGE value="Attempt to fix again :3" />
+    <MESSAGE value="Remove fatal error on import error" />
+    <MESSAGE value="Switch back from pypy" />
+    <MESSAGE value="Add dependencies" />
+    <MESSAGE value="Delete file metadata even if file does not exist." />
+    <option name="LAST_COMMIT_MESSAGE" value="Delete file metadata even if file does not exist." />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/cadevil_webapp$manage.coverage" NAME="manage Coverage Results" MODIFIED="1726870993514" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
