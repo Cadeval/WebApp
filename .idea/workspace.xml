@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d41cc6a6-3595-4d5c-8659-df7c1eddf125" name="Changes" comment="Add more files from the refactor">
+    <list default="true" id="d41cc6a6-3595-4d5c-8659-df7c1eddf125" name="Changes" comment="Fix docker build">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/webapp/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/webapp/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +42,10 @@
     "second": "545b6b32-ca38-4c90-8f09-f6a179a145d9"
   }
 }]]></component>
+  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
   "customColor": "",
   "associatedIndex": 0
@@ -52,6 +58,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Django Server.cadevil-webapp.executor": "Run",
+    "Docker.Dockerfile.executor": "Run",
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
@@ -64,7 +71,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Docker.Dockerfile">
     <configuration name="cadevil-webapp" type="Python.DjangoServer" factoryName="Django server">
       <module name="cadevil-webapp" />
       <option name="ENV_FILES" value="" />
@@ -92,6 +99,27 @@
       <option name="customRunCommand" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="default">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Django Server.cadevil-webapp" />
+      <item itemvalue="Docker.Dockerfile" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.Dockerfile" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -109,7 +137,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1726872088455</updated>
-      <workItem from="1726872089687" duration="644000" />
+      <workItem from="1726872089687" duration="4095000" />
     </task>
     <task id="LOCAL-00001" summary="Add more files from the refactor">
       <option name="closed" value="true" />
@@ -135,7 +163,63 @@
       <option name="project" value="LOCAL" />
       <updated>1726872668294</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fix ADD command in Dockerfile">
+      <option name="closed" value="true" />
+      <created>1726872737554</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1726872737554</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add Makefile to Dockerfile">
+      <option name="closed" value="true" />
+      <created>1726873474008</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1726873474008</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Fix docker build">
+      <option name="closed" value="true" />
+      <created>1726874299326</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1726874299326</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Fix docker build">
+      <option name="closed" value="true" />
+      <created>1726875047034</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1726875047034</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Fix docker build">
+      <option name="closed" value="true" />
+      <created>1726875349412</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1726875349412</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Fix docker build">
+      <option name="closed" value="true" />
+      <created>1726875507412</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1726875507412</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Fix docker build">
+      <option name="closed" value="true" />
+      <created>1726875876935</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1726875876935</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -143,6 +227,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add more files from the refactor" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add more files from the refactor" />
+    <MESSAGE value="Fix ADD command in Dockerfile" />
+    <MESSAGE value="Add Makefile to Dockerfile" />
+    <MESSAGE value="Fix docker build" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix docker build" />
   </component>
 </project>

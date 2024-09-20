@@ -1,12 +1,13 @@
 beautifulsoup4
 celery
+daphne
 channels
 django
 django-debug-toolbar
 django-extensions
 django-stubs
+django-celery-results
 gunicorn
-ifcopenshell
 Jinja2
 jupyter
 lark
@@ -22,6 +23,8 @@ uvicorn
 werkzeug
 mathutils
 #bpy
+celery
+ifcopenshell
 bcf-client
 bsdd
 ifc4d
@@ -31,4 +34,3 @@ ifcclash
 ifccsv
 ifcdiff
 ifcfm
-celery

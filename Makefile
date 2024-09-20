@@ -30,3 +30,7 @@ flush:
 superuser:
 	cd src
 	python manage.py createsuperuser
+
+collectstatic:
+	cd src
+	python manage.py collectstatic
