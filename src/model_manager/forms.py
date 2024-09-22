@@ -1,13 +1,15 @@
+from asgiref.sync import sync_to_async
 from django.forms import Form, ModelForm, ChoiceField
-from .models import CadevilDocument, FileUpload
+from model_manager.models import CadevilDocument, FileUpload
 
 class GroupForm(Form):
     group_field = ChoiceField()
+
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
+        self.user_groups = kwargs.pop('user_groups', [])
         super().__init__(*args, **kwargs)
-        self.fields['group_field'].choices = ((i, _) for i, _ in enumerate(self.request.user.groups.all()))
-        self.fields['group_field'].initial=self.request.user.groups.first()
+        self.fields['group_field'].choices = [(i, group) for i, group in enumerate(self.user_groups)]
+        self.fields['group_field'].initial = self.user_groups[0] if self.user_groups else None
 
 class DocumentForm(ModelForm):
     class Meta:
@@ -20,21 +22,17 @@ class DocumentForm(ModelForm):
         self.user_id = kwargs.pop("user_id", None)
         super().__init__(*args, **kwargs)
 
-    def save(self, commit=True):
+    async def asave(self, commit=True):
         instance = super().save(commit=False)
         instance.user = self.user
         if commit:
-            instance.user = self.user
-            instance.save()
+            await sync_to_async(instance.save)()
         return instance
 
 class UploadForm(ModelForm):
     class Meta:
         model = FileUpload
-        fields = (
-            "description",
-            "document",
-        )
+        fields = ("description", "document",)
         db_table = "archicad_eval_uploads"
 
     def __init__(self, *args, **kwargs):
@@ -42,11 +40,10 @@ class UploadForm(ModelForm):
         self.user_id = kwargs.pop("user_id", None)
         super().__init__(*args, **kwargs)
 
-    def save(self, commit=True):
+    async def asave(self, commit=True):
         instance = super().save(commit=False)
         instance.user = self.user
+        instance.user_id = self.user_id
         if commit:
-            instance.user = self.user
-            instance.user_id = self.user_id
-            instance.save()
+            await sync_to_async(instance.save)()
         return instance

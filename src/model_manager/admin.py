@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
-from django.contrib.auth.models import Group as BaseGroup
-from .models import FileUpload, CadevilDocument, CadevilUser  # , CadevilGroup
+from model_manager.models import FileUpload, CadevilDocument, CadevilUser  # , CadevilGroup
 
 admin.site.register(CadevilDocument)
 admin.site.register(FileUpload)

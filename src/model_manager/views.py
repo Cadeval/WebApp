@@ -1,165 +1,186 @@
 # -*- coding: utf-8 -*-
-#
-
-# FIXME add argument parser
-# import argparse
 import os
-import asyncio
 from pprint import pprint
-from webapp import cadevil_taskqueue
+
 from asgiref.sync import sync_to_async
-from django.forms import ChoiceField
-# from django.http import HttpResponse
-# Create your views here.
-from django.shortcuts import redirect, render
+from django.core.handlers.asgi import ASGIRequest
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 
-from library.forms import DocumentForm, UploadForm, GroupForm
-try:
-    from library.ifc_extractor import IfcExtractor
-except ImportError as e:
-    pprint(e)
-from library.models import CadevilDocument, FileUpload  # , CadevilGroup
+from model_manager.forms import DocumentForm, UploadForm, GroupForm
+# try:
+from model_manager.ifc_extractor.data_models import IfcExtractor
+# except ImportError as e:
+#     pprint(e)
+from model_manager.models import CadevilDocument, FileUpload
+
+def index(request):
+    return TemplateResponse(
+        request,
+        "index.html",
+        {},
+    )
 
 
-# from django.template import loader
-# from django.template.response import TemplateResponse
-# from django.urls import reverse
-
-# example_properties = {
-#     "Area": "200",
-#     "EIKON": "3,40",
-#     "BGF": "1848,36",
-#     "NF": "12,82",
-#     "BF/BGF": "0,69",
-#     "Energy Rating": "C",
-#     "Walls": ["343.21.02", "m2", 130, 1111, 62073],
-#     "Ceiling": ["343.21.02", "m2", 130, 1111, 62073],
-#     "Floor Panels": ["343.21.02", "m2", 130, 1111, 62073],
-#     "Roof": ["343.21.02", "m2", 130, 1111, 62073],
-#     "Facade": ["343.21.02", "m2", 130, 1111, 62073],
-# }
-#
-def model_manager(request):
+def user(request):
     if not request.user.is_authenticated:
         return redirect(to="/accounts/login")
 
-    document_form = DocumentForm()
-    group_form = GroupForm(request=request)
+    return TemplateResponse(
+        request,
+        "registration/user.html",
+        {},
+    )
 
+async def model_manager(request: ASGIRequest):
+    # Wrap the access to request.user.is_authenticated
+    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
+    if not is_authenticated:
+        return redirect(to="/accounts/login")
+
+    document_form = DocumentForm()
+    group_form = GroupForm()
 
     if request.method == "POST":
         document_form = UploadForm(
             request.POST, request.FILES, user=request.user, user_id=request.user.id
         )
-        if document_form.is_valid():
-            file_upload = document_form.save(commit=False)
-            file_upload.user = (
-                request.user
-            )  # Set the user to the currently logged-in user
-            file_upload.save()
+        # Wrap form validation
+        is_valid = await sync_to_async(document_form.is_valid)()
+        if is_valid:
+            # Save the form asynchronously
+            file_upload = await sync_to_async(document_form.save)(commit=False)
+            file_upload.user = request.user
+            await sync_to_async(file_upload.save)()
             return redirect("/model_manager")
 
     elif request.GET.get("toggle_hidden"):
-        print(request.user)
-        # request.user.update(view_hidden=True)
-        # CadevilDocument.objects.filter(id=_id).update(properties=_document.properties)
-
+        # Handle toggle_hidden functionality
         return redirect("/model_manager")
 
     elif request.GET.get("set_group"):
         _id = str(request.GET.get("set_group"))
         _group_choice_id = int(request.GET.get("group_field"))
         group = group_form.fields["group_field"].choices[_group_choice_id]
-        CadevilDocument.objects.filter(id=_id).update(group=group[1])
+        # Wrap ORM update
+        await sync_to_async(
+            lambda: CadevilDocument.objects.filter(id=_id).update(group=group[1])
+        )()
         return redirect("/model_manager")
 
     elif request.GET.get("toggle"):
         _id = str(request.GET.get("toggle"))
-        _is_active = not CadevilDocument.objects.filter(id=_id).get().is_active
-        CadevilDocument.objects.filter(id=_id).update(is_active=_is_active)
-        if group_form.is_valid():
+        # Wrap ORM operations
+        document = await sync_to_async(lambda: CadevilDocument.objects.filter(id=_id).get())()
+        _is_active = not document.is_active
+        await sync_to_async(
+            lambda: CadevilDocument.objects.filter(id=_id).update(is_active=_is_active)
+        )()
+        # Validate group form if needed
+        is_valid = await sync_to_async(group_form.is_valid)()
+        if is_valid:
             print(group_form.cleaned_data)
         return redirect("/model_manager")
 
     elif request.GET.get("delete_file"):
-        _id = str(request.GET.get("delete_file"))
-
-        # # FIXME finish file cleanup routine
-        _object = f"data/media/{FileUpload.objects.filter(id=_id).values_list('document', flat=True).get()}"
-        if os.path.exists(_object):
-            os.remove(_object)
-            print(f"{_object} not found")
+        request_id = str(request.GET.get("delete_file"))
+        # Wrap file path retrieval
+        _object = await sync_to_async(
+            lambda: f"data/media/{FileUpload.objects.filter(id=request_id).values_list('document', flat=True).get()}"
+        )()
+        # Use asyncio to run file operations in a thread
+        if await sync_to_async(os.path.exists)(_object):
+            await sync_to_async(os.remove)(_object)
+            print(f"{_object} removed")
         else:
-            print(_object)
-        FileUpload.objects.filter(id=_id).delete()
+            print(f"{_object} not found")
+        # Wrap ORM delete
+        await sync_to_async(lambda: FileUpload.objects.filter(id=request_id).delete())()
         return redirect("/model_manager")
 
     elif request.GET.get("delete_model"):
-        _id = str(request.GET.get("delete_model"))
-        CadevilDocument.objects.filter(id=_id).delete()
-
+        request_id = str(request.GET.get("delete_model"))
+        # Wrap ORM delete
+        await sync_to_async(lambda: CadevilDocument.objects.filter(id=request_id).delete())()
         return redirect("/model_manager")
 
     elif request.GET.get("calculate"):
-        _id = str(request.GET.get("calculate"))
-        _file = FileUpload.objects.filter(id=_id).get()
-        _document = IfcExtractor(_file.document.path)
-        _document.process_products()
-        # properties["document_preview"] = _document.render_object()
+        request_id = str(request.GET.get("calculate"))
+        # Wrap ORM get
+        _file = await sync_to_async(lambda: FileUpload.objects.filter(id=request_id).get())()
+        # Process the IFC file asynchronously
+        cadevil_document = IfcExtractor(_file.document.path)
+        await cadevil_document.process_products()
+        # Save the results asynchronously
         doc = CadevilDocument()
         doc.user = request.user
-        doc.group = request.user.groups.all()[0]
+        user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+        doc.group = user_groups[0] if user_groups else None
         doc.description = _file
-        doc.properties = _document.properties
-        doc.materials = _document.material_dict
-        doc.save()
+        doc.properties = cadevil_document.properties
+        doc.materials = cadevil_document.material_dict
+        await sync_to_async(doc.save)()
         return redirect("/model_manager")
 
     else:
-        return render(
+        # Wrap ORM queries
+        files = await sync_to_async(lambda: list(FileUpload.objects.filter(user=request.user)))()
+        data = await sync_to_async(lambda: list(CadevilDocument.objects.all()))()
+        return TemplateResponse(
             request,
             "webapp/model_manager.html",
             context={
-                "files": list(FileUpload.objects.filter(user=request.user)),
-                "data": CadevilDocument.objects.all(),
+                "files": files,
+                "data": data,
                 "form": document_form,
                 "group_form": group_form,
             },
         )
 
 
-def object_view(request):
-    if not request.user.is_authenticated:
+async def object_view(request):
+    # Wrap the access to request.user.is_authenticated
+    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
+    if not is_authenticated:
         return redirect(to="/accounts/login")
+
     form = DocumentForm()
     if request.GET.get("object"):
         _id = request.GET.get("object")
-        _is_active = CadevilDocument.objects.filter(id=_id).get().is_active
+        # Wrap ORM get
+        doc = await sync_to_async(lambda: CadevilDocument.objects.filter(id=_id).get())()
+        _is_active = doc.is_active
         if not _is_active:
             return redirect("/model_manager")
     else:
         return redirect("/model_manager")
 
-    return render(
+    # Wrap ORM query
+    data = await sync_to_async(lambda: list(CadevilDocument.objects.filter(id=_id)))()
+    return TemplateResponse(
         request,
         "webapp/object_view.html",
         context={
-            "data": CadevilDocument.objects.filter(id=_id),
+            "data": data,
             "form": form,
         },
     )
 
 
-def model_comparison(request):
-    if not request.user.is_authenticated:
+async def model_comparison(request):
+    # Wrap the access to request.user.is_authenticated
+    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
+    if not is_authenticated:
         return redirect(to="/accounts/login")
-    documents = CadevilDocument.objects.filter(is_active=True)
+
+    # Wrap ORM query
+    documents = await sync_to_async(lambda: list(CadevilDocument.objects.filter(is_active=True)))()
 
     properties = {
         # ÖNORM B 1800 / ÖNORM EN 15221-6
-        "TSA": 0,  # Total something FIXME
-        "BF": 0,  # Total Area of the plot Brutto Fläche
-        "BGF": 0,  # BruttGo-Grundfläche (ÖNORM B 1800)
+        "TSA": 0,  # Total site area (FIXME)
+        "BF": 0,  # Total plot area (Brutto Fläche)
+        "BGF": 0,  # Brutto-Grundfläche (ÖNORM B 1800)
         "BGF/BF": 0,  # Ratio of BF to BGF
         "NGF": 0,  # Netto-Grundfläche (ÖNORM B 1800)
         "NF": 0,  # Nutzfläche (ÖNORM B 1800)
@@ -171,26 +192,9 @@ def model_comparison(request):
         "Facade Area": 0,
     }
 
-    # averages = dict()
-    # # Calculate averages for numeric properties
-    # for key in properties:
-    #     if key not in [
-    #         "Energy Rating",
-    #         "Units",
-    #         "Walls",
-    #         "Ceiling",
-    #         "Floor Panels",
-    #         "Roof",
-    #         "Facade",
-    #     ]:
-    #         avg = sum(properties[key]) / len(properties[key]) if properties[key] else 0
-    #         averages[key] = avg
-    #     else:
-    #         averages[key] = "N/A"
-
     context = {
         "data": documents,
         "properties": properties,
     }
 
-    return render(request, "webapp/model_comparison.html", context)
+    return TemplateResponse(request, "webapp/model_comparison.html", context)

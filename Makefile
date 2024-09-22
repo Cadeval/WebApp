@@ -19,7 +19,7 @@ testrun:
 migrate:
 	cd src/
 	python manage.py makemigrations
-	python manage.py makemigrations library
+	python manage.py makemigrations model_manager
 	python manage.py migrate django_celery_results
 	python manage.py migrate --run-syncdb
 

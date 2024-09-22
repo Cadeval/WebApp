@@ -23,7 +23,7 @@ uvicorn
 werkzeug
 mathutils
 #bpy
-celery
+celery[redis,auth,msgpack,gevent]
 ifcopenshell
 bcf-client
 bsdd

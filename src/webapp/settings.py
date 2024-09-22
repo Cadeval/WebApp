@@ -60,8 +60,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_extensions",
     "django_celery_results",
-    "landing",
-    "library",
     "model_manager",
 ]
 
@@ -105,26 +103,26 @@ CHANNEL_LAYERS = {
 ASGI_APPLICATION = "webapp.asgi.application"
 WSGI_APPLICATION = "webapp.wsgi.application"
 
-if "LOCAL" in os.environ:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "../data", "db-instance.sqlite3"),
-        }
+# if "LOCAL" in os.environ:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "../data", "db-instance.sqlite3"),
     }
-else:
-    # Database
-    # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get("DB_NAME"),
-            'USER': os.environ.get("DB_USER"),
-            'PASSWORD': os.environ.get("DB_PASSWORD"),
-            'HOST': os.environ.get("DB_HOST", "localhost"),
-            'PORT': '25060',
-        }
-    }
+}
+# else:
+#     # Database
+#     # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.postgresql',
+#             'NAME': os.environ.get("DB_NAME"),
+#             'USER': os.environ.get("DB_USER"),
+#             'PASSWORD': os.environ.get("DB_PASSWORD"),
+#             'HOST': os.environ.get("DB_HOST", "localhost"),
+#             'PORT': '25060',
+#         }
+#     }
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -147,8 +145,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # so far a work around, should probably use timeouts
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-AUTH_USER_MODEL = "library.CadevilUser"
-# AUTH_GROUP_MODEL = "library.CadevilGroup"
+AUTH_USER_MODEL = "model_manager.CadevilUser"
+AUTH_GROUP_MODEL = "webapp.CadevilGroup"
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
