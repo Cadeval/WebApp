@@ -16,4 +16,4 @@ ADD Makefile Makefile
 RUN mkdir collected_static && chown -R cadevil:cadevil /home/cadevil
 USER cadevil
 RUN python -m pip install --upgrade pip && python -m pip install -r requirements.txt && make collectstatic
-ENTRYPOINT make migrate && make debug
+ENTRYPOINT make debug
