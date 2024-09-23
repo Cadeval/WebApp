@@ -236,12 +236,12 @@ class IfcExtractor:
 
     async def process_product(self, product, i, product_quantity, progress_recorder):
         try:
-            pprint(f"{i}/{product_quantity} - properties of {product.id()}")
-            pprint(f"Calculating Norm 1800 for {product.id()}")
+            # pprint(f"{i}/{product_quantity} - properties of {product.id()}")
+            # pprint(f"Calculating Norm 1800 for {product.id()}")
             await self.calculate_norm1800(product=product)
-            pprint(f"Calculating Facade Area for {product.id()}")
+            # pprint(f"Calculating Facade Area for {product.id()}")
             await self.calculate_facade_area(product=product)
-            pprint(f"Calculating Material Cost for {product.id()}")
+            # pprint(f"Calculating Material Cost for {product.id()}")
             await self.calculate_material_cost(product=product)
         except Exception as e:
             pprint(f"Shape creation failed because {e}.")

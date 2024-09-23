@@ -103,7 +103,7 @@ CHANNEL_LAYERS = {
 ASGI_APPLICATION = "webapp.asgi.application"
 WSGI_APPLICATION = "webapp.wsgi.application"
 
-if "LOCAL" in os.environ:
+if os.environ.get("LOCAL"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -116,10 +116,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get("DB_NAME"),
-            'USER': os.environ.get("DB_USER"),
+            'NAME': os.environ.get("DB_NAME", "defaultdb"),
+            'USER': os.environ.get("DB_USER", "doadmin"),
             'PASSWORD': os.environ.get("DB_PASSWORD"),
-            'HOST': os.environ.get("DB_HOST", "localhost"),
+            'HOST': os.environ.get("DB_HOST", "cadevil-pg-do-user-17774226-0.k.db.ondigitalocean.com"),
             'PORT': '25060',
         }
     }
@@ -146,7 +146,7 @@ AUTH_PASSWORD_VALIDATORS = [
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 AUTH_USER_MODEL = "model_manager.CadevilUser"
-AUTH_GROUP_MODEL = "webapp.CadevilGroup"
+# AUTH_GROUP_MODEL = "webapp.CadevilGroup"
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'

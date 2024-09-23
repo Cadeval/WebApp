@@ -9,5 +9,6 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/user/", views.user, name="user"),
     path("model_manager/", views.model_manager, name="model_manager"),
+    path("model_comparison/", views.model_comparison, name="model_comparison"),
     path("object_view/", views.object_view, name="object_view"),
 ]  + debug_toolbar_urls()

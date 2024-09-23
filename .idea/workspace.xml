@@ -7,60 +7,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d41cc6a6-3595-4d5c-8659-df7c1eddf125" name="Changes" comment="Fix project files missing from docker image">
-      <change afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/img/1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/img/2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/img/3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test/img/4.jpg" afterDir="false" />
+    <list default="true" id="d41cc6a6-3595-4d5c-8659-df7c1eddf125" name="Changes" comment="Remove forced migrations on startup.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/templatetags/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/landing/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/websockets/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/backend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/ifc_extractor/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/ifc_extractor/data_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/data_models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/ifc_extractor/energy.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/energy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/ifc_extractor/energy_modeling.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/energy_modeling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/ifc_extractor/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/migrations/0002_alter_cadeviluser_is_staff_and_more.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/migrations/0002_alter_cadeviluser_is_staff_and_more.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/mixins.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/mixins.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/tasks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/templatetags/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/templatetags/get_item.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/templatetags/get_item.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/templatetags/max_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/templatetags/max_value.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/websockets/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/websockets/backend.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/websockets/backend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/websockets/consumers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/websockets/consumers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/websockets/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/websockets/routing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/library/websockets/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/websockets/tasks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model_manager/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/apps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model_manager/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model_manager/ifc_extractor/data_models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/ifc_extractor/data_models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/model_manager/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/model_manager/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/model_manager/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/webapp/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/asgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/webapp/asgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/celery.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/celery.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/consumers.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/consumers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/routing.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/model_manager/routing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/webapp/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/webapp/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/webapp/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/webapp/wsgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/img/1.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/img/2.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/img/3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/img/4.jpg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +73,7 @@
     "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.pycharm.django.structure.promotion.once.per.project": "true",
-    "django.template.preview.state": "SHOW_EDITOR_AND_PREVIEW",
+    "django.template.preview.state": "SHOW_EDITOR",
     "git-widget-placeholder": "main",
     "last_opened_file_path": "/Users/mia/Desktop/projects/cadevil-webapp/test/img",
     "node.js.detected.package.eslint": "true",
@@ -143,9 +102,9 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
         <env name="DJANGO_SETTINGS_MODULE" value="webapp.settings" />
         <env name="LOCAL" value="1" />
+        <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="SDK_NAME" value="cadevil" />
@@ -205,7 +164,7 @@
       <option name="presentableId" value="Default" />
       <updated>1726872088455</updated>
       <workItem from="1726872089687" duration="20263000" />
-      <workItem from="1727030695962" duration="9661000" />
+      <workItem from="1727030695962" duration="23015000" />
     </task>
     <task id="LOCAL-00001" summary="Add more files from the refactor">
       <option name="closed" value="true" />
@@ -303,11 +262,46 @@
       <option name="project" value="LOCAL" />
       <updated>1726876431133</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Refactor layout">
+      <option name="closed" value="true" />
+      <created>1727042704962</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1727042704962</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Adjust DATABASE config to use postgresql on prod again.">
+      <option name="closed" value="true" />
+      <created>1727072410314</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1727072410314</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Remove forced migrations on startup.">
+      <option name="closed" value="true" />
+      <created>1727073183643</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1727073183643</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add more files from the refactor" />
@@ -315,6 +309,9 @@
     <MESSAGE value="Add Makefile to Dockerfile" />
     <MESSAGE value="Fix docker build" />
     <MESSAGE value="Fix project files missing from docker image" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix project files missing from docker image" />
+    <MESSAGE value="Refactor layout" />
+    <MESSAGE value="Adjust DATABASE config to use postgresql on prod again." />
+    <MESSAGE value="Remove forced migrations on startup." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove forced migrations on startup." />
   </component>
 </project>

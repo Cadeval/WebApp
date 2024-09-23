@@ -3,7 +3,6 @@ import os
 from pprint import pprint
 
 from asgiref.sync import sync_to_async
-from django.core.handlers.asgi import ASGIRequest
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
@@ -13,6 +12,7 @@ from model_manager.ifc_extractor.data_models import IfcExtractor
 # except ImportError as e:
 #     pprint(e)
 from model_manager.models import CadevilDocument, FileUpload
+
 
 def index(request):
     return TemplateResponse(
@@ -32,14 +32,19 @@ def user(request):
         {},
     )
 
-async def model_manager(request: ASGIRequest):
+
+async def model_manager(request):
     # Wrap the access to request.user.is_authenticated
     is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
     if not is_authenticated:
         return redirect(to="/accounts/login")
 
-    document_form = DocumentForm()
-    group_form = GroupForm()
+    document_form = DocumentForm(
+        user=request.user, user_id=request.user.id
+    )
+    group_form = GroupForm(
+        user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+    )
 
     if request.method == "POST":
         document_form = UploadForm(
@@ -60,6 +65,7 @@ async def model_manager(request: ASGIRequest):
 
     elif request.GET.get("set_group"):
         _id = str(request.GET.get("set_group"))
+        print(f"ID: {_id}")
         _group_choice_id = int(request.GET.get("group_field"))
         group = group_form.fields["group_field"].choices[_group_choice_id]
         # Wrap ORM update
@@ -115,6 +121,7 @@ async def model_manager(request: ASGIRequest):
         doc = CadevilDocument()
         doc.user = request.user
         user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+        print(user_groups)
         doc.group = user_groups[0] if user_groups else None
         doc.description = _file
         doc.properties = cadevil_document.properties
