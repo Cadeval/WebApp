@@ -1,7 +1,6 @@
 import uuid
 
-from django.conf import settings
-from django.contrib.auth.models import AbstractUser, Permission, Group, GroupManager
+from django.contrib.auth.models import AbstractUser, Group, GroupManager, Permission
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -51,13 +50,13 @@ class CadevilUser(AbstractUser):
     )
 
     is_staff = models.BooleanField(
-        _("is staff"), default=False, help_text=_("Designates whether the user can log into this admin site.")
+        _("is staff"), default=False, help_text=_("Designates whether the user can use moderation tools.")
     )
 
     is_superuser = models.BooleanField(
         _("is superuser"),
         default=False,
-        help_text=_("Designates whether this user can view hidden content."),
+        help_text=_("Designates whether the user can log into this admin site."),
     )
 
     # View-hidden boolean field
@@ -65,6 +64,14 @@ class CadevilUser(AbstractUser):
         _("view hidden"),
         default=False,
         help_text=_("Designates whether this user can view hidden content."),
+    )
+
+    # View-hidden boolean field
+    active_calculations = models.IntegerField(
+        _("active calculations"),
+        name="active_calculations",
+        default=0,
+        help_text=_("Number of currently active calculations."),
     )
 
     uploads = models.ManyToManyField(

@@ -5,7 +5,7 @@ from pprint import pprint
 from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -14,13 +14,10 @@ from typing_extensions import assert_type
 
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
 
-try:
-    from model_manager.ifc_extractor.data_models import IfcExtractor
-except ImportError as e:
-    pprint(e)
+from model_manager.ifc_extractor.data_models import IfcExtractor
 from model_manager.models import CadevilDocument, FileUpload
 
-
+# TODO: Add require_POST and require_GET to all functions
 def index(request):
     return TemplateResponse(
         request,
@@ -30,45 +27,35 @@ def index(request):
 
 
 @login_required(login_url="/accounts/login")
-def user(request):
+async def user(request) -> TemplateResponse:
     return TemplateResponse(
         request,
         "registration/user.html",
         {},
     )
 
-
-# @login_required(login_url="/accounts/login")
-@require_POST
-async def file_upload(request: HttpRequest) -> None:
-    print(request)
-    document_form = UploadForm(
-        request.POST, request.FILES, user=request.user, user_id=request.user.id
-    )
-    # Wrap form validation
-    is_valid = await sync_to_async(document_form.is_valid)()
-    if is_valid:
-        # Save the form asynchronously
-        file_upload = await sync_to_async(document_form.save)(commit=False)
-        file_upload.user = request.user
-        await sync_to_async(file_upload.save)()
-
 @login_required(login_url="/accounts/login")
-@require_GET
-async def model_manager(request) -> TemplateResponse:
+async def model_manager(request) -> TemplateResponse|HttpResponseRedirect|None:
     # {{{
-    # Wrap the access to request.user.is_authenticated
-    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
-    if not is_authenticated:
-        return redirect(to="/accounts/login")
-
+    # FIXME: This shit is currently needed to make this work
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
     document_form = DocumentForm(
         user=request.user, user_id=request.user.id
     )
     group_form = GroupForm(
         user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
     )
-
+    if request.method == "POST":
+        document_form = UploadForm(
+            request.POST, request.FILES, user=request.user, user_id=request.user.id
+        )
+        # Wrap form validation
+        is_valid = await sync_to_async(document_form.is_valid)()
+        if is_valid:
+            # Save the form asynchronously
+            file_upload = await sync_to_async(document_form.save)(commit=False)
+            file_upload.user = request.user
+            await sync_to_async(file_upload.save)()
 
     if request.GET.get("toggle_hidden"):
         # Handle toggle_hidden functionality
@@ -79,6 +66,7 @@ async def model_manager(request) -> TemplateResponse:
         print(f"ID: {_id}")
         _group_choice_id = int(request.GET.get("group_field"))
         group = group_form.fields["group_field"].choices[_group_choice_id]
+
         # Wrap ORM update
         await sync_to_async(
             lambda: CadevilDocument.objects.filter(id=_id).update(group=group[1])
@@ -158,12 +146,8 @@ async def model_manager(request) -> TemplateResponse:
     # }}}
 
 
-async def object_view(request) -> TemplateResponse:
-    # Wrap the access to request.user.is_authenticated
-    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
-    if not is_authenticated:
-        return redirect(to="/accounts/login")
-
+@login_required(login_url="/accounts/login")
+async def object_view(request) -> TemplateResponse|HttpResponseRedirect|None:
     form = DocumentForm()
     if request.GET.get("object"):
         _id = request.GET.get("object")
@@ -188,13 +172,7 @@ async def object_view(request) -> TemplateResponse:
 
 
 @login_required(login_url="/accounts/login")
-@require_GET
 async def model_comparison(request) -> TemplateResponse:
-    # Wrap the access to request.user.is_authenticated
-    is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
-    if not is_authenticated:
-        return redirect(to="/accounts/login")
-
     # Wrap ORM query
     documents = await sync_to_async(lambda: list(CadevilDocument.objects.filter(is_active=True)))()
 

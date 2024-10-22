@@ -74,8 +74,12 @@
     <header>
       <button popovertarget='menu-popover' class='menu-button'>
         <img alt="Menu Button" class="menu_icon" src="{% static 'images' %}/favicon.svg">Cadevil
-        <button popovertarget='filemanager-popover'  class="openbtn" >User Files &#9776; </button>
       </button>
+
+      {% if user.is_authenticated %}
+          <button popovertarget='filemanager-popover'  class="openbtn" >User Files &#9776; </button>
+      {% endif %}
+
 
       {% block header %}
       {% endblock %}
