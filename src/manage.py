@@ -8,7 +8,6 @@ os.environ["PYTHONOPTIMIZE"] = "1"
 os.environ["PYTHONMALLOC"] = "malloc"
 os.environ["PYTHONUNBUFFERED"] = "1"
 
-
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")

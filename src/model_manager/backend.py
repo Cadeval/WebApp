@@ -4,9 +4,6 @@ import re
 from abc import ABCMeta, abstractmethod
 from decimal import Decimal
 
-from celery.result import EagerResult, allow_join_result, AsyncResult
-from celery.backends.base import DisabledBackend
-
 logger = logging.getLogger(__name__)
 
 PROGRESS_STATE = 'PROGRESS'

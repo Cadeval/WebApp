@@ -14,7 +14,6 @@ class CadevilUserAdmin(UserAdmin):
         ("Custom Fields", {"fields": ("view_hidden", "theme")}),
     )
 
-
 # Custom Group Admin
 # class CadevilGroupAdmin(BaseGroupAdmin):
 #     model = CadevilGroup

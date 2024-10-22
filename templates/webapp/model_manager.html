@@ -1,10 +1,9 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% load static %}
 {% load get_item %}
 
 {% block header %}
-  <button popovertarget='filemanager-popover'  class="openbtn" >User Files &#9776; </button>
 {% endblock %}
 
 {% block content %}
@@ -49,44 +48,4 @@
         </div>
     </details>
   {% endfor %}
-        <div popover class="popover-big" id="filemanager-popover">
-        <div class="popover-content" id="popover-content">
-                <h4>File Upload</h4>
-                <form method="post" class="form" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div>
-                      <label for="id_description">Description:</label><br>
-                      <input type="text" name="description" maxlength="255" id="id_description">
-                    </div>
-                    <div>
-                      <input class="button-wide" type="file" name="document" required="" id="id_document">
-                    </div>
-
-                    <button class="button-wide" type="submit">Upload</button>
-                </form>
-                <hr>
-                {% for item in files %}
-                    <li>
-                        <form action="#" method="get" id={{ item.id }}>
-                            <h5>
-                                {# Indicate item is currently disabled TODO communicate that more clearly #}
-{#                                {% if not item.is_active %} <s>{% endif %}#}
-{#                                {% if not item.is_active %}</s>{% endif %}#}
-
-{#                                {% if not item.is_active %}#}
-{#                                    <button type="submit" class="button fa fa-eye" value={{ item.id }} name="toggle"></button>#}
-{#                                {% else %}#}
-{#                                    <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button>#}
-{#                                {% endif %}#}
-                                {{ item.description }}
-
-                                <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate</button>
-                                <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete</button>
-                            </h5><hr>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
 {% endblock %}

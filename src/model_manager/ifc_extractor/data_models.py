@@ -1,11 +1,18 @@
-from dataclasses import dataclass, field
 import asyncio
-import csv
 import time
+from dataclasses import dataclass, field
 from pprint import pprint
-from typing import Optional, Dict, Any, Set, List
+from typing import Any, Dict, List, Optional, Set
 
-import ifcopenshell
+try:
+    import ifcopenshell
+    import ifcopenshell.geom
+    import ifcopenshell.util
+    import ifcopenshell.util.element
+    import ifcopenshell.util.shape
+except ImportError:
+    pprint("""Cannot import ifcopenshell. This is necessary to run the program.
+           Please install it via pip or conda and retry.""")
 
 from model_manager.ifc_extractor.helpers import get_plot_area, read_config
 
@@ -49,6 +56,7 @@ class BuildingMetrics:
     floors: float = 0  # Number of floors
     facade_area: float = 0
 
+
 @dataclass
 class IfcExtractor:
     ifc_file_path: str
@@ -79,10 +87,28 @@ class IfcExtractor:
         },
         init=False,
     )
+    units: Dict[str, Any] = field(
+        default_factory=lambda: {
+            "TSA": "m2",  # Total site area
+            "BF": "m2",  # Total Area of the plot Brutto Fläche
+            "BGF": "m2",  # Brutto-Grundfläche (ÖNORM B 1800)
+            "BGF/BF": "m2/m2",  # Ratio of BF to BGF
+            "NGF": "m2",  # Netto-Grundfläche (ÖNORM B 1800)
+            "NF": "m2",  # Nutzfläche (ÖNORM B 1800)
+            "KGF": "m2",  # Konstruktions-Grundfläche (ÖNORM B 1800)
+            "BRI": "m3",  # Brutto-Rauminhalt (ÖNORM B 1800)
+            "EIKON": "Unknown",  # EIKON value (example placeholder)
+            "Energy Rating": "Unknown",  # Energy rating of the building
+            "Floors": "floor(s)",  # Number of floors
+            "Facade Area": "m2",  # Outer
+        },
+        init=False,
+    )
     walls: List[Any] = field(default_factory=list, init=False)
     ceiling: List[Any] = field(default_factory=list, init=False)
     roof: List[Any] = field(default_factory=list, init=False)
     facade: List[Any] = field(default_factory=list, init=False)
+    floor: List[Any] = field(default_factory=list, init=False)
 
     # Locks for thread safety
     properties_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
@@ -100,11 +126,19 @@ class IfcExtractor:
         pprint(f"Schema used: {self.ifc_model.schema}")
         self.application = self.ifc_model.by_type("IfcApplication")
         self.s = ifcopenshell.geom.settings()
-        self.s.set(self.s.USE_MATERIAL_NAMES, True)
-        self.s.set(self.s.WELD_VERTICES, True)
-        self.s.set(self.s.USE_WORLD_COORDS, True)
-        self.s.set(self.s.GENERATE_UVS, True)
-        self.s.set(self.s.APPLY_DEFAULT_MATERIALS, True)
+        try:
+            self.s.set(self.s.USE_MATERIAL_NAMES, True)
+            self.s.set(self.s.WELD_VERTICES, True)
+            self.s.set(self.s.USE_WORLD_COORDS, True)
+            self.s.set(self.s.GENERATE_UVS, True)
+            self.s.set(self.s.APPLY_DEFAULT_MATERIALS, True)
+            self.s.set(self.s.USE_MATERIAL_NAMES, True)
+            self.s.set(self.s.ENABLE_LAYERSET_SLICING, True)
+            self.s.set(self.s.ELEMENT_HIERARCHY, True)
+            # self.s.set(self.s.USE_PYTHON_OPENCASCADE, True) # Apparently this one does not exist??
+        except AttributeError:
+            pprint("This attribute does not seem to exist.")
+        print(self.s)
 
     async def get_ifc_units(self):
         units_assignment = self.ifc_model.by_type("IfcUnitAssignment")[0]
@@ -122,63 +156,91 @@ class IfcExtractor:
                 pprint("An error occurred while retrieving units.")
         return units
 
-    async def calculate_norm1800(self, product) -> None:
-        if product.is_a("IfcSpace"):
-            product_shape = await asyncio.to_thread(ifcopenshell.geom.create_shape, self.s, product)
+    async def calculate_norm1800(self, i, product, product_quantity) -> None:
+        pprint(f"Calculating Norm 1800 for {product.id()} of {i}/{product_quantity}")
+        product_type = product.is_a()
+        if product_type == "IfcSpace":
+            product_shape = await asyncio.to_thread(
+                ifcopenshell.geom.create_shape, self.s, product
+            )
             product_geom = product_shape.geometry
-            net_area = ifcopenshell.util.shape.get_footprint_area(product_geom)
-
-            async with self.properties_lock:
-                self.properties["NGF"] += net_area
-
-            gross_area = ifcopenshell.util.shape.get_area(product_geom)
-            async with self.properties_lock:
-                self.properties["BGF"] += gross_area
-                self.properties["KGF"] += gross_area - net_area
-
-            height = ifcopenshell.util.shape.get_z(product_geom)
-            async with self.properties_lock:
-                self.properties["BRI"] += gross_area * height
-
-        elif product.is_a() in ["IfcWall", "IfcColumn", "IfcBeam", "IfcSlab"]:
-            product_shape = await asyncio.to_thread(ifcopenshell.geom.create_shape, self.s, product)
-            product_geom = product_shape.geometry
-            volume = ifcopenshell.util.shape.get_volume(product_geom)
-            area = ifcopenshell.util.shape.get_area(product_geom)
-
-            if (
-                product.is_a("IfcSlab")
-                and ifcopenshell.util.element.get_type(product) == "FLOOR"
-            ):
-                async with self.properties_lock:
-                    self.properties["BGF"] += area
-
-            async with self.properties_lock:
-                self.properties["KGF"] += area
-                self.properties["BRI"] += volume
-
-        if product.is_a("IfcSpace"):
+            net_area = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_footprint_area, product_geom
+            )
+            gross_area = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_area, product_geom
+            )
+            height = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_z, product_geom
+            )
             pset_common = ifcopenshell.util.element.get_pset(
                 product, "Pset_SpaceCommon"
             )
             if pset_common:
+                pprint(pset_common)
                 if pset_common.get("IsExternal", False):
-                    async with self.properties_lock:
-                        self.properties["NGF"] -= net_area
+                    print(f"{product} is external")
+            async with self.properties_lock:
+                self.properties["NGF"] += net_area
+                self.properties["BGF"] += gross_area
+                self.properties["KGF"] += gross_area - net_area
+                self.properties["BRI"] += gross_area * height
 
-    async def calculate_facade_area(self, product) -> None:
-        if product.is_a() in ["IfcWall", "IfcCurtainWall", "IfcWindow", "IfcDoor"]:
-            if not ifcopenshell.util.element.get_pset(product, "IsExternal"):
-                product_shape = await asyncio.to_thread(ifcopenshell.geom.create_shape, self.s, product)
-                product_geom = product_shape.geometry
-                area = ifcopenshell.util.shape.get_area(product_geom)
-                async with self.properties_lock:
-                    self.properties["Facade Area"] += area
+        elif product_type in [
+            "IfcWall",
+            "IfcColumn",
+            "IfcBeam",
+            "IfcSlab",
+            "IfcCurtainWall",
+            "IfcWindow",
+            "IfcDoor",
+        ]:
+            product_shape = await asyncio.to_thread(
+                ifcopenshell.geom.create_shape, self.s, product
+            )
+            product_geom = product_shape.geometry
+            volume = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_volume, product_geom
+            )
+            area = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_area, product_geom
+            )
+            pset_common = ifcopenshell.util.element.get_pset(product, "Pset_WallCommon")
+            async with self.properties_lock:
+                if pset_common:
+                    pprint(pset_common)
+                    if pset_common.get("IsExternal", False):
+                        pprint(f"Calculating Facade Area for {product.id()} of {i}")
+                        self.properties["Facade Area"] += area
+                else:
+                    self.properties["KGF"] += area
+                    self.properties["BRI"] += volume
+        elif (
+            product_type == "IfcSlab"
+            and ifcopenshell.util.element.get_type(product) == "FLOOR"
+        ):
+            product_shape = await asyncio.to_thread(
+                ifcopenshell.geom.create_shape, self.s, product
+            )
+            product_geom = product_shape.geometry
+            # volume = await asyncio.to_thread(ifcopenshell.util.shape.get_volume, product_geom)
+            area = await asyncio.to_thread(
+                ifcopenshell.util.shape.get_footprint_area, product_geom
+            )
+            pset_common = ifcopenshell.util.element.get_pset(
+                product, "Pset_FloorCommon"
+            )
+            pprint(f"Calculating Floor Area for {product.id()} of {i}")
+            async with self.properties_lock:
+                self.properties["BGF"] += area
 
-    async def calculate_material_cost(self, product) -> None:
+    async def calculate_material_cost(self, i, product, product_quantity) -> None:
+        pprint(
+            f"Calculating Material Cost for {product.id()} of {i}/{product_quantity}"
+        )
         try:
-            materials = ifcopenshell.util.element.get_materials(
-                product, should_inherit=True
+            materials = await asyncio.to_thread(
+                ifcopenshell.util.element.get_materials, product, should_inherit=True
             )
             if materials:
                 if len(materials) > 1:
@@ -189,26 +251,26 @@ class IfcExtractor:
                         async with self.material_set_lock:
                             self.material_set.add(material_name)
                     else:
-                        cost = self.adjust_material_cost(
-                            material_name, self.properties["Facade Area"]
-                        )
+                        # cost = self.adjust_material_cost(
+                        #     material_name, self.properties["Facade Area"]
+                        # )
                         async with self.material_dict_lock:
                             self.material_dict[material_name] = (
-                                self.material_dict.get(material_name, 0) + cost
+                                self.material_dict.get(material_name, 0) + 1
                             )
 
                         if "Wall" in material_name:
                             async with self.walls_lock:
-                                self.walls.append([material_name, "m2", cost])
+                                self.walls.append([material_name, "m2", 1])
                         elif "Ceiling" in material_name:
                             async with self.ceiling_lock:
-                                self.ceiling.append([material_name, "m2", cost])
+                                self.ceiling.append([material_name, "m2", 1])
                         elif "Floor" in material_name:
                             async with self.walls_lock:
-                                self.floor.append([material_name, "m2", cost])
+                                self.floor.append([material_name, "m2", 1])
                         elif "Roof" in material_name:
                             async with self.roof_lock:
-                                self.roof.append([material_name, "m2", cost])
+                                self.roof.append([material_name, "m2", 1])
 
                         if self.properties["Facade Area"] > 0:
                             async with self.facade_lock:
@@ -216,11 +278,10 @@ class IfcExtractor:
                                     [
                                         material_name,
                                         "m2",
-                                        cost,
+                                        1,
                                         self.properties["Facade Area"],
                                     ]
                                 )
-
         except Exception as e:
             print(f"Failed to extract materials because {e}.")
 
@@ -234,33 +295,15 @@ class IfcExtractor:
             base_cost *= 1.15
         return base_cost * area
 
-    async def process_product(self, product, i, product_quantity, progress_recorder):
-        try:
-            # pprint(f"{i}/{product_quantity} - properties of {product.id()}")
-            # pprint(f"Calculating Norm 1800 for {product.id()}")
-            await self.calculate_norm1800(product=product)
-            # pprint(f"Calculating Facade Area for {product.id()}")
-            await self.calculate_facade_area(product=product)
-            # pprint(f"Calculating Material Cost for {product.id()}")
-            await self.calculate_material_cost(product=product)
-        except Exception as e:
-            pprint(f"Shape creation failed because {e}.")
-        if progress_recorder:
-            progress_recorder.set_progress(
-                i + 1, product_quantity, description="Processing products"
-            )
-
     async def process_products(self, progress_recorder=None) -> None:
         self.start = time.time()
         products = self.ifc_model.by_type("IfcProduct")
-        product_quantity = len(products)
-
+        product_quantity = len(products) - 1
         try:
             site = self.ifc_model.by_type("IfcSite")[0]
             self.properties["TSA"] = await asyncio.to_thread(get_plot_area, site)
         except Exception:
-            print(f"Failed to extract plot area")
-
+            print("Failed to extract plot area")
         try:
             storeys = self.ifc_model.by_type("IfcBuildingStorey")
             self.properties["Floors"] = len(storeys)
@@ -273,16 +316,31 @@ class IfcExtractor:
                     async with self.properties_lock:
                         self.properties["BF"] = area
         except Exception:
-            print(f"Failed to extract floor area.")
+            print("Failed to extract floor area.")
 
         tasks = []
         for i, product in enumerate(products):
-            if product.Representation is not None:
-                task = asyncio.create_task(
-                    self.process_product(product, i, product_quantity, progress_recorder)
-                )
-                tasks.append(task)
-
+            if product.Representation:
+                try:
+                    tasks.append(
+                        self.calculate_norm1800(
+                            i=i, product=product, product_quantity=product_quantity
+                        )
+                    )
+                    tasks.append(
+                        self.calculate_material_cost(
+                            i=i, product=product, product_quantity=product_quantity
+                        )
+                    )
+                    pprint(f"{i}/{product_quantity} - properties of {product.id()}")
+                except Exception as e:
+                    pprint(f"Shape creation failed because {e}.")
+                if progress_recorder:
+                    progress_recorder.set_progress(
+                        i + 1, product_quantity, description="Processing products"
+                    )
+        # with multiprocessing.pool.ThreadPool(processes=os.cpu_count()*2) as pool:
+        #     pool.map(func=asyncio.run, iterable=tasks, chunksize=(len(products) // os.cpu_count()))
         await asyncio.gather(*tasks)
 
         if self.properties["BF"] != 0:

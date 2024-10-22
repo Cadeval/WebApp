@@ -1,8 +1,5 @@
 import asyncio
 
-from celery import shared_task
-from celery.signals import task_postrun
-
 from model_manager.backend import ProgressRecorder
 from model_manager.ifc_extractor.data_models import IfcExtractor
 

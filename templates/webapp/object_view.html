@@ -11,15 +11,36 @@
 
 {% block content %}
 
-
-    <div class="object-view">
-        <img alt="" class="cards" src="{% static 'images' %}/house_1.png" width="2000">
+    {% for item in data %}
         <h4>{{ item.description }}</h4>
-        <p class="tag">Render of Hochbau</p>
-        <p class="text_column">Filename: {{ item.document }}<br>Total Area: 200m<br>Energyclass: A </p>
-        {% for item in data %}
-          {{ item.properties|safe }}
-        {% endfor %}
-    </div>
+        <div class="flexgrid-container">
+            <img alt="" class="thumbnail-large" src="{% static 'images' %}/house_1.png" width="2000">
+                <div class="flexgrid-item">
+                    <table>
+                        <tr>
+                            <th colspan="2">Property</th>
+                        </tr>
+                        {% for key in item.properties %}
+                            <tr>
+                                <td>{{ key }}</td>
+                                <td>{{ item.properties|get_item:key |floatformat:-2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="flexgrid-item">
+                    <table>
+                        <tr>
+                            <th colspan="2">Materials</th>
+                        </tr>
+                        {% for key in item.materials %}
+                            <tr>
+                                <td>{{ key }}</td>
+                                <td>{{ item.materials|get_item:key |floatformat:-2 }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>                </div>
 
+        </div>
+    {% endfor %}
 {% endblock %}

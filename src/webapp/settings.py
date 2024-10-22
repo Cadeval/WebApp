@@ -18,7 +18,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webapp.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -44,14 +44,15 @@ SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2
 DEBUG = True
 
 # ALLOWED_HOSTS = ["localhost", "webapp.org", "webapp.at"]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
 INTERNAL_IPS = ["localhost"]
 CSRF_TRUSTED_ORIGINS = ["https://cadevil.org", "https://cadevil.at"]
-# Application definition
+APPEND_SLASH = True
 
+# Application definition
 INSTALLED_APPS = [
-    "channels",
     "daphne",
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -59,7 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
-    "django_celery_results",
+    "django_htmx",
     "model_manager",
 ]
 
@@ -91,38 +92,41 @@ TEMPLATES = [
     },
 ]
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [("127.0.0.1", 6379)],
+#         },
+#     },
+# }
 
 ASGI_APPLICATION = "webapp.asgi.application"
 WSGI_APPLICATION = "webapp.wsgi.application"
 
-if os.environ.get("LOCAL"):
+if os.environ.get("PRODUCTION"):
+    # Database
+    # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ.get("DB_NAME", "defaultdb"),
+            "USER": os.environ.get("DB_USER", "doadmin"),
+            "PASSWORD": os.environ.get("DB_PASSWORD"),
+            "HOST": os.environ.get(
+                "DB_HOST", "cadevil-pg-do-user-17774226-0.k.db.ondigitalocean.com"
+            ),
+            "PORT": "25060",
+        }
+    }
+else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": os.path.join(BASE_DIR, "../data", "db-instance.sqlite3"),
         }
     }
-else:
-    # Database
-    # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get("DB_NAME", "defaultdb"),
-            'USER': os.environ.get("DB_USER", "doadmin"),
-            'PASSWORD': os.environ.get("DB_PASSWORD"),
-            'HOST': os.environ.get("DB_HOST", "cadevil-pg-do-user-17774226-0.k.db.ondigitalocean.com"),
-            'PORT': '25060',
-        }
-    }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -146,16 +150,16 @@ AUTH_PASSWORD_VALIDATORS = [
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 AUTH_USER_MODEL = "model_manager.CadevilUser"
-# AUTH_GROUP_MODEL = "webapp.CadevilGroup"
+# AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
 
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
 
 # django setting.
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'my_cache_table',
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "my_cache_table",
     }
 }
 

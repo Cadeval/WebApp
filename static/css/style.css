@@ -13,7 +13,7 @@
     --padding-small: 0.25em;
     --padding-medium: 1em;
     --header-height: 3em;
-    --footer-height: 3em;
+    --footer-height: 1em;
 }
 
 /* Dark Mode Variables */
@@ -80,8 +80,8 @@ html {
 
 *, *::before, *::after {
     box-sizing: inherit;
-    margin: 0;
-    padding: 0;
+    /*margin: 0;*/
+    /*padding: 0;*/
 }
 
 body {
@@ -89,6 +89,8 @@ body {
     background-color: var(--primary-bg);
     color: var(--primary-color);
     line-height: 1.5;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -99,7 +101,6 @@ body {
 /* -------------------- Structural Styles -------------------- */
 header, footer {
     width: 100vw;
-    height: var(--header-height);
     background-color: var(--secondary-bg);
     color: var(--primary-color);
     display: flex;
@@ -112,6 +113,7 @@ header, footer {
 
 header {
     top: 0;
+    height: var(--header-height);
     justify-content: space-between;
 
     /*border-bottom: 0.125em solid var(--accent-color);*/
@@ -119,6 +121,7 @@ header {
 
 footer {
     bottom: 0;
+    height: var(--footer-height);
     justify-content: center;
     text-align: center;
     text-transform: uppercase;
@@ -189,6 +192,8 @@ main {
     gap: var(--padding-medium);
     padding: var(--padding-medium);
     align-self: flex-start;
+    animation: popover-animation 0.3s ease-out forwards;
+
 }
 
 .flex-item-active {
@@ -236,28 +241,37 @@ main {
     }
 }
 
-.thumbnail {
+.thumbnail, .thumbnail-large {
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 16em;
     border-radius: var(--border-radius);
     height: auto;
-    margin: 1em;
-    padding: 0.5em;
+    margin: auto;
+    padding: 0;
     color: var(--primary-color);
     text-transform: uppercase;
     font-weight: lighter;
     letter-spacing: 0.1875em;
     border-width: 0.125em;
-    cursor: pointer;
-    box-shadow: var(--box-shadow);
 }
 
+.thumbnail{
+    /*width: 20%;*/
+    max-width: 24em;
+    cursor: pointer;
+}
+
+.thumbnail-large {
+    width: 40%;
+    max-width: 48em;
+    box-shadow: var(--box-shadow);
+}
 /* -------------------- Interactive Elements -------------------- */
 .popover-small, .popover-big {
     position: fixed;
     z-index: 2;
+    margin: 0;
     top: calc(var(--header-height) + 0.25em);
     border-radius: var(--border-radius);
     padding: var(--padding-small);
@@ -343,17 +357,34 @@ main {
 table {
     border-collapse: collapse;
     width: 100%;
+    top: calc(var(--header-height) + 0.25em);
+    border-radius: var(--border-radius);
+    padding: var(--padding-small);
     color: var(--primary-color);
+    background-color: var(--secondary-bg);
+    box-shadow: var(--box-shadow);
+    border: 0;
+    will-change: transform, opacity;
+    -webkit-backface-visibility: hidden; /* Improves rendering performance on Safari */
+    backface-visibility: hidden; /* Ensures consistent rendering on other browsers */
+    animation: popover-animation 0.3s ease-out forwards;
 }
 
 th, td {
-    border: 0.0625em solid var(--primary-color);
+    /*border: 0.0625em solid var(--primary-color);*/
     padding: 0.5em;
-    text-align: left;
+    text-align: center;
 }
 
 th {
+    border-radius: var(--border-radius);
+
     background-color: var(--secondary-bg);
+    border-bottom: 0.0625em solid var(--primary-color);
+}
+
+td {
+    border-top: 0.0625em solid var(--secondary-color);
 }
 
 /* -------------------- Responsive Styles -------------------- */

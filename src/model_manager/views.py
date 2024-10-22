@@ -2,15 +2,22 @@
 import os
 from pprint import pprint
 
-from asgiref.sync import sync_to_async
-from django.shortcuts import redirect
+from asgiref.sync import async_to_sync, sync_to_async
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from django_htmx.middleware import HtmxDetails, HtmxMiddleware
+from typing_extensions import assert_type
 
-from model_manager.forms import DocumentForm, UploadForm, GroupForm
-# try:
-from model_manager.ifc_extractor.data_models import IfcExtractor
-# except ImportError as e:
-#     pprint(e)
+from model_manager.forms import DocumentForm, GroupForm, UploadForm
+
+try:
+    from model_manager.ifc_extractor.data_models import IfcExtractor
+except ImportError as e:
+    pprint(e)
 from model_manager.models import CadevilDocument, FileUpload
 
 
@@ -22,10 +29,8 @@ def index(request):
     )
 
 
+@login_required(login_url="/accounts/login")
 def user(request):
-    if not request.user.is_authenticated:
-        return redirect(to="/accounts/login")
-
     return TemplateResponse(
         request,
         "registration/user.html",
@@ -33,7 +38,25 @@ def user(request):
     )
 
 
-async def model_manager(request):
+# @login_required(login_url="/accounts/login")
+@require_POST
+async def file_upload(request: HttpRequest) -> None:
+    print(request)
+    document_form = UploadForm(
+        request.POST, request.FILES, user=request.user, user_id=request.user.id
+    )
+    # Wrap form validation
+    is_valid = await sync_to_async(document_form.is_valid)()
+    if is_valid:
+        # Save the form asynchronously
+        file_upload = await sync_to_async(document_form.save)(commit=False)
+        file_upload.user = request.user
+        await sync_to_async(file_upload.save)()
+
+@login_required(login_url="/accounts/login")
+@require_GET
+async def model_manager(request) -> TemplateResponse:
+    # {{{
     # Wrap the access to request.user.is_authenticated
     is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
     if not is_authenticated:
@@ -43,23 +66,11 @@ async def model_manager(request):
         user=request.user, user_id=request.user.id
     )
     group_form = GroupForm(
-        user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+        user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
     )
 
-    if request.method == "POST":
-        document_form = UploadForm(
-            request.POST, request.FILES, user=request.user, user_id=request.user.id
-        )
-        # Wrap form validation
-        is_valid = await sync_to_async(document_form.is_valid)()
-        if is_valid:
-            # Save the form asynchronously
-            file_upload = await sync_to_async(document_form.save)(commit=False)
-            file_upload.user = request.user
-            await sync_to_async(file_upload.save)()
-            return redirect("/model_manager")
 
-    elif request.GET.get("toggle_hidden"):
+    if request.GET.get("toggle_hidden"):
         # Handle toggle_hidden functionality
         return redirect("/model_manager")
 
@@ -92,8 +103,10 @@ async def model_manager(request):
         request_id = str(request.GET.get("delete_file"))
         # Wrap file path retrieval
         _object = await sync_to_async(
-            lambda: f"data/media/{FileUpload.objects.filter(id=request_id).values_list('document', flat=True).get()}"
+            lambda: FileUpload.objects.filter(id=request_id).values_list('document', flat=True).get()
         )()
+        os.chdir(os.path.join(os.getcwd(), "../media"))
+        print(os.getcwd())
         # Use asyncio to run file operations in a thread
         if await sync_to_async(os.path.exists)(_object):
             await sync_to_async(os.remove)(_object)
@@ -121,9 +134,8 @@ async def model_manager(request):
         doc = CadevilDocument()
         doc.user = request.user
         user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
-        print(user_groups)
         doc.group = user_groups[0] if user_groups else None
-        doc.description = _file
+        doc.description = _file.description
         doc.properties = cadevil_document.properties
         doc.materials = cadevil_document.material_dict
         await sync_to_async(doc.save)()
@@ -143,9 +155,10 @@ async def model_manager(request):
                 "group_form": group_form,
             },
         )
+    # }}}
 
 
-async def object_view(request):
+async def object_view(request) -> TemplateResponse:
     # Wrap the access to request.user.is_authenticated
     is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
     if not is_authenticated:
@@ -174,7 +187,9 @@ async def object_view(request):
     )
 
 
-async def model_comparison(request):
+@login_required(login_url="/accounts/login")
+@require_GET
+async def model_comparison(request) -> TemplateResponse:
     # Wrap the access to request.user.is_authenticated
     is_authenticated = await sync_to_async(lambda: request.user.is_authenticated)()
     if not is_authenticated:

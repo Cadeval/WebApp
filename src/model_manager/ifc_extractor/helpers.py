@@ -1,27 +1,24 @@
-
 # -*- coding: utf-8 -*-
-import asyncio
 import csv
-import time
-
 from pprint import pprint
-from typing import Any, Dict, List, Optional, Set
 
-import ifcopenshell
-import ifcopenshell.api
-import ifcopenshell.express
-import ifcopenshell.express.rules
-import ifcopenshell.file
-import ifcopenshell.geom
-import ifcopenshell.util
-import ifcopenshell.util.element
-import ifcopenshell.util.schema
-import ifcopenshell.util.selector
-import ifcopenshell.util.shape
-import ifcopenshell.util.unit
+try:
+    import ifcopenshell
+    import ifcopenshell.api
+    import ifcopenshell.express
+    import ifcopenshell.express.rules
+    import ifcopenshell.file
+    import ifcopenshell.geom
+    import ifcopenshell.util
+    import ifcopenshell.util.element
+    import ifcopenshell.util.schema
+    import ifcopenshell.util.selector
+    import ifcopenshell.util.shape
+    import ifcopenshell.util.unit
+except ImportError:
+    pprint("""Cannot import ifcopenshell. This is necessary to run the program.
+           Please install it via pip or conda and retry.""")
 
-from celery import shared_task
-from model_manager.backend import ProgressRecorder
 
 def read_config(config_file: str) -> dict:
     config_dict: dict = {}
@@ -33,6 +30,9 @@ def read_config(config_file: str) -> dict:
 
 
 def get_space_area(space):
+    """
+    Assumes either precomputed area or object to be flat.
+    """
     pset = ifcopenshell.util.element.get_pset(space, "Pset_SpaceCommon")
     if pset and "GrossFloorArea" in pset:
         return pset["GrossFloorArea"]

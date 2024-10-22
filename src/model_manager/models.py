@@ -84,7 +84,16 @@ class CadevilUser(AbstractUser):
         default="auto",
         help_text=_("Preferred theme for the user interface."),
     )
-
+    # active_group = models.ForeignKey(
+    #     Group,
+    #     verbose_name="group",
+    #     blank=True,
+    #     help_text="The groups this user is currently operating in.",
+    #     related_name="cadeviluser_active_group",
+    #     related_query_name="user",
+    #     default=Group,
+    #     on_delete=models.CASCADE,
+    # )
     # groups = models.ManyToManyField(
     #     CadevilGroup,
     #     verbose_name="groups",
