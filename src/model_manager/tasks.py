@@ -9,9 +9,9 @@ def task_postrun_handler(**kwargs):
     """Runs after a task has finished. This will update the result backend to include the IGNORED result state.
 
     Necessary for HTTP to properly receive ignored task event."""
-    if kwargs.pop('state') == 'IGNORED':
-        task = kwargs.pop('task')
-        task.update_state(state='IGNORED', meta=str(kwargs.pop('retval')))
+    if kwargs.pop("state") == "IGNORED":
+        task = kwargs.pop("task")
+        task.update_state(state="IGNORED", meta=str(kwargs.pop("retval")))
 
 
 # Define Celery tasks that utilize the class methods
@@ -21,7 +21,9 @@ def process_ifc_file_task(self, ifc_file_path):
     extractor = IfcExtractor(ifc_file_path)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    loop.run_until_complete(extractor.process_products(progress_recorder=progress_recorder))
+    loop.run_until_complete(
+        extractor.process_products(progress_recorder=progress_recorder)
+    )
     loop.close()
     # You can now save the results from extractor.properties, etc.
     # For example:

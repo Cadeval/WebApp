@@ -6,7 +6,7 @@ from decimal import Decimal
 
 logger = logging.getLogger(__name__)
 
-PROGRESS_STATE = 'PROGRESS'
+PROGRESS_STATE = "PROGRESS"
 
 
 class AbstractProgressRecorder(object):
@@ -26,7 +26,6 @@ class BaseProgressRecorder(AbstractProgressRecorder):
     total = 0
     description = ""
 
-
     def set_progress(self, current, total, description=""):
         self.current = current
         self.total = total
@@ -40,18 +39,13 @@ class BaseProgressRecorder(AbstractProgressRecorder):
         self.set_progress(self.current + by, self.total, description)
 
 
-
-
 class ConsoleProgressRecorder(BaseProgressRecorder):
-
     def set_progress(self, current, total, description=""):
         super().set_progress(current, total, description)
-        print('processed {} items of {}. {}'.format(current, total, description))
-
+        print("processed {} items of {}. {}".format(current, total, description))
 
 
 class ProgressRecorder(BaseProgressRecorder):
-
     def __init__(self, task):
         self.task = task
 
@@ -63,21 +57,17 @@ class ProgressRecorder(BaseProgressRecorder):
             percent = float(round(percent, 2))
         state = PROGRESS_STATE
         meta = {
-            'pending': False,
-            'current': current,
-            'total': total,
-            'percent': percent,
-            'description': description
+            "pending": False,
+            "current": current,
+            "total": total,
+            "percent": percent,
+            "description": description,
         }
-        self.task.update_state(
-            state=state,
-            meta=meta
-        )
+        self.task.update_state(state=state, meta=meta)
         return state, meta
 
 
 class Progress(object):
-
     def __init__(self, result):
         """
         result:
@@ -89,18 +79,22 @@ class Progress(object):
         task_meta = self.result._get_task_meta()
         state = task_meta["status"]
         info = task_meta["result"]
-        response = {'state': state}
-        if state in ['SUCCESS', 'FAILURE']:
+        response = {"state": state}
+        if state in ["SUCCESS", "FAILURE"]:
             success = self.result.successful()
             with allow_join_result():
-                response.update({
-                    'complete': True,
-                    'success': success,
-                    'progress': _get_completed_progress(),
-                    'result': self.result.get(self.result.id) if success else str(info),
-                })
-        elif state in ['RETRY', 'REVOKED']:
-            if state == 'RETRY':
+                response.update(
+                    {
+                        "complete": True,
+                        "success": success,
+                        "progress": _get_completed_progress(),
+                        "result": self.result.get(self.result.id)
+                        if success
+                        else str(info),
+                    }
+                )
+        elif state in ["RETRY", "REVOKED"]:
+            if state == "RETRY":
                 # in a retry sceneario, result is the exception, and 'traceback' has the details
                 # https://docs.celeryq.dev/en/stable/userguide/tasks.html#retry
                 traceback = task_meta.get("traceback")
@@ -110,42 +104,60 @@ class Progress(object):
                 else:
                     next_retry_seconds = "Unknown"
 
-                result = {"next_retry_seconds": next_retry_seconds, "message": f"{str(task_meta['result'])[0:50]}..."}
+                result = {
+                    "next_retry_seconds": next_retry_seconds,
+                    "message": f"{str(task_meta['result'])[0:50]}...",
+                }
             else:
-                result = 'Task ' + str(info)
-            response.update({
-                'complete': True,
-                'success': False,
-                'progress': _get_completed_progress(),
-                'result': result,
-            })
-        elif state == 'IGNORED':
-            response.update({
-                'complete': True,
-                'success': None,
-                'progress': _get_completed_progress(),
-                'result': str(info)
-            })
+                result = "Task " + str(info)
+            response.update(
+                {
+                    "complete": True,
+                    "success": False,
+                    "progress": _get_completed_progress(),
+                    "result": result,
+                }
+            )
+        elif state == "IGNORED":
+            response.update(
+                {
+                    "complete": True,
+                    "success": None,
+                    "progress": _get_completed_progress(),
+                    "result": str(info),
+                }
+            )
         elif state == PROGRESS_STATE:
-            response.update({
-                'complete': False,
-                'success': None,
-                'progress': info,
-            })
-        elif state in ['PENDING', 'STARTED']:
-            response.update({
-                'complete': False,
-                'success': None,
-                'progress': _get_unknown_progress(state),
-            })
+            response.update(
+                {
+                    "complete": False,
+                    "success": None,
+                    "progress": info,
+                }
+            )
+        elif state in ["PENDING", "STARTED"]:
+            response.update(
+                {
+                    "complete": False,
+                    "success": None,
+                    "progress": _get_unknown_progress(state),
+                }
+            )
         else:
-            logger.error('Task %s has unknown state %s with metadata %s', self.result.id, state, info)
-            response.update({
-                'complete': True,
-                'success': False,
-                'progress': _get_unknown_progress(state),
-                'result': 'Unknown state {}'.format(state),
-            })
+            logger.error(
+                "Task %s has unknown state %s with metadata %s",
+                self.result.id,
+                state,
+                info,
+            )
+            response.update(
+                {
+                    "complete": True,
+                    "success": False,
+                    "progress": _get_unknown_progress(state),
+                    "result": "Unknown state {}".format(state),
+                }
+            )
         return response
 
     @property
@@ -156,6 +168,7 @@ class Progress(object):
 
 class KnownResult(EagerResult):
     """Like EagerResult but supports non-ready states."""
+
     def __init__(self, id, ret_value, state, traceback=None):
         """
         ret_value:
@@ -175,24 +188,23 @@ class KnownResult(EagerResult):
 
 def _get_completed_progress():
     return {
-        'pending': False,
-        'current': 100,
-        'total': 100,
-        'percent': 100,
+        "pending": False,
+        "current": 100,
+        "total": 100,
+        "percent": 100,
     }
 
 
 def _get_unknown_progress(state):
     return {
-        'pending': state == 'PENDING',
-        'current': 0,
-        'total': 100,
-        'percent': 0,
+        "pending": state == "PENDING",
+        "current": 0,
+        "total": 100,
+        "percent": 0,
     }
 
 
 class GroupProgress:
-
     def __init__(self, group_result):
         """
         group_result:
@@ -217,6 +229,6 @@ class GroupProgress:
                     "total": total,
                     "current": current,
                     "percent": percent,
-                }
+                },
             }
             return info

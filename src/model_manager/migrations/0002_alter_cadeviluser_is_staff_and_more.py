@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('model_manager', '0001_initial'),
+        ("model_manager", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cadeviluser',
-            name='is_staff',
-            field=models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='is staff'),
+            model_name="cadeviluser",
+            name="is_staff",
+            field=models.BooleanField(
+                default=False,
+                help_text="Designates whether the user can log into this admin site.",
+                verbose_name="is staff",
+            ),
         ),
         migrations.AlterField(
-            model_name='cadeviluser',
-            name='is_superuser',
-            field=models.BooleanField(default=False, help_text='Designates whether this user can view hidden content.', verbose_name='is superuser'),
+            model_name="cadeviluser",
+            name="is_superuser",
+            field=models.BooleanField(
+                default=False,
+                help_text="Designates whether this user can view hidden content.",
+                verbose_name="is superuser",
+            ),
         ),
     ]

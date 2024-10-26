@@ -5,9 +5,9 @@ from django.template.defaulttags import register
 # register = template.Library()
 # from library.models import CadevilDocument
 
+
 @register.filter(name="max_value")
 def max_value(key: str, data: list):
-
     accumulator = 0
 
     for i, item in enumerate(data):

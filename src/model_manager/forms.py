@@ -2,14 +2,20 @@ from asgiref.sync import sync_to_async
 from django.forms import Form, ModelForm, ChoiceField
 from model_manager.models import CadevilDocument, FileUpload
 
+
 class GroupForm(Form):
     group_field = ChoiceField()
 
     def __init__(self, *args, **kwargs):
-        self.user_groups = kwargs.pop('user_groups', [])
+        self.user_groups = kwargs.pop("user_groups", [])
         super().__init__(*args, **kwargs)
-        self.fields['group_field'].choices = [(i, group) for i, group in enumerate(self.user_groups)]
-        self.fields['group_field'].initial = self.user_groups[0] if self.user_groups else None
+        self.fields["group_field"].choices = [
+            (i, group) for i, group in enumerate(self.user_groups)
+        ]
+        self.fields["group_field"].initial = (
+            self.user_groups[0] if self.user_groups else None
+        )
+
 
 class DocumentForm(ModelForm):
     class Meta:
@@ -29,10 +35,14 @@ class DocumentForm(ModelForm):
             await sync_to_async(instance.save)()
         return instance
 
+
 class UploadForm(ModelForm):
     class Meta:
         model = FileUpload
-        fields = ("description", "document",)
+        fields = (
+            "description",
+            "document",
+        )
         db_table = "archicad_eval_uploads"
 
     def __init__(self, *args, **kwargs):

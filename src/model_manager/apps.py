@@ -22,4 +22,3 @@ class ModelEvaluatorConfig(AppConfig):
                 f"{related_name_to_group}__{user_groups_field.related_query_name()}"
             )
             return Permission.objects.filter(**{user_groups_query: user_obj})
-

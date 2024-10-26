@@ -57,6 +57,24 @@ class BuildingMetrics:
     facade_area: float = 0
 
 
+# FIXME: Put this into the above dataclass
+properties = {
+    # ÖNORM B 1800 / ÖNORM EN 15221-6
+    "TSA": 0,  # Total site area (FIXME)
+    "BF": 0,  # Total plot area (Brutto Fläche)
+    "BGF": 0,  # Brutto-Grundfläche (ÖNORM B 1800)
+    "BGF/BF": 0,  # Ratio of BF to BGF
+    "NGF": 0,  # Netto-Grundfläche (ÖNORM B 1800)
+    "NF": 0,  # Nutzfläche (ÖNORM B 1800)
+    "KGF": 0,  # Konstruktions-Grundfläche (ÖNORM B 1800)
+    "BRI": 0,  # Brutto-Rauminhalt (ÖNORM B 1800)
+    "EIKON": 0,  # EIKON value (example placeholder)
+    "Energy Rating": "Unknown",  # Energy rating of the building
+    "Floors": 0,  # Number of floors
+    "Facade Area": 0,
+}
+
+
 @dataclass
 class IfcExtractor:
     ifc_file_path: str

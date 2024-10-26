@@ -50,7 +50,9 @@ class CadevilUser(AbstractUser):
     )
 
     is_staff = models.BooleanField(
-        _("is staff"), default=False, help_text=_("Designates whether the user can use moderation tools.")
+        _("is staff"),
+        default=False,
+        help_text=_("Designates whether the user can use moderation tools."),
     )
 
     is_superuser = models.BooleanField(
@@ -66,11 +68,16 @@ class CadevilUser(AbstractUser):
         help_text=_("Designates whether this user can view hidden content."),
     )
 
-    # View-hidden boolean field
     active_calculations = models.IntegerField(
         _("active calculations"),
         name="active_calculations",
         default=0,
+        help_text=_("Number of currently active calculations."),
+    )
+    max_calculations = models.IntegerField(
+        _("maximum concurrent active calculations"),
+        name="max_calculations",
+        default=1,
         help_text=_("Number of currently active calculations."),
     )
 
@@ -91,6 +98,7 @@ class CadevilUser(AbstractUser):
         default="auto",
         help_text=_("Preferred theme for the user interface."),
     )
+
     # active_group = models.ForeignKey(
     #     Group,
     #     verbose_name="group",

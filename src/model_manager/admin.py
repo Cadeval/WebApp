@@ -6,6 +6,7 @@ from model_manager.models import FileUpload, CadevilDocument, CadevilUser
 admin.site.register(CadevilDocument)
 admin.site.register(FileUpload)
 
+
 # Custom User Admin
 class CadevilUserAdmin(UserAdmin):
     model = CadevilUser
@@ -13,6 +14,7 @@ class CadevilUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         ("Custom Fields", {"fields": ("view_hidden", "theme")}),
     )
+
 
 # Custom Group Admin
 # class CadevilGroupAdmin(BaseGroupAdmin):
