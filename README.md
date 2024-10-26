@@ -98,6 +98,7 @@ REDIS_URL=redis://localhost:6379/0
 ## 🔌 API Documentation
 
 Once this part is finished the api end points will be implemented as follows.
+
 API documentation is available at `/api/docs/` when running the server. Key endpoints:
 
 - `/api/models/` - IFC model management
@@ -142,7 +143,7 @@ python manage.py runserver
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).
+We welcome contributions! Please see our [Contributing Guidelines](https://github.com/Cadeval/.github/blob/main/profile/CONTRIBUTING.md) and [Code of Conduct](https://github.com/Cadeval/.github/blob/main/profile/CODE_OF_CONDUCT.md).
 
 ## 🔒 Security
 
