@@ -5,7 +5,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Django: 4.2+](https://img.shields.io/badge/django-4.2+-green.svg)](https://www.djangoproject.com/)
 
-CadEval is an open-source building analysis platform that enables architects and engineers to evaluate and compare building parameters using IFC models. Built with Django and IFCOpenShell, it provides powerful tools for building performance analysis, spatial optimization, and design validation.
+CadEval is an open-source building analysis platform that enables architects and engineers to evaluate and compare building parameters using IFC models. Built with Django and IFCOpenShell, it provides powerful tools for building performance analysis, spatial optimization, and design validation. It is the product from a TU Master Thesis project.
 
 ## 🚀 Features
 
@@ -21,7 +21,7 @@ CadEval is an open-source building analysis platform that enables architects and
   - Custom metric definition
   - Automated reporting
 
-- **Web Interface**
+- **Web Interface** NOT IMPLEMENTED YET
   - Interactive 3D visualization
   - Real-time parameter updates
   - Collaborative analysis tools
