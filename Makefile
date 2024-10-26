@@ -22,6 +22,10 @@ migrate:
 	python manage.py makemigrations model_manager
 	python manage.py migrate --run-syncdb
 
+test:
+	cd src/
+	python manage.py test
+
 flush:
 	cd src
 	python manage.py flush
