@@ -80,20 +80,24 @@ REDIS_URL=redis://localhost:6379/0
 ## 🏗️ Project Structure
 
 ```
-cadeval/
-├── apps/
-│   ├── analysis/       # Building analysis logic
-│   ├── comparison/     # Comparison tools
-│   ├── core/          # Core functionality
-│   └── viewer/        # 3D viewer
-├── config/            # Project settings
-├── static/
-├── templates/
-└── manage.py
+├── src/
+│   ├── manage.py                   # Django management script
+│   ├── model_manager/              # Main application module
+│   │   ├── ifc_extractor/          # IFC file processing module
+│   │   │   ├── data_models.py      # Python dataclass models
+│   │   │   ├── energy_modeling.py
+│   │   │   └── energy.py
+│   │   ├── models.py               # Database models
+│   │   ├── views.py                # View controllers
+│   │   └── urls.py                 # URL routing
+│   └── webapp/                     # Web application configuration
+│       ├── settings.py
+│       └── urls.py
 ```
 
 ## 🔌 API Documentation
 
+Once this part is finished the api end points will be implemented as follows.
 API documentation is available at `/api/docs/` when running the server. Key endpoints:
 
 - `/api/models/` - IFC model management
