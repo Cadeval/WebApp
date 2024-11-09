@@ -3,6 +3,8 @@
 {% load static %}
 {% load get_item %}
 {% load max_value %}
+{% load format_item %}
+
 
 {% block header %}
 {% endblock %}
@@ -18,7 +20,7 @@
             <th>Property</th>
             <th>Average</th>
             {% for item in data %}
-                {% if item.is_active and item.group == group %}
+                {% if item.group == group %}
                     <th>{{ item.description }}</th>
                 {% endif %}
             {% endfor %}
@@ -28,8 +30,8 @@
                 <td>{{ key }}</td>
                 <td>{{ key|max_value:data |floatformat:-2 }}</td>
                 {% for item in data %}
-                    {% if item.is_active and item.group == group %}
-                        <td>{{ item.properties|get_item:key |floatformat:-2 }}</td>
+                    {% if item.group == group %}
+                        <td>{{ item.properties|get_item:key|get_item:0 |floatformat:-2 }}</td>
                     {% endif %}
                 {% endfor %}
             </tr>

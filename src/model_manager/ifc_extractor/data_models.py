@@ -1,8 +1,6 @@
-import asyncio
-import time
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 try:
     import ifcopenshell
@@ -14,7 +12,7 @@ except ImportError:
     pprint("""Cannot import ifcopenshell. This is necessary to run the program.
            Please install it via pip or conda and retry.""")
 
-from model_manager.ifc_extractor.helpers import get_plot_area, read_config
+# from model_manager.ifc_extractor.helpers import read_config
 
 
 @dataclass
@@ -36,113 +34,218 @@ class LocationData:
 class EnergyData:
     pass
 
+# The spacial indicators can be split into these:
+# BGF (Brutto-Grundfläche / Gross Floor Area)
+# └── KF (Konstruktionsfläche / Construction Area)
+# └── NGF (Netto-Grundfläche) = NRF (Netto-Raumfläche)
+#     ├── NUF (Nutzungsfläche / Usable Area)
+#     ├── VF (Verkehrsfläche / Circulation Area)
+#     └── TF (Technische Funktionsfläche / Technical Area)
+# TODO: Move to own dataclass or smth
+gebäude_kenndaten: dict[str, list[float | str] | float | str] = {
+    # Flächen des Grundstückes
+    "GF":  [0.0, "m2"],               # Grundstücksfläche
+    "BF":  [0.0, "m2"],               # Bebaute Fläche
+    "UF":  [0.0, "m2"],               # Unbebaute Fläche
+
+    # Brutto Rauminhalt/Grundfläche des Bauwerkes
+    "BRI": [0.0, "m3"],               # Brutto-Rauminhalt (ÖNORM B 1800)
+    "BGF": [0.0, "m2"],               # Brutto-Grundfläche (ÖNORM B 1800)
+
+    # Grundfl.0ächen des Bauwerkes, summ up to BGF
+    "KGF": [0.0, "m2"],               # Konstruktions-Grundfläche (ÖNORM B 1800)
+    "NRF": [0.0, "m2"],               # Netto-Raumfläche (ÖNORM B 1800)
+
+    # Summ up to NRF
+    # "NUF": [0, "m2"],               # Nutzungsfläche (ÖNORM B 1800)
+    # "TF":  [0, "m2"],               # Technikfläche (ÖNORM B 1800)
+    # "VF":  [0, "m2"],               # Verkehrsfläche (ÖNORM B 1800)
+
+
+    # Andere Ratios bzw Werte
+    "BGF/BF":  [0.0],
+    "BRI/BGF": [0.0],
+
+    # "BRI/NUF": [0],
+
+    "Facade Area": [0.0, "m2"],
+    "Stockwerke": 0.0,                # Number of floors
+    "Energy Rating": "Unknown",     # Energy rating of the building
+
+}
+
+material_name_translation_dict: dict[str,str] = {
+    'Belag, Fliesen': "Belag Fliesen",
+
+    'Belag, Parkett': "Parkett",
+    # Beton
+    "Beton, Stahlbeton":       "Stahlbeton",
+    "Beton, Stahlbeton Wand":  "Stahlbeton",
+    "Beton, Stahlbeton Decke": "Stahlbeton",
+
+    "Beton, Fertigteil": "Beton Fertigteil",
+
+    'Boden, Pflaster': "Boden Pflaster",
+    'Dränschicht': "Dränschicht",
+
+    # Dämmung
+    "Dämmung, hart XPS": "Dämmung hart XPS",
+
+    'Dämmung, Holzwolledämmplatte (1)': "Dämmung Holzwolledämmplatte",
+    'Dämmung, Holzwolledämmplatte': "Dämmung Holzwolledämmplatte",
+
+    'Estrich': "Estrich",
+
+    'Holz, Holzwerkstoff': "Holzwerkstoff",
+
+    'Dämmung, weich Zellulose (1)': "Dämmung weich Zellulose",
+    'Dämmung, weich Zellulose': "Dämmung weich Zellulose",
+
+    'Dämmung, Mineralwolle': "Dämmung Mineralwolle",
+    'Dämmung, weich Mineralwolle (1)': "Dämmung weich Mineralwolle",
+    'Dämmung, weich Mineralwolle IW02': "Dämmung weich Mineralwolle",
+    'Dämmung, weich Mineralwolle IW03': "Dämmung weich Mineralwolle",
+    'Dämmung, weich Mineralwolle': "Dämmung weich Mineralwolle",
+    'Dämmung, Trittschall': "Trittschalldämmung",
+
+    'Dämmung, hart EPS': "Dämmung hart EPS",
+
+    'Gipskarton (1)': "Gipskarton",
+    'Gipskarton': "Gipskarton",
+
+    'Glas, Normalglas': "Glas Normalglass",
+
+    # Holz
+    "Holz, Bauholz": "Holz Lattung/Bauholz",
+    "Holz, Lattung": "Holz Lattung/Bauholz",
+
+    'Holz, Brettschichtholz HOHE PRIO': "Brettschichtholz",
+    'Holz, Brettschichtholz': "Brettschichtholz",
+
+    'Holz, OSB (1)': "Holz OSB",
+    'Holz, OSB': "Holz OSB",
+
+   'Dämmung, hart EPS': "Dämmung hart EPS",
+   'Dämmung, weich Glaswolle (1)': "Dämmung weich Mineralwolle",
+   'Dämmung, hart Mineralwolle (1)': "Dämmung hart Mineralwolle",
+   'Dämmung, hart Mineralwolle': "Dämmung hart Mineralwolle",
+
+   'Metall,Blech Grau': "Metall Blech Grau",
+
+   'Metall, Stahl': "Stahl",
+
+   'Maschendrat': "Maschendrat",
+
+   'Sperrschicht 2': "Sperrschicht",
+   'Sperrschicht': "Sperrschicht",
+   'Sperrschicht': "Sperrschicht",
+   'Sperrschicht, Folie (1)': "Sperrschicht Folie",
+   'Sperrschicht, Folie': "Sperrschicht Folie",
+   'FOLIE, PAE FOLIE': "Sperrschicht Folie",
+   'Verputz, Kunstharz': "Kunstharzputz",
+   'Verputz, Gips': "Verputz Gips",
+
+   'Verputz, Kalk (1)': "Verputz Kalk",
+   'Verputz, Kalk HOLZ Fasade': "Verputz Kalk",
+}
+
+
+
+
+
+
+# 'IW 30cm STB tragend 2s',
+# 'IW 30cm STB tragend',
+# 'IW02 Trennwand',
+# 'IW03 Innenwand',
+# '16 WDVS Aufbau unten',
+# 'D00 Begehbar',
+# 'D00 Begehbar-Dachterasse',
+# 'D01 Aufbauten Oben DG',
+# 'D01 Aufbauten Oben Nassraum',
+# 'D01 Aufbauten Oben',
+# 'D01 Aufbauten unten',
+# 'D02 Extensiv Begrünt',
+# 'Belag, Gras',
+# 'Bauteil - Attika BIM 1,2 (1)',
+# 'Bauteil - Attika BIM 1,2',
+# 'Vegetation',
+# '1 AW Holzrahmenbauweise',
+# '1 Bodenaufbau Holz',
+# '1 Bodenaufbau Küche/Bad',
+# '1 Flachdach Kies-Kopie',
+# '1 IW 15,5 Holzrahmen',
+# '1 IW Holzrahmenbauweise',
+# 'ALLGEMEIN - BAUTEIL',
+# 'ALLGEMEIN - BAUTEIL',
+# 'ALLGEMEIN - BEKLEIDUNG',
+# 'ALLGEMEIN - NIEDRIGE PRIORITÄT',
+# 'ALLGEMEIN - TRAGENDE BAUTEILE',
+# 'ALLGEMEIN - UMGEBUNG',
+# 'ATIKA 3',
+# 'AW 01 BIM 1OG',
+# 'AW 01 BIM DG',
+# 'AW 01 BIM',
+# 'AW 25 STB + 18 WDVS',
+# 'Atika 2,1',
+# 'Atika 4',
+# 'Atika',
 
 @dataclass
-class BuildingMetrics:
-    """
-    Calculated Building Properties
-    """
-
-    tsa: float = 0  # Total something FIXME
-    bf: float = 0  # Total Area of the plot Brutto Fläche
-    bgf: float = 0  # BruttGo-Grundfläche (ÖNORM B 1800)
-    bgf_bf: float = 0  # Ratio of BF to BGF
-    ngf: float = 0  # Netto-Grundfläche (ÖNORM B 1800)
-    nf: float = 0  # Nutzfläche (ÖNORM B 1800)
-    kgf: float = 0  # Konstruktions-Grundfläche (ÖNORM B 1800)
-    bri: float = 0  # Brutto-Rauminhalt (ÖNORM B 1800)
-    eikon: float = 0  # EIKON value (example placeholder)
-    energy_rating = "Unknown"  # Energy rating of the building
-    floors: float = 0  # Number of floors
-    facade_area: float = 0
+class material_accumulator(dict):
+    volume: float = field(default=0.0, init=False)
+    mass: float = field(default=0.0, init=False)
+    penrt_ml: float = field(default=0.0, init=False)
+    gwp_ml: float = field(default=0.0, init=False)
+    ap_ml: float = field(default=0.0, init=False)
+    recyclable_mass: float = field(default=0.0, init=False)
+    waste_mass: float = field(default=0.0, init=False)
 
 
-# FIXME: Put this into the above dataclass
-properties = {
-    # ÖNORM B 1800 / ÖNORM EN 15221-6
-    "TSA": 0,  # Total site area (FIXME)
-    "BF": 0,  # Total plot area (Brutto Fläche)
-    "BGF": 0,  # Brutto-Grundfläche (ÖNORM B 1800)
-    "BGF/BF": 0,  # Ratio of BF to BGF
-    "NGF": 0,  # Netto-Grundfläche (ÖNORM B 1800)
-    "NF": 0,  # Nutzfläche (ÖNORM B 1800)
-    "KGF": 0,  # Konstruktions-Grundfläche (ÖNORM B 1800)
-    "BRI": 0,  # Brutto-Rauminhalt (ÖNORM B 1800)
-    "EIKON": 0,  # EIKON value (example placeholder)
-    "Energy Rating": "Unknown",  # Energy rating of the building
-    "Floors": 0,  # Number of floors
-    "Facade Area": 0,
-}
+@dataclass
+class material_passport_element(dict):
+
+    volume: float = field(default=0.0, init=False)
+    density: float = field(default=0.0, init=False)
+
+    mass: float = field(default=0.0, init=False)
+
+    recyclable_grade: float = field(default=0.0, init=False)
+    waste_grade: float = field(default=0.0, init=False)
+
+    recyclable_mass: float = field(default=0.0, init=False)
+    waste_mass: float = field(default=0.0, init=False)
+
+    penrt: float = field(default=0.0, init=False)
+    gwp: float = field(default=0.0, init=False)
+    ap: float = field(default=0.0, init=False)
+
+    penrt_ml: float = field(default=0.0, init=False)
+    gwp_ml: float = field(default=0.0, init=False)
+    ap_ml: float = field(default=0.0, init=False)
 
 
 @dataclass
 class IfcExtractor:
+    """
+    Method and data holder for interacting with ifc formatted files
+    """
+
     ifc_file_path: str
     weather_file_path: str = "../schema/AUT_Vienna.Schwechat.110360_IWEC.epw"
     config_file: str = "../schema/prices.csv"
 
-    start: Optional[float] = field(init=False, default=None)
-    config: Dict[str, Any] = field(init=False)
-    ifc_model: ifcopenshell.file = field(init=False)
-    application: Any = field(init=False)
-    material_dict: Dict[str, Any] = field(default_factory=dict, init=False)
-    material_set: Set[str] = field(default_factory=set, init=False)
-    s: ifcopenshell.geom.settings = field(init=False)
-    properties: Dict[str, Any] = field(
-        default_factory=lambda: {
-            "TSA": 0,  # Total site area
-            "BF": 0,  # Total Area of the plot Brutto Fläche
-            "BGF": 0,  # Brutto-Grundfläche (ÖNORM B 1800)
-            "BGF/BF": 0,  # Ratio of BF to BGF
-            "NGF": 0,  # Netto-Grundfläche (ÖNORM B 1800)
-            "NF": 0,  # Nutzfläche (ÖNORM B 1800)
-            "KGF": 0,  # Konstruktions-Grundfläche (ÖNORM B 1800)
-            "BRI": 0,  # Brutto-Rauminhalt (ÖNORM B 1800)
-            "EIKON": 0,  # EIKON value (example placeholder)
-            "Energy Rating": "Unknown",  # Energy rating of the building
-            "Floors": 0,  # Number of floors
-            "Facade Area": 0,
-        },
-        init=False,
-    )
-    units: Dict[str, Any] = field(
-        default_factory=lambda: {
-            "TSA": "m2",  # Total site area
-            "BF": "m2",  # Total Area of the plot Brutto Fläche
-            "BGF": "m2",  # Brutto-Grundfläche (ÖNORM B 1800)
-            "BGF/BF": "m2/m2",  # Ratio of BF to BGF
-            "NGF": "m2",  # Netto-Grundfläche (ÖNORM B 1800)
-            "NF": "m2",  # Nutzfläche (ÖNORM B 1800)
-            "KGF": "m2",  # Konstruktions-Grundfläche (ÖNORM B 1800)
-            "BRI": "m3",  # Brutto-Rauminhalt (ÖNORM B 1800)
-            "EIKON": "Unknown",  # EIKON value (example placeholder)
-            "Energy Rating": "Unknown",  # Energy rating of the building
-            "Floors": "floor(s)",  # Number of floors
-            "Facade Area": "m2",  # Outer
-        },
-        init=False,
-    )
-    walls: List[Any] = field(default_factory=list, init=False)
-    ceiling: List[Any] = field(default_factory=list, init=False)
-    roof: List[Any] = field(default_factory=list, init=False)
-    facade: List[Any] = field(default_factory=list, init=False)
-    floor: List[Any] = field(default_factory=list, init=False)
-
-    # Locks for thread safety
-    properties_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    material_dict_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    material_set_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    walls_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    ceiling_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    roof_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
-    facade_lock: asyncio.Lock = field(default_factory=asyncio.Lock, init=False)
+    start: float = field(init=False, default=0.0)
+    config: dict[str, Any] = field(default_factory=dict, init=False)
+    material_dict: dict[str, Any] = field(default_factory=dict, init=False)
+    material_set: set[str] = field(default_factory=set, init=False)
+    properties = gebäude_kenndaten
 
     def __post_init__(self):
-        self.start = None
         self.config = read_config(self.config_file)
         self.ifc_model = ifcopenshell.open(self.ifc_file_path)
         pprint(f"Schema used: {self.ifc_model.schema}")
-        self.application = self.ifc_model.by_type("IfcApplication")
+        pprint(f"Opened file: {self.ifc_file_path}")
         self.s = ifcopenshell.geom.settings()
         try:
             self.s.set(self.s.USE_MATERIAL_NAMES, True)
@@ -156,222 +259,4 @@ class IfcExtractor:
             # self.s.set(self.s.USE_PYTHON_OPENCASCADE, True) # Apparently this one does not exist??
         except AttributeError:
             pprint("This attribute does not seem to exist.")
-        print(self.s)
-
-    async def get_ifc_units(self):
-        units_assignment = self.ifc_model.by_type("IfcUnitAssignment")[0]
-        units = {}
-        for unit in units_assignment.Units:
-            try:
-                unit_type = unit.UnitType
-                if unit.is_a("IfcSIUnit"):
-                    unit_name = unit.Name
-                    units[unit_type] = unit_name
-                elif unit.is_a("IfcDerivedUnit"):
-                    unit_name = unit.UserDefinedType or "Derived Unit"
-                    units[unit_type] = unit_name
-            except AttributeError:
-                pprint("An error occurred while retrieving units.")
-        return units
-
-    async def calculate_norm1800(self, i, product, product_quantity) -> None:
-        pprint(f"Calculating Norm 1800 for {product.id()} of {i}/{product_quantity}")
-        product_type = product.is_a()
-        if product_type == "IfcSpace":
-            product_shape = await asyncio.to_thread(
-                ifcopenshell.geom.create_shape, self.s, product
-            )
-            product_geom = product_shape.geometry
-            net_area = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_footprint_area, product_geom
-            )
-            gross_area = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_area, product_geom
-            )
-            height = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_z, product_geom
-            )
-            pset_common = ifcopenshell.util.element.get_pset(
-                product, "Pset_SpaceCommon"
-            )
-            if pset_common:
-                pprint(pset_common)
-                if pset_common.get("IsExternal", False):
-                    print(f"{product} is external")
-            async with self.properties_lock:
-                self.properties["NGF"] += net_area
-                self.properties["BGF"] += gross_area
-                self.properties["KGF"] += gross_area - net_area
-                self.properties["BRI"] += gross_area * height
-
-        elif product_type in [
-            "IfcWall",
-            "IfcColumn",
-            "IfcBeam",
-            "IfcSlab",
-            "IfcCurtainWall",
-            "IfcWindow",
-            "IfcDoor",
-        ]:
-            product_shape = await asyncio.to_thread(
-                ifcopenshell.geom.create_shape, self.s, product
-            )
-            product_geom = product_shape.geometry
-            volume = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_volume, product_geom
-            )
-            area = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_area, product_geom
-            )
-            pset_common = ifcopenshell.util.element.get_pset(product, "Pset_WallCommon")
-            async with self.properties_lock:
-                if pset_common:
-                    pprint(pset_common)
-                    if pset_common.get("IsExternal", False):
-                        pprint(f"Calculating Facade Area for {product.id()} of {i}")
-                        self.properties["Facade Area"] += area
-                else:
-                    self.properties["KGF"] += area
-                    self.properties["BRI"] += volume
-        elif (
-            product_type == "IfcSlab"
-            and ifcopenshell.util.element.get_type(product) == "FLOOR"
-        ):
-            product_shape = await asyncio.to_thread(
-                ifcopenshell.geom.create_shape, self.s, product
-            )
-            product_geom = product_shape.geometry
-            # volume = await asyncio.to_thread(ifcopenshell.util.shape.get_volume, product_geom)
-            area = await asyncio.to_thread(
-                ifcopenshell.util.shape.get_footprint_area, product_geom
-            )
-            pset_common = ifcopenshell.util.element.get_pset(
-                product, "Pset_FloorCommon"
-            )
-            pprint(f"Calculating Floor Area for {product.id()} of {i}")
-            async with self.properties_lock:
-                self.properties["BGF"] += area
-
-    async def calculate_material_cost(self, i, product, product_quantity) -> None:
-        pprint(
-            f"Calculating Material Cost for {product.id()} of {i}/{product_quantity}"
-        )
-        try:
-            materials = await asyncio.to_thread(
-                ifcopenshell.util.element.get_materials, product, should_inherit=True
-            )
-            if materials:
-                if len(materials) > 1:
-                    pass
-                for material in materials:
-                    material_name = material.get_info()["Name"]
-                    if material_name not in self.config:
-                        async with self.material_set_lock:
-                            self.material_set.add(material_name)
-                    else:
-                        # cost = self.adjust_material_cost(
-                        #     material_name, self.properties["Facade Area"]
-                        # )
-                        async with self.material_dict_lock:
-                            self.material_dict[material_name] = (
-                                self.material_dict.get(material_name, 0) + 1
-                            )
-
-                        if "Wall" in material_name:
-                            async with self.walls_lock:
-                                self.walls.append([material_name, "m2", 1])
-                        elif "Ceiling" in material_name:
-                            async with self.ceiling_lock:
-                                self.ceiling.append([material_name, "m2", 1])
-                        elif "Floor" in material_name:
-                            async with self.walls_lock:
-                                self.floor.append([material_name, "m2", 1])
-                        elif "Roof" in material_name:
-                            async with self.roof_lock:
-                                self.roof.append([material_name, "m2", 1])
-
-                        if self.properties["Facade Area"] > 0:
-                            async with self.facade_lock:
-                                self.facade.append(
-                                    [
-                                        material_name,
-                                        "m2",
-                                        1,
-                                        self.properties["Facade Area"],
-                                    ]
-                                )
-        except Exception as e:
-            print(f"Failed to extract materials because {e}.")
-
-    def adjust_material_cost(self, material_name, area) -> int:
-        base_cost = int(self.config[material_name])
-        if "Insulation" in material_name:
-            base_cost *= 1.1
-        elif "Glass" in material_name:
-            base_cost *= 1.2
-        elif "Metal" in material_name:
-            base_cost *= 1.15
-        return base_cost * area
-
-    async def process_products(self, progress_recorder=None) -> None:
-        self.start = time.time()
-        products = self.ifc_model.by_type("IfcProduct")
-        product_quantity = len(products) - 1
-        try:
-            site = self.ifc_model.by_type("IfcSite")[0]
-            self.properties["TSA"] = await asyncio.to_thread(get_plot_area, site)
-        except Exception:
-            print("Failed to extract plot area")
-        try:
-            storeys = self.ifc_model.by_type("IfcBuildingStorey")
-            self.properties["Floors"] = len(storeys)
-
-            for storey in storeys:
-                area = await asyncio.to_thread(get_plot_area, storey)
-                async with self.properties_lock:
-                    self.properties["BGF"] += area
-                if storey.get_info()["Elevation"] == 0:
-                    async with self.properties_lock:
-                        self.properties["BF"] = area
-        except Exception:
-            print("Failed to extract floor area.")
-
-        tasks = []
-        for i, product in enumerate(products):
-            if product.Representation:
-                try:
-                    tasks.append(
-                        self.calculate_norm1800(
-                            i=i, product=product, product_quantity=product_quantity
-                        )
-                    )
-                    tasks.append(
-                        self.calculate_material_cost(
-                            i=i, product=product, product_quantity=product_quantity
-                        )
-                    )
-                    pprint(f"{i}/{product_quantity} - properties of {product.id()}")
-                except Exception as e:
-                    pprint(f"Shape creation failed because {e}.")
-                if progress_recorder:
-                    progress_recorder.set_progress(
-                        i + 1, product_quantity, description="Processing products"
-                    )
-        # with multiprocessing.pool.ThreadPool(processes=os.cpu_count()*2) as pool:
-        #     pool.map(func=asyncio.run, iterable=tasks, chunksize=(len(products) // os.cpu_count()))
-        await asyncio.gather(*tasks)
-
-        if self.properties["BF"] != 0:
-            self.properties["BGF/BF"] = self.properties["BGF"] / self.properties["BF"]
-
-        print(
-            f"\nFinished extracting {product_quantity} objects in {time.time() - self.start}s at a rate of {product_quantity / (time.time() - self.start)} objects/s."
-        )
-
-    def calculate_additional_properties(self):
-        self.properties["EIKON"] = self.properties.get("Area", 0) * 0.1
-        self.properties["BGF"] = self.properties.get("Area", 0) * 0.9
-        self.properties["NF"] = self.properties.get("Volume", 0) * 0.05
-        if self.properties["BGF"] != 0:
-            self.properties["BF/BGF"] = self.properties["BF"] / self.properties["BGF"]
-        self.properties["Energy Rating"] = "C"
+        pprint(self.s)

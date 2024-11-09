@@ -17,11 +17,6 @@
     {# NOTE: Not sure yet if I should keep this #}
     {# <meta name="htmx-config" content='{"historyCacheSize": 15}' /> #}
 
-    {# HTMX specific js files #}
-    {#<script src="{% static 'js/htmx.js' %}" defer></script>
-    <script src="{% static 'js/ext/debug.js' %}" defer></script>
-    <script src="{% static 'js/ext/event-header.js' %}" defer></script>#}
-
     <!-- For showing calculation or file upload progress -->
     <script src="{% static 'js/celery_progress.js' %}"></script>
 
@@ -72,9 +67,15 @@
 
 <body>
     <header>
-      <button popovertarget='menu-popover' class='menu-button'>
-        <img alt="Menu Button" class="menu_icon" src="{% static 'images' %}/favicon.svg">Cadevil
-      </button>
+      <nav>
+          <button popovertarget='menu-popover' class='menu-button'>
+              <img alt="Menu Button" class="menu_icon" src="{% static 'images' %}/favicon.svg">Cadevil
+          </button>
+
+          {% if user.is_authenticated and messages %}
+              <button popovertarget='notification-popover'  class="menu_icon fa fa-bell" ></button>
+          {% endif %}
+      </nav>
 
       {% if user.is_authenticated %}
           <button popovertarget='filemanager-popover'  class="openbtn" >User Files &#9776; </button>
@@ -85,7 +86,7 @@
       {% endblock %}
 
   </header>
-        <div popover class='popover-small' id='menu-popover'>
+        <div popover class='popover-small left-anchor' id='menu-popover'>
     {#        <input type="checkbox" id="toggleMode">#}
     {#        <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
     {#        <label for="toggleMode" class="toggleLight">Light Mode</label>#}
@@ -134,7 +135,7 @@
             {% endif %}
         </div>
 
-        <div popover class="popover-big" id="filemanager-popover">
+        <div popover class="popover-big center-anchor" id="filemanager-popover">
             <div class="popover-content" id="popover-content">
                 <h4>File Upload</h4>
                 <form method="post" class="form" enctype="multipart/form-data">
@@ -164,6 +165,25 @@
                         </h5><hr>
                     </li>
                 {% endfor %}
+            </div>
+        </div>
+
+        <div popover class="popover-small left-anchor" id="notification-popover">
+            <div class="popover-content" id="popover-content">
+                {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" onclick="this.remove()">
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+
+                                {{ message }}
+                                <span class="close-btn">&times;</span>
+                            </li>
+                        </div>
+                    {% endfor %}
+                </ul>
+                {% endif %}
             </div>
         </div>
 

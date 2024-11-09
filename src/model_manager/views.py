@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from asyncio import subprocess
+import json
 import os
 
 # from pprint import pprint
 from asgiref.sync import sync_to_async
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 # from django.core.paginator import Paginator
@@ -15,43 +16,50 @@ from django.template.response import TemplateResponse
 # from django_htmx.middleware import HtmxDetails, HtmxMiddleware
 # from typing_extensions import assert_type
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
-from model_manager.ifc_extractor.data_models import IfcExtractor, properties
+from model_manager.ifc_extractor import helpers
 from model_manager.models import CadevilDocument, FileUpload
 
 # TODO: Consider putting this on all methods to prevent django from processing PUT UPDATE or DELETE
 # @require_http_methods(["GET", "POST"])
 
+
 # TODO: Add require_POST and require_GET to all functions
 def index(request: HttpRequest):
     return TemplateResponse(
         request,
-        "index.html",
-        {},
+        template="index.html",
+        context={},
     )
 
 
 @login_required(login_url="/accounts/login")
-async def calculate_model(request: HttpRequest) -> TemplateResponse | HttpResponseRedirect:
+async def calculate_model(
+    request: HttpRequest,
+) -> TemplateResponse | HttpResponseRedirect:
     request_id = str(request.GET.get("calculate"))
-    _file = await FileUpload.objects.filter(id=request_id).aget()
+    file = await FileUpload.objects.filter(id=request_id).aget()
 
     # TODO: Fork the rest of this to background
-
     # Process the IFC file asynchronously
-    cadevil_document = IfcExtractor(ifc_file_path=_file.document.path)
 
+    messages.info(request, f"Starting Calculation of {file.description}!")
     # TODO: start this in different process
-    await cadevil_document.process_products()
+    elements_by_materials, properties = helpers.ifc_product_walk(ifc_file_path=file.document.path)
+    messages.info(request, "Test message!")
+
+    # FIXME: This shit is currently needed to make this work
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    print(json.dumps(elements_by_materials))
 
     # Save the results asynchronously
-    doc = CadevilDocument()
-    doc.user = request.user
-    user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
-    doc.group = user_groups[0] if user_groups else None
-    doc.description = _file.description
-    doc.properties = cadevil_document.properties
-    doc.materials = cadevil_document.material_dict
-    await doc.asave()
+    # doc = CadevilDocument()
+    # doc.user = request.user
+    # user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+    # doc.group = user_groups[0] if user_groups else None
+    # doc.description = file.description
+    # doc.properties = properties
+    # doc.materials = elements_by_materials
+    # await doc.asave()
     return redirect("/model_manager")
 
 
@@ -68,12 +76,17 @@ async def change_group(request: HttpRequest) -> HttpResponseRedirect:
     _ = await CadevilDocument.objects.filter(id=request_id).aupdate(group=group[1])
     return redirect("/model_manager")
 
+
 @login_required(login_url="/accounts/login")
 async def delete_file(request: HttpRequest) -> HttpResponseRedirect:
     request_id = str(request.GET.get("delete_file"))
 
     # Wrap file path retrieval
-    _object = await FileUpload.objects.filter(id=request_id).values_list("document", flat=True).aget()
+    _object = (
+        await FileUpload.objects.filter(id=request_id)
+        .values_list("document", flat=True)
+        .aget()
+    )
     os.chdir(os.path.join(os.getcwd(), "../media"))
     print(os.getcwd())
 
@@ -88,9 +101,11 @@ async def delete_file(request: HttpRequest) -> HttpResponseRedirect:
     _ = await FileUpload.objects.filter(id=request_id).adelete()
     return redirect("/model_manager")
 
+
 @login_required(login_url="/accounts/login")
 async def delete_model(request: HttpRequest) -> HttpResponseRedirect:
     request_id = str(request.GET.get("delete_model"))
+    print(request_id)
     _ = await CadevilDocument.objects.filter(id=request_id).adelete()
     return redirect("/model_manager")
 
@@ -103,7 +118,9 @@ async def model_manager(
     # FIXME: This shit is currently needed to make this work
     _ = await sync_to_async(lambda: request.user.is_authenticated)()
 
-    print(f"Current user {request.user} has this many running calculations {request.user.active_calculations}/{request.user.max_calculations}")
+    print(
+        f"Current user {request.user} has this many running calculations {request.user.active_calculations}/{request.user.max_calculations}"
+    )
     document_form = DocumentForm(user=request.user, user_id=request.user.id)
     group_form = GroupForm(
         user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
@@ -150,6 +167,7 @@ async def user(request: HttpRequest) -> TemplateResponse:
         {},
     )
 
+
 @login_required(login_url="/accounts/login")
 async def object_view(
     request: HttpRequest,
@@ -168,7 +186,8 @@ async def object_view(
 
     # Wrap ORM query
     data = await sync_to_async(
-        lambda: list(CadevilDocument.objects.filter(id=document_id))
+        lambda: list(CadevilDocument.objects.filter(id=document_id)),
+        thread_sensitive=True
     )()
     return TemplateResponse(
         request,
@@ -187,14 +206,13 @@ async def model_comparison(request: HttpRequest) -> TemplateResponse:
     # TODO: Add filter for groups
 
     # Wrap ORM query
-    documents = await sync_to_async(
-        lambda: list(CadevilDocument.objects.filter(is_active=True)),
-        thread_sensitive=True,
+    data = await sync_to_async(
+        lambda: list(CadevilDocument.objects.all()),
+        thread_sensitive=True
     )()
 
     context = {
-        "data": documents,
-        "properties": properties,
+        "data": data,
     }
 
     return TemplateResponse(request, "webapp/model_comparison.html", context)

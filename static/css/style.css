@@ -300,16 +300,19 @@ main {
 
 .popover-small {
     width: 12em;
-    top: calc(var(--header-height) + 0.25em);
-    left: 0.5em;
 }
 
 .popover-big {
     width: clamp(20em, 60%, 80em);
     height: 70%;
-    top: calc(var(--header-height) + 0.25em);
-    left: 25%;
     transform: translateX(-50%);
+}
+
+.left-anchor {
+    left: 0.5em;
+}
+.center-anchor {
+    left: 25%;
 }
 
 .button, .button-wide, .menu-button, .openbtn {
