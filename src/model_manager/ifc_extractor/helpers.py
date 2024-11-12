@@ -6,11 +6,10 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import Iterator
+from collections.abc import Iterator
 
 import ifcopenshell
 import ifcopenshell.api
-from ifcopenshell.entity_instance import entity_instance
 import ifcopenshell.express
 import ifcopenshell.express.rules
 import ifcopenshell.file
@@ -28,7 +27,13 @@ import ifcopenshell.util.selector
 import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
-from model_manager.ifc_extractor.data_models import material_passport_element, gebäude_kenndaten, material_name_translation_dict, material_accumulator
+from model_manager.ifc_extractor.data_models import (
+    material_passport_element,
+    gebäude_kenndaten,
+    material_name_translation_dict,
+    material_accumulator,
+)
+
 """
     "IfcWall",
     "IfcColumn",
@@ -43,6 +48,7 @@ from model_manager.ifc_extractor.data_models import material_passport_element, g
 #     pprint("""Cannot import ifcopenshell. This is necessary to run the program.
 #            Please install it via pip or conda and retry.""")
 
+
 def read_config(config_file: str) -> dict[str, str | int]:
     config_dict: dict[str, str | int] = {}
     with open(config_file, newline="") as csvfile:
@@ -51,8 +57,11 @@ def read_config(config_file: str) -> dict[str, str | int]:
             config_dict[row[0]] = row[1]
     return config_dict
 
-unimp_name_set = set()
-unimp_name_set2 = set()
+
+unimp_name_set: set[str | str] = set()
+unimp_name_set2: set[str | str] = set()
+
+
 # 0: key Material; <- name referenced in code
 # 1:     baubook Wahl; <- name of material on baubook website
 # 2: 0   Dichte    kg/m³;
@@ -62,15 +71,42 @@ unimp_name_set2 = set()
 # 6: 3   GWP-total Globales Erwärmungspotenzial - total            kg CO2 Äq./kg;
 # 7: 4   AP Versauerungspotenzial von Boden und Wasser        kg SO2 Äq./kg;
 # 8: 5   PENRT Nicht erneuerbare Primärenergie - total           MJ/kg
-def read_passport_config(passport_file: str) -> dict[str, tuple[int|float|str, int|float|str, int|float|str, int|float|str, int|float|str, int|float|str]]:
-    passport_dict: dict[str, tuple[int|float|str, int|float|str, int|float|str, int|float|str, int|float|str, int|float|str]] = {}
+def read_passport_config(
+    passport_file: str,
+) -> dict[
+    str,
+    tuple[
+        int | float | str,
+        int | float | str,
+        int | float | str,
+        int | float | str,
+        int | float | str,
+        int | float | str,
+    ],
+]:
+    passport_dict: dict[
+        str,
+        tuple[
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+        ],
+    ] = {}
     with open(passport_file, newline="") as csvfile:
         reader = csv.reader(csvfile, delimiter=";", quotechar="'")
         for row in reader:
             passport_dict[row[0]] = (row[2], row[4], row[5], row[6], row[7], row[8])
     return passport_dict
 
-def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accumulator], dict[str, list[float | str] | float | str]]:
+
+def ifc_product_walk(
+    ifc_file_path: str,
+) -> tuple[
+    defaultdict[str, material_accumulator], dict[str, list[float | str] | float | str]
+]:
     """
     -> list[entity_instance]
     """
@@ -99,12 +135,14 @@ def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accu
     pprint(">>> Loading ifc file.", width=140, sort_dicts=True, compact=True)
     ifc_model: ifcopenshell.file = ifcopenshell.open(ifc_file_path, should_stream=False)
 
-
     # Dictionary to store elements by material
-    iterator = ifcopenshell.geom.iterator(settings, ifc_model, multiprocessing.cpu_count())
+    iterator = ifcopenshell.geom.iterator(
+        settings, ifc_model, multiprocessing.cpu_count()
+    )
     gc.freeze()
-    elements_by_material:defaultdict[str, material_accumulator] = defaultdict(material_accumulator)
-
+    elements_by_material: defaultdict[str, material_accumulator] = defaultdict(
+        material_accumulator
+    )
 
     storeys = ifc_model.by_type("IfcBuildingStorey")
     properties["Stockwerke"] = len(storeys)
@@ -122,11 +160,17 @@ def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accu
         del storeys
 
     # TODO: Figure out if we need to enable recursive for some files
-    ground_floor_elements = ifcopenshell.util.element.get_decomposition(element=ground_floor, is_recursive=True)
+    ground_floor_elements = ifcopenshell.util.element.get_decomposition(
+        element=ground_floor, is_recursive=True
+    )
     material_prices_dict = read_config("../schema/prices.csv")
-    passport_config_dict = read_passport_config("../schema/material_passport_house_a_b.csv")
+    passport_config_dict = read_passport_config(
+        "../schema/material_passport_house_a_b.csv"
+    )
 
-    pprint(">>> Now iterating over the elements.", width=140, sort_dicts=True, compact=True)
+    pprint(
+        ">>> Now iterating over the elements.", width=140, sort_dicts=True, compact=True
+    )
     accumulator_dict = {}
 
     if iterator.initialize():
@@ -134,10 +178,14 @@ def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accu
         while iterator.next():
             element_shape = iterator.get()
             element_geometry = element_shape.geometry
-            element:ifcopenshell.entity_instance = ifc_model.by_guid(element_shape.guid)
+            element: ifcopenshell.entity_instance = ifc_model.by_guid(
+                element_shape.guid
+            )
 
             vol = ifcopenshell.util.shape.get_volume(geometry=element_geometry)
-            area = ifcopenshell.util.shape.get_side_area(geometry=element_geometry, axis="Z")
+            area = ifcopenshell.util.shape.get_side_area(
+                geometry=element_geometry, axis="Z"
+            )
 
             properties["BRI"][0] += vol
             properties["BGF"][0] += area
@@ -152,8 +200,17 @@ def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accu
                 properties["KGF"][0] += area
 
             # Ignore all spaces and similar, they do not have good materials
-            if not (element.is_a("IfcSpace") or element.is_a("IfcDoor") or element.is_a("IfcWindow")):
-                populate_material_set(element=element, volume=vol, passport_config_dict=passport_config_dict, elements_by_material=elements_by_material)
+            if not (
+                element.is_a("IfcSpace")
+                or element.is_a("IfcDoor")
+                or element.is_a("IfcWindow")
+            ):
+                populate_material_set(
+                    element=element,
+                    volume=vol,
+                    passport_config_dict=passport_config_dict,
+                    elements_by_material=elements_by_material,
+                )
                 # pprint(elements_by_material)
 
             i += 1
@@ -161,39 +218,85 @@ def ifc_product_walk(ifc_file_path: str) -> tuple[defaultdict[str, material_accu
         # properties["NUF"][0] = properties["NRF"][0]
         # properties["BRI/NUF"] = properties["BRI"][0] / properties["NUF"][0]
 
-        properties["GF"][0]      = properties["BF"][0]  + properties["UF"][0]
-        properties["BGF/BF"][0]  = properties["BGF"][0] / properties["BF"][0]
+        properties["GF"][0] = properties["BF"][0] + properties["UF"][0]
+        properties["BGF/BF"][0] = properties["BGF"][0] / properties["BF"][0]
         properties["BRI/BGF"][0] = properties["BRI"][0] / properties["BGF"][0]
 
-    pprint("--------------------------------------------------------------------------------------",
-                       width=140, sort_dicts=True, compact=True)
+    pprint(
+        "--------------------------------------------------------------------------------------",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
 
-    pprint(object=unimp_name_set,
-                       width=140, sort_dicts=True, compact=True)
-    pprint("--------------------------------------------------------------------------------------",
-                       width=140, sort_dicts=True, compact=True)
-    pprint(object=unimp_name_set2,
-                       width=140, sort_dicts=True, compact=True)
-    pprint("--------------------------------------------------------------------------------------",
-                       width=140, sort_dicts=True, compact=True)
+    pprint(
+        object="Materials not yet in material passport file",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
+    pprint(object=unimp_name_set, width=140, sort_dicts=True, compact=True)
+    pprint(
+        "--------------------------------------------------------------------------------------",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
+    pprint(
+        object="Names not yet in Materialname translation file",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
+    pprint(object=unimp_name_set2, width=140, sort_dicts=True, compact=True)
+    pprint(
+        "--------------------------------------------------------------------------------------",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
 
     pprint("Properties:", width=140, sort_dicts=True, compact=True)
     pprint(object=properties, width=140, sort_dicts=True, compact=True)
-    pprint("--------------------------------------------------------------------------------------",
-                       width=140, sort_dicts=True, compact=True)
+    pprint(
+        "--------------------------------------------------------------------------------------",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
 
     pprint(f"Schema used: {ifc_model.schema}", width=140, sort_dicts=True, compact=True)
     pprint(f"Opened file: {ifc_file_path}", width=140, sort_dicts=True, compact=True)
-    pprint("--------------------------------------------------------------------------------------",
-                       width=140, sort_dicts=True, compact=True)
-    pprint(f"Done within {time.time() - start}s", width=140, sort_dicts=True, compact=True)
+    pprint(
+        "--------------------------------------------------------------------------------------",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
+    pprint(
+        f"Done within {time.time() - start}s", width=140, sort_dicts=True, compact=True
+    )
     for key in elements_by_material.keys():
         pprint(elements_by_material[key].volume)
     return elements_by_material, properties
 
-def populate_material_set(element:ifcopenshell.entity_instance, volume: float, passport_config_dict:dict[str,
-                          tuple[int|float|str, int|float|str, int|float|str, int|float|str, int|float|str,
-                          int|float|str]], elements_by_material:defaultdict[str, material_accumulator]):
+
+def populate_material_set(
+    element: ifcopenshell.entity_instance,
+    volume: float,
+    passport_config_dict: dict[
+        str,
+        tuple[
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+            int | float | str,
+        ],
+    ],
+    elements_by_material: defaultdict[str, material_accumulator],
+):
 
     for ifc_name in material_name_iterator(element=element):
 
@@ -214,27 +317,35 @@ def populate_material_set(element:ifcopenshell.entity_instance, volume: float, p
                 element_passport.waste_grade = float(element_config[1])
                 element_passport.recyclable_grade = float(element_config[2])
 
-                element_passport.mass = element_passport.density * element_passport.volume
-                element_passport.waste_mass = element_passport.mass * element_passport.waste_grade
-                element_passport.recyclable_mass = element_passport.mass * element_passport.recyclable_grade
+                element_passport.mass = (
+                    element_passport.density * element_passport.volume
+                )
+                element_passport.waste_mass = (
+                    element_passport.mass * element_passport.waste_grade
+                )
+                element_passport.recyclable_mass = (
+                    element_passport.mass * element_passport.recyclable_grade
+                )
 
                 element_passport.ap_ml = element_passport.mass * element_passport.ap
                 element_passport.gwp_ml = element_passport.mass * element_passport.gwp
-                element_passport.penrt_ml = element_passport.mass * element_passport.penrt
+                element_passport.penrt_ml = (
+                    element_passport.mass * element_passport.penrt
+                )
 
-                elements_by_material[tname].volume    += element_passport.volume
-                elements_by_material[tname].mass    += element_passport.mass
+                elements_by_material[tname].volume += element_passport.volume
+                elements_by_material[tname].mass += element_passport.mass
 
-                elements_by_material[tname].waste_mass    += element_passport.waste_mass
-                elements_by_material[tname].recyclable_mass    += element_passport.recyclable_mass
+                elements_by_material[tname].waste_mass += element_passport.waste_mass
+                elements_by_material[
+                    tname
+                ].recyclable_mass += element_passport.recyclable_mass
 
-                elements_by_material[tname].ap_ml    += element_passport.ap_ml
-                elements_by_material[tname].gwp_ml   += element_passport.gwp_ml
+                elements_by_material[tname].ap_ml += element_passport.ap_ml
+                elements_by_material[tname].gwp_ml += element_passport.gwp_ml
                 elements_by_material[tname].penrt_ml += element_passport.penrt_ml
 
-
-
-               # assert elements_by_material[tname].waste_grade == elements_by_material[tname].recyclable_grade            elements_by_material[tname].density = float(element_config[0])
+            # assert elements_by_material[tname].waste_grade == elements_by_material[tname].recyclable_grade            elements_by_material[tname].density = float(element_config[0])
 
             else:
                 unimp_name_set.add(ifc_name)
@@ -243,62 +354,79 @@ def populate_material_set(element:ifcopenshell.entity_instance, volume: float, p
             unimp_name_set2.add(ifc_name)
             # pprint(f"Not in material_name_translation_dict: {ifc_name}")
 
-def material_name_iterator(element:ifcopenshell.entity_instance) -> Iterator[str]:
+
+def material_name_iterator(element: ifcopenshell.entity_instance) -> Iterator[str]:
 
     if element.HasAssociations:
         for association in element.HasAssociations:
-            if association.is_a('IfcRelAssociatesMaterial'):
+            if association.is_a("IfcRelAssociatesMaterial"):
                 material_select = association.RelatingMaterial
 
                 # Single material
-                if material_select.is_a('IfcMaterial'):
+                if material_select.is_a("IfcMaterial"):
                     yield material_select.Name
 
-
                 # Material layer set
-                elif material_select.is_a('IfcMaterialLayerSet'):
+                elif material_select.is_a("IfcMaterialLayerSet"):
                     for layer in material_select.MaterialLayers:
                         if layer.Material:
                             yield layer.Material.Name
 
                 # Material list
-                elif material_select.is_a('IfcMaterialList'):
+                elif material_select.is_a("IfcMaterialList"):
                     for mat in material_select.Materials:
                         yield mat.Name
 
                 # Material layer set usage
-                elif material_select.is_a('IfcMaterialLayerSetUsage'):
+                elif material_select.is_a("IfcMaterialLayerSetUsage"):
                     layer_set = material_select.ForLayerSet
                     for layer in layer_set.MaterialLayers:
                         if layer.Material:
                             yield layer.Material.Name
 
                 # Material profile set
-                elif material_select.is_a('IfcMaterialProfileSet'):
+                elif material_select.is_a("IfcMaterialProfileSet"):
                     for profile in material_select.MaterialProfiles:
                         if profile.Material:
                             yield profile.Material.Name
 
                 # Material profile set usage
-                elif material_select.is_a('IfcMaterialProfileSetUsage'):
+                elif material_select.is_a("IfcMaterialProfileSetUsage"):
                     profile_set = material_select.ForProfileSet
                     for profile in profile_set.MaterialProfiles:
                         if profile.Material:
                             yield profile.Material.Name
 
                 # Constituent set
-                elif material_select.is_a('IfcMaterialConstituentSet'):
+                elif material_select.is_a("IfcMaterialConstituentSet"):
                     for constituent in material_select.MaterialConstituents:
                         if constituent.Material:
                             yield constituent.Material.Name
                 else:
-                    pprint(f"Fall through: {element.get_info()}", width=140, sort_dicts=True, compact=True)
+                    pprint(
+                        f"Fall through: {element.get_info()}",
+                        width=140,
+                        sort_dicts=True,
+                        compact=True,
+                    )
             else:
                 material = ifcopenshell.util.element.get_material(element=element)
+                # TODO: Deconstruct multi material objects.
                 if material:
-                    yield ifcopenshell.util.element.get_material(element=element).get_info()["Name"]
+                    material_name: str = (
+                        ifcopenshell.util.element.get_material(element=element)
+                        .get_info()
+                        .get("Name")
+                    )
+                    if material_name:
+                        yield material_name
                 else:
-                    pprint(f"No necessary association: {element.get_info()}", width=140, sort_dicts=True, compact=True)
+                    pprint(
+                        f"No necessary association: {element.get_info()}",
+                        width=140,
+                        sort_dicts=True,
+                        compact=True,
+                    )
     else:
         pass
         # pprint(f"No associations at all: {element.get_info()}", width=140, sort_dicts=True, compact=True)

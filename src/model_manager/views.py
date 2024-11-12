@@ -24,11 +24,19 @@ from model_manager.models import CadevilDocument, FileUpload
 
 
 # TODO: Add require_POST and require_GET to all functions
-def index(request: HttpRequest):
+async def index(request: HttpRequest):
+    if await sync_to_async(lambda: request.user.is_authenticated)():
+        files = await sync_to_async(
+            lambda: list(FileUpload.objects.filter(user=request.user))
+        )()
+    else:
+        files = None
     return TemplateResponse(
         request,
         template="index.html",
-        context={},
+        context={
+            "files": files,
+        },
     )
 
 
@@ -44,7 +52,9 @@ async def calculate_model(
 
     messages.info(request, f"Starting Calculation of {file.description}!")
     # TODO: start this in different process
-    elements_by_materials, properties = helpers.ifc_product_walk(ifc_file_path=file.document.path)
+    elements_by_materials, properties = helpers.ifc_product_walk(
+        ifc_file_path=file.document.path
+    )
     messages.info(request, "Test message!")
 
     # FIXME: This shit is currently needed to make this work
@@ -52,14 +62,14 @@ async def calculate_model(
     print(json.dumps(elements_by_materials))
 
     # Save the results asynchronously
-    # doc = CadevilDocument()
-    # doc.user = request.user
-    # user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
-    # doc.group = user_groups[0] if user_groups else None
-    # doc.description = file.description
-    # doc.properties = properties
-    # doc.materials = elements_by_materials
-    # await doc.asave()
+    doc = CadevilDocument()
+    doc.user = request.user
+    user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+    doc.group = user_groups[0] if user_groups else None
+    doc.description = file.description
+    doc.properties = properties
+    doc.materials = elements_by_materials
+    await doc.asave()
     return redirect("/model_manager")
 
 
@@ -113,7 +123,7 @@ async def delete_model(request: HttpRequest) -> HttpResponseRedirect:
 @login_required(login_url="/accounts/login")
 async def model_manager(
     request: HttpRequest,
-) -> TemplateResponse | HttpResponseRedirect | None:
+) -> TemplateResponse | HttpResponseRedirect | HttpResponse | None:
     # {{{
     # FIXME: This shit is currently needed to make this work
     _ = await sync_to_async(lambda: request.user.is_authenticated)()
@@ -133,11 +143,9 @@ async def model_manager(
         is_valid = await sync_to_async(document_form.is_valid)()
         if is_valid:
             # Save the form asynchronously
-            file_upload: FileUpload = await sync_to_async(document_form.save)(
-                commit=False
-            )
+            file_upload: FileUpload = await document_form.asave(commit=False)
             file_upload.user = request.user
-            await sync_to_async(file_upload.save)()
+            await file_upload.asave()
             return HttpResponse(status=204)
 
     else:
@@ -161,10 +169,15 @@ async def model_manager(
 
 @login_required(login_url="/accounts/login")
 async def user(request: HttpRequest) -> TemplateResponse:
+    files = await sync_to_async(
+        lambda: list(FileUpload.objects.filter(user=request.user))
+    )()
     return TemplateResponse(
         request,
         "registration/user.html",
-        {},
+        context={
+            "files": files,
+        },
     )
 
 
@@ -184,16 +197,20 @@ async def object_view(
     else:
         return redirect("/model_manager")
 
+    files = await sync_to_async(
+        lambda: list(FileUpload.objects.filter(user=request.user))
+    )()
     # Wrap ORM query
     data = await sync_to_async(
         lambda: list(CadevilDocument.objects.filter(id=document_id)),
-        thread_sensitive=True
+        thread_sensitive=True,
     )()
     return TemplateResponse(
         request,
         "webapp/object_view.html",
         context={
             "data": data,
+            "files": files,
         },
     )
 
@@ -207,8 +224,7 @@ async def model_comparison(request: HttpRequest) -> TemplateResponse:
 
     # Wrap ORM query
     data = await sync_to_async(
-        lambda: list(CadevilDocument.objects.all()),
-        thread_sensitive=True
+        lambda: list(CadevilDocument.objects.all()), thread_sensitive=True
     )()
 
     context = {
