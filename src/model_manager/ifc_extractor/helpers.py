@@ -947,4 +947,4 @@ def decompose_area(settings, storey):
             )
             total_area += area
 
-    pprint(f"{storey.get_info()["Name"]}:{total_area}")
+    pprint(f"{storey.get_info()['Name']}:{total_area}")
