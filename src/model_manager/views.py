@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
+import time
 import json
 import os
+from pprint import pprint
+
+import cProfile
+from tokenize import maybe
 
 # from pprint import pprint
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync, sync_to_async
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
@@ -17,7 +23,16 @@ from django.template.response import TemplateResponse
 # from typing_extensions import assert_type
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
 from model_manager.ifc_extractor import helpers
-from model_manager.models import CadevilDocument, FileUpload
+from model_manager.models import (
+    BuildingMetrics,
+    CadevilDocument,
+    FileUpload,
+    MaterialProperties,
+)
+
+from model_manager.ifc_extractor import chart_plotter
+
+import plotly.io as pio
 
 # TODO: Consider putting this on all methods to prevent django from processing PUT UPDATE or DELETE
 # @require_http_methods(["GET", "POST"])
@@ -44,6 +59,8 @@ async def index(request: HttpRequest):
 async def calculate_model(
     request: HttpRequest,
 ) -> TemplateResponse | HttpResponseRedirect:
+
+    start = time.time()
     request_id = str(request.GET.get("calculate"))
     file = await FileUpload.objects.filter(id=request_id).aget()
 
@@ -52,24 +69,60 @@ async def calculate_model(
 
     messages.info(request, f"Starting Calculation of {file.description}!")
     # TODO: start this in different process
-    elements_by_materials, properties = helpers.ifc_product_walk(
-        ifc_file_path=file.document.path
-    )
-    messages.info(request, "Test message!")
 
     # FIXME: This shit is currently needed to make this work
     _ = await sync_to_async(lambda: request.user.is_authenticated)()
-    print(json.dumps(elements_by_materials))
+    # print(json.dumps(elements_by_materials))
+
+    ifc_document = CadevilDocument()
+    ifc_document.user = request.user
+    ifc_document.description = file.description
+    ifc_document.upload = file
+
+    user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
+    ifc_document.group = user_groups[0] if user_groups else None
+
+    pprint(
+        f">>>>>> Initiating metrics calculations at {time.time() - start}s",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
+
+    # building_metrics = await helpers.extract_building_properties(
+    #     ifc_file_path=file.document.path
+    # )
+    #
+    # building_metrics.project_id = ifc_document.id
+    # await helpers.ifc_product_walk(
+    #     ifc_document=ifc_document, ifc_file_path=file.document.path
+    # )
 
     # Save the results asynchronously
-    doc = CadevilDocument()
-    doc.user = request.user
-    user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
-    doc.group = user_groups[0] if user_groups else None
-    doc.description = file.description
-    doc.properties = properties
-    doc.materials = elements_by_materials
-    await doc.asave()
+    # await ifc_document.asave()
+    # await building_metrics.asave()
+
+    material_properties = helpers.ifc_product_walk(
+        ifc_document=ifc_document, ifc_file_path=file.document.path
+    )
+
+    for material_name in material_properties.keys():
+        material_metrics = material_properties.get(material_name)
+        if material_metrics:
+            material_metrics.name = material_name
+            material_metrics.project_id = ifc_document.id
+            # await material_metrics.asave()
+        else:
+            pprint(f">>??? {material_name} not in the dictionary")
+
+    # pprint(f">>??? {material_properties.keys()}")
+
+    pprint(
+        f">>>>>> Calculation done within {time.time() - start}s",
+        width=140,
+        sort_dicts=True,
+        compact=True,
+    )
     return redirect("/model_manager")
 
 
@@ -136,17 +189,20 @@ async def model_manager(
         user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
     )
     if request.method == "POST":
-        document_form = UploadForm(
+        upload_form = UploadForm(
             request.POST, request.FILES, user=request.user, user_id=request.user.id
         )
         # Wrap form validation
-        is_valid = await sync_to_async(document_form.is_valid)()
+        is_valid = await sync_to_async(upload_form.is_valid)()
         if is_valid:
             # Save the form asynchronously
-            file_upload: FileUpload = await document_form.asave(commit=False)
+            file_upload: FileUpload = await upload_form.asave(commit=False)
             file_upload.user = request.user
             await file_upload.asave()
-            return HttpResponse(status=204)
+            return redirect("/model_manager")
+            # return HttpResponse(status=204)
+        else:
+            pprint("FUCK")
 
     else:
         # Wrap ORM queries
@@ -169,6 +225,7 @@ async def model_manager(
 
 @login_required(login_url="/accounts/login")
 async def user(request: HttpRequest) -> TemplateResponse:
+
     files = await sync_to_async(
         lambda: list(FileUpload.objects.filter(user=request.user))
     )()
@@ -200,17 +257,51 @@ async def object_view(
     files = await sync_to_async(
         lambda: list(FileUpload.objects.filter(user=request.user))
     )()
+
     # Wrap ORM query
     data = await sync_to_async(
         lambda: list(CadevilDocument.objects.filter(id=document_id)),
         thread_sensitive=True,
     )()
+
+    building_metrics = await data[0].building_metrics.aget()
+    # pprint(building_metrics)
+
+    # # Create a sample defaultdict with MaterialAccumulator
+    # material_data = defaultdict(material_accumulator)
+    #
+    # # Populate with some example data
+    # material_data["Steel"].recyclable_mass = 50.5
+    # material_data["Steel"].waste_mass = 10.2
+    # material_data["Steel"].global_brutto_price = 100.0
+    #
+    # material_data["Aluminum"].recyclable_mass = 45.3
+    # material_data["Aluminum"].waste_mass = 8.7
+    # material_data["Aluminum"].global_brutto_price = 120.0
+    #
+    # material_data["Copper"].recyclable_mass = 60.1
+    # material_data["Copper"].waste_mass = 12.5
+    # material_data["Copper"].global_brutto_price = 150.0
+
+    # Generate plot with specific attributes
+    specific_attrs = ["length", "mass"]
+
+    # Create and show the plot
+    html_plot = await chart_plotter.plot_material_waste_grades(
+        ifc_document=data[0], attributes_to_plot=specific_attrs
+    )
+
+    messages.info(request, "Test message!")
+    # print(type(data))
+
     return TemplateResponse(
         request,
         "webapp/object_view.html",
         context={
-            "data": data,
+            "data": data[0],
+            "building_metrics": building_metrics,
             "files": files,
+            "html_plot": html_plot,
         },
     )
 

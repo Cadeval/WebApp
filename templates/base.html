@@ -152,9 +152,7 @@
                 </form>
                 <hr>
                 {% for item in files %}
-                    <li>
-                        <h5>
-                            {{ item.description }}
+                    <li> {{ item.description }}
 
                             <form action="/calculate_model" method="get" id={{ item.id }}>
                                 <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate</button>
@@ -162,7 +160,7 @@
                             <form action="/delete_file" method="get" id={{ item.id }}>
                                 <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete</button>
                             </form>
-                        </h5><hr>
+                        <hr>
                     </li>
                 {% endfor %}
             </div>

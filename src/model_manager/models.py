@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser, Group, GroupManager, Permis
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.forms import BooleanField, UUIDField
+from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 # user_model = settings.AUTH_USER_MODEL
@@ -12,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 # permissions_related_name = "custom_group_set" if group_model_name == "Group" else None
 
 
-def user_directory_path(instance, filename):
+def user_directory_path(instance, filename: str):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return f"user_{instance.user.id}/{filename}"
 
@@ -49,7 +51,7 @@ class CadevilUser(AbstractUser):
         primary_key=True, db_index=True, default=uuid.uuid4, editable=False
     )
 
-    is_staff = models.BooleanField(
+    is_staff: BooleanField = models.BooleanField(
         _("is staff"),
         default=False,
         help_text=_("Designates whether the user can use moderation tools."),
@@ -74,6 +76,7 @@ class CadevilUser(AbstractUser):
         default=0,
         help_text=_("Number of currently active calculations."),
     )
+
     max_calculations = models.IntegerField(
         _("maximum concurrent active calculations"),
         name="max_calculations",
@@ -141,6 +144,14 @@ class CadevilUser(AbstractUser):
             pass
 
 
+@receiver(post_save, sender=CadevilUser)
+def create_user_group(sender, instance, created, **kwargs):
+    if created:
+        group_name = f"user_{instance.username}"
+        group, _ = Group.objects.get_or_create(name=group_name)
+        instance.groups.add(group)
+
+
 class FileUpload(models.Model):
     id = models.UUIDField(
         primary_key=True, db_index=True, default=uuid.uuid4, editable=False
@@ -167,17 +178,13 @@ class CadevilDocument(models.Model):
 
     user = models.ForeignKey(CadevilUser, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    # TODO migrations break if not run via 'python manage.py makemigrations library'
-    # idek why the heck but apparently it really wants to get told which apps to create
-    # the migrations for???
-    # groups = models.ManyToManyField(
-    #     CadevilGroup,
-    #     verbose_name="groups",
-    #     blank=True,
-    #     help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
-    #     related_name="cadeviluser_set",
-    #     related_query_name="user"
-    # )
+
+    upload = models.ForeignKey(
+        FileUpload,
+        on_delete=models.CASCADE,
+        related_name="user_file_upload",
+        default="",
+    )
 
     is_active = models.BooleanField(default=True)
     description = models.CharField(db_index=True, max_length=255, blank=True)
@@ -186,24 +193,111 @@ class CadevilDocument(models.Model):
     # preview_image = models.ImageField()
     type = "Wohnbau"
     structure = "Rohbau"
-    materials = models.JSONField(db_index=True, blank=True, default=dict)
-    # Initialize the properties dictionary to store various metrics
-    properties = models.JSONField(
-        db_index=True,
-        blank=True,
-        default=dict,
-    )
 
     class Meta:
         db_table = "archicad_eval_document"
 
 
-@receiver(post_save, sender=CadevilUser)
-def create_user_group(sender, instance, created, **kwargs):
-    if created:
-        group_name = f"user_{instance.username}"
-        group, _ = Group.objects.get_or_create(name=group_name)
-        instance.groups.add(group)
+# The spacial indicators can be split into these:
+# BGF (Brutto-Grundfläche / Gross Floor Area)
+# └── KF (Konstruktionsfläche / Construction Area)
+# └── NGF (Netto-Grundfläche) = NRF (Netto-Raumfläche)
+#     ├── NUF (Nutzungsfläche / Usable Area)
+#     ├── VF (Verkehrsfläche / Circulation Area)
+#     └── TF (Technische Funktionsfläche / Technical Area)
+class BuildingMetrics(models.Model):
+    id = models.UUIDField(
+        primary_key=True, db_index=True, default=uuid.uuid4, editable=False
+    )
+
+    project = models.ForeignKey(
+        "CadevilDocument", on_delete=models.CASCADE, related_name="building_metrics"
+    )
+
+    # Grundstück (Property)
+    grundstuecksfläche = models.FloatField(default=0.0, verbose_name="GF")
+    grundstuecksfläche_unit = models.CharField(max_length=10, default="m2")
+
+    bebaute_fläche = models.FloatField(default=0.0, verbose_name="BF")
+    bebaute_fläche_unit = models.CharField(max_length=10, default="m2")
+
+    unbebaute_fläche = models.FloatField(default=0.0, verbose_name="UF")
+    unbebaute_fläche_unit = models.CharField(max_length=10, default="m2")
+
+    # Brutto Measurements
+    brutto_rauminhalt = models.FloatField(default=0.0, verbose_name="BRI")
+    brutto_rauminhalt_unit = models.CharField(max_length=10, default="m3")
+
+    brutto_grundfläche = models.FloatField(default=0.0, verbose_name="BGF")
+    brutto_grundfläche_unit = models.CharField(max_length=10, default="m2")
+
+    # Component Areas
+    konstruktions_grundfläche = models.FloatField(default=0.0, verbose_name="KGF")
+    konstruktions_grundfläche_unit = models.CharField(max_length=10, default="m2")
+
+    netto_raumfläche = models.FloatField(default=0.0, verbose_name="NRF")
+    netto_raumfläche_unit = models.CharField(max_length=10, default="m2")
+
+    # Ratios
+    bgf_bf_ratio = models.FloatField(default=0.0, verbose_name="BGF/BF")
+    bri_bgf_ratio = models.FloatField(default=0.0, verbose_name="BRI/BGF")
+
+    # Additional Metrics
+    fassadenflaeche = models.FloatField(default=0.0, verbose_name="Facade Area")
+    fassadenflaeche_unit = models.CharField(max_length=10, default="m2")
+
+    stockwerke = models.FloatField(default=0.0, verbose_name="Stockwerke")
+    energie_bewertung = models.CharField(
+        max_length=50, default="Unknown", verbose_name="Energy Rating"
+    )
+
+    class Meta:
+        verbose_name = "Gebäude Kenndaten"
+        verbose_name_plural = "Gebäude Kenndaten"
+        db_table = "building_metrics"
+
+    def __str__(self):
+        return f" Building Metrics of (ID: {self.id})"
+
+
+class MaterialProperties(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True, db_index=True, default=uuid.uuid4, editable=False
+    )
+    project = models.ForeignKey(
+        CadevilDocument, on_delete=models.CASCADE, related_name="material_properties"
+    )
+
+    name = models.CharField(max_length=100)
+
+    global_brutto_price = models.FloatField(
+        default=0.0, validators=[MinValueValidator(0.0)]
+    )
+    local_brutto_price = models.FloatField(
+        default=0.0, validators=[MinValueValidator(0.0)]
+    )
+    local_netto_price = models.FloatField(
+        default=0.0, validators=[MinValueValidator(0.0)]
+    )
+    volume = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    area = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    length = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    mass = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    penrt_ml = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    gwp_ml = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    ap_ml = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+    recyclable_mass = models.FloatField(
+        default=0.0, validators=[MinValueValidator(0.0)]
+    )
+    waste_mass = models.FloatField(default=0.0, validators=[MinValueValidator(0.0)])
+
+    class Meta:
+        verbose_name_plural = "Material properties"
+        db_table = "material_properties"
+
+    def __str__(self):
+        return f"<Material: {self.name}> (ID: {self.id})"
 
 
 # Disconnect the signal if it's already connected (useful in development to avoid duplicate connections)

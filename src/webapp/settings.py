@@ -44,9 +44,9 @@ SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2
 DEBUG = True
 
 # ALLOWED_HOSTS = ["localhost", "webapp.org", "webapp.at"]
-ALLOWED_HOSTS = ["127.0.0.1"]
-INTERNAL_IPS = ["127.0.0.1"]
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://cadevil.org", "https://cadevil.at"]
+ALLOWED_HOSTS = ["localhost"]
+INTERNAL_IPS = ["localhost"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost", "https://cadevil.org", "https://cadevil.at"]
 APPEND_SLASH = True
 
 # Application definition

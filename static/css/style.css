@@ -205,9 +205,9 @@ main {
     cursor: pointer;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
     box-shadow: var(--box-shadow);
-    /*transition: background-color 0.3s ease, box-shadow 0.3s ease;*/
 
     &:hover {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
     animation: flex-item-animation 0.3s ease-in forwards;
         background-color: var(--secondary-color);
         box-shadow: var(--box-shadow);
@@ -397,10 +397,13 @@ td {
         align-items: stretch;
     }
 
-    .flex-item {
+    .flex-item-active {
         flex: 1 1 100%;
     }
 
+    .flex-item-inactive {
+        flex: 1 1 100%;
+    }
     .popover-small, .popover-big {
         width: 100%;
         left: 0;

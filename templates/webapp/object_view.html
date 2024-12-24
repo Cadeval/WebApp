@@ -7,40 +7,29 @@
 
 {#    <button class="openbtn" onclick="openNav()">Computer Aided Design &#9776; </button>#}
 
+        <!--<h4>{{ item.description }}</h4>-->
 {% endblock %}
 
 {% block content %}
 
-    {% for item in data %}
-        <h4>{{ item.description }}</h4>
-        <div class="flexgrid-container">
-            <img alt="" class="thumbnail-large" src="{% static 'images' %}/house_1.png" width="2000">
-                <div class="flexgrid-item">
-                    <table>
-                        <tr>
-                            <th colspan="2">Property</th>
-                        </tr>
-                        {% for key in item.properties %}
-                            <tr>
-                                <td>{{ key }}</td>
-                                <td>{{ item.properties|get_item:key|format_item}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-                <div class="flexgrid-item">
-                    <table>
-                        <tr>
-                            <th colspan="2">Materials</th>
-                        </tr>
-                        {% for key in item.materials %}
-                            <tr>
-                                <td>{{ key }}</td>
-                                <td>{{ item.materials|get_item:key}}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>                </div>
+    <div class="flexgrid-container">
+        <img alt="" class="thumbnail-large" src="{% static 'images' %}/house_1.png" width="2000">
 
+        <div class="flex-item-active">
+                <h4> Stockwerke </h4>
+            {{building_metrics.stockwerke}}
         </div>
-    {% endfor %}
+        <div class="flex-item-active">
+            <h4> Energie Bewertung </h4>
+            {{building_metrics.energie_bewertung}}
+        </div>
+
+        <div class="flex-item-active">
+            <h4> Grundstücksfläche </h4>
+                {{building_metrics.netto_raumfläche|floatformat:2}}{{building_metrics.grundstuecksfläche_unit}}
+        </div>
+    </div>
+    <div>
+        {{ html_plot |safe }}
+    </div>
 {% endblock %}
