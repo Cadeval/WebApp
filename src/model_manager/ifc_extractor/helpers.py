@@ -576,7 +576,6 @@ def ifc_product_walk(
                 pprint(ifcopenshell.util.element.get_psets(element=element), sort_dicts=True)
                 # for ifc_name, length, volume, area in material_metric_iterator(element=element):
                 #     pass
-                continue
 
                 for is_mono_elment, subelement, ifc_name in material_name_iterator(
                     element=element
