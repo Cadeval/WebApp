@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
-from collections import defaultdict
-import time
-import json
 import os
+import time
 from pprint import pprint
 
-import cProfile
-from tokenize import maybe
-
 # from pprint import pprint
-from asgiref.sync import async_to_sync, sync_to_async
+from asgiref.sync import sync_to_async
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
 # from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -22,16 +16,12 @@ from django.template.response import TemplateResponse
 # from django_htmx.middleware import HtmxDetails, HtmxMiddleware
 # from typing_extensions import assert_type
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
-from model_manager.ifc_extractor import helpers, chart_plotter
+from model_manager.ifc_extractor import helpers
 from model_manager.models import (
-    BuildingMetrics,
     CadevilDocument,
     FileUpload,
-    MaterialProperties,
 )
 
-
-import plotly.io as pio
 
 # TODO: Consider putting this on all methods to prevent django from processing PUT UPDATE or DELETE
 # @require_http_methods(["GET", "POST"])
@@ -286,9 +276,9 @@ async def object_view(
     specific_attrs = ["length", "mass"]
 
     # Create and show the plot
-    html_plot = await chart_plotter.plot_material_waste_grades(
-        ifc_document=data[0], attributes_to_plot=specific_attrs
-    )
+    # html_plot = await chart_plotter.plot_material_waste_grades(
+    #     ifc_document=data[0], attributes_to_plot=specific_attrs
+    # )
 
     messages.info(request, "Test message!")
     # print(type(data))
@@ -300,7 +290,7 @@ async def object_view(
             "data": data[0],
             "building_metrics": building_metrics,
             "files": files,
-            "html_plot": html_plot,
+            # "html_plot": html_plot,
         },
     )
 
