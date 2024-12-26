@@ -16,7 +16,7 @@ from django.template.response import TemplateResponse
 # from django_htmx.middleware import HtmxDetails, HtmxMiddleware
 # from typing_extensions import assert_type
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
-from model_manager.ifc_extractor import helpers, chart_plotter
+from ifc_extractor import helpers, chart_plotter
 from model_manager.models import (
     CadevilDocument,
     FileUpload,
