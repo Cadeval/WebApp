@@ -22,28 +22,33 @@ def user_directory_path(instance, filename: str):
 # This class has been copied from django.contrib.auth.models.Group
 # The only additional thing set is abstract=True in meta
 # This class should not be updated unless replacing it with a new version from django.contrib.auth.models.Group
-# class CadevilGroup(models.Model):
-#     name = models.CharField(_("name"), max_length=150, unique=True)
-#     permissions = models.ManyToManyField(
-#         Permission,
-#         verbose_name=_("permissions"),
-#         blank=True,
-#         related_name=permissions_related_name,
-#     )
-#
-#     objects = GroupManager()
-#
-#     class Meta:
-#         verbose_name = _("group")
-#         verbose_name_plural = _("groups")
-#         abstract = True
-#         db_table = "library_cadevigroup"
-#
-#     def __str__(self):
-#         return self.name
-#
-#     def natural_key(self):
-#         return (self.name,)
+class CadevilGroup(models.Model):
+    id = models.UUIDField(
+        primary_key=True, db_index=True, default=uuid.uuid4, editable=False
+    )
+
+    name = models.CharField(_("name"), max_length=150, unique=True)
+
+    permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_("permissions"),
+        blank=True,
+        related_name="library_cadevil_group_permissions",
+    )
+
+    objects = GroupManager()
+
+    class Meta:
+        verbose_name = _("group")
+        verbose_name_plural = _("groups")
+        abstract = True
+        db_table = "library_cadevil_group"
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+        return (self.name,)
 
 
 class CadevilUser(AbstractUser):

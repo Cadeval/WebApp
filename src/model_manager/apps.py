@@ -15,7 +15,7 @@ class ModelEvaluatorConfig(AppConfig):
             group_model = settings.AUTH_GROUP_MODEL
             related_name_to_group = group_model.split(".")[-1].lower()
 
-            user_groups_field = get_user_model()._meta.get_field(
+            user_groups_field = get_user_model().get_field(
                 f"{related_name_to_group}s"
             )
             user_groups_query = (
