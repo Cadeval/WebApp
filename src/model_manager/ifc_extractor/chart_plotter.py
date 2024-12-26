@@ -74,108 +74,108 @@ async def plot_mass(
     return html_plot
 
 
-# async def plot_material_waste_grades(
-#     ifc_document: CadevilDocument,
-#     attributes_to_plot=None,
-#     title="Material Attributes",
-# ) -> str:
-#     """
-#     Create a bar chart of multiple attributes for different materials using Plotly.
-#
-#     Parameters:
-#     -----------
-#     material_data : defaultdict
-#         A defaultdict with material names as keys and MaterialAccumulator instances as values
-#     attributes_to_plot : list, optional
-#         List of attribute names to plot. If None, plots all numeric attributes.
-#     title : str, optional
-#         Title of the plot
-#
-#     Returns:
-#     --------
-#     plotly.graph_objs._figure.Figure
-#         A Plotly figure object ready to be displayed or saved
-#     """
-#     # If no attributes specified, use all numeric attributes
-#     if attributes_to_plot is None:
-#         # Get all numeric attributes from the MaterialAccumulator dataclass
-#         attributes_to_plot = [
-#             f.name
-#             for f in material_accumulator.__dataclass_fields__.values()
-#             if isinstance(f.default, (int, float))
-#         ]
-#
-#     # Prepare data for plotting
-#     materials = await sync_to_async(
-#         lambda: list(ifc_document.material_properties.all())
-#     )()
-#     pprint(f">>?MATERIALS: {materials}")
-#
-#     # Create a list of traces, one for each attribute
-#     traces = []
-#     # for attr in attributes_to_plot:
-#     #     # Extract values for the current attribute
-#     #     values = [getattr(material, attr, 0) for material in materials]
-#     #
-#     #     # Create a bar trace for this attribute
-#     #     trace = go.Bar(
-#     #         name=attr,
-#     #         x=materials,
-#     #         y=values,
-#     #         text=[f"{v:.2f}" for v in values],
-#     #         textposition="auto",
-#     #     )
-#     #     traces.append(trace)
-#     #     pprint(traces)
-#
-#     # Create a bar trace for this attribute
-#     # trace = go.Bar(
-#     #     name="Volume",
-#     #     x=names,
-#     #     y=values,
-#     #     text=[f"{v:.2f}" for v in values],
-#     #     textposition="auto",
-#     # )
-#     # traces.append(trace)
-#
-#     # Create the figure with grouped bars
-#     fig = go.Figure(data=traces)
-#
-#     fig.add_trace(
-#         go.Pie(
-#             labels=[material.name for material in materials],
-#             values=[material.mass for material in materials],
-#             hole=0.3,
-#             textinfo="label",
-#             hovertemplate="<b>%{label}</b><br>"
-#             + "area: %{value:,.1f} m²<br>"
-#             + "percentage: %{percent}<br>"
-#             + "<extra></extra>",
-#         ),
-#     )
-#     fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
-#     # traces.append(trace)
-#     # pprint(traces)
-#
-#     # Customize the layout
-#     # fig.update_layout(
-#     #     title=title,
-#     #     xaxis_title="Materials",
-#     #     yaxis_title="Attribute Values",
-#     #     xaxis_tickangle=-45,
-#     #     height=600,
-#     #     width=800,
-#     #     barmode="group",  # This creates grouped bars
-#     #     template="plotly_white",
-#     #     legend_title_text="Attributes",
-#     # )
-#
-#     # For local debugging
-#     # fig.show()
-#
-#     html_plot: str = pio.to_html(fig, auto_play=True, div_id="material_plot")
-#
-#     return html_plot
+async def plot_material_waste_grades(
+        ifc_document: CadevilDocument,
+        attributes_to_plot=None,
+        title="Material Attributes",
+) -> str:
+    """
+    Create a bar chart of multiple attributes for different materials using Plotly.
+
+    Parameters:
+    -----------
+    material_data : defaultdict
+        A defaultdict with material names as keys and MaterialAccumulator instances as values
+    attributes_to_plot : list, optional
+        List of attribute names to plot. If None, plots all numeric attributes.
+    title : str, optional
+        Title of the plot
+
+    Returns:
+    --------
+    plotly.graph_objs._figure.Figure
+        A Plotly figure object ready to be displayed or saved
+    """
+    # If no attributes specified, use all numeric attributes
+    if attributes_to_plot is None:
+        # Get all numeric attributes from the MaterialAccumulator dataclass
+        attributes_to_plot = [
+            f.name
+            for f in ifc_document.material_properties.__dataclass_fields__.values()
+            if isinstance(f.default, (int, float))
+        ]
+
+    # Prepare data for plotting
+    materials = await sync_to_async(
+        lambda: list(ifc_document.material_properties.all())
+    )()
+    pprint(f">>?MATERIALS: {materials}")
+
+    # Create a list of traces, one for each attribute
+    traces = []
+    # for attr in attributes_to_plot:
+    #     # Extract values for the current attribute
+    #     values = [getattr(material, attr, 0) for material in materials]
+    #
+    #     # Create a bar trace for this attribute
+    #     trace = go.Bar(
+    #         name=attr,
+    #         x=materials,
+    #         y=values,
+    #         text=[f"{v:.2f}" for v in values],
+    #         textposition="auto",
+    #     )
+    #     traces.append(trace)
+    #     pprint(traces)
+
+    # Create a bar trace for this attribute
+    # trace = go.Bar(
+    #     name="Volume",
+    #     x=names,
+    #     y=values,
+    #     text=[f"{v:.2f}" for v in values],
+    #     textposition="auto",
+    # )
+    # traces.append(trace)
+
+    # Create the figure with grouped bars
+    fig = go.Figure(data=traces)
+
+    fig.add_trace(
+        go.Pie(
+            labels=[material.name for material in materials],
+            values=[material.mass for material in materials],
+            hole=0.3,
+            textinfo="label",
+            hovertemplate="<b>%{label}</b><br>"
+                          + "area: %{value:,.1f} m²<br>"
+                          + "percentage: %{percent}<br>"
+                          + "<extra></extra>",
+        ),
+    )
+    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
+    # traces.append(trace)
+    # pprint(traces)
+
+    # Customize the layout
+    # fig.update_layout(
+    #     title=title,
+    #     xaxis_title="Materials",
+    #     yaxis_title="Attribute Values",
+    #     xaxis_tickangle=-45,
+    #     height=600,
+    #     width=800,
+    #     barmode="group",  # This creates grouped bars
+    #     template="plotly_white",
+    #     legend_title_text="Attributes",
+    # )
+
+    # For local debugging
+    # fig.show()
+
+    html_plot: str = pio.to_html(fig, auto_play=True, div_id="material_plot")
+
+    return html_plot
 
 
 def create_onorm_1800_visualization(data_dict):
