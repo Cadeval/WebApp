@@ -4,6 +4,7 @@
 [![Python: 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://python.org)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Django: 4.2+](https://img.shields.io/badge/django-4.2+-green.svg)](https://www.djangoproject.com/)
+[![Django CI](https://github.com/Cadeval/WebApp/actions/workflows/django.yml/badge.svg)](https://github.com/Cadeval/WebApp/actions/workflows/django.yml)
 
 Please note that this is a WIP,
 
