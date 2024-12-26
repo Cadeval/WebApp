@@ -16,7 +16,7 @@ from django.template.response import TemplateResponse
 # from django_htmx.middleware import HtmxDetails, HtmxMiddleware
 # from typing_extensions import assert_type
 from model_manager.forms import DocumentForm, GroupForm, UploadForm
-from model_manager.ifc_extractor import helpers
+from model_manager.ifc_extractor import helpers, chart_plotter
 from model_manager.models import (
     CadevilDocument,
     FileUpload,
@@ -78,18 +78,18 @@ async def calculate_model(
         compact=True,
     )
 
-    # building_metrics = await helpers.extract_building_properties(
-    #     ifc_file_path=file.document.path
-    # )
-    #
-    # building_metrics.project_id = ifc_document.id
+    building_metrics = await helpers.extract_building_properties(
+        ifc_file_path=file.document.path
+    )
+
+    building_metrics.project_id = ifc_document.id
     # await helpers.ifc_product_walk(
     #     ifc_document=ifc_document, ifc_file_path=file.document.path
     # )
 
     # Save the results asynchronously
-    # await ifc_document.asave()
-    # await building_metrics.asave()
+    await ifc_document.asave()
+    await building_metrics.asave()
 
     material_properties = helpers.ifc_product_walk(
         ifc_document=ifc_document, ifc_file_path=file.document.path
@@ -100,7 +100,7 @@ async def calculate_model(
         if material_metrics:
             material_metrics.name = material_name
             material_metrics.project_id = ifc_document.id
-            # await material_metrics.asave()
+            await material_metrics.asave()
         else:
             pprint(f">>??? {material_name} not in the dictionary")
 
@@ -276,9 +276,9 @@ async def object_view(
     specific_attrs = ["length", "mass"]
 
     # Create and show the plot
-    # html_plot = await chart_plotter.plot_material_waste_grades(
-    #     ifc_document=data[0], attributes_to_plot=specific_attrs
-    # )
+    html_plot = await chart_plotter.plot_material_waste_grades(
+        ifc_document=data[0], attributes_to_plot=specific_attrs
+    )
 
     messages.info(request, "Test message!")
     # print(type(data))
@@ -290,7 +290,7 @@ async def object_view(
             "data": data[0],
             "building_metrics": building_metrics,
             "files": files,
-            # "html_plot": html_plot,
+            "html_plot": html_plot,
         },
     )
 
