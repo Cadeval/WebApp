@@ -35,18 +35,16 @@ async def plot_mass(
         lambda: list(ifc_document.material_properties.all())
     )()
     # Create the figure
-    fig = go.Figure(data=materials)
-
+    fig = go.Figure()
     fig.add_trace(
         go.Pie(
             labels=[material.name for material in materials],
-            values=[material.area for material in materials],
+            values=[material.mass for material in materials],
             hole=0.3,
             textinfo="label",
             rotation=190,
-            margin=dict(t=0, b=0, l=0, r=0),
             hovertemplate="<b>%{label}</b><br>"
-                          + "area: %{value:,.1f} m²<br>"
+                          + "mass: %{value:,.1f} kg<br>"
                           + "percentage: %{percent}<br>"
                           + "<extra></extra>",
         ),
@@ -65,18 +63,26 @@ async def plot_mass(
     #     template="plotly_white",
     #     legend_title_text="Attributes",
     # )
+    fig.update_layout(
+        title="Area by Material",
+        xaxis_title="Materials",
+        yaxis_title="Attribute Values",
+        legend_title_text="Attributes",
+        showlegend=False,
+        margin=dict(t=40, b=40, l=0, r=0),
+        legend=dict(x=0.8, y=0.5),  # positions the legend
+    )
 
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, div_id="material_plot")
+    html_plot: str = pio.to_html(fig, auto_play=True, div_id="mass_pie")
 
     return html_plot
 
 
 async def plot_material_waste_grades(
         ifc_document: CadevilDocument,
-        attributes_to_plot=None,
         title="Material Attributes",
 ) -> str:
     """
@@ -84,10 +90,8 @@ async def plot_material_waste_grades(
 
     Parameters:
     -----------
-    material_data : defaultdict
-        A defaultdict with material names as keys and MaterialAccumulator instances as values
-    attributes_to_plot : list, optional
-        List of attribute names to plot. If None, plots all numeric attributes.
+    ifc_document : CadevilDocument
+        A CadevilDocument with material names as keys and MaterialAccumulator instances as values
     title : str, optional
         Title of the plot
 
@@ -96,55 +100,19 @@ async def plot_material_waste_grades(
     plotly.graph_objs._figure.Figure
         A Plotly figure object ready to be displayed or saved
     """
-    # If no attributes specified, use all numeric attributes
-    if attributes_to_plot is None:
-        # Get all numeric attributes from the MaterialAccumulator dataclass
-        attributes_to_plot = [
-            f.name
-            for f in ifc_document.material_properties.__dataclass_fields__.values()
-            if isinstance(f.default, (int, float))
-        ]
 
     # Prepare data for plotting
     materials = await sync_to_async(
         lambda: list(ifc_document.material_properties.all())
     )()
-    pprint(f">>?MATERIALS: {materials}")
-
-    # Create a list of traces, one for each attribute
-    traces = []
-    # for attr in attributes_to_plot:
-    #     # Extract values for the current attribute
-    #     values = [getattr(material, attr, 0) for material in materials]
-    #
-    #     # Create a bar trace for this attribute
-    #     trace = go.Bar(
-    #         name=attr,
-    #         x=materials,
-    #         y=values,
-    #         text=[f"{v:.2f}" for v in values],
-    #         textposition="auto",
-    #     )
-    #     traces.append(trace)
-    #     pprint(traces)
-
-    # Create a bar trace for this attribute
-    # trace = go.Bar(
-    #     name="Volume",
-    #     x=names,
-    #     y=values,
-    #     text=[f"{v:.2f}" for v in values],
-    #     textposition="auto",
-    # )
-    # traces.append(trace)
 
     # Create the figure with grouped bars
-    fig = go.Figure(data=traces)
+    fig = go.Figure()
 
     fig.add_trace(
         go.Pie(
             labels=[material.name for material in materials],
-            values=[material.mass for material in materials],
+            values=[material.waste_mass for material in materials],
             hole=0.3,
             textinfo="label",
             hovertemplate="<b>%{label}</b><br>"
@@ -153,22 +121,20 @@ async def plot_material_waste_grades(
                           + "<extra></extra>",
         ),
     )
-    fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
     # traces.append(trace)
     # pprint(traces)
 
     # Customize the layout
-    # fig.update_layout(
-    #     title=title,
-    #     xaxis_title="Materials",
-    #     yaxis_title="Attribute Values",
-    #     xaxis_tickangle=-45,
-    #     height=600,
-    #     width=800,
-    #     barmode="group",  # This creates grouped bars
-    #     template="plotly_white",
-    #     legend_title_text="Attributes",
-    # )
+    fig.update_layout(
+        title="Mass of Material Waste",
+        xaxis_title="Materials",
+        yaxis_title="Attribute Values",
+        legend_title_text="Attributes",
+        showlegend=False,
+        margin=dict(t=40, b=40, l=0, r=0),
+        legend=dict(x=0.8, y=0.5),  # positions the legend
+
+    )
 
     # For local debugging
     # fig.show()
@@ -178,14 +144,16 @@ async def plot_material_waste_grades(
     return html_plot
 
 
-def create_onorm_1800_visualization(data_dict):
+async def create_onorm_1800_visualization(
+        ifc_document: CadevilDocument,
+):
     """
     Create a comprehensive visualization of ÖNORM 1800 building metrics.
 
     Parameters:
     -----------
-    data_dict : dict
-        Dictionary containing ÖNORM 1800 metrics
+    ifc_document : CadevilDocument
+        A CadevilDocument with material names as keys and MaterialAccumulator instances as values
 
     Returns:
     --------
@@ -193,40 +161,42 @@ def create_onorm_1800_visualization(data_dict):
         A Plotly figure object visualizing the building metrics
     """
     # Prepare data for plotting
+    building_metrics = await ifc_document.building_metrics.aget()
+
     metrics = {
         "GF": {
-            "value": float(data_dict.get("GF2554.4 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.grundstuecksfläche,
+            "unit": building_metrics.grundstuecksfläche_unit,
             "desc": "Gross Floor Area",
         },
         "BF": {
-            "value": float(data_dict.get("BF2554.4 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.bebaute_fläche,
+            "unit": building_metrics.bebaute_fläche_unit,
             "desc": "Building Footprint",
         },
         "UF": {
-            "value": float(data_dict.get("UF0.0 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.unbebaute_fläche,
+            "unit": building_metrics.unbebaute_fläche_unit,
             "desc": "Usable Floor Area",
         },
         "BRI": {
-            "value": float(data_dict.get("BRI25935.18 m3", "0").split()[0]),
-            "unit": "m³",
+            "value": building_metrics.brutto_rauminhalt,
+            "unit": building_metrics.brutto_rauminhalt_unit,
             "desc": "Gross Building Volume",
         },
         "BGF": {
-            "value": float(data_dict.get("BGF54391.77 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.brutto_grundfläche,
+            "unit": building_metrics.brutto_grundfläche_unit,
             "desc": "Heated Gross Floor Area",
         },
         "KGF": {
-            "value": float(data_dict.get("KGF47754.07 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.konstruktions_grundfläche,
+            "unit": building_metrics.konstruktions_grundfläche_unit,
             "desc": "Cooled Gross Floor Area",
         },
         "NRF": {
-            "value": float(data_dict.get("NRF6637.7 m2", "0").split()[0]),
-            "unit": "m²",
+            "value": building_metrics.netto_raumfläche,
+            "unit": building_metrics.netto_raumfläche_unit,
             "desc": "Net Room Floor Area",
         },
     }
@@ -265,12 +235,12 @@ def create_onorm_1800_visualization(data_dict):
     )
 
     # Second subplot - Pie chart for area distribution
-    area_metrics = {k: v for k, v in metrics.items() if v["unit"] == "m²"}
+    # area_metrics = {k: v for k, v in metrics.items() if v["unit"] == "m²"}
 
     fig.add_trace(
         go.Pie(
-            labels=[f"{k} ({metrics[k]['desc']})" for k in area_metrics.keys()],
-            values=[metrics[k]["value"] for k in area_metrics.keys()],
+            labels=[f"{k} ({metrics[k]['desc']})" for k in metrics.keys()],
+            values=[metrics[k]["value"] for k in metrics.keys()],
             hole=0.3,
             textinfo="label+percent",
             hovertemplate="<b>%{label}</b><br>"
@@ -291,10 +261,7 @@ def create_onorm_1800_visualization(data_dict):
             "xanchor": "center",
             "yanchor": "top",
         },
-        height=1000,
-        width=1000,
         showlegend=False,
-        template="plotly_white",
     )
 
     # Update axes

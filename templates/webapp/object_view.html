@@ -2,6 +2,7 @@
 
 {% load static %}
 {% load get_item %}
+{% load render_svg %}
 
 {% block header %}
 
@@ -13,23 +14,29 @@
 {% block content %}
 
     <div class="flexgrid-container">
-        <img alt="" class="thumbnail-large" src="{% static 'images' %}/house_1.png" width="2000">
+        <img alt="Render of {{ data.description }}" class="thumbnail-large" src="{% static 'images' %}/house_1.png"
+             width="2000">
 
         <div class="flex-item-active">
                 <h4> Stockwerke </h4>
-            {{building_metrics.stockwerke}}
+            {{ building_metrics.stockwerke|render_svg|safe }}
         </div>
         <div class="flex-item-active">
             <h4> Energie Bewertung </h4>
-            {{building_metrics.energie_bewertung}}
+            {{ building_metrics.energie_bewertung|render_svg|safe }}
         </div>
 
         <div class="flex-item-active">
             <h4> Grundstücksfläche </h4>
-                {{building_metrics.netto_raumfläche|floatformat:2}}{{building_metrics.grundstuecksfläche_unit}}
+            {{ building_metrics.netto_raumfläche|floatformat:2|render_svg|safe }}{{ building_metrics.grundstuecksfläche_unit|render_svg|safe }}
         </div>
     </div>
     <div>
-        {{ html_plot |safe }}
+        {% for plot in html_plot %}
+            <div class="flex-item-active">
+                {{ plot |safe }}
+            </div>
+            <br>
+        {% endfor %}
     </div>
 {% endblock %}

@@ -25,7 +25,8 @@
                         class="flex-item-inactive"
                       {% endif %}>
                           <a class="gallery" href="/object_view?object={{ item.id }}">
-                            <img alt="Render of House A" class="thumbnail" src="{% static 'images/house_1.png' %}" />
+                              <img alt="Render of {{ item.description }}" class="thumbnail"
+                                   src="{% static 'images/house_1.png' %}"/>
                           </a>
                           <h4>{{ item.description }}</h4>
                         <p class="text_column">User: {{ item.user }}<br>Group: {{ item.group }}<br>ID: {{ item.id }}</p>

@@ -271,15 +271,20 @@ async def object_view(
     # material_data["Copper"].recyclable_mass = 60.1
     # material_data["Copper"].waste_mass = 12.5
     # material_data["Copper"].global_brutto_price = 150.0
-
+    building_plots = []
     # Generate plot with specific attributes
     specific_attrs = ["length", "mass"]
 
-    # Create and show the plot
-    html_plot = await chart_plotter.plot_material_waste_grades(
-        ifc_document=data[0], attributes_to_plot=specific_attrs
-    )
-
+    # Create and show the plots
+    building_plots.append(await chart_plotter.plot_mass(
+        ifc_document=data[0]
+    ))
+    building_plots.append(await chart_plotter.plot_material_waste_grades(
+        ifc_document=data[0],
+    ))
+    building_plots.append(await chart_plotter.create_onorm_1800_visualization(
+        ifc_document=data[0],
+    ))
     messages.info(request, "Test message!")
     # print(type(data))
 
@@ -290,7 +295,7 @@ async def object_view(
             "data": data[0],
             "building_metrics": building_metrics,
             "files": files,
-            "html_plot": html_plot,
+            "html_plot": building_plots,
         },
     )
 
