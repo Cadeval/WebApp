@@ -69,6 +69,9 @@ async def plot_mass(
         yaxis_title="Attribute Values",
         legend_title_text="Attributes",
         showlegend=False,
+        template="plotly_white",
+        paper_bgcolor="hsla(210, 100%, 50%, 0.0)",
+        # plot_bgcolor="transparent",  # main plotting area background
         margin=dict(t=40, b=40, l=0, r=0),
         legend=dict(x=0.8, y=0.5),  # positions the legend
     )
@@ -76,7 +79,8 @@ async def plot_mass(
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, div_id="mass_pie")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False,
+                                 div_id="mass_pie")
 
     return html_plot
 
@@ -131,6 +135,7 @@ async def plot_material_waste_grades(
         yaxis_title="Attribute Values",
         legend_title_text="Attributes",
         showlegend=False,
+        paper_bgcolor="hsla(210, 100%, 50%, 0.0)",
         margin=dict(t=40, b=40, l=0, r=0),
         legend=dict(x=0.8, y=0.5),  # positions the legend
 
@@ -139,7 +144,7 @@ async def plot_material_waste_grades(
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, div_id="material_plot")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="material_plot")
 
     return html_plot
 
@@ -262,13 +267,14 @@ async def create_onorm_1800_visualization(
             "yanchor": "top",
         },
         showlegend=False,
+        paper_bgcolor="hsla(210, 100%, 50%, 0.0)",
     )
 
     # Update axes
     fig.update_xaxes(title_text="Metrics", row=1, col=1)
     fig.update_yaxes(title_text="Value", row=1, col=1)
 
-    html_plot: str = pio.to_html(fig, auto_play=True, div_id="1800_plot")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="1800_plot")
 
     return html_plot
 

@@ -6,6 +6,6 @@ from django.template.defaulttags import register
 # from ...library.models import CadevilDocument
 
 
-@register.filter(name="get_item")
+@register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)

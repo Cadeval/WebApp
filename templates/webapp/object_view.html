@@ -3,6 +3,7 @@
 {% load static %}
 {% load get_item %}
 {% load render_svg %}
+{% load concat %}
 
 {% block header %}
 
@@ -14,8 +15,7 @@
 {% block content %}
 
     <div class="flexgrid-container">
-        <img alt="Render of {{ data.description }}" class="thumbnail-large" src="{% static 'images' %}/house_1.png"
-             width="2000">
+        <img alt="Render of {{ data.description }}" class="thumbnail-large" src="{% static 'images' %}/house_1.png">
 
         <div class="flex-item-active">
                 <h4> Stockwerke </h4>
@@ -28,7 +28,7 @@
 
         <div class="flex-item-active">
             <h4> Grundstücksfläche </h4>
-            {{ building_metrics.netto_raumfläche|floatformat:2|render_svg|safe }}{{ building_metrics.grundstuecksfläche_unit|render_svg|safe }}
+            {{ building_metrics.netto_raumfläche|floatformat:2|concat:building_metrics.grundstuecksfläche_unit|render_svg|safe }}
         </div>
     </div>
     <div>

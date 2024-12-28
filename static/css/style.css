@@ -22,7 +22,7 @@
         --primary-bg: #343a40; /* Dark Gray */
         --secondary-bg: #212529; /* Darker Gray */
         --primary-color: #f8f9fa; /* Light Gray */
-        --secondary-color: #ced4da; /* Lighter Gray */
+        --secondary-color: #636363; /* Lighter Gray */
         --accent-color: #495057; /* Medium Dark Gray */
     }
 }
@@ -32,7 +32,7 @@ body.dark-mode {
     --primary-bg: #343a40;
     --secondary-bg: #212529;
     --primary-color: #f8f9fa;
-    --secondary-color: #ced4da;
+    --secondary-color: #636363;
     --accent-color: #495057;
 }
 
@@ -257,7 +257,7 @@ main {
 }
 
 .thumbnail{
-    /*width: 20%;*/
+    width: 40%;
     max-width: 24em;
     cursor: pointer;
 }
@@ -398,19 +398,33 @@ td {
     }
 
     .flex-item-active {
-        flex: 1 1 100%;
+        left: 1%;
+        flex: 1 1 98%;
     }
 
     .flex-item-inactive {
-        flex: 1 1 100%;
+        left: 1%;
+        flex: 1 1 98%;
     }
     .popover-small, .popover-big {
-        width: 100%;
-        left: 0;
+        width: 98%;
+        left: 1%;
         transform: none;
     }
 
     .popover-big {
         height: 90%;
+    }
+
+    .thumbnail {
+        width: 30%;
+        max-width: 24em;
+        cursor: pointer;
+    }
+
+    .thumbnail-large {
+        width: 40%;
+        max-width: 48em;
+        box-shadow: var(--box-shadow);
     }
 }

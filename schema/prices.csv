@@ -1,47 +1,37 @@
-Material;Cost
-Beton für Gefälle;64
-Beton, Stahlbeton;120
-Beton, Stahlbeton Dach;160
-Beton, Stahlbeton Decke;160
-Beton, Stahlbeton Wand;150
-Beton, STB Wand - Standard Priorität;150
-Dämmung, hart EPS;3
-Dämmung, hart XPS;3
-Dämmung, high Priority;3
-Dämmung, Holzwolleleichtbauplatte;12
-Dämmung, Trittschall;6
-Dämmung, weich Glaswolle;10
-Dämmung, weich Mineralwolle;5
-Dämmung, weich Mineralwolle Aussenwand;15
-Dämmung, weich Mineralwolle Schallschutz;8
-Estrich;70
-Gipskarton;6
-Gipskarton, Brandschutz;18
-Gipskarton, wasserdicht;8
-Glas, Normalglas;41
-Holz, Bauholz;8
-Holz, Bauholz träger;150
-Holz, MDF;28
-Holz, OSB;12
-Holz, Verkleidung;550
-Metall, Aluminium;130
-Metall, Blech;44
-Gipskartonplatte;6
-Mineralwolle;5
-Verputz, Kalk;14
-Verputz, Gips;6
-Metall, LOCHBLECH;44
-Metall, Stahl verzinkt;21
-Verputz, Kunstharz;70
-Dach, Dachziegel;20
-Beton, C25/30;145
-Beton C30/37;147
-Fliese Granit;10
-Gefällebeton;64
-Metall - Baustahl S235;1985
-Stahl;1985
-Polystyrol;10
-Trittschalldämmung;313
-Beton Ausgleichsschicht;64
-Gipsputz;10
-;16
+Material;Materialart laut BKI;Kostengruppe;Brutto;Netto;Brutto (Wien);Netto (Wien);Einheit;
+Belag Fliesen;Bodenfliesen 20x20cm;KG 353;98;82;117.502;98.318;€/m²;Fläche
+Belag Parkett;Bodenbelag, Naturkork parkett, 12mm;KG 353;68;57;81.532;68.343;€/m²;Fläche
+Beton Fertigteil;Stütze, Ortbeton, C25/30, außen;KG 333;315;265;377.685;317.735;€/m³;Volumen
+Boden Pflaster;Außenbelag, Betonwerkstein, Sandbett;KG 533;119;100;142.681;119.9;€/m²;Fläche
+Brettschichtholz;Brettschnittholz, GL24h, Nadelholz, Industriequalität;KG 361;1237;1040;1483.163;1246.96;€/m³;Volumen
+CW-Profil/Stahl;Verzinken, Stahlprofile;KG 333;1.5;1.2;1.7985;1.4388;€/kg;Masse
+Dampfbremse;Dampfbremse;KG 363;12.8;10.8;15.3472;12.9492;€/m²;Fläche
+Dränschicht;Drenageabdeckung;KG 363;5.8;4.9;6.9542;5.8751;€/m²;Fläche
+Dämmung Holzwolledämmplatte;Mehrschichtdämmplatte, 50mm;KG 351;132;111;158.268;133.089;€/m²;Fläche
+Dämmung hart EPS;Perimeterdämmung, Wand, EPS, 80mm;KG 335;98;82;117.502;98.318;€/m²;Fläche
+Dämmung hart Mineralwolle;Zwischensparrendämmung MW, 220mm;KG 361;43;36;51.557;43.164;€/m²;Fläche
+Dämmung hart XPS;Perimeterdämmung, Wand, XPS 040, 120mm;KG 335;68;57;81.532;68.343;€/m²;Fläche
+Dämmung weich Glaswolle;Zwischensparrendämmung GW, 160mm;KG 363;31;26;37.169;31.174;€/m²;Fläche
+Dämmung weich Mineralwolle ;Trennwanddämmung, MW, schallbrückenfrei;KG 331;17;14.5;20.383;17.3855;€/m²;Fläche
+Dämmung weich Zellulose;Wärmedämmung, zwischen Holz-UK, bis 80mm;KG 364;13.7;11.5;16.4263;13.7885;€/m²;Fläche
+Estrich;Heizestrich, CT C25 F4 S65 H45, Dicke 65mm, schwimmend;KG 353;29;24;34.771;28.776;€/m²;Fläche
+Gipskarton;Gipsplatten-/Gipsfaser-Beckleidung, doppelt, auf UK;KG 364;65;55;77.935;65.945;€/m²;Fläche
+Gipsokarton;Gipsplatten-/Gipsfaser-Beckleidung, doppelt, auf UK;KG 364;65;55;77.935;65.945;€/m²;Fläche
+Glass Normalglass;Verglassung, Floatglass, 8mm;KG334;121;102;145.079;122.298;€/m²;Fläche
+Holz Lattung/Bauholz;Bauschnittholz, C24, Nadelholz;KG 361;695;584;833.305;700.216;€/m³;Volumen
+Holz OSB;Innenbekleidung, OSB/4, 22mm, Feuchtbereiche;KG 336;43;36;51.557;43.164;€/m²;Fläche
+Holzwerkstoff;Deckenschalung, Sperrholzplatte, 24mm;KG 353;57;48;68.343;57.552;€/m²;Fläche
+Kunstharzputz;Außenputz, zweilagig, Wand, Organischer Oberputz;KG 335;28;24;33.572;28.776;€/m²;Fläche
+Maschendrat;Putzarmierung, Glasfasergewebe, Breite 200mm;KG 345;3.4;2.9;4.0766;3.4771;€/m;Länge
+Metall, Blech Grau;Stahlblech;KG 351;9.6;8.1;11.5104;9.7119;€/kg;Masse
+PAE Folie;Trennlage, PE-Folie 0,8mm;KG 353;1.6;1.3;1.9184;1.5587;€/m²;Fläche
+Sperrschicht Folie;Vlies PE;KG 363;5.9;5;7.0741;5.995;€/m²;Fläche
+Sperrschicht;Dampfbremse;KG 363;12.8;10.8;15.3472;12.9492;€/m²;Fläche
+Sperrschicht;Vlies PE;KG 363;5.9;5;7.0741;5.995;€/m²;Fläche
+Stahl;Verzinken, Stahlprofile;KG 333;1.5;1.2;1.7985;1.4388;€/kg;Masse
+Stahlbeton;Wand, Ortbeton, C25/30, bis 25cm;KG 351;242;204;290.158;244.596;€/m²;Volumen
+Stahlbeton;Wand, Ortbeton, C25/30, bis 25cm;KG 351;294;247;352.506;296.153;€/m²;Volumen
+Trittschalldämmung;Trittschalldämmung EPS 30-3mm;KG 353;8;6.7;9.592;8.0333;€/m²;Fläche
+Verputz Gips;Gipsputz, Innenwand, einlagig, Q3;KG 345;24;20;28.776;23.98;€/m²;Fläche
+Verputz Kalk;Slämmputz, außen, einlagig, Kalkzementmörtel;KG 335;23;19;27.577;22.781;€/m²;Fläche
+Vollholzschalung;Lattenverschlag, Nadelholz;KG 346;71;59;85.129;70.741;€/m²;Fläche

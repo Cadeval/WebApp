@@ -6,8 +6,8 @@ from django.template.defaulttags import register
 # from ...library.models import CadevilDocument
 
 
-@register.filter(name="format_item")
-def format_ite(to_format):
+@register.filter
+def format_item(to_format):
     if isinstance(to_format, list):
         if len(to_format) == 1:
             return int(to_format[0])
