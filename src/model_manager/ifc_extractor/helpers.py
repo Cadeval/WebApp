@@ -3,9 +3,9 @@ import gc
 import multiprocessing
 import os
 import time
+import pprint
 from collections import defaultdict
 
-import OCC.Core
 from ifcopenshell.geom import iterator
 
 from model_manager.models import (
@@ -14,7 +14,6 @@ from model_manager.models import (
 )
 from webapp.logger import InMemoryLogHandler
 
-print(OCC.Core.VERSION)
 # try:
 import ifcopenshell.api
 import ifcopenshell.express
@@ -54,13 +53,6 @@ DEBUG_VERBOSE = False
     "IfcWindow",
     "IfcDoor",
 """
-
-import ifcopenshell.geom
-
-import ifcopenshell
-import ifcopenshell.geom
-import pprint
-
 
 def create_plan_svg_bboxes(ifc_path, svg_size=1000, margin=20):
     """
