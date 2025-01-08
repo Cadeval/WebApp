@@ -96,41 +96,41 @@ TEMPLATES = [
         },
     },
 ]
+if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("127.0.0.1", 6379)],
+            },
+        },
+    }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "simple": {
+                "format": "{levelname}:{name}:{message}",
+                "style": "{",
+            },
         },
-    },
-}
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "formatters": {
-        "simple": {
-            "format": "{levelname}:{name}:{message}",
-            "style": "{",
+        "handlers": {
+            "in_memory_handler": {
+                "level": "DEBUG",
+                "class": "webapp.logger.InMemoryLogHandler",
+                "formatter": "simple",
+            },
+            # you can have other handlers like 'console', 'file', etc.
         },
-    },
-    "handlers": {
-        "in_memory_handler": {
-            "level": "DEBUG",
-            "class": "webapp.logger.InMemoryLogHandler",
-            "formatter": "simple",
+        "loggers": {
+            "": {  # root logger
+                "handlers": ["in_memory_handler"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
         },
-        # you can have other handlers like 'console', 'file', etc.
-    },
-    "loggers": {
-        "": {  # root logger
-            "handlers": ["in_memory_handler"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+    }
 
 
 ASGI_APPLICATION = "webapp.asgi.application"
@@ -193,16 +193,25 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "django-cache"
 
 # django setting.
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379",
-    },
-    "db_cache": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "my_cache_table",
+if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379",
+        },
+        "db_cache": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "my_cache_table",
+        }
     }
-}
+elif os.environ.get("CICD"):
+    # django setting.
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "my_cache_table",
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
