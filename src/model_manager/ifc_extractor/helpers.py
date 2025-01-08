@@ -1,30 +1,21 @@
 # -*- coding: utf-8 -*-
-import csv
 import gc
-import logging
+import multiprocessing
 import os
 import time
-import multiprocessing
-
-import pprint
 from collections import defaultdict
-from collections.abc import Iterator
-
-from ifcopenshell.geom import iterator
-
-from webapp.logger import InMemoryLogHandler
-from model_manager.models import (
-    BuildingMetrics,
-    CadevilDocument,
-    FileUpload,
-    MaterialProperties,
-)
 
 import OCC.Core
+from ifcopenshell.geom import iterator
+
+from model_manager.models import (
+    BuildingMetrics,
+    MaterialProperties,
+)
+from webapp.logger import InMemoryLogHandler
 
 print(OCC.Core.VERSION)
 # try:
-import ifcopenshell
 import ifcopenshell.api
 import ifcopenshell.express
 import ifcopenshell.express.rules
@@ -42,8 +33,6 @@ import ifcopenshell.util.schema
 import ifcopenshell.util.selector
 import ifcopenshell.util.shape
 import ifcopenshell.util.unit
-
-from ifcopenshell.entity_instance import entity_instance
 
 # except ImportError:
 #     pprint(
@@ -66,13 +55,11 @@ DEBUG_VERBOSE = False
     "IfcDoor",
 """
 
-import ifcopenshell
 import ifcopenshell.geom
 
 import ifcopenshell
 import ifcopenshell.geom
 import pprint
-import math
 
 
 def create_plan_svg_bboxes(ifc_path, svg_size=1000, margin=20):
