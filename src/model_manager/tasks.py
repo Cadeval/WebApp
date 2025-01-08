@@ -1,6 +1,6 @@
 from celery.signals import task_postrun, task_revoked
 
-from .backend import WebSocketProgressRecorder
+from backend import WebSocketProgressRecorder
 from celery_progress.backend import KnownResult, Progress
 
 
