@@ -1,12 +1,17 @@
 import uuid
 
+from asgiref.sync import sync_to_async
 from django.contrib.auth.models import AbstractUser, Group, GroupManager, Permission
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.forms import BooleanField, UUIDField
-from django.core.validators import MinValueValidator
+from django.forms import BooleanField
 from django.utils.translation import gettext_lazy as _
+
+
+# from .models import ConfigUpload, CadevilUser  # Adjust import paths as needed
+
 
 # user_model = settings.AUTH_USER_MODEL
 # group_model = settings.AUTH_GROUP_MODEL
@@ -157,6 +162,56 @@ def create_user_group(sender, instance, created, **kwargs):
         instance.groups.add(group)
 
 
+class ConfigUpload(models.Model):
+    id = models.UUIDField(
+        primary_key=True, db_index=True, default=uuid.uuid4, editable=False
+    )
+    user = models.ForeignKey(CadevilUser, on_delete=models.CASCADE)
+
+    document = models.FileField(upload_to=user_directory_path)  # or user_directory_path
+    description = models.CharField(
+        db_index=True, max_length=255, blank=True
+    )
+    uploaded_at = models.DateTimeField(
+        db_index=True, auto_now_add=True
+    )
+
+    class Meta:
+        db_table = "archicad_eval_config_uploads"
+
+    def __str__(self):
+        return f"{self.description} - {self.document.name}"
+
+
+class CalculationConfig(models.Model):
+    id = models.UUIDField(
+        primary_key=True, db_index=True, default=uuid.uuid4, editable=False
+    )
+    user = models.OneToOneField("CadevilUser", on_delete=models.CASCADE)
+    config = models.JSONField()
+    upload = models.ForeignKey(
+        "ConfigUpload",
+        on_delete=models.CASCADE,
+        related_name="archicad_eval_config_file",
+        default="",
+    )
+
+    class Meta:
+        db_table = "archicad_eval_calculation_configs"
+
+    def __str__(self):
+        # Synchronous usage: returns the description of the 'upload'
+        return f"{self.upload.description}"
+
+    async def async_get_description(self):
+        """
+        Fetches the upload.description in an async context.
+
+        This uses sync_to_async because Django's ORM is synchronous.
+        """
+        return await sync_to_async(lambda: self.upload.description)()
+
+
 class FileUpload(models.Model):
     id = models.UUIDField(
         primary_key=True, db_index=True, default=uuid.uuid4, editable=False
@@ -266,7 +321,6 @@ class BuildingMetrics(models.Model):
 
 
 class MaterialProperties(models.Model):
-
     id = models.UUIDField(
         primary_key=True, db_index=True, default=uuid.uuid4, editable=False
     )

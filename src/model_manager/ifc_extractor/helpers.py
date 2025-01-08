@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import csv
 import gc
+import logging
+import os
 import time
 import multiprocessing
 
-from pprint import pprint
+import pprint
 from collections import defaultdict
 from collections.abc import Iterator
 
 from ifcopenshell.geom import iterator
 
+from webapp.logger import InMemoryLogHandler
 from model_manager.models import (
     BuildingMetrics,
     CadevilDocument,
@@ -17,41 +20,41 @@ from model_manager.models import (
     MaterialProperties,
 )
 
-try:
-    import ifcopenshell
-    import ifcopenshell.api
-    import ifcopenshell.express
-    import ifcopenshell.express.rules
-    import ifcopenshell.file
-    import ifcopenshell.geom
-    import ifcopenshell.ifcopenshell_wrapper
-    import ifcopenshell.util
-    import ifcopenshell.util.classification
-    import ifcopenshell.util.cost
-    import ifcopenshell.util.element
-    import ifcopenshell.util.geolocation
-    import ifcopenshell.util.placement
-    import ifcopenshell.util.representation
-    import ifcopenshell.util.schema
-    import ifcopenshell.util.selector
-    import ifcopenshell.util.shape
-    import ifcopenshell.util.unit
+import OCC.Core
 
-    from ifcopenshell.entity_instance import entity_instance
+print(OCC.Core.VERSION)
+# try:
+import ifcopenshell
+import ifcopenshell.api
+import ifcopenshell.express
+import ifcopenshell.express.rules
+import ifcopenshell.file
+import ifcopenshell.geom
+import ifcopenshell.ifcopenshell_wrapper
+import ifcopenshell.util
+import ifcopenshell.util.classification
+import ifcopenshell.util.cost
+import ifcopenshell.util.element
+import ifcopenshell.util.geolocation
+import ifcopenshell.util.placement
+import ifcopenshell.util.representation
+import ifcopenshell.util.schema
+import ifcopenshell.util.selector
+import ifcopenshell.util.shape
+import ifcopenshell.util.unit
 
-except ImportError:
-    pprint(
-        """Cannot import ifcopenshell. This is necessary to run the program.
-           Please install it via pip or conda and retry."""
-    )
-    exit(1)
+from ifcopenshell.entity_instance import entity_instance
+
+# except ImportError:
+#     pprint(
+#         """Cannot import ifcopenshell. This is necessary to run the program.
+#            Please install it via pip or conda and retry."""
+#     )
+#     exit(1)
+
 
 DEBUG = True
 DEBUG_VERBOSE = False
-
-from model_manager.ifc_extractor.data_models import (
-    material_name_translation_dict,
-)
 
 """
     "IfcWall",
@@ -63,40 +66,318 @@ from model_manager.ifc_extractor.data_models import (
     "IfcDoor",
 """
 
+import ifcopenshell
+import ifcopenshell.geom
+
+import ifcopenshell
+import ifcopenshell.geom
+import pprint
+import math
+
+
+def create_plan_svg_bboxes(ifc_path, svg_size=1000, margin=20):
+    """
+    Creates a 'blueprint-style' SVG top-down bounding box plan of the ground floor
+    from the given IFC file, color-coding elements by type and styling it like a blueprint.
+
+    :param ifc_path: path to the IFC file
+    :param svg_size: width/height (pixels) of the SVG canvas
+    :param margin: padding around the drawing in the SVG
+    :return: string containing the entire SVG markup
+    """
+    filename = os.path.basename(ifc_path)  # just the file name
+    ifc_file = ifcopenshell.open(ifc_path)
+    storeys = ifc_file.by_type("IfcBuildingStorey")
+
+    if not storeys:
+        return "No storeys found in IFC."
+
+    # Pick the first storey as default, or specifically the one with Elevation=0
+    ground_floor = storeys[0]
+    for st in storeys:
+        if st.get_info().get("Elevation", None) == 0:
+            ground_floor = st
+            break
+
+    # Decomposition to get all elements on this storey
+    ground_floor_elements = ifcopenshell.util.element.get_decomposition(
+        element=ground_floor, is_recursive=True
+    )
+
+    # Geometry settings (triangulation, no OpenCascade)
+    settings = ifcopenshell.geom.settings()
+    settings.set(settings.USE_PYTHON_OPENCASCADE, False)
+
+    product_bboxes = {}
+    all_xmin = float("inf")
+    all_ymin = float("inf")
+    all_xmax = float("-inf")
+    all_ymax = float("-inf")
+
+    # Gather bounding boxes
+    for product in ground_floor_elements:
+        if not hasattr(product, "Representation"):
+            continue
+
+        try:
+            shape = ifcopenshell.geom.create_shape(settings, product)
+        except:
+            continue
+
+        if not shape or not shape.geometry:
+            continue
+
+        verts = shape.geometry.verts
+        if not verts:
+            continue
+
+        pminx = float("inf")
+        pmaxx = float("-inf")
+        pminy = float("inf")
+        pmaxy = float("-inf")
+
+        for i in range(0, len(verts), 3):
+            x = verts[i + 0]
+            y = verts[i + 1]
+            if x < pminx: pminx = x
+            if x > pmaxx: pmaxx = x
+            if y < pminy: pminy = y
+            if y > pmaxy: pmaxy = y
+
+        if pminx < pmaxx and pminy < pmaxy:
+            product_bboxes[product] = (pminx, pminy, pmaxx, pmaxy)
+            if pminx < all_xmin: all_xmin = pminx
+            if pmaxx > all_xmax: all_xmax = pmaxx
+            if pminy < all_ymin: all_ymin = pminy
+            if pmaxy > all_ymax: all_ymax = pmaxy
+
+    if not product_bboxes:
+        return "No geometric bounding boxes found for this storey."
+
+    width = all_xmax - all_xmin
+    height = all_ymax - all_ymin
+    if width <= 0 or height <= 0:
+        return "Degenerate bounding box (all geometry in a single line or point)."
+
+    # Scale to fit
+    scale_x = (svg_size - 2 * margin) / width
+    scale_y = (svg_size - 2 * margin) / height
+    scale_factor = min(scale_x, scale_y)
+
+    def world_to_svg(px, py):
+        sx = (px - all_xmin) * scale_factor + margin
+        sy = (all_ymax - py) * scale_factor + margin
+        return sx, sy
+
+    # -----------
+    # Color logic
+    # -----------
+    # You can expand this dictionary with more IFC classes or customize the colors:
+    colors_by_type = {
+        "IfcWall": "#66ccff",  # Light cyan
+        "IfcDoor": "#ffcc00",  # Yellowish
+        "IfcWindow": "#ff66ff",  # Pinkish
+        "IfcSlab": "#99ff99",  # Light green
+        "IfcBeam": "#ff9966",  # Orange
+        "IfcColumn": "#ff6699",  # Pink
+        "IfcStair": "#ccccff",  # Light violet
+        "IfcFlowTerminal": "#ffd966",  # Golden
+        # fallback color if not in dict:
+    }
+    default_color = "#ffffff"  # white lines for unknown types
+
+    # -----------
+    # Build SVG
+    # -----------
+    svg_rects = []
+    svg_texts = []
+
+    for product, (pminx, pminy, pmaxx, pmaxy) in product_bboxes.items():
+        sx_min, sy_max = world_to_svg(pminx, pminy)
+        sx_max, sy_min = world_to_svg(pmaxx, pmaxy)
+        rect_width = abs(sx_max - sx_min)
+        rect_height = abs(sy_max - sy_min)
+
+        top_left_x = min(sx_min, sx_max)
+        top_left_y = min(sy_min, sy_max)
+
+        # Determine color by product type
+        ifctype = product.is_a()
+        stroke_color = colors_by_type.get(ifctype, default_color)
+
+        # Slight fill with opacity for differentiation
+        # (a faint version of the stroke color)
+        fill_color = stroke_color
+        fill_opacity = 0.1  # faint fill so we can see overlapping
+
+        # Product label
+        label_text = (
+            f"{ifctype} : "
+            f"{getattr(product, 'Name', '') or getattr(product, 'Tag', '') or product.GlobalId}"
+        )
+
+        # Rect element
+        rect_elem = (
+            f'<rect x="{top_left_x:.1f}" y="{top_left_y:.1f}" '
+            f'width="{rect_width:.1f}" height="{rect_height:.1f}" '
+            f'fill="{fill_color}" fill-opacity="{fill_opacity}" '
+            f'stroke="{stroke_color}" stroke-width="2" '
+            f'vector-effect="non-scaling-stroke" />'
+        )
+        svg_rects.append(rect_elem)
+
+        # Center of bounding box for text
+        cx = (sx_min + sx_max) / 2
+        cy = (sy_min + sy_max) / 2
+
+        # Escape special characters
+        label_escaped = label_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+        # Text
+        text_elem = (
+            f'<text x="{cx:.1f}" y="{cy:.1f}" '
+            f'fill="#fff" font-size="12" font-weight="bold" '
+            f'text-anchor="middle" alignment-baseline="middle">'
+            f'{label_escaped}</text>'
+        )
+        svg_texts.append(text_elem)
+
+    # Blueprint background: a dark navy/blue
+    blueprint_bg = "#002b36"  # or #001f3f, #0f1420, etc.
+
+    svg_header = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'width="{svg_size}" height="{svg_size}" '
+        f'viewBox="0 0 {svg_size} {svg_size}" '
+        f'style="background: {blueprint_bg};">\n'
+        f'  <title>Blueprint Ground Floor Plan</title>\n'
+    )
+    svg_footer = "</svg>"
+
+    svg_title = f'  <title>2D Down Projection - {filename}</title>\n'
+
+    # A stylized text bar at the top (like Archicad’s tab):
+    # We'll place it near the top, full width, with some offset:
+    top_bar_height = 30
+    top_bar_rect = (
+        f'<rect x="0" y="0" '
+        f'width="{svg_size}" height="{top_bar_height}" '
+        f'style="fill: var(--secondary-color);" />'
+    )
+    top_bar_text = (
+        f'<text x="{svg_size / 2:.1f}" y="{top_bar_height / 2:.1f}" '
+        f'style="'
+        f'fill: var(--primary-bg); '
+        f'font-size: 14px; '
+        f'font-weight: bold; '
+        f'text-anchor: middle; '
+        f'alignment-baseline: middle;">'
+        f'{filename} - 2D Plan'
+        f'</text>'
+    )
+
+    # We can push the bounding boxes down by `top_bar_height + some margin` if we want
+    # but for now, we’ll just overlay it. If you want to shift, you can do so in your margin logic.
+
+    svg_footer = "\n</svg>"
+
+    # Assemble all parts
+    svg_body = [top_bar_rect, top_bar_text] + svg_rects
+    svg_str = (
+            svg_header
+            + svg_title
+            + "\n".join(svg_body)
+            + svg_footer
+    )
+
+    return svg_str
+
 
 def csv_to_dict(filepath, delimiter=';'):
     """
-    Reads a CSV file and returns a dictionary where:
-      - The key of the dictionary is the value from the first column.
-      - The value is another dictionary mapping the remaining columns to their values.
+    Reads a CSV file and returns a nested dictionary with two keys:
+      {
+        "header": [... list of column headers ...],
+        "data": {
+            outer_key1: {header1: val1, header2: val2, ...},
+            outer_key2: {...},
+            ...
+        },
+      }
+
+    - "header" is a list of column headers (excluding the first column).
+    - "data" is a dictionary keyed by the first column in each row.
     """
-    result = {}
+    nested_result = {
+        "header": [],
+        "data": {}
+    }
 
     with open(filepath, mode='r', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=delimiter)
 
         # Read the header row
-        header = next(reader)
+        header_row = next(reader)
+        # Store the header row (excluding the first column)
+        nested_result["header"] = header_row[1:]
 
-        # The first column in the header is the outer key
-        # The remaining columns will be included in the inner dict
+        # Read the data
         for row in reader:
             outer_key = row[0]
-            # Map each remaining column header to its corresponding cell
             inner_dict = {
-                header[i]: row[i]
-                for i in range(1, len(header))
+                header_row[i]: row[i]
+                for i in range(1, len(header_row))
             }
-            result[outer_key] = inner_dict
-    return result
+            nested_result["data"][outer_key] = inner_dict
 
-def read_config(config_file: str) -> dict[str, str | int]:
-    config_dict: dict[str, str | int] = {}
-    with open(config_file, newline="") as csvfile:
-        reader = csv.reader(csvfile, delimiter=";", quotechar="'")
-        for row in reader:
-            config_dict[row[0]] = row[1]
-    return config_dict
+    return nested_result
+
+
+import csv
+import io
+
+
+def dict_to_csv_string(nested_dict, delimiter=';'):
+    """
+    Inverse of csv_to_dict: takes a nested dictionary of this form:
+      {
+        "header": [... column headers ...],
+        "data": {
+            outer_key1: {header1: val1, header2: val2, ...},
+            outer_key2: {header1: val3, header2: val4, ...},
+            ...
+        }
+      }
+
+    And returns a CSV string with columns:
+      FirstColumnName, header1, header2, ...
+      (outer_key1), (val1), (val2), ...
+      (outer_key2), (val3), (val4), ...
+      ...
+    """
+    headers = nested_dict["header"]
+    data_dict = nested_dict["data"]
+    first_column_name = "Key"  # or "ID", or whatever you'd like
+
+    # StringIO lets us write CSV data to an in-memory buffer
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=delimiter)
+
+    # Write the header row: e.g. ["Key", "header1", "header2", ...]
+    writer.writerow([first_column_name] + headers)
+
+    # Write each row from the data dictionary
+    for outer_key, row_dict in data_dict.items():
+        row = [outer_key]  # start the row with the outer key
+        # Append each column value in the same order as 'headers'
+        for col in headers:
+            row.append(row_dict.get(col, ""))  # fallback to "" if missing
+        writer.writerow(row)
+
+    # Retrieve the entire CSV string from the StringIO buffer
+    csv_string = output.getvalue()
+    output.close()
+    return csv_string
 
 
 prices_unknown_ifc_name_set: set[str | str] = set()
@@ -104,137 +385,46 @@ passport_unknown_ifc_name_set: set[str | str] = set()
 unknown_ifc_name_set: set[str | str] = set()
 
 
-# 0: key Material; <- name referenced in code
-# 1:     baubook Wahl; <- name of material on baubook website
-# 2: 0   Dichte    kg/m³;
-# 3:     Verwertungspotential ; <- Not in use
-# 4: 1   'Abfallreduktion oder -erhöhung) %'; <- waste grade in %
-# 5: 2   Anteil Recycling %; <- $4 + $5 = 100
-# 6: 3   GWP-total Globales Erwärmungspotenzial - total            kg CO2 Äq./kg;
-# 7: 4   AP Versauerungspotenzial von Boden und Wasser        kg SO2 Äq./kg;
-# 8: 5   PENRT Nicht erneuerbare Primärenergie - total           MJ/kg
-def read_passport_config(
-    passport_file: str,
-) -> dict[
-    str,
-    tuple[
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-    ],
-]:
-    passport_dict: dict[
-        str,
-        tuple[
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-        ],
-    ] = {}
-    with open(passport_file, newline="") as csvfile:
-        reader = csv.reader(csvfile, delimiter=";", quotechar="'")
-        for row in reader:
-            passport_dict[row[0]] = (row[2], row[4], row[5], row[6], row[7], row[8])
-    return passport_dict
-
-
-# 0:  key Material;
-# 1:  0   Materialart laut BKI;
-# 2:  1   Kostengruppe;
-# 3:  2   Brutto;
-# 4:  3   Netto;
-# 5:  4   Brutto (Wien);
-# 6:  5   Netto (Wien);
-# 7:  6   Einheit;
-def read_material_prices_config(
-    passport_file: str,
-) -> dict[
-    str,
-    tuple[
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-        int | float | str,
-    ],
-]:
-    prices_dict: dict[
-        str,
-        tuple[
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-            int | float | str,
-        ],
-    ] = {}
-    with open(passport_file, newline="") as csvfile:
-        reader = csv.reader(csvfile, delimiter=";", quotechar="'")
-        for row in reader:
-            prices_dict[row[0]] = (
-                row[1],
-                row[2],
-                row[3],
-                row[4],
-                row[5],
-                row[6],
-                row[7],
-                row[8],
-            )
-    return prices_dict
-
-
-async def extract_building_properties(
-    ifc_file_path: str,
-) -> BuildingMetrics:
+def ifc_product_walk(
+        user_id: str,
+        user_config: dict,
+        ifc_file_path: str,
+) -> tuple[defaultdict[str, MaterialProperties], BuildingMetrics]:
     """
-    Calculate Space for a Building
-    -> BuildingMetrics
+    Calculate Space and Material Properties for a Building
+    -> defaultdict[str, MaterialProperties],
+       BuildingMetrics
     """
+    # properties = gebäude_kenndaten
     # pprint(product.get_info_2(recursive=True))
     # VERBOSE = True
 
     gc.unfreeze()
     _ = gc.collect()
-
+    logger = InMemoryLogHandler()
     start = time.time()
 
-    pprint(
-        ">>>> Starting up Building Metrics Calculation.",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
     settings = ifcopenshell.geom.settings()
 
     # Already set to True by default
     settings.set(settings.WELD_VERTICES, True)
     settings.set(settings.GENERATE_UVS, True)
 
-    settings.set(settings.REORIENT_SHELLS, True)
-
     settings.set(settings.ELEMENT_HIERARCHY, True)
     settings.set(settings.KEEP_BOUNDING_BOXES, True)
-    settings.set(settings.USE_WORLD_COORDS, True)
 
     settings.set(settings.USE_MATERIAL_NAMES, True)
     settings.set(settings.PRECISION, 1e-016)
 
-    pprint(settings)
-    pprint(">>>> Loading ifc file.", width=140, sort_dicts=True, compact=True)
+    settings.set(settings.USE_PYTHON_OPENCASCADE, False)
+
+    logger.sync_emit(record=f">>>> {settings}", user_id=user_id)
+
+    logger.sync_emit(record=">>>> Loading ifc file.", user_id=user_id)
+
     ifc_model: ifcopenshell.file = ifcopenshell.open(ifc_file_path, should_stream=False)
+
+    gc.freeze()
 
     metrics = BuildingMetrics()
 
@@ -248,65 +438,17 @@ async def extract_building_properties(
     fassadenflaeche = 0.0
     stockwerke = 0.0
 
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        f">>>> Calculating Volumes",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        f">>>> Schema used: {ifc_model.schema}",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(f"Opened file: {ifc_file_path}", width=140, sort_dicts=True, compact=True)
-
-    # Dictionary to store elements by material
-    iterator = ifcopenshell.geom.iterator(
-        settings=settings,
-        file_or_filename=ifc_model,
-        num_threads=multiprocessing.cpu_count(),
-        geometry_library="hybrid-cgal-opencascade",
-    )
-
-    gc.freeze()
+    logger.sync_emit(record=f">>>> Preparations done within {time.time() - start}s", user_id=user_id)
+    logger.sync_emit(record=f">>>> Schema used: {ifc_model.schema}", user_id=user_id)
+    logger.sync_emit(record=f">>>> Opened file: {ifc_file_path}", user_id=user_id)
 
     storeys = ifc_model.by_type("IfcBuildingStorey")
     metrics.stockwerke = len(storeys)
     eg_found = False
 
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        f">>>> Preparations done within {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
     for storey in storeys:
-        if DEBUG_VERBOSE:
-            pprint(storey.get_info())
+        # if DEBUG_VERBOSE:
+        # pprint(ifcopenshell.util.element.get_psets(storey))
         storey_name = storey.get_info()["Name"]
         if storey.get_info()["Elevation"] == 0:
             eg_found = True
@@ -317,14 +459,14 @@ async def extract_building_properties(
         # pprint(ifcopenshell.util.element.get_psets(element=storey))
         # decompose_area(settings, storey)
 
-    if not eg_found:
-        pprint(storeys)
-        for storey in storeys:
-            pprint(storey.get_info())
-        raise ValueError("Storeys do not contain one with the name EG")
-    else:
-        del eg_found
-        del storeys
+    # if not eg_found:
+    #     pprint(storeys)
+    #     for storey in storeys:
+    #         pprint(storey.get_info())
+    #     raise ValueError("Storeys do not contain one with the name EG")
+    # else:
+    #     del eg_found
+    #     del storeys
 
     # TODO: Figure out if we need to enable recursive for some files
     ground_floor_elements = ifcopenshell.util.element.get_decomposition(
@@ -334,60 +476,50 @@ async def extract_building_properties(
     #     element=first_storey, is_recursive=True
     # )
 
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
+    # Dictionary to store elements by material
+    iterator = ifcopenshell.geom.iterator(
+        settings=settings,
+        file_or_filename=ifc_model,
+        num_threads=multiprocessing.cpu_count() * 2,
+        # TODO: Chceck if this introduces errors
+        # Currently lowers the calculation time by 50%
+        geometry_library="hybrid-cgal-simple-opencascade",
+    )
+    elements_by_material: defaultdict[str, MaterialProperties] = defaultdict(
+        MaterialProperties
     )
 
-    pprint(
-        f">>>> Located floors within {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        ">>> Now iterating over the elements.", width=140, sort_dicts=True, compact=True
-    )
+    logger.sync_emit(record=">>> Now iterating over the elements.", user_id=user_id)
 
     if iterator.initialize():
         i = 0
         while iterator.next():
+            element_shape = iterator.get()
+            element_geometry = element_shape.geometry
+            element: ifcopenshell.entity_instance = ifc_model.by_guid(
+                element_shape.guid
+            )
             try:
-                element_shape = iterator.get()
-                element_geometry = element_shape.geometry
-                element: ifcopenshell.entity_instance = ifc_model.by_guid(
-                    element_shape.guid
-                )
-
+                # Volume is taken from the pset instead
                 volume: float = ifcopenshell.util.shape.get_volume(
                     geometry=element_geometry
                 )
-                area: float = ifcopenshell.util.shape.get_side_area(
-                    geometry=element_geometry, axis="Z"
-                )
-                # area: float = ifcopenshell.util.shape.get_footprint_area(
-                #     geometry=element_geometry,
-                #     axis="Z",
+                # area: float = ifcopenshell.util.shape.get_side_area(
+                #     geometry=element_geometry, axis="Z"
                 # )
+                area: float = ifcopenshell.util.shape.get_footprint_area(
+                    geometry=element_geometry,
+                    axis="Z",
+                )
                 length: float = ifcopenshell.util.shape.get_max_xy(
                     geometry=element_geometry
                 )
+
             except Exception as e:
                 if DEBUG_VERBOSE:
-                    pprint(f">>>?? No Geometry: {element.get_info(recursive=True)}?")
-                    pprint(e)
+                    pprint.pprint(f">>>?? No Geometry: {element.get_info(recursive=True)}?")
+                    pprint.pprint(e)
                 continue
-
             metrics.brutto_rauminhalt += volume
 
             # if "Morph" in element.get_info()["Name"]:
@@ -411,231 +543,40 @@ async def extract_building_properties(
                 # pprint(f">>>?? No Geometry: {element.get_info_2(recursive=True)}?")
 
             i += 1
-
-        pprint(f">>>?? {metrics.netto_raumfläche}?")
-        pprint(f">>>?? {metrics.konstruktions_grundfläche}?")
-        pprint(f">>>?? {metrics.brutto_grundfläche}?")
-        pprint(f">>>?? {metrics.bebaute_fläche}?")
-        metrics.grundstuecksfläche = metrics.bebaute_fläche + metrics.unbebaute_fläche
-        metrics.bgf_bf_ratio = metrics.brutto_grundfläche / metrics.bebaute_fläche
-        metrics.bri_bgf_ratio = metrics.brutto_rauminhalt / metrics.brutto_grundfläche
-
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint("Properties:", width=140, sort_dicts=True, compact=True)
-    pprint(object=metrics, width=140, sort_dicts=True, compact=True)
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    pprint(
-        f">>>> Done within {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    return metrics
-
-
-def ifc_product_walk(
-    ifc_document: CadevilDocument,
-    ifc_file_path: str,
-) -> defaultdict[str, MaterialProperties]:
-    """
-    -> defaultdict[str, MaterialProperties]
-    """
-    # properties = gebäude_kenndaten
-    # pprint(product.get_info_2(recursive=True))
-    # VERBOSE = True
-
-    gc.unfreeze()
-    _ = gc.collect()
-
-    start = time.time()
-
-    pprint(
-        ">>>> Starting up Material Properties Calculation.",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    settings = ifcopenshell.geom.settings()
-
-    # Already set to True by default
-    settings.set(settings.WELD_VERTICES, True)
-    settings.set(settings.GENERATE_UVS, True)
-
-    settings.set(settings.ELEMENT_HIERARCHY, True)
-    settings.set(settings.KEEP_BOUNDING_BOXES, True)
-
-    settings.set(settings.USE_MATERIAL_NAMES, True)
-    settings.set(settings.PRECISION, 1e-016)
-
-    pprint(">>>> Loading ifc file.", width=140, sort_dicts=True, compact=True)
-    ifc_model: ifcopenshell.file = ifcopenshell.open(ifc_file_path, should_stream=False)
-
-    gc.freeze()
-
-    # Dictionary to store elements by material
-    iterator = ifcopenshell.geom.iterator(
-        settings=settings,
-        file_or_filename=ifc_model,
-        num_threads=multiprocessing.cpu_count() * 2,
-        # TODO: Chceck if this introduces errors
-        # Currently lowers the calculation time by 50%
-        geometry_library="hybrid-cgal-opencascade",
-    )
-    elements_by_material: defaultdict[str, MaterialProperties] = defaultdict(
-        MaterialProperties
-    )
-    passport_config_dict = read_passport_config(
-        "../schema/material_passport_house_a_b.csv"
-    )
-    material_prices_dict = read_material_prices_config("../schema/prices.csv")
-
-    pprint(
-        ">>> Now iterating over the elements.", width=140, sort_dicts=True, compact=True
-    )
-    accumulator_dict = {}
-
-    if iterator.initialize():
-        i = 0
-        while iterator.next():
-            try:
-                element_shape = iterator.get()
-                element_geometry = element_shape.geometry
-                element: ifcopenshell.entity_instance = ifc_model.by_guid(
-                    element_shape.guid
-                )
-
-                volume: float = ifcopenshell.util.shape.get_volume(
-                    geometry=element_geometry
-                )
-                # area: float = ifcopenshell.util.shape.get_side_area(
-                #     geometry=element_geometry, axis="Z"
-                # )
-                area: float = ifcopenshell.util.shape.get_footprint_area(
-                    geometry=element_geometry,
-                    axis="Z",
-                )
-                length: float = ifcopenshell.util.shape.get_max_xy(
-                    geometry=element_geometry
-                )
-            except Exception as e:
-                if DEBUG_VERBOSE:
-                    pprint(f">>>?? No Geometry: {element.get_info(recursive=True)}?")
-                    pprint(e)
-                continue
-            # if element.is_a("IfcWall"):
-            #     pprint(
-            #         f"BEGIN--{element.get_info_2()['Name']}----------------------------------------------------------------------------",
-            #         width=140,
-            #         sort_dicts=True,
-            #         compact=True,
-            #     )
-            #     pprint(ifcopenshell.util.element.get_psets(element=element))
-            #     pprint(
-            #         "--------------------------------------------------------------------------------------",
-            #         width=140,
-            #         sort_dicts=True,
-            #         compact=True,
-            #     )
-
             # Ignore all spaces and similar, they do not have good materials
             if not (
-                element.is_a("IfcSpace")
-                or element.is_a("IfcDoor")
-                or element.is_a("IfcWindow")
-                or element.is_a("IfcOpeningElement")
-                or element.is_a("IfcBuildingElementProxy")
+                    element.is_a("IfcSpace")
+                    or element.is_a("IfcOpeningElement")
+                    or element.is_a("IfcBuildingElementProxy")
             ):
-                # FIXME: Current logic inflates metrics for layered materials
-                #        Invert the order of logic for calculating things like
-                #        length, area, volume,...
-                # pprint(
-                #     "--------------------------------------------------------------------------------------",
-                #     width=140,
-                #     sort_dicts=True,
-                #     compact=True,
-                # )
-                # pprint(ifcopenshell.util.element.get_psets(element=element))
-                pprint(ifcopenshell.util.element.get_psets(element=element), sort_dicts=True)
-                # for ifc_name, length, volume, area in material_metric_iterator(element=element):
-                #     pass
 
-                for is_mono_elment, subelement, ifc_name in material_name_iterator(
-                    element=element
-                ):
-                    # if is_mono_elment:
-                    #     pprint(
-                    #         f">>?? {element.get_info()['Name']}>> {volume} :: {area}"
-                    #     )
-                    #     pprint(ifcopenshell.util.element.get_psets(element=element))
+                pset_dict = ifcopenshell.util.element.get_psets(element=element)
+                if not pset_dict.get("Component Quantities"):
+                    pprint.pprint(pset_dict, sort_dicts=True)
+                    continue
+                else:
+                    keys = pset_dict.get("Component Quantities")
 
-                    if DEBUG_VERBOSE:
-                        pprint(f">>>?ELEMENTTYPE: {is_mono_elment} {type(subelement)}?")
+                for ifc_name in keys:
 
-                    # Conditionally overwrite shape metrics if we have a multi material element
-                    if False and not is_mono_elment:
-                        ifc_shape = ifcopenshell.geom.create_shape(
-                            settings=settings, inst=subelement
-                        )
-                        if ifc_shape:
-                            element_geometry = ifc_shape.geometry
-                            volume: float = ifcopenshell.util.shape.get_volume(
-                                geometry=element_geometry
-                            )
-                            area: float = ifcopenshell.util.shape.get_side_area(
-                                geometry=element_geometry, axis="Z"
-                            )
-                            length: float = ifcopenshell.util.shape.get_max_xy(
-                                geometry=element_geometry
-                            )
-                        else:
-                            pprint(
-                                f">>>? WARN: Element has no shape? {type(subelement)}"
-                            )
+                    # Filter out the "id" of the "Component Quantities" object as it contains an int,
+                    # and we are only interested in the quantities of the sub elements.
+                    if ifc_name != "id":
+                        subdict = pset_dict.get("Component Quantities").get(ifc_name)
+                        # pprint({ifc_name:subdict}, sort_dicts=True)
+                        # volume: float = subdict.get("Schicht/Komponenten Volumen (brutto)") or subdict["properties"].get("Schicht/Komponenten Volumen (brutto)")
 
-                    # TODO:
-                    #       - check if we already filter out all unneded volumes
-                    #       - check if we can move this inside the if clause
-                    # length, area, volume = extract_metrics(element=subelement)
-
-                    if ifc_name and (ifc_name in material_name_translation_dict):
-                        tname = material_name_translation_dict[ifc_name]
-
-                        if tname in passport_config_dict:
-                            element_config = passport_config_dict[tname]
+                        if user_config.get(ifc_name):
+                            element_properties = user_config[ifc_name]
                         else:
                             passport_unknown_ifc_name_set.add(ifc_name)
-                            # pprint(f"Not in passport_config_dict: {ifc_name}")
+                            # pprint.pprint(f"Not in passport_config_dict: {ifc_name}")
                             continue  # TODO: Handle this more gracefully
+                        density = float_or_zero(property_dict=element_properties, property="Dichte")
 
-                        if tname in material_prices_dict:
-                            element_prices = material_prices_dict[tname]
-                        else:
-                            prices_unknown_ifc_name_set.add(ifc_name)
-                            continue  # TODO: Handle this more gracefully
-
-                        density = float(element_config[0])
-
-                        gwp = float(element_config[3])
-                        ap = float(element_config[4])
-                        penrt = float(element_config[5])
+                        gwp = float_or_zero(property_dict=element_properties, property="GWP")
+                        ap = float_or_zero(property_dict=element_properties, property="AP")
+                        penrt = float_or_zero(property_dict=element_properties, property="PENRT")
 
                         # if material_type !+ "single":
                         #     waste_grade = float(element_config[1])
@@ -645,8 +586,8 @@ def ifc_product_walk(
                         #
                         #     if surrounding_material_names[1]:
 
-                        waste_grade = float(element_config[1])
-                        recyclable_grade = float(element_config[2])
+                        waste_grade = float_or_zero(property_dict=element_properties, property="NEU Abfallreduktion")
+                        recyclable_grade = float_or_zero(property_dict=element_properties, property="NEU Recycling")
 
                         mass = density * volume
                         waste_mass = mass * waste_grade
@@ -661,290 +602,81 @@ def ifc_product_walk(
                         # for information on the indices
                         # pprint(f"$?: {element_prices}")
                         # Base case is
-                        if element_prices[7] == "Fläche":
-                            multiplier = area
+                        # if element_prices[7] == "Fläche":
+                        #     multiplier = area
+                        #
+                        # elif element_prices[7] == "Masse":
+                        #     multiplier = mass
+                        #
+                        # elif element_prices[7] == "Länge":
+                        #     multiplier = length
+                        #
+                        # elif element_prices[7] == "Volumen":
+                        #     multiplier = volume
+                        #     # pprint(f"$?: {volume * float(element_prices[5])}")
+                        # else:
+                        #     pprint.pprint(
+                        #         f">>! ERROR: multiplier type {element_prices[7]} is unknown!"
+                        #     )
+                        #     multiplier: float = 1
+                        #
+                        # elements_by_material[
+                        #     ifc_name
+                        # ].global_brutto_price += multiplier * float(element_prices[3])
+                        # elements_by_material[
+                        #     ifc_name
+                        # ].local_brutto_price += multiplier * float(element_prices[4])
+                        # elements_by_material[
+                        #     ifc_name
+                        # ].local_netto_price += multiplier * float(element_prices[5])
 
-                        elif element_prices[7] == "Masse":
-                            multiplier = mass
+                        elements_by_material[ifc_name].volume += volume
+                        elements_by_material[ifc_name].mass += mass
+                        elements_by_material[ifc_name].area += area
+                        elements_by_material[ifc_name].length += length
 
-                        elif element_prices[7] == "Länge":
-                            multiplier = length
+                        elements_by_material[ifc_name].waste_mass += waste_mass
+                        elements_by_material[ifc_name].recyclable_mass += recyclable_mass
 
-                        elif element_prices[7] == "Volumen":
-                            multiplier = volume
-                            # pprint(f"$?: {volume * float(element_prices[5])}")
-                        else:
-                            pprint(
-                                f">>! ERROR: multiplier type {element_prices[7]} is unknown!"
-                            )
-                            multiplier: float = 1
-
-                        elements_by_material[
-                            tname
-                        ].global_brutto_price += multiplier * float(element_prices[3])
-                        elements_by_material[
-                            tname
-                        ].local_brutto_price += multiplier * float(element_prices[4])
-                        elements_by_material[
-                            tname
-                        ].local_netto_price += multiplier * float(element_prices[5])
-
-                        elements_by_material[tname].volume += volume
-                        elements_by_material[tname].mass += mass
-                        elements_by_material[tname].area += area
-                        elements_by_material[tname].length += length
-
-                        elements_by_material[tname].waste_mass += waste_mass
-                        elements_by_material[tname].recyclable_mass += recyclable_mass
-
-                        elements_by_material[tname].ap_ml += ap_ml
-                        elements_by_material[tname].gwp_ml += gwp_ml
-                        elements_by_material[tname].penrt_ml += penrt_ml
+                        elements_by_material[ifc_name].ap_ml += ap_ml
+                        elements_by_material[ifc_name].gwp_ml += gwp_ml
+                        elements_by_material[ifc_name].penrt_ml += penrt_ml
 
                         # For debugging the dict layout
-                        # pprint(elements_by_material[tname].toJSON())
+                        # pprint.pprint(str(elements_by_material[ifc_name]))
 
-                        # assert elements_by_material[tname].waste_grade == elements_by_material[tname].recyclable_grade
-                        # elements_by_material[tname].density = float(element_config[0])
-
-                    else:
-                        unknown_ifc_name_set.add(ifc_name)
-                        # pprint(f"Not in material_name_translation_dict: {ifc_name}")
+                        # assert elements_by_material[ifc_name].waste_grade == elements_by_material[ifc_name].recyclable_grade
+                        # elements_by_material[ifc_name].density = float(element_config[0])
 
             i += 1
+        logger.sync_emit(record=f">>>?? {metrics.netto_raumfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.konstruktions_grundfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.brutto_grundfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.bebaute_fläche}?", user_id=user_id)
 
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
+        metrics.grundstuecksfläche = metrics.bebaute_fläche + metrics.unbebaute_fläche
+        metrics.bgf_bf_ratio = metrics.brutto_grundfläche / metrics.bebaute_fläche
+        metrics.bri_bgf_ratio = metrics.brutto_rauminhalt / metrics.brutto_grundfläche
 
-    pprint(
-        object="Materials not yet in material passport file",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        object=passport_unknown_ifc_name_set, width=140, sort_dicts=True, compact=True
-    )
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
+    logger.sync_emit(record="Materials not yet in material passport file", user_id=user_id)
+    logger.sync_emit(record=passport_unknown_ifc_name_set, user_id=user_id)
 
-    pprint(
-        object="Materials not yet in prices file",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(object=prices_unknown_ifc_name_set, width=140, sort_dicts=True, compact=True)
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        object="Names not yet in Materialname translation file",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(object=unknown_ifc_name_set, width=140, sort_dicts=True, compact=True)
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        object="Materials Found!",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        object=elements_by_material,
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
+    logger.sync_emit(record="Materials not yet in prices file", user_id=user_id)
+    logger.sync_emit(record=prices_unknown_ifc_name_set, user_id=user_id)
 
-    pprint(
-        f">>>> Schema used: {ifc_model.schema}",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(f"Opened file: {ifc_file_path}", width=140, sort_dicts=True, compact=True)
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        f">>>> Done within {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    pprint(
-        "--------------------------------------------------------------------------------------",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    return elements_by_material
+    logger.sync_emit(record="Materials Found!", user_id=user_id)
+    logger.sync_emit(record=elements_by_material, user_id=user_id)
+
+    logger.sync_emit(record="Properties:", user_id=user_id)
+    logger.sync_emit(record=metrics, user_id=user_id)
+
+    return elements_by_material, metrics
 
 
-# def extract_metrics(element: entity_instance) -> tuple[float, float, float]:
-
-def material_metric_iterator(element: ifcopenshell.entity_instance) -> Iterator[tuple[str,float,float,float]]:
-    if ifcopenshell.util.element.get_psets(element=element):
-        pass
-
-
-def material_name_iterator(
-    element: ifcopenshell.entity_instance,
-) -> Iterator[tuple[bool, entity_instance, str]]:
-    if element.HasAssociations:
-        for association in element.HasAssociations:
-            if association.is_a("IfcRelAssociatesMaterial"):
-                material_select = association.RelatingMaterial
-
-                # Material layer set
-                if material_select.is_a("IfcMaterialLayerSet"):
-                    pprint(f">>>? {material_select.MaterialLayers}")
-                    for layer in material_select.MaterialLayers:
-                        if layer.Material:
-                            yield False, layer, layer.Material.Name
-
-                elif material_select.is_a("IfcMaterialList"):
-                    pprint(f">>>? {material_select.Materials}")
-                    for mat in material_select.Materials:
-                        yield False, mat, mat.Name
-
-                # Material layer set usage
-                elif material_select.is_a("IfcMaterialLayerSetUsage"):
-                    layer_set = material_select.ForLayerSet
-                    pprint(f">>>? {layer_set.MaterialLayers}")
-                    for layer in layer_set.MaterialLayers:
-                        if layer.Material:
-                            yield False, layer, layer.Material.Name
-                        else:
-                            if DEBUG:
-                                pprint(
-                                    f">>>! WARNING: No material name on {layer.get_info()}"
-                                )
-
-                # Material profile set
-                elif material_select.is_a("IfcMaterialProfileSet"):
-                    pprint(f">>>? {material_select.MaterialProfiles}")
-                    for profile in material_select.MaterialProfiles:
-                        if profile.Material:
-                            yield False, profile, profile.Material.Name
-
-                # Material profile set usage
-                elif material_select.is_a("IfcMaterialProfileSetUsage"):
-                    profile_set = material_select.ForProfileSet
-                    pprint(f">>>? {profile_set.MaterialProfiles}")
-                    for profile in profile_set.MaterialProfiles:
-                        if profile.Material:
-                            yield False, profile, profile.Material.Name
-
-                # Constituent set
-                # Can use GetFaction if implemented
-                elif material_select.is_a("IfcMaterialConstituentSet"):
-                    # pprint(f">>>< {material_select.get_info()}")
-                    pprint(f">>>? {material_select.MaterialConstituents}")
-                    for constituent in material_select.MaterialConstituents:
-                        if constituent.Material:
-                            yield False, constituent, constituent.Material.Name
-                        else:
-                            if DEBUG:
-                                pprint(
-                                    f">>>! WARNING: No material name on {layer.get_info()}"
-                                )
-                # Single material
-                elif material_select.is_a("IfcMaterial"):
-                    yield True, material_select, material_select.Name
-
-                else:
-                    pprint(
-                        object=f">>>! Fall through: {element.get_info()}",
-                        width=140,
-                        sort_dicts=True,
-                        compact=True,
-                    )
-            else:
-                material = ifcopenshell.util.element.get_material(element=element)
-                # TODO: Deconstruct multi material objects.
-                if material:
-                    material_name: str = (
-                        ifcopenshell.util.element.get_material(element=element)
-                        .get_info()
-                        .get("Name")
-                    )
-                    if material_name:
-                        yield True, element, material_name
-                else:
-                    if DEBUG:
-                        pprint(
-                            f">>>! No necessary association: {element.get_info()}",
-                            width=140,
-                            sort_dicts=True,
-                            compact=True,
-                        )
+def float_or_zero(property_dict: dict, property: str) -> float:
+    element_property = property_dict.get(property)
+    # None, 0 and "" are cast to False
+    if not element_property:
+        return 0.0
     else:
-        if DEBUG:
-            pprint(
-                f">>>! No associations at all: {element.get_info()}",
-                width=140,
-                sort_dicts=True,
-                compact=True,
-            )
-
-
-def decompose_area(settings, storey):
-
-    total_area = 0
-    elements = ifcopenshell.util.element.get_decomposition(
-        element=storey, is_recursive=False
-    )
-    for element in elements:
-        if element.is_a("IfcSlab"):
-            element_shape = ifcopenshell.geom.create_shape(
-                settings=settings, inst=element
-            )
-            element_geometry = element_shape.geometry
-            # total_area += ifcopenshell.util.shape.get_side_area(
-            #     geometry=element_geometry, axis="Z"
-            # )
-            height_min = ifcopenshell.util.shape.get_bottom_elevation(
-                geometry=element_geometry
-            )
-            height_max = ifcopenshell.util.shape.get_top_elevation(
-                geometry=element_geometry
-            )
-            area = ifcopenshell.util.shape.get_footprint_area(
-                geometry=element_geometry,
-                axis="Z",
-            )
-            pprint(
-                f">>?? {element.get_info()['Name']}>> {height_min} :: {height_max} :: {area}"
-            )
-            total_area += area
-
-    pprint(f"{storey.get_info()['Name']}:{total_area}")
+        return float(element_property.replace(",", "."))

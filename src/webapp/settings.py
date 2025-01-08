@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 import sys
 from pathlib import Path
+# log_storage
+from collections import defaultdict, deque
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,10 +46,15 @@ SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "192.168.1.6"]
+ALLOWED_HOSTS = ["localhost", "192.168.1.6", "0.0.0.0"]
+
 INTERNAL_IPS = ["localhost"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://192.168.1.6", "https://cadevil.org", "https://cadevil.at"]
-APPEND_SLASH = True
+APPEND_SLASH = False
+
+# FIXME: This is for the config editor change save post request to work.
+#        Maybe if we used a diff we could lower the number of fields sent?
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 8192
 
 # Application definition
 INSTALLED_APPS = [
@@ -58,14 +66,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django_extensions",
-    "debug_toolbar",
-    "django_htmx",
     "model_manager",
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -93,14 +97,41 @@ TEMPLATES = [
     },
 ]
 
-# CHANNEL_LAYERS = {
-#     "default": {
-#         "BACKEND": "channels_redis.core.RedisChannelLayer",
-#         "CONFIG": {
-#             "hosts": [("127.0.0.1", 6379)],
-#         },
-#     },
-# }
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "simple": {
+            "format": "{levelname}:{name}:{message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "in_memory_handler": {
+            "level": "DEBUG",
+            "class": "webapp.logger.InMemoryLogHandler",
+            "formatter": "simple",
+        },
+        # you can have other handlers like 'console', 'file', etc.
+    },
+    "loggers": {
+        "": {  # root logger
+            "handlers": ["in_memory_handler"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
+
 
 ASGI_APPLICATION = "webapp.asgi.application"
 WSGI_APPLICATION = "webapp.wsgi.application"
@@ -125,6 +156,9 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": os.path.join(BASE_DIR, "../data", "db-instance.sqlite3"),
+            'OPTIONS': {
+                'init_command': 'PRAGMA journal_mode=wal;',
+            }
         }
     }
 
@@ -161,6 +195,10 @@ CELERY_CACHE_BACKEND = "django-cache"
 # django setting.
 CACHES = {
     "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    },
+    "db_cache": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
         "LOCATION": "my_cache_table",
     }
@@ -181,3 +219,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Dict mapping user.id -> deque of log messages
+USER_LOGS = defaultdict(lambda: deque(maxlen=1000))

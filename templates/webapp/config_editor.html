@@ -1,0 +1,62 @@
+﻿{% extends 'base.html' %}
+
+{% load static %}
+{% load get_item %}
+
+{% block header %}
+    <div>
+        <button type="submit" class="menu-button fa-save" form="config_form">&#32;Save</button>
+        <!-- New form for CSV download -->
+        <form method="POST" action="{% url 'download_csv' %}" id="download_form" style="display: inline;">
+            {% csrf_token %}
+        </form>
+        <!-- New button that references the above form -->
+        <button
+                type="submit"
+                class="menu-button fa-download"
+                form="download_form"
+        >
+            &#32;Download
+        </button>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <form method="POST" id="config_form" enctype="multipart/form-data" action="{% url 'update_config' %}">
+        {% csrf_token %}
+
+        <table>
+            <thead>
+            <tr>
+                <!-- The first "key" column -->
+                <th>Key</th>
+                <!-- Then each header -->
+                {% for col in headers %}
+                    <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row_key, columns in data_dict.items %}
+                <tr>
+                    <!-- The first column (row key) is read-only for display -->
+                    <td>{{ row_key }}</td>
+
+                    {% for col in headers %}
+                        <td>
+                            <label>
+                                <input
+                                        type="text"
+                                        name="{{ row_key }}-{{ col }}"
+                                        value="{{ columns|get_item:col }}"
+                                />
+                            </label>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <br>
+    </form>
+{% endblock %}

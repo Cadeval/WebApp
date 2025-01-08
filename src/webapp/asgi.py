@@ -17,17 +17,24 @@ from django.core.asgi import get_asgi_application
 # [FIXME] add handler for the result
 _ = os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
 
+import os
+import django
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.core.asgi import get_asgi_application
+import model_manager.routing
+
 # Initialize Django ASGI application early to ensure the AppRegistry
 # is populated before importing code that may import ORM models.
-django_asgi_app = get_asgi_application()
 
-import model_manager.routing
+django.setup()
 
 application = ProtocolTypeRouter(
     {
-        "http": django_asgi_app,
-        "websocket": AllowedHostsOriginValidator(
-            AuthMiddlewareStack(URLRouter(model_manager.routing.websocket_urlpatterns))
-        ),
+        "http": get_asgi_application(),
+        # "websocket": AllowedHostsOriginValidator(
+        #     AuthMiddlewareStack(URLRouter(model_manager.routing.websocket_urlpatterns))
+        # ),
+        "websocket": URLRouter(model_manager.routing.websocket_urlpatterns),
+
     }
 )

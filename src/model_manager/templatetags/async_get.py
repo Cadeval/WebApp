@@ -11,4 +11,4 @@ def async_get(value):
     :param value: The text or numeric value to display.
     :return: The django model view.
     """
-    return list(value.all())
+    return [val.grundstuecksfläche for val in value.all()]

@@ -1,67 +1,76 @@
 # -*- coding: utf-8 -*-
+import asyncio
 import os
 import time
-from pprint import pprint
 
-# from pprint import pprint
 from asgiref.sync import sync_to_async
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 # from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
-# from django.views.decorators.http import require_http_methods
-# from django_htmx.middleware import HtmxDetails, HtmxMiddleware
-# from typing_extensions import assert_type
-from model_manager.forms import DocumentForm, GroupForm, UploadForm
+import webapp.logger
+from model_manager.forms import DocumentForm, GroupChangeForm, UploadForm, GroupForm, ConfigUploadForm, \
+    CalculationConfigForm
 from model_manager.ifc_extractor import helpers, chart_plotter
 from model_manager.models import (
     CadevilDocument,
-    FileUpload,
+    FileUpload, CalculationConfig, ConfigUpload,
 )
+from webapp.settings import USER_LOGS
 
 
 # TODO: Consider putting this on all methods to prevent django from processing PUT UPDATE or DELETE
 # @require_http_methods(["GET", "POST"])
 
-
 # TODO: Add require_POST and require_GET to all functions
 async def index(request: HttpRequest):
-    if await sync_to_async(lambda: request.user.is_authenticated)():
-        files = await sync_to_async(
-            lambda: list(FileUpload.objects.filter(user=request.user))
-        )()
-    else:
-        files = None
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
+    # Convert to a string (or build HTML)
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
+
     return TemplateResponse(
         request,
-        template="index.html",
-        context={
-            "files": files,
-        },
+        "index.html",
+        {"initial_logs": f"{log_output}\n"},  # pass the logs
     )
 
 
-@login_required(login_url="/accounts/login")
-async def calculate_model(
-    request: HttpRequest,
-) -> TemplateResponse | HttpResponseRedirect:
+@login_required(login_url="/accounts/login/")
+async def config_editor(request: HttpRequest) -> HttpResponseRedirect | TemplateResponse:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
 
-    start = time.time()
+    config_dict = await CalculationConfig.objects.aget()
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
+
+    return TemplateResponse(request, 'webapp/config_editor.html', {
+        'data_dict': config_dict.config["data"],
+        'headers': config_dict.config["header"],
+        "initial_logs": f"{log_output}\n",
+    })
+
+
+@login_required(login_url="/accounts/login/")
+async def calculate_model(
+        request: HttpRequest,
+) -> TemplateResponse | HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    user_id: str = str(request.user.id)
+    start: float = time.time()
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
     request_id = str(request.GET.get("calculate"))
     file = await FileUpload.objects.filter(id=request_id).aget()
+    user_config = await CalculationConfig.objects.aget()
 
     # TODO: Fork the rest of this to background
     # Process the IFC file asynchronously
 
-    messages.info(request, f"Starting Calculation of {file.description}!")
+    await logger.emit(f">>>>>> Starting Calculation of {file.description}!", user_id=user_id)
     # TODO: start this in different process
-
-    # FIXME: This shit is currently needed to make this work
-    _ = await sync_to_async(lambda: request.user.is_authenticated)()
-    # print(json.dumps(elements_by_materials))
 
     ifc_document = CadevilDocument()
     ifc_document.user = request.user
@@ -70,30 +79,20 @@ async def calculate_model(
 
     user_groups = await sync_to_async(lambda: list(request.user.groups.all()))()
     ifc_document.group = user_groups[0] if user_groups else None
+    await logger.emit(f">>>>>> Initiating metrics calculations at {time.time() - start}s", user_id=user_id)
 
-    pprint(
-        f">>>>>> Initiating metrics calculations at {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-
-    building_metrics = await helpers.extract_building_properties(
-        ifc_file_path=file.document.path
-    )
+    material_properties, building_metrics = await asyncio.to_thread(helpers.ifc_product_walk,
+                                                                    user_id=user_id,
+                                                                    user_config=user_config.config["data"],
+                                                                    ifc_file_path=file.document.path
+                                                                    )
 
     building_metrics.project_id = ifc_document.id
-    # await helpers.ifc_product_walk(
-    #     ifc_document=ifc_document, ifc_file_path=file.document.path
-    # )
 
     # Save the results asynchronously
+
     await ifc_document.asave()
     await building_metrics.asave()
-
-    material_properties = helpers.ifc_product_walk(
-        ifc_document=ifc_document, ifc_file_path=file.document.path
-    )
 
     for material_name in material_properties.keys():
         material_metrics = material_properties.get(material_name)
@@ -102,36 +101,83 @@ async def calculate_model(
             material_metrics.project_id = ifc_document.id
             await material_metrics.asave()
         else:
-            pprint(f">>??? {material_name} not in the dictionary")
+            await logger.emit(f">>??? {material_name} not in the dictionary", user_id=user_id)
 
-    # pprint(f">>??? {material_properties.keys()}")
+    await logger.emit(f">>??? {material_properties.keys()}", user_id=str(request.user.id))
+    await logger.emit(f">>>>>> Calculation done within {time.time() - start}s", user_id=str(request.user.id))
 
-    pprint(
-        f">>>>>> Calculation done within {time.time() - start}s",
-        width=140,
-        sort_dicts=True,
-        compact=True,
-    )
-    return redirect("/model_manager")
+    return redirect("/model_manager/")
 
 
-@login_required(login_url="/accounts/login")
+@login_required(login_url="/accounts/login/")
 async def change_group(request: HttpRequest) -> HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
     request_id = str(request.GET.get("set_group"))
-    print(f"ID: {request_id}")
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+    await logger.emit(f"ID: {request_id}", user_id=user_id)
+
     group_choice_id = int(request.GET.get("group_field"))
-    group_form = GroupForm(
-        user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
+    group_form = GroupChangeForm(
+        user_groups=request.user.groups.all()
     )
 
     group = group_form.fields["group_field"].choices[group_choice_id]
-    _ = await CadevilDocument.objects.filter(id=request_id).aupdate(group=group[1])
-    return redirect("/model_manager")
+    _ = CadevilDocument.objects.filter(id=request_id).aupdate(group=group[1])
+    return redirect("/model_manager/")
 
 
 @login_required(login_url="/accounts/login")
-async def delete_file(request: HttpRequest) -> HttpResponseRedirect:
+async def create_group(request: HttpRequest) -> HttpResponseRedirect:
+    # config_file = await CalculationConfig.objects.filter(id=request_id, user=request.user).aget()
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
+    if request.method == 'POST':
+        group_form = GroupForm(request.POST)
+        if group_form.is_valid():
+            await group_form.asave()  # saves the new Group to the database
+            return redirect('/accounts/user/')  # Replace with your success URL
+
+
+@login_required(login_url="/accounts/login/")
+async def delete_config_file(request: HttpRequest) -> HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
     request_id = str(request.GET.get("delete_file"))
+
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    # Wrap file path retrieval
+    _object = (
+        await ConfigUpload.objects.filter(id=request_id)
+        .values_list("document", flat=True)
+        .aget()
+    )
+    os.chdir(os.path.join(os.getcwd(), "../media"))
+
+    # Use asyncio to run file operations in a thread
+    if await sync_to_async(os.path.exists)(_object):
+        await sync_to_async(os.remove)(_object)
+        await logger.emit(f"{_object} removed", user_id=user_id)
+    else:
+        await logger.emit(f"{_object} not found", user_id=user_id)
+
+    # TODO: Use result to send notification after success
+    await ConfigUpload.objects.filter(id=request_id).adelete()
+    return redirect("/model_manager/")
+
+
+@login_required(login_url="/accounts/login/")
+async def delete_model_file(request: HttpRequest) -> HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    request_id = str(request.GET.get("delete_file"))
+
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
 
     # Wrap file path retrieval
     _object = (
@@ -140,43 +186,67 @@ async def delete_file(request: HttpRequest) -> HttpResponseRedirect:
         .aget()
     )
     os.chdir(os.path.join(os.getcwd(), "../media"))
-    print(os.getcwd())
 
     # Use asyncio to run file operations in a thread
     if await sync_to_async(os.path.exists)(_object):
         await sync_to_async(os.remove)(_object)
-        print(f"{_object} removed")
+        await logger.emit(f"{_object} removed", user_id=user_id)
     else:
-        print(f"{_object} not found")
+        await logger.emit(f"{_object} not found", user_id=user_id)
 
     # TODO: Use result to send notification after success
-    _ = await FileUpload.objects.filter(id=request_id).adelete()
-    return redirect("/model_manager")
+    await FileUpload.objects.filter(id=request_id).adelete()
+    return redirect("/model_manager/")
 
 
 @login_required(login_url="/accounts/login")
 async def delete_model(request: HttpRequest) -> HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
     request_id = str(request.GET.get("delete_model"))
-    print(request_id)
-    _ = await CadevilDocument.objects.filter(id=request_id).adelete()
-    return redirect("/model_manager")
+
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    await logger.emit(f"Deleted Model (ID: {request_id})", user_id=user_id)
+
+    await CadevilDocument.objects.filter(id=request_id).adelete()
+    return redirect("/model_manager/")
 
 
-@login_required(login_url="/accounts/login")
+async def download_csv(request) -> HttpResponse:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    if request.method == "POST":
+        config_dict = await CalculationConfig.objects.aget()
+        await logger.emit(f"Sending Config File for Download (ID: {config_dict.id})", user_id=user_id)
+        response = HttpResponse(str(config_dict.config), content_type='text/csv')
+        response['Content-Disposition'] = f"attachment; filename='{await config_dict.async_get_description()}.csv'"
+        return response
+
+
+@login_required(login_url="/accounts/login/")
 async def model_manager(
-    request: HttpRequest,
+        request: HttpRequest,
 ) -> TemplateResponse | HttpResponseRedirect | HttpResponse | None:
     # {{{
     # FIXME: This shit is currently needed to make this work
     _ = await sync_to_async(lambda: request.user.is_authenticated)()
 
-    print(
-        f"Current user {request.user} has this many running calculations {request.user.active_calculations}/{request.user.max_calculations}"
-    )
+    # print(
+    #     f"Current user {request.user} has this many running calculations {request.user.active_calculations}/{request.user.max_calculations}"
+    # )
+
     document_form = DocumentForm(user=request.user, user_id=request.user.id)
-    group_form = GroupForm(
+    group_form = GroupChangeForm(
         user_groups=await sync_to_async(lambda: list(request.user.groups.all()))()
     )
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
     if request.method == "POST":
         upload_form = UploadForm(
             request.POST, request.FILES, user=request.user, user_id=request.user.id
@@ -188,16 +258,16 @@ async def model_manager(
             file_upload: FileUpload = await upload_form.asave(commit=False)
             file_upload.user = request.user
             await file_upload.asave()
-            return redirect("/model_manager")
+            return redirect("/model_manager/")
             # return HttpResponse(status=204)
-        else:
-            pprint("FUCK")
 
     else:
         # Wrap ORM queries
         files = await sync_to_async(
             lambda: list(FileUpload.objects.filter(user=request.user))
         )()
+        # ifc_plot_svg = helpers.create_plan_svg_bboxes(ifc_path=files[0].document.path)
+
         data = await sync_to_async(lambda: list(CadevilDocument.objects.all()))()
         return TemplateResponse(
             request,
@@ -207,41 +277,87 @@ async def model_manager(
                 "data": data,
                 "document_form": document_form,
                 "group_form": group_form,
+                # "ifc_plot_svg": ifc_plot_svg,
+                "initial_logs": f"{log_output}\n",  # pass the logs
             },
         )
     # }}}
 
 
-@login_required(login_url="/accounts/login")
-async def user(request: HttpRequest) -> TemplateResponse:
+@login_required(login_url="/accounts/login/")
+async def save_config(request: HttpRequest) -> HttpResponseRedirect:
+    # config_file = await CalculationConfig.objects.filter(id=request_id, user=request.user).aget()
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    user_id: str = str(request.user.id)
 
-    files = await sync_to_async(
-        lambda: list(FileUpload.objects.filter(user=request.user))
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    if request.method == "POST":
+        config_save_form = CalculationConfigForm(request.POST)
+
+        if await CalculationConfig.objects.aexists():
+            previous_config = await CalculationConfig.objects.aget()
+            await logger.emit(f"Deleting Previous Config (ID: {previous_config.id})", user_id=user_id)
+            await previous_config.adelete()
+
+        if await sync_to_async(config_save_form.is_valid)():
+            calculation_config = config_save_form.save(commit=False)
+            calculation_config.user = request.user
+            calculation_config.upload = config_save_form.cleaned_data.get("upload")
+            calculation_config.config = helpers.csv_to_dict(
+                filepath=config_save_form.cleaned_data.get("upload").document.path)
+            await logger.emit(f"Saving Config (ID: {calculation_config.id})", user_id=user_id)
+
+            await calculation_config.asave()
+            return redirect("/accounts/user/")  # or wherever you want to go
+
+
+@login_required(login_url="/accounts/login/")
+async def user(request: HttpRequest) -> TemplateResponse:
+    # config_file = await CalculationConfig.objects.filter(id=request_id, user=request.user).aget()
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
+
+    config_uploads = await sync_to_async(
+        lambda: list(ConfigUpload.objects.filter(user=request.user)),
+        thread_sensitive=True,
     )()
+
+    config_upload_form = ConfigUploadForm()
+    config_save_form = CalculationConfigForm()
+
     return TemplateResponse(
         request,
         "registration/user.html",
         context={
-            "files": files,
+            "config_uploads": config_uploads,
+            "config_upload_form": config_upload_form,
+            "config_save_form": config_save_form,
+            "initial_logs": f"{log_output}\n",
         },
     )
 
 
-@login_required(login_url="/accounts/login")
+@login_required(login_url="/accounts/login/")
 async def object_view(
-    request: HttpRequest,
+        request: HttpRequest,
 ) -> TemplateResponse | HttpResponseRedirect | None:
     """
     Detail view of a given CadevilDocument instance
     """
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
 
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
     # Send user to model manager page if:
     #   - user does not specify any models in the url
     #   - user does not specify a valid model id
     if request.GET.get("object"):
         document_id = request.GET.get("object")
     else:
-        return redirect("/model_manager")
+        return redirect("/model_manager/")
 
     files = await sync_to_async(
         lambda: list(FileUpload.objects.filter(user=request.user))
@@ -256,24 +372,7 @@ async def object_view(
     building_metrics = await data[0].building_metrics.aget()
     # pprint(building_metrics)
 
-    # # Create a sample defaultdict with MaterialAccumulator
-    # material_data = defaultdict(material_accumulator)
-    #
-    # # Populate with some example data
-    # material_data["Steel"].recyclable_mass = 50.5
-    # material_data["Steel"].waste_mass = 10.2
-    # material_data["Steel"].global_brutto_price = 100.0
-    #
-    # material_data["Aluminum"].recyclable_mass = 45.3
-    # material_data["Aluminum"].waste_mass = 8.7
-    # material_data["Aluminum"].global_brutto_price = 120.0
-    #
-    # material_data["Copper"].recyclable_mass = 60.1
-    # material_data["Copper"].waste_mass = 12.5
-    # material_data["Copper"].global_brutto_price = 150.0
     building_plots = []
-    # Generate plot with specific attributes
-    specific_attrs = ["length", "mass"]
 
     # Create and show the plots
     building_plots.append(await chart_plotter.plot_mass(
@@ -285,8 +384,8 @@ async def object_view(
     building_plots.append(await chart_plotter.create_onorm_1800_visualization(
         ifc_document=data[0],
     ))
-    messages.info(request, "Test message!")
-    # print(type(data))
+    # messages.info(request, "Test message!")
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
 
     return TemplateResponse(
         request,
@@ -296,24 +395,117 @@ async def object_view(
             "building_metrics": building_metrics,
             "files": files,
             "html_plot": building_plots,
+            "initial_logs": f"{log_output}\n",
         },
     )
 
 
-@login_required(login_url="/accounts/login")
+@login_required(login_url="/accounts/login/")
 async def model_comparison(request: HttpRequest) -> TemplateResponse:
     """
     Comparison view of all objects in a group
     """
     # TODO: Add filter for groups
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    user_log_entries = USER_LOGS[str(request.user.id)]
+    log_output = "\n".join(user_log_entries)
 
     # Wrap ORM query
     data = await sync_to_async(
         lambda: list(CadevilDocument.objects.all()), thread_sensitive=True
     )()
 
-    context = {
-        "data": data,
-    }
+    return TemplateResponse(request, "webapp/model_comparison.html",
+                            context={
+                                "data": data,
+                                "initial_logs": f"{log_output}\n",
 
-    return TemplateResponse(request, "webapp/model_comparison.html", context)
+                            })
+
+
+@login_required(login_url="/accounts/login/")
+async def update_config(request: HttpRequest) -> HttpResponseRedirect | TemplateResponse:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    user_id: str = str(request.user.id)
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    # Replace this with the path to your actual CSV
+    config_dict = await CalculationConfig.objects.aget()
+    headers = config_dict.config["header"]
+    data_dict = config_dict.config["data"]
+
+    if request.method == 'POST':
+        # 1) Parse the submitted form data
+        # 2) Update your data model or in-memory dictionary
+        # 3) Potentially re-write your CSV or update your DB
+
+        for row_key in data_dict:
+            for header in headers:
+                # Construct the key from template
+                input_name = f'{row_key}-{header}'
+                # Grab the updated value from POST data
+                new_value = request.POST.get(input_name)
+
+                # Update in-memory data (or your database model)
+                data_dict[row_key][header] = new_value
+
+        config_dict.config["data"] = data_dict
+        await config_dict.asave()
+        await logger.emit(f"Updated Calculation Config (ID: {config_dict.id})", user_id=user_id)
+
+        # Redirect to avoid re-submitting on page refresh
+        return redirect('config_editor')
+
+
+@login_required(login_url="/accounts/login/")
+async def upload_config(request: HttpRequest) -> HttpResponseRedirect:
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    if request.method == "POST":
+        config_upload_form = ConfigUploadForm(request.POST, request.FILES)
+
+        is_valid = await sync_to_async(config_upload_form.is_valid)()
+        if is_valid:
+            config_upload = await config_upload_form.asave(commit=False)
+            config_upload.user = request.user
+            await config_upload.asave()
+            await logger.emit(f"Uploaded new Config File (ID: {config_upload.id})", user_id=user_id)
+
+            # Redirect to step 2, passing the new upload's ID
+            return redirect("/accounts/user/")
+
+
+@login_required(login_url="/accounts/login/")
+async def upload_model(
+        request: HttpRequest,
+) -> TemplateResponse | HttpResponseRedirect | HttpResponse | None:
+    # {{{
+    # FIXME: This shit is currently needed to make this work
+    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+    user_id: str = str(request.user.id)
+
+    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+
+    if request.method == "POST":
+        upload_form = UploadForm(
+            request.POST, request.FILES, user=request.user, user_id=request.user.id
+        )
+        # Wrap form validation
+        is_valid = await sync_to_async(upload_form.is_valid)()
+        if is_valid:
+            # Save the form asynchronously
+            file_upload: FileUpload = await upload_form.asave(commit=False)
+            file_upload.user = request.user
+            await file_upload.asave()
+            await logger.emit(f"Uploaded new Model File (ID: {file_upload.id})", user_id=user_id)
+
+            return redirect("/model_manager/")
+            # return HttpResponse(status=204)
+        else:
+            await logger.emit(f"Failed to Upload new Model File!", user_id=user_id)
+
+            return redirect("/accounts/user/")

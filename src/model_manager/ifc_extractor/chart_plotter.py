@@ -42,7 +42,7 @@ async def plot_mass(
             values=[material.mass for material in materials],
             hole=0.3,
             textinfo="label",
-            rotation=190,
+            rotation=45,
             hovertemplate="<b>%{label}</b><br>"
                           + "mass: %{value:,.1f} kg<br>"
                           + "percentage: %{percent}<br>"
@@ -64,23 +64,21 @@ async def plot_mass(
     #     legend_title_text="Attributes",
     # )
     fig.update_layout(
-        title="Area by Material",
+        title="Mass by Material",
         xaxis_title="Materials",
         yaxis_title="Attribute Values",
         legend_title_text="Attributes",
         showlegend=False,
-        template="plotly_white",
         paper_bgcolor="hsla(210, 100%, 50%, 0.0)",
-        # plot_bgcolor="transparent",  # main plotting area background
-        margin=dict(t=40, b=40, l=0, r=0),
+        autosize=True,  # Let Plotly size the chart based on the container
+        # margin=dict(t=40, b=40, l=40, r=40),
         legend=dict(x=0.8, y=0.5),  # positions the legend
     )
 
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False,
-                                 div_id="mass_pie")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="mass_pie", config={"responsive": True})
 
     return html_plot
 
@@ -118,6 +116,7 @@ async def plot_material_waste_grades(
             labels=[material.name for material in materials],
             values=[material.waste_mass for material in materials],
             hole=0.3,
+            rotation=45,
             textinfo="label",
             hovertemplate="<b>%{label}</b><br>"
                           + "area: %{value:,.1f} m²<br>"
@@ -136,7 +135,8 @@ async def plot_material_waste_grades(
         legend_title_text="Attributes",
         showlegend=False,
         paper_bgcolor="hsla(210, 100%, 50%, 0.0)",
-        margin=dict(t=40, b=40, l=0, r=0),
+        autosize=True,  # Let Plotly size the chart based on the container
+        # margin=dict(t=40, b=40, l=0, r=0),
         legend=dict(x=0.8, y=0.5),  # positions the legend
 
     )
@@ -207,14 +207,16 @@ async def create_onorm_1800_visualization(
     }
 
     # Create figure with secondary y-axis
-    fig = make_subplots(
-        rows=2,
-        cols=1,
-        specs=[[{"type": "bar"}], [{"type": "pie"}]],  # Explicitly specify plot types
-        subplot_titles=("Building Metrics Overview", "Floor Area Distribution"),
-        vertical_spacing=0.3,
-        row_heights=[0.7, 0.3],
-    )
+    # fig = make_subplots(
+    #     rows=2,
+    #     cols=1,
+    #     specs=[[{"type": "bar"}], [{"type": "pie"}]],  # Explicitly specify plot types
+    #     subplot_titles=("Building Metrics Overview", "Floor Area Distribution"),
+    #     vertical_spacing=0.3,
+    #     row_heights=[0.7, 0.3],
+    # )
+    fig = go.Figure()
+
 
     # First subplot - Bar chart with metrics
     metric_names = list(metrics.keys())
@@ -235,27 +237,25 @@ async def create_onorm_1800_visualization(
                           + "Value: %{y:,.1f}<br>"
                           + "<extra></extra>",
         ),
-        row=1,
-        col=1,
     )
 
     # Second subplot - Pie chart for area distribution
     # area_metrics = {k: v for k, v in metrics.items() if v["unit"] == "m²"}
 
-    fig.add_trace(
-        go.Pie(
-            labels=[f"{k} ({metrics[k]['desc']})" for k in metrics.keys()],
-            values=[metrics[k]["value"] for k in metrics.keys()],
-            hole=0.3,
-            textinfo="label+percent",
-            hovertemplate="<b>%{label}</b><br>"
-                          + "Area: %{value:,.1f} m²<br>"
-                          + "Percentage: %{percent}<br>"
-                          + "<extra></extra>",
-        ),
-        row=2,
-        col=1,
-    )
+    # fig.add_trace(
+    #     go.Pie(
+    #         labels=[f"{k} ({metrics[k]['desc']})" for k in metrics.keys()],
+    #         values=[metrics[k]["value"] for k in metrics.keys()],
+    #         hole=0.3,
+    #         textinfo="label+percent",
+    #         hovertemplate="<b>%{label}</b><br>"
+    #                       + "Area: %{value:,.1f} m²<br>"
+    #                       + "Percentage: %{percent}<br>"
+    #                       + "<extra></extra>",
+    #     ),
+    #     row=2,
+    #     col=1,
+    # )
 
     # Update layout
     fig.update_layout(
@@ -271,8 +271,8 @@ async def create_onorm_1800_visualization(
     )
 
     # Update axes
-    fig.update_xaxes(title_text="Metrics", row=1, col=1)
-    fig.update_yaxes(title_text="Value", row=1, col=1)
+    fig.update_xaxes(title_text="Metrics")
+    fig.update_yaxes(title_text="Value")
 
     html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="1800_plot")
 

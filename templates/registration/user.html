@@ -1,5 +1,4 @@
 ﻿{% extends 'base.html' %}
-
 {% load static %}
 {% load get_item %}
 
@@ -7,8 +6,23 @@
 {% endblock %}
 
 {% block content %}
-  <div class="grid-container">
-    {{ user.id }}
-    {{ user.username }}
-    {{ user.groups.all }} </div>
+
+    <!-- Important: for file uploads, you must include enctype="multipart/form-data" -->
+    <form method="post" enctype="multipart/form-data" id="configUploadForm">
+        {% csrf_token %}
+        {{ config_upload_form.as_p }}
+        <button type="submit" formaction="/upload_config/" value="upload_config" name="upload_config"
+                class="button-wide fa fa-upload">Upload Configuration File
+        </button>
+
+    </form>
+
+    <form method="post" id="configSaveForm">
+        {% csrf_token %}
+        {{ config_save_form.as_p }}
+        <button type="submit" formaction="/save_config/" value="save_config" name="save_config"
+                class="button-wide fa fa-save">Save Configuration
+        </button>
+    </form>
+
 {% endblock %}

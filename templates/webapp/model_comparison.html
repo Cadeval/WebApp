@@ -15,7 +15,11 @@
   {% for group in user.groups.all %}
               {# TODO Check if this is the proper placement for the group check, as in if this query takes more resources than necessary #}
               {# Maybe we should put this in the doc.filter params? idk future me will love this <3 #}
-    <h1>Building Comparison of items in {{ group }}</h1>
+      {#    <details class="collapsible-details" open="open">#}
+      {#        <summary>#}
+      {#            Group: {{ group }}#}
+      {#        </summary>#}
+
     <table>
         <tr>
             <th>Property</th>
@@ -31,7 +35,7 @@
                 {#                <td>{{ key|max_value:data |floatformat:-2 }}</td>#}
                 {% for item in data %}
                     {% if item.group == group %}
-                        <td>{{ item.material_properties|async_get }}</td>
+                        <td>{{ item.building_metrics|async_get }}</td>
                         {#                        <td>{{ item.building_metrics }}</td>#}
                     {% endif %}
                 {% endfor %}
@@ -39,5 +43,6 @@
         {#        {% endfor %}#}
     </table>
       <br>
+      {#    </details>#}
     {% endfor %}
 {% endblock %}

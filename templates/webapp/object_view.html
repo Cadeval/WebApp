@@ -13,12 +13,16 @@
 {% endblock %}
 
 {% block content %}
-
     <div class="flexgrid-container">
+
         <img alt="Render of {{ data.description }}" class="thumbnail-large" src="{% static 'images' %}/house_1.png">
 
         <div class="flex-item-active">
-                <h4> Stockwerke </h4>
+            {{ data.description|render_svg:3.3|safe}}
+        </div>
+
+        <div class="flex-item-active">
+            <h4> Stockwerke </h4>
             {{ building_metrics.stockwerke|render_svg|safe }}
         </div>
         <div class="flex-item-active">
@@ -30,13 +34,11 @@
             <h4> Grundstücksfläche </h4>
             {{ building_metrics.netto_raumfläche|floatformat:2|concat:building_metrics.grundstuecksfläche_unit|render_svg|safe }}
         </div>
-    </div>
-    <div>
+
         {% for plot in html_plot %}
-            <div class="flex-item-active">
+            <div class="flex-graph-active">
                 {{ plot |safe }}
             </div>
-            <br>
         {% endfor %}
     </div>
 {% endblock %}

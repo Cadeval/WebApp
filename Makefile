@@ -14,7 +14,7 @@ debug:
 
 run:
 	cd src && \
-	python -m uvicorn --workers 4 webapp.asgi:application --lifespan off --host 127.0.0.1 --port 8000
+	python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host 127.0.0.1 --port 8000
 
 testrun:
 	cd src && \
