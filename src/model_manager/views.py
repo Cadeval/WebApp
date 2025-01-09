@@ -156,7 +156,7 @@ async def delete_config_file(request: HttpRequest) -> HttpResponseRedirect:
         .values_list("document", flat=True)
         .aget()
     )
-    os.chdir(os.path.join(os.getcwd(), "../media"))
+    os.chdir(os.path.join(os.getcwd(), "../user_uploads"))
 
     # Use asyncio to run file operations in a thread
     if await sync_to_async(os.path.exists)(_object):
@@ -185,7 +185,7 @@ async def delete_model_file(request: HttpRequest) -> HttpResponseRedirect:
         .values_list("document", flat=True)
         .aget()
     )
-    os.chdir(os.path.join(os.getcwd(), "../media"))
+    os.chdir(os.path.join(os.getcwd(), "../user_uploads"))
 
     # Use asyncio to run file operations in a thread
     if await sync_to_async(os.path.exists)(_object):

@@ -16,47 +16,64 @@ from pathlib import Path
 # log_storage
 from collections import defaultdict, deque
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# =======================
+# Basic Django Settings
+# =======================
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "../static"]
-STATIC_ROOT = os.path.join(BASE_DIR, "../collected_static/")
-TEMPLATE_URL = "templates/"
-TEMPLATEFILES_DIRS = [BASE_DIR / "templates"]
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "../media/"
-
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ["localhost", "192.168.1.6", "0.0.0.0"]
-
 INTERNAL_IPS = ["localhost"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost", "http://192.168.1.6", "https://cadevil.org", "https://cadevil.at"]
 APPEND_SLASH = False
 
-# FIXME: This is for the config editor change save post request to work.
-#        Maybe if we used a diff we could lower the number of fields sent?
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 8192
+# Redirect URLs
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
-# Application definition
+# =======================
+# Paths and Directories
+# =======================
+
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "resources/static"]
+STATIC_ROOT = os.path.join(BASE_DIR, "resources/collected_static/")
+
+TEMPLATE_URL = "templates/"
+TEMPLATEFILES_DIRS = [BASE_DIR / "templates"]
+
+MEDIA_URL = "user_uploads/"
+MEDIA_ROOT = BASE_DIR / "../user_uploads/"
+
+# =======================
+# Security Settings
+# =======================
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
+
+# Database settings (will be overridden below in PRODUCTION block)
+DATABASES = {}
+
+# =======================
+# Middleware & Apps
+# =======================
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
 INSTALLED_APPS = [
     "daphne",
     "channels",
@@ -69,22 +86,23 @@ INSTALLED_APPS = [
     "model_manager",
 ]
 
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-]
+# =======================
+# URL and ASGI/WSGI Configuration
+# =======================
 
 ROOT_URLCONF = "webapp.urls"
+
+ASGI_APPLICATION = "webapp.asgi.application"
+WSGI_APPLICATION = "webapp.wsgi.application"
+
+# =======================
+# Templates Settings
+# =======================
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["../templates"],
+        "DIRS": ["resources/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -96,16 +114,46 @@ TEMPLATES = [
         },
     },
 ]
-if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [("127.0.0.1", 6379)],
-            },
-        },
-    }
 
+# =======================
+# Authentication Settings
+# =======================
+
+AUTH_USER_MODEL = "model_manager.CadevilUser"
+# AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+
+# Do not keep the session open indefinitely
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# =======================
+# Celery Settings
+# =======================
+
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
+
+# =======================
+# Logging Configuration
+# =======================
+
+if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": True,
@@ -132,9 +180,63 @@ if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
         },
     }
 
+    # Channels Redis Configuration
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("127.0.0.1", 6379)],
+            },
+        },
+    }
 
-ASGI_APPLICATION = "webapp.asgi.application"
-WSGI_APPLICATION = "webapp.wsgi.application"
+# =======================
+# Cache Configuration
+# =======================
+
+if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://127.0.0.1:6379",
+        },
+        "db_cache": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "my_cache_table",
+        },
+    }
+elif os.environ.get("CICD"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "my_cache_table",
+        },
+    }
+
+# =======================
+# Internationalization
+# =======================
+
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
+USE_I18N = True
+USE_TZ = True
+
+# =======================
+# Default Primary Key
+# =======================
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# =======================
+# User Logs
+# =======================
+
+USER_LOGS = defaultdict(lambda: deque(maxlen=1000))
+
+# =======================
+# Database Settings
+# =======================
 
 if os.environ.get("PRODUCTION"):
     # Database
@@ -162,72 +264,10 @@ else:
         }
     }
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
+# =======================
+# Data Upload
+# =======================
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
-MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
-
-# Do not keep the session open indefinitely
-# so far a work around, should probably use timeouts
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
-AUTH_USER_MODEL = "model_manager.CadevilUser"
-# AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
-
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_CACHE_BACKEND = "django-cache"
-
-# django setting.
-if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": "redis://127.0.0.1:6379",
-        },
-        "db_cache": {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "my_cache_table",
-        }
-    }
-elif os.environ.get("CICD"):
-    # django setting.
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-            "LOCATION": "my_cache_table",
-        }
-    }
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
-USE_I18N = True
-
-USE_TZ = True
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Dict mapping user.id -> deque of log messages
-USER_LOGS = defaultdict(lambda: deque(maxlen=1000))
+# FIXME: This is for the config editor change save post request to work.
+#        Maybe if we used a diff we could lower the number of fields sent?
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 8192

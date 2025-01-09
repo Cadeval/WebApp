@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends '../base.html' %}
 
 {% load static %}
 {% load get_item %}
@@ -52,10 +52,10 @@
                                             value={{ item.id }} name="delete_model"></button>
                                 </form>
                             {% endif %}
-                            <div id="svgContainer">
-                                <!-- We'll inject the SVG string from Django here -->
-                                {{ ifc_plot_svg | safe }}
-                            </div>
+                            <!--                            <div id="svgContainer">-->
+                            <!--                                &lt;!&ndash; We'll inject the SVG string from Django here &ndash;&gt;-->
+                            <!--                                {{ ifc_plot_svg | safe }}-->
+                            <!--                            </div>-->
                         </div>
                     {% endif %}
                 {% endfor %}

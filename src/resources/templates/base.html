@@ -13,14 +13,11 @@
     <meta name="msapplication-TileColor" content="#ffffff"/>
     <meta name="theme-color" content="#ffffff"/>
 
-
     {# NOTE: Not sure yet if I should keep this #}
-    {#    <meta name="htmx-config" content='{"historyCacheSize": 15}'/>#}
-
+    <meta name="htmx-config" content='{"historyCacheSize": 15}'/>
 
     <!-- For showing calculation or file upload progress -->
     {#    <script src="{% static 'js/celery_progress.js' %}"></script>#}
-    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
 
     <!-- Language information -->
     <link rel="alternate" hreflang="de" href="/de"/>
@@ -30,6 +27,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
     {# TODO: Get rid of this #}
+    <script src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     {# TODO Fix favicon not loading on safari #}

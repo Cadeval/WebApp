@@ -24,8 +24,10 @@
         --primary-bg: #2a2d31; /* Slightly lighter dark gray for background */
         --secondary-bg: #1d1f22; /* Darker gray for secondary elements */
         --primary-color: #f1f3f5; /* Light text color */
-        --secondary-color: #878f96; /* Contrasting secondary color */
+        --secondary-color: #51565a; /* Contrasting secondary color */
         --accent-color: #6c757d; /* Subtle accent */
+        --border-low-contrast: #c8c8c8;
+
     }
 }
 
@@ -36,6 +38,8 @@ body.dark-mode {
     --primary-color: #f1f3f5;
     --secondary-color: #878f96;
     --accent-color: #6c757d;
+    --border-low-contrast: #c8c8c8;
+
 }
 
 /* -------------------- Dark/Light Toggler Elements -------------------- */
