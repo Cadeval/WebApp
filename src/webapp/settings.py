@@ -45,10 +45,10 @@ STATICFILES_DIRS = [BASE_DIR / "resources/static"]
 STATIC_ROOT = os.path.join(BASE_DIR, "resources/collected_static/")
 
 TEMPLATE_URL = "templates/"
-TEMPLATEFILES_DIRS = [BASE_DIR / "templates"]
+TEMPLATEFILES_DIRS = [BASE_DIR / "resources/templates"]
 
 MEDIA_URL = "user_uploads/"
-MEDIA_ROOT = BASE_DIR / "../user_uploads/"
+MEDIA_ROOT = BASE_DIR / "../data/user_uploads/"
 
 # =======================
 # Security Settings
@@ -56,9 +56,6 @@ MEDIA_ROOT = BASE_DIR / "../user_uploads/"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
-
-# Database settings (will be overridden below in PRODUCTION block)
-DATABASES = {}
 
 # =======================
 # Middleware & Apps
@@ -237,6 +234,8 @@ USER_LOGS = defaultdict(lambda: deque(maxlen=1000))
 # =======================
 # Database Settings
 # =======================
+# Database settings (will be overridden below in PRODUCTION block)
+DATABASES = {}
 
 if os.environ.get("PRODUCTION"):
     # Database

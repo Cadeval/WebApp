@@ -13,7 +13,7 @@ from django.template.response import TemplateResponse
 import webapp.logger
 from model_manager.forms import DocumentForm, GroupChangeForm, UploadForm, GroupForm, ConfigUploadForm, \
     CalculationConfigForm
-from model_manager.ifc_extractor import helpers, chart_plotter
+from ifc_extractor import chart_plotter, helpers
 from model_manager.models import (
     CadevilDocument,
     FileUpload, CalculationConfig, ConfigUpload,
