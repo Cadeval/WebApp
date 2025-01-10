@@ -1,12 +1,247 @@
-{% extends 'base.html' %}
-
 {% load static %}
-{% load get_item %}
-
-{% block header %}
 
 
-{% endblock %}
-{% block content %}
+<!DOCTYPE html>
 
-{% endblock %}
+<html lang="en">
+<head>
+    {# Global annotations #}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta name="msapplication-TileColor" content="#ffffff"/>
+    <meta name="theme-color" content="#ffffff"/>
+
+    {# NOTE: Not sure yet if I should keep this #}
+    <meta name="htmx-config" content='{"historyCacheSize": 15}'/>
+
+    <!-- Single page application -->
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+
+    <!-- Language information -->
+    <link rel="alternate" hreflang="de" href="/de"/>
+    <link rel="alternate" hreflang="en" href="/en"/>
+
+    {# Reusable resources #}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+
+    {# TODO: Get rid of this #}
+    <script src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    {# TODO Fix favicon not loading on safari #}
+    <!-- SVG Favicon for modern browsers -->
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- PNG Fallback for older browsers -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png" sizes="32x32">
+
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="{% static 'images/favicon.svg' %}" color="#5bbad5">
+
+    <!-- Mobile specific -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- TODO Implement this maybe? -->
+    <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
+
+    {# Metadata #}
+    <title>Building Comparison Report</title>
+
+    <meta name="description" content="Cadevil - Computer Aided Design."/>
+    <meta name="author" content="Iuliia Radynska"/>
+
+    {# FIXME: Check what this shit does #}
+    <meta property="og:description" content="Cadevil - Computer Aided Design and Building Comparison."/>
+    <meta property="og:image" content="{% static 'images/favicon.png' %}"/>
+    <meta property="og:site_name" content="cadevil.at"/>
+    <meta property="og:title" content="Computer Aided Design and Building Comparison."/>
+    <meta property="og:url" content="https://cadevil.at/"/>
+</head>
+
+<body>
+<header>
+    <button popovertarget='menu-popover' class='menu-button'>
+        <svg
+                id="menu-icon"
+                data-name="Logo Layer"
+                class="svg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1190.55 841.89"
+                style="fill: var(--primary-color); width: 2em; height: 2em;"
+        >
+            <title>AAE_logo_black</title>
+            <path d="M1009.53,643.05H675.09c-31.58,0-31.64,49.08,0,49.08h334.44C1041.11,692.13,1041.16,643.05,1009.53,643.05Z"/>
+            <path d="M675.09,194.63h334.44c31.58,0,31.63-49.09,0-49.09H675.09C643.51,145.54,643.45,194.63,675.09,194.63Z"/>
+            <path d="M923.84,443.38c31.59,0,31.64-49.08,0-49.08H610.22q-43.74-102.9-87.47-205.81L509.67,157.7c-3.71-8.73-16-13-24.46-11.72-10.49,1.58-16.44,8.13-20.4,17.58q-35.3,84.32-70.58,168.64-43.47,103.89-87,207.77h-131c-31.58,0-31.64,49.09,0,49.09H286.73q-2.21,5.25-4.4,10.52l-25.74,61.49c-5.12,12.23,5.52,27,17.15,30.19,14.14,3.88,25-4.86,30.18-17.14l35.6-85.06H534.24a21.1,21.1,0,0,0,7-.43,21.74,21.74,0,0,0,15.71-10.47c4.39-5.81,6.57-13.14,3.63-20.17q-26.65-63.75-53.33-127.5l-7.6-18.18c-4.93-11.79-16.46-21.58-30.19-17.14-11.33,3.67-22.44,17.51-17.14,30.19L500.24,540H360.06q7.23-17.24,14.44-34.49,56-133.69,111.91-267.38c.74-1.79,1.49-3.57,2.24-5.36q35.63,83.85,71.27,167.69L573,431.23a18.94,18.94,0,0,0,10.51,9.86,24.65,24.65,0,0,0,10.69,2.29H923.84Z"/>
+        </svg>
+        Cadevil
+    </button>
+
+    {% if user.is_authenticated %}
+        <button popovertarget='notification-popover' class="menu-button fa fa-bell"></button>
+        <button popovertarget='filemanager-popover' class="openbtn">User Files &#9776;</button>
+    {% endif %}
+
+</header>
+
+<div popover class='popover-small left-anchor' id='menu-popover'>
+    {# <input type="checkbox" id="toggleMode">#}
+    {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
+    {# <label for="toggleMode" class="toggleLight">Light Mode</label>#}
+    {% if user.is_authenticated %}
+
+        <a href="/">
+            <button class='button-wide fa fa-home'>
+                Home
+            </button>
+        </a>
+
+        <button class='button-wide fa fa-id-card'
+                hx-get="{% url 'user' %}?id={{ user.id }}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            User ({{ user.username }})
+        </button>
+
+        <button class='button-wide fa fa-gear'
+                hx-get="{% url 'config_editor' %}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            Configuration Editor
+        </button>
+
+        <button class='button-wide fa fa-list'
+                hx-get="{% url 'model_manager' %}"
+                hx-target="#content-container"
+                hx-swap="innerHTML">
+            Model Manager
+        </button>
+
+
+        <button class='button-wide fa fa-balance-scale'
+                hx-get="{% url 'model_comparison' %}"
+                hx-target="#content-container"
+                hx-swap="innerHTML">
+            Model Comparison
+        </button>
+
+        {% if user.username == "admin" %}
+            <a href="/admin/">
+                <button class='button-wide fa fa-shield'>
+                    Django Admin Panel
+                </button>
+            </a>
+        {% endif %}
+
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class='button-wide fa fa-sign-out' type="submit">Log Out</button>
+        </form>
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            <button class='button-wide fa fa-sign-in'>
+                Log In
+            </button>
+        </a>
+    {% endif %}
+</div>
+
+<div popover class="popover-big center-anchor-big" id="filemanager-popover">
+    <div class="popover-content" id="upload-popover-content">
+        <h4>File Upload</h4>
+        <form method="post" class="form" action="{% url 'upload_model' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="flexgrid-container">
+                <label for="id_description">Description:</label><br>
+                <input type="text" name="description" maxlength="255" id="id_description">
+            </div>
+            <div>
+                <input class="button-wide" type="file" name="document" required="" id="id_document">
+            </div>
+
+            <button class="button-wide" type="submit">Upload</button>
+        </form>
+        <hr>
+        {% for item in files %}
+            <li> {{ item.description }}
+
+                <form
+                        id="deletion-form-{{ item.id }}"
+                        hx-post="/api/model_file/{{ item.id }}/calculate_model/"
+                        hx-target="#cadevil-document-grid"
+                        hx-swap="update">
+                    {% csrf_token %}
+                    <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate
+                    </button>
+                </form>
+                <form action="/delete_model_file/" method="get" id={{ item.id }}>
+                    {% csrf_token %}
+                    <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete
+                    </button>
+                </form>
+                <hr>
+            </li>
+        {% endfor %}
+    </div>
+</div>
+
+<div popover class="popover-full center-anchor-full" id="notification-popover">
+    <div class="popover-content" id="popover-content">
+        <div class="container">
+            <pre id="logArea">{{ initial_logs }}</pre>
+        </div>
+    </div>
+    <script>
+        const logArea = document.getElementById("logArea");
+
+        // For local dev: ws://127.0.0.1:8000/ws/logs/
+        // In production: wss://yourdomain.com/ws/logs/
+        const socket = new WebSocket("ws://" + window.location.host + "/ws/logs/");
+
+        socket.onmessage = function (e) {
+
+            // Each incoming message is a single log line
+            const logLine = e.data;
+            console.log("Message from server:", logLine);
+            logArea.textContent += logLine + "\n";
+            // optionally auto-scroll
+            logArea.scrollTop = logArea.scrollHeight;
+        };
+
+        socket.onopen = function (e) {
+            console.log("WebSocket connection established!");
+        };
+        socket.onerror = function (e) {
+            console.error("WebSocket error:", e);
+        };
+        socket.onclose = function (e) {
+            console.log("WebSocket connection closed.");
+        };
+    </script>
+</div>
+
+<main>
+    <div id="content-container">
+
+        <!-- This is where the Debug Toolbar will be injected -->
+        {# {% if debug %}#}
+        {# {% endif %}#}
+        <!-- Main Container -->
+        {% block content %}{% endblock %}
+    </div>
+</main>
+<!-- Footer Section -->
+<!-- Copyrights Section -->
+<!-- Main Container Ends -->
+<footer class="footer">
+    <div class="copyright">&copy; {% now 'Y' %} - <strong>Iuliia</strong></div>
+</footer>
+
+</body>
+</html>

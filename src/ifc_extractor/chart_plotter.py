@@ -15,7 +15,7 @@ def single_building_metrics_pie(metrics_dict):
     pass
 
 
-async def plot_mass(
+def plot_mass(
         ifc_document: CadevilDocument,
 ) -> str:
     """
@@ -31,9 +31,7 @@ async def plot_mass(
         A Plotly figure object ready to be displayed or saved
     """
     # Prepare data for plotting
-    materials = await sync_to_async(
-        lambda: list(ifc_document.material_properties.all())
-    )()
+    materials = ifc_document.material_properties.all()
     # Create the figure
     fig = go.Figure()
     fig.add_trace(
@@ -83,7 +81,7 @@ async def plot_mass(
     return html_plot
 
 
-async def plot_material_waste_grades(
+def plot_material_waste_grades(
         ifc_document: CadevilDocument,
         title="Material Attributes",
 ) -> str:
@@ -104,9 +102,7 @@ async def plot_material_waste_grades(
     """
 
     # Prepare data for plotting
-    materials = await sync_to_async(
-        lambda: list(ifc_document.material_properties.all())
-    )()
+    materials = ifc_document.material_properties.all()
 
     # Create the figure with grouped bars
     fig = go.Figure()
@@ -149,7 +145,7 @@ async def plot_material_waste_grades(
     return html_plot
 
 
-async def create_onorm_1800_visualization(
+def create_onorm_1800_visualization(
         ifc_document: CadevilDocument,
 ):
     """
@@ -166,7 +162,7 @@ async def create_onorm_1800_visualization(
         A Plotly figure object visualizing the building metrics
     """
     # Prepare data for plotting
-    building_metrics = await ifc_document.building_metrics.aget()
+    building_metrics = ifc_document.building_metrics.get()
 
     metrics = {
         "GF": {

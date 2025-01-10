@@ -1,4 +1,3 @@
-{% extends '../base.html' %}
 
 {% load static %}
 {% load get_item %}
@@ -6,11 +5,7 @@
 {% load format_item %}
 {% load async_get %}
 
-
-{% block header %}
-{% endblock %}
-
-{% block content %}
+<div id="content-container">
 
   {% for group in user.groups.all %}
               {# TODO Check if this is the proper placement for the group check, as in if this query takes more resources than necessary #}
@@ -45,4 +40,4 @@
       <br>
       {#    </details>#}
     {% endfor %}
-{% endblock %}
+</div>

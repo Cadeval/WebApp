@@ -1,12 +1,7 @@
-﻿{% extends '../base.html' %}
-{% load static %}
+﻿{% load static %}
 {% load get_item %}
 
-{% block header %}
-{% endblock %}
-
-{% block content %}
-
+<div id="content-container">
     <!-- Important: for file uploads, you must include enctype="multipart/form-data" -->
     <form method="post" enctype="multipart/form-data" id="configUploadForm">
         {% csrf_token %}
@@ -25,4 +20,4 @@
         </button>
     </form>
 
-{% endblock %}
+</div>

@@ -1,18 +1,11 @@
-{% extends '../base.html' %}
 
 {% load static %}
 {% load get_item %}
 {% load render_svg %}
 {% load concat %}
 
-{% block header %}
 
-{#    <button class="openbtn" onclick="openNav()">Computer Aided Design &#9776; </button>#}
-
-        <!--<h4>{{ item.description }}</h4>-->
-{% endblock %}
-
-{% block content %}
+<div id="content-container">
     <div class="flexgrid-container">
 
         <img alt="Render of {{ data.description }}" class="thumbnail-large" src="{% static 'images' %}/house_1.png">
@@ -37,8 +30,8 @@
 
         {% for plot in html_plot %}
             <div class="flex-graph-active">
-                {{ plot |safe }}
+                {{ plot|safe }}
             </div>
         {% endfor %}
     </div>
-{% endblock %}
+</div>

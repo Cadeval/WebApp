@@ -1,15 +1,7 @@
-{% extends '../base.html' %}
-
 {% load static %}
-{% load get_item %}
 
-{% block header %}
-    {% if user.is_authenticated %}
-        <button popovertarget='filemanager-popover' class="openbtn">User Files &#9776;</button>
-    {% endif %}
-{% endblock %}
+<div id="content-container">
 
-{% block content %}
     <!-- <button type="submit" class="button" name="toggle_hidden">TOGGLE HIDDEN</button> -->
     {% for group in user.groups.all %}
         <details class="collapsible-details" open="open">
@@ -17,17 +9,21 @@
                 Group: {{ group }}
             </summary>
 
-            <div class="flexgrid-container">
+            <div id="cadevil-document-grid" class="flexgrid-container">
                 {% for item in data %}
                     {# TODO Check if this is the proper placement for the group check, as in if this query takes more resources than necessary #}
                     {# Maybe we should put this in the doc.filter params? idk future me will love this <3 #}
                     {% if item.group == group %}
-                        <div {% if item.is_active %}
-                            class="flex-item-active"
-                        {% else %}
-                            class="flex-item-inactive"
-                        {% endif %}>
-                            <a class="gallery" href="{% url 'object_view' %}?object={{ item.id }}" id={{ item.id }}>
+                        <div id="object-{{ item.id }}"
+
+                                {% if item.is_active %}
+                             class="flex-item-active"
+                                {% else %}
+                             class="flex-item-inactive"
+                                {% endif %}>
+                            <a class="gallery" hx-get="{% url 'object_view' %}?object={{ item.id }}"
+                               hx-target="#content-container"
+                               hx-swap="innerHTML" id={{ item.id }}>
                                 <img alt="Render of {{ item.description }}" class="thumbnail"
                                      src="{% static 'images/house_1.png' %}"/>
                             </a>
@@ -47,9 +43,14 @@
                                 <!--     <button type="submit" class="button fa fa-eye-slash" value={{ item.id }} name="toggle"></button> -->
                                 <!-- {% endif %} -->
                             {% if item.user == user %}
-                                <form class='action-form' action="/delete_model/" method="get" id={{ item.id }}>
-                                    <button type="submit" class="button fa fa-trash"
-                                            value={{ item.id }} name="delete_model"></button>
+                                <form class="action-form"
+                                      id="{{ item.id }}"
+                                      hx-post="/api/cadevil_document/{{ item.id }}/delete/"
+                                      hx-target="#object-{{ item.id }}"
+                                      hx-swap="delete">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button fa fa-trash">Delete</button>
+
                                 </form>
                             {% endif %}
                             <!--                            <div id="svgContainer">-->
@@ -63,27 +64,4 @@
             <br> <!-- FIXME remove this br and switch to something better -->
         </details>
     {% endfor %}
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var svgElement = document.querySelector("#svgContainer svg");
-            var panZoomInstance = svgPanZoom(svgElement, {
-                zoomEnabled: true,
-                panEnabled: true,
-                controlIconsEnabled: true,
-                minZoom: 0.1,
-                maxZoom: 300, // increase the maximum zoom factor
-                fit: true,
-                center: true,
-                onZoom: function (level) {
-                    // If you want the text to remain same on-screen size:
-                    const textEls = svgElement.querySelectorAll('text');
-                    textEls.forEach(function (txt) {
-                        // e.g., base size = 12px at zoom=1
-                        txt.setAttribute('font-size', 12 / level);
-                    });
-                }
-            });
-        });
-    </script>
-{% endblock %}
+</div>

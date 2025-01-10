@@ -20,7 +20,7 @@ from collections import defaultdict, deque
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "webapp.settings")
+os.environ.setdefault(key="DJANGO_SETTINGS_MODULE", value="webapp.settings")
 
 # =======================
 # Basic Django Settings
@@ -40,28 +40,28 @@ LOGOUT_REDIRECT_URL = "/"
 # Paths and Directories
 # =======================
 
-STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "resources/static"]
-STATIC_ROOT = os.path.join(BASE_DIR, "resources/collected_static/")
+STATIC_URL: str = "static/"
+STATICFILES_DIRS: list[Path] = [BASE_DIR / "resources/static"]
+STATIC_ROOT: str = os.path.join(BASE_DIR, "resources/collected_static/")
 
-TEMPLATE_URL = "templates/"
-TEMPLATEFILES_DIRS = [BASE_DIR / "resources/templates"]
+TEMPLATE_URL: str = "templates/"
+TEMPLATEFILES_DIRS: list[Path] = [BASE_DIR / "resources/templates"]
 
-MEDIA_URL = "user_uploads/"
-MEDIA_ROOT = BASE_DIR / "../data/user_uploads/"
+MEDIA_URL: str = "user_uploads/"
+MEDIA_ROOT: Path = BASE_DIR / "../data/user_uploads/"
 
 # =======================
 # Security Settings
 # =======================
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
+SECRET_KEY: str = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
 
 # =======================
 # Middleware & Apps
 # =======================
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -71,7 +71,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     "daphne",
     "channels",
     "django.contrib.admin",
@@ -80,6 +80,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "drf_spectacular",
+    "django_htmx",
     "model_manager",
 ]
 
@@ -87,10 +91,10 @@ INSTALLED_APPS = [
 # URL and ASGI/WSGI Configuration
 # =======================
 
-ROOT_URLCONF = "webapp.urls"
+ROOT_URLCONF: str = "webapp.urls"
 
-ASGI_APPLICATION = "webapp.asgi.application"
-WSGI_APPLICATION = "webapp.wsgi.application"
+ASGI_APPLICATION: str = "webapp.asgi.application"
+WSGI_APPLICATION: str = "webapp.wsgi.application"
 
 # =======================
 # Templates Settings
@@ -119,7 +123,7 @@ TEMPLATES = [
 AUTH_USER_MODEL = "model_manager.CadevilUser"
 # AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
@@ -134,22 +138,44 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+MESSAGE_STORAGE: str = "django.contrib.messages.storage.cookie.CookieStorage"
 
 # Do not keep the session open indefinitely
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE: bool = True
 
 # =======================
 # Celery Settings
 # =======================
 
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_CACHE_BACKEND = "django-cache"
+CELERY_RESULT_BACKEND: str = "django-db"
+CELERY_CACHE_BACKEND: str = "django-cache"
+
+# =======================
+# REST Settings
+# =======================
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Your API Title',
+    'DESCRIPTION': 'A detailed description of your API.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': True,  # Only if you want to expose the schema itself (optional)
+}
 
 # =======================
 # Logging Configuration
 # =======================
-
+Logging: dict[str, int | bool | dict[str, str]] = {}
 if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
     LOGGING = {
         "version": 1,
@@ -190,7 +216,7 @@ if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
 # =======================
 # Cache Configuration
 # =======================
-
+Caches: dict[str, str] = {}
 if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
     CACHES = {
         "default": {
@@ -214,28 +240,28 @@ elif os.environ.get("CICD"):
 # Internationalization
 # =======================
 
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
-USE_I18N = True
-USE_TZ = True
+LANGUAGE_CODE: str = "en-us"
+TIME_ZONE: str = "UTC"
+USE_I18N: bool = True
+USE_TZ: bool = True
 
 # =======================
 # Default Primary Key
 # =======================
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
 # =======================
 # User Logs
 # =======================
 
-USER_LOGS = defaultdict(lambda: deque(maxlen=1000))
+USER_LOGS: defaultdict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
 
 # =======================
 # Database Settings
 # =======================
 # Database settings (will be overridden below in PRODUCTION block)
-DATABASES = {}
+DATABASES: dict[str, dict[str, str]] = {}
 
 if os.environ.get("PRODUCTION"):
     # Database
@@ -269,4 +295,4 @@ else:
 
 # FIXME: This is for the config editor change save post request to work.
 #        Maybe if we used a diff we could lower the number of fields sent?
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 8192
+DATA_UPLOAD_MAX_NUMBER_FIELDS: int = 8192

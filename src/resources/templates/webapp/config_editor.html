@@ -1,27 +1,23 @@
-﻿{% extends '../base.html' %}
+﻿
 
 {% load static %}
 {% load get_item %}
 
-{% block header %}
-    <div>
-        <button type="submit" class="menu-button fa-save" form="config_form">&#32;Save</button>
-        <!-- New form for CSV download -->
-        <form method="POST" action="{% url 'download_csv' %}" id="download_form" style="display: inline;">
-            {% csrf_token %}
-        </form>
-        <!-- New button that references the above form -->
-        <button
-                type="submit"
-                class="menu-button fa-download"
-                form="download_form"
-        >
-            &#32;Download
-        </button>
-    </div>
-{% endblock %}
+<button type="submit" class="menu-button fa-save" form="config_form">&#32;Save</button>
+<!-- New form for CSV download -->
+<form method="POST" action="{% url 'download_csv' %}" id="download_form" style="display: inline;">
+    {% csrf_token %}
+</form>
+<!-- New button that references the above form -->
+<button
+        type="submit"
+        class="menu-button fa-download"
+        form="download_form"
+>
+    &#32;Download
+</button>
 
-{% block content %}
+<div id="content-container">
     <form method="POST" id="config_form" enctype="multipart/form-data" action="{% url 'update_config' %}">
         {% csrf_token %}
 
@@ -59,4 +55,4 @@
         </table>
         <br>
     </form>
-{% endblock %}
+</div>

@@ -16,8 +16,8 @@
     {# NOTE: Not sure yet if I should keep this #}
     <meta name="htmx-config" content='{"historyCacheSize": 15}'/>
 
-    <!-- For showing calculation or file upload progress -->
-    {#    <script src="{% static 'js/celery_progress.js' %}"></script>#}
+    <!-- Single page application -->
+    <script src="{% static 'js/htmx.min.js' %}"></script>
 
     <!-- Language information -->
     <link rel="alternate" hreflang="de" href="/de"/>
@@ -85,43 +85,48 @@
     {% if user.is_authenticated %}
         <button popovertarget='notification-popover' class="menu-button fa fa-bell"></button>
     {% endif %}
-
-    {% block header %}
-    {% endblock %}
-
 </header>
+
 <div popover class='popover-small left-anchor' id='menu-popover'>
     {# <input type="checkbox" id="toggleMode">#}
     {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
     {# <label for="toggleMode" class="toggleLight">Light Mode</label>#}
     {% if user.is_authenticated %}
+
         <a href="/">
             <button class='button-wide fa fa-home'>
                 Home
             </button>
         </a>
-        <a href="{% url 'user' %}?id={{ user.id }}">
-            <button class='button-wide fa fa-id-card'>
+
+        <button class='button-wide fa fa-id-card'
+                hx-get="{% url 'user' %}?id={{ user.id }}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
                 User ({{ user.username }})
-            </button>
-        </a>
+        </button>
 
-        <a href="{% url 'config_editor' %}">
-            <button class='button-wide fa fa-gear'>
-                Configuration Editor
-            </button>
-        </a>
-        <a href="{% url 'model_manager' %}">
-            <button class='button-wide fa fa-list'>
-                Model Manager
-            </button>
-        </a>
+        <button class='button-wide fa fa-gear'
+                hx-get="{% url 'config_editor' %}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            Configuration Editor
+        </button>
 
-        <a href="{% url 'model_comparison' %}">
-            <button class='button-wide fa fa-balance-scale'>
-                Model Comparison
-            </button>
-        </a>
+        <button class='button-wide fa fa-list'
+                hx-get="{% url 'model_manager' %}"
+                hx-target="#content-container"
+                hx-swap="innerHTML">
+            Model Manager
+        </button>
+
+
+        <button class='button-wide fa fa-balance-scale'
+                hx-get="{% url 'model_comparison' %}"
+                hx-target="#content-container"
+                hx-swap="innerHTML">
+            Model Comparison
+        </button>
 
         {% if user.username == "admin" %}
             <a href="/admin/">
@@ -164,7 +169,11 @@
         {% for item in files %}
             <li> {{ item.description }}
 
-                <form action="/calculate_model/" method="get" id={{ item.id }}>
+                <form
+                        id="deletion-form-{{ item.id }}"
+                        hx-post="/api/model_file/{{ item.id }}/calculate_model/"
+                        hx-target="#cadevil-document-grid"
+                        hx-swap="update">
                     {% csrf_token %}
                     <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate
                     </button>
@@ -186,43 +195,44 @@
             <pre id="logArea">{{ initial_logs }}</pre>
         </div>
     </div>
-    <script>
-        const logArea = document.getElementById("logArea");
-
-        // For local dev: ws://127.0.0.1:8000/ws/logs/
-        // In production: wss://yourdomain.com/ws/logs/
-        const socket = new WebSocket("ws://" + window.location.host + "/ws/logs/");
-
-        socket.onmessage = function (e) {
-
-            // Each incoming message is a single log line
-            const logLine = e.data;
-            console.log("Message from server:", logLine);
-            logArea.textContent += logLine + "\n";
-            // optionally auto-scroll
-            logArea.scrollTop = logArea.scrollHeight;
-        };
-
-        socket.onopen = function (e) {
-            console.log("WebSocket connection established!");
-        };
-        socket.onerror = function (e) {
-            console.error("WebSocket error:", e);
-        };
-        socket.onclose = function (e) {
-            console.log("WebSocket connection closed.");
-        };
-    </script>
+    {#    <script>#}
+    {#        const logArea = document.getElementById("logArea");#}
+    {##}
+    {#        // For local dev: ws://127.0.0.1:8000/ws/logs/#}
+    {#        // In production: wss://yourdomain.com/ws/logs/#}
+    {#        const socket = new WebSocket("ws://" + window.location.host + "/ws/logs/");#}
+    {##}
+    {#        socket.onmessage = function (e) {#}
+    {##}
+    {#            // Each incoming message is a single log line#}
+    {#            const logLine = e.data;#}
+    {#            console.log("Message from server:", logLine);#}
+    {#            logArea.textContent += logLine + "\n";#}
+    {#            // optionally auto-scroll#}
+    {#            logArea.scrollTop = logArea.scrollHeight;#}
+    {#        };#}
+    {##}
+    {#        socket.onopen = function (e) {#}
+    {#            console.log("WebSocket connection established!");#}
+    {#        };#}
+    {#        socket.onerror = function (e) {#}
+    {#            console.error("WebSocket error:", e);#}
+    {#        };#}
+    {#        socket.onclose = function (e) {#}
+    {#            console.log("WebSocket connection closed.");#}
+    {#        };#}
+    {#    </script>#}
 </div>
 
 <main>
+    <div id="content-container">
 
-    <!-- This is where the Debug Toolbar will be injected -->
-    {# {% if debug %}#}
-    {# {% endif %}#}
-    <!-- Main Container -->
-    {% block content %}{% endblock %}
-
+        <!-- This is where the Debug Toolbar will be injected -->
+        {# {% if debug %}#}
+        {# {% endif %}#}
+        <!-- Main Container -->
+        {% block content %}{% endblock %}
+    </div>
 </main>
 <!-- Footer Section -->
 <!-- Copyrights Section -->
