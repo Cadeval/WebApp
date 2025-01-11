@@ -33,6 +33,7 @@ from webapp.settings import USER_LOGS
 # @require_http_methods(["GET", "POST"])
 
 # TODO: Add require_POST and require_GET to all functions
+@login_required(login_url="/accounts/login/")
 def index(request: HttpRequest):
     # Convert to a string (or build HTML)
     user_log_entries = USER_LOGS[str(request.user.id)]
@@ -156,21 +157,6 @@ async def delete_model_file(request: HttpRequest) -> HttpResponseRedirect:
 
     # TODO: Use result to send notification after success
     await FileUpload.objects.filter(id=request_id).adelete()
-    return redirect("/model_manager/")
-
-
-@login_required(login_url="/accounts/login")
-async def delete_model(request: HttpRequest) -> HttpResponseRedirect:
-    _ = await sync_to_async(lambda: request.user.is_authenticated)()
-    request_id = str(request.GET.get("delete_model"))
-
-    user_id: str = str(request.user.id)
-
-    logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
-
-    await logger.emit(f"Deleted Model (ID: {request_id})", user_id=user_id)
-
-    await CadevilDocument.objects.filter(id=request_id).adelete()
     return redirect("/model_manager/")
 
 
@@ -524,7 +510,7 @@ class FileUploadViewSet(viewsets.ModelViewSet):
             self,
             request: HttpRequest,
             pk=None,
-    ) -> HttpResponse | JsonResponse:
+    ) -> None:
         user_id: str = str(request.user.id)
         start: float = time.time()
         logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one

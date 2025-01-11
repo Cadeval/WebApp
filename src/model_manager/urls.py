@@ -36,7 +36,6 @@ urlpatterns = [
     path("delete_config_file/", views.delete_config_file, name="delete_config_file"),
     path("delete_model_file/", views.delete_model_file, name="delete_model_file"),
     # path("delete_config/", views.delete_model, name="delete_model"),
-    path("delete_model/", views.delete_model, name="delete_model"),
     path("download_csv/", views.download_csv, name="download_csv"),
     path("file_upload/", views.model_manager, name="file_upload"),
     path("save_config/", views.save_config, name="save_config"),

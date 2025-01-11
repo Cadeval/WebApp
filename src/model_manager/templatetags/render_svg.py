@@ -18,8 +18,6 @@ def render_svg(
     Create an SVG string that renders the given value as text with a gradient.
 
     :param value: The text or numeric value to display.
-    :param width: The width of the SVG canvas.
-    :param height: The height of the SVG canvas.
     :param color_start: The starting color of the gradient.
     :param color_end: The ending color of the gradient.
     :param font_size: The font size for the text.

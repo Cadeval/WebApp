@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pprint import pprint
 
 import plotly.graph_objs as go
@@ -15,6 +16,7 @@ def single_building_metrics_pie(metrics_dict):
     pass
 
 
+@lru_cache(maxsize=1000)
 def plot_mass(
         ifc_document: CadevilDocument,
 ) -> str:
@@ -81,6 +83,7 @@ def plot_mass(
     return html_plot
 
 
+@lru_cache(maxsize=1000)
 def plot_material_waste_grades(
         ifc_document: CadevilDocument,
         title="Material Attributes",
@@ -145,6 +148,7 @@ def plot_material_waste_grades(
     return html_plot
 
 
+@lru_cache(maxsize=1000)
 def create_onorm_1800_visualization(
         ifc_document: CadevilDocument,
 ):

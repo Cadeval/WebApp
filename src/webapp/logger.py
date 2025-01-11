@@ -73,7 +73,8 @@ class InMemoryLogHandler(logging.Handler):
                 {"type": "new_log", "message": msg}
             )
 
-    async def get_logs(self, user_id):
+    @staticmethod
+    async def get_logs(user_id):
         """
         Get a list of recent logs in chronological order.
         """

@@ -551,11 +551,11 @@ def ifc_product_walk(
                             passport_unknown_ifc_name_set.add(ifc_name)
                             # pprint.pprint(f"Not in passport_config_dict: {ifc_name}")
                             continue  # TODO: Handle this more gracefully
-                        density = float_or_zero(property_dict=element_properties, property="Dichte")
+                        density = float_or_zero(property_dict=element_properties, property_name="Dichte")
 
-                        gwp = float_or_zero(property_dict=element_properties, property="GWP")
-                        ap = float_or_zero(property_dict=element_properties, property="AP")
-                        penrt = float_or_zero(property_dict=element_properties, property="PENRT")
+                        gwp = float_or_zero(property_dict=element_properties, property_name="GWP")
+                        ap = float_or_zero(property_dict=element_properties, property_name="AP")
+                        penrt = float_or_zero(property_dict=element_properties, property_name="PENRT")
 
                         # if material_type !+ "single":
                         #     waste_grade = float(element_config[1])
@@ -565,8 +565,10 @@ def ifc_product_walk(
                         #
                         #     if surrounding_material_names[1]:
 
-                        waste_grade = float_or_zero(property_dict=element_properties, property="NEU Abfallreduktion")
-                        recyclable_grade = float_or_zero(property_dict=element_properties, property="NEU Recycling")
+                        waste_grade = float_or_zero(property_dict=element_properties,
+                                                    property_name="NEU Abfallreduktion")
+                        recyclable_grade = float_or_zero(property_dict=element_properties,
+                                                         property_name="NEU Recycling")
 
                         mass = density * volume
                         waste_mass = mass * waste_grade
@@ -652,8 +654,8 @@ def ifc_product_walk(
     return elements_by_material, metrics
 
 
-def float_or_zero(property_dict: dict, property: str) -> float:
-    element_property = property_dict.get(property)
+def float_or_zero(property_dict: dict, property_name: str) -> float:
+    element_property = property_dict.get(property_name)
     # None, 0 and "" are cast to False
     if not element_property:
         return 0.0
