@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import http
 import os
 import time
 
@@ -160,18 +161,18 @@ async def delete_model_file(request: HttpRequest) -> HttpResponseRedirect:
     return redirect("/model_manager/")
 
 
-async def download_csv(request) -> HttpResponse:
-    _ = await sync_to_async(lambda: request.user.is_authenticated)()
+def download_csv(request) -> HttpResponse:
 
     user_id: str = str(request.user.id)
-
     logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
+    config_dict = CalculationConfig.objects.get()
+    file_name = f"{config_dict.upload.description}.csv"
 
     if request.method == "POST":
-        config_dict = await CalculationConfig.objects.aget()
-        await logger.emit(f"Sending Config File for Download (ID: {config_dict.id})", user_id=user_id)
-        response = HttpResponse(str(config_dict.config), content_type='text/csv')
-        response['Content-Disposition'] = f"attachment; filename='{await config_dict.async_get_description()}.csv'"
+        logger.sync_emit(f"Sending Config File for Download (ID: {config_dict.id})", user_id=user_id)
+        response = HttpResponse(helpers.dict_to_file_string(nested_dict=config_dict.config, filename=file_name),
+                                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response['Content-Disposition'] = f"attachment; filename='{file_name}'"
         return response
 
 
@@ -249,7 +250,7 @@ async def save_config(request: HttpRequest) -> HttpResponseRedirect:
             calculation_config = config_save_form.save(commit=False)
             calculation_config.user = request.user
             calculation_config.upload = config_save_form.cleaned_data.get("upload")
-            calculation_config.config = helpers.csv_to_dict(
+            calculation_config.config = helpers.file_to_dict(
                 filepath=config_save_form.cleaned_data.get("upload").document.path)
             await logger.emit(f"Saving Config (ID: {calculation_config.id})", user_id=user_id)
 
@@ -358,12 +359,20 @@ def model_comparison(request: HttpRequest) -> TemplateResponse | HttpResponseRed
 
     # Wrap ORM query
     data = CadevilDocument.objects.all()
+
+    building_plots = []
+
+    # Create and show the plots
+    building_plots.append(chart_plotter.material_property_table(
+        ifc_document_list=data,
+    ))
     if request.headers.get("HX-Request"):
         # For HTMX requests, return an HTML fragment or success message
         return TemplateResponse(request=request,
                                 template="webapp/model_comparison.html",
                                 context={
                                     "data": data,
+                                    "html_plot": building_plots,
                                     "initial_logs": f"{log_output}\n",
 
                                 })
@@ -470,25 +479,10 @@ class CalculationConfigViewSet(viewsets.ModelViewSet):
     serializer_class = CalculationConfigSerializer
     permission_classes = [IsAuthenticated]
 
-
 class CadevilDocumentViewSet(viewsets.ModelViewSet):
     queryset = CadevilDocument.objects.all()
     serializer_class = CadevilDocumentSerializer
     permission_classes = [IsAuthenticated]
-
-    @action(detail=True, methods=['post'], url_path='delete', url_name='delete')
-    @vary_on_headers("HX-Request")
-    def delete_via_post(self, request, pk=None):
-        """
-        Custom action to delete an object using POST.
-        """
-        instance = self.get_object()
-        instance.delete()
-        if request.headers.get("HX-Request"):
-            # For HTMX requests, return an HTML fragment or success message
-            return HttpResponse('<span style="color: green;">Object deleted successfully</span>')
-        else:
-            return JsonResponse({"message": "Object deleted successfully"})
 
 
 class ConfigUploadViewSet(viewsets.ModelViewSet):
@@ -510,7 +504,7 @@ class FileUploadViewSet(viewsets.ModelViewSet):
             self,
             request: HttpRequest,
             pk=None,
-    ) -> None:
+    ) -> HttpResponse:
         user_id: str = str(request.user.id)
         start: float = time.time()
         logger = webapp.logger.InMemoryLogHandler()  # root logger, or a named one
@@ -556,6 +550,7 @@ class FileUploadViewSet(viewsets.ModelViewSet):
 
         logger.sync_emit(f">>??? {material_properties.keys()}", user_id=str(request.user.id))
         logger.sync_emit(f">>>>>> Calculation done within {time.time() - start}s", user_id=str(request.user.id))
+        return HttpResponse(status=204)
 
     def perform_create(self, serializer):
         """

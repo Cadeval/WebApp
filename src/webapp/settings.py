@@ -56,7 +56,7 @@ MEDIA_ROOT: Path = BASE_DIR / "../data/user_uploads/"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY: str = "django-insecure-hk_$^36%$mf=6^ndm7bb%c(nj&zrf!nq@h%!p==tbjc%e)6&_2"
-
+CSRF_USE_SESSIONS = True
 # =======================
 # Middleware & Apps
 # =======================
@@ -175,33 +175,33 @@ SPECTACULAR_SETTINGS = {
 # =======================
 # Logging Configuration
 # =======================
-Logging: dict[str, int | bool | dict[str, str]] = {}
+# Logging: dict[str, int | bool | dict[str, str]] = {}
 if os.environ.get("PRODUCTION") or os.environ.get("TESTING"):
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": True,
-        "formatters": {
-            "simple": {
-                "format": "{levelname}:{name}:{message}",
-                "style": "{",
-            },
-        },
-        "handlers": {
-            "in_memory_handler": {
-                "level": "DEBUG",
-                "class": "webapp.logger.InMemoryLogHandler",
-                "formatter": "simple",
-            },
-            # you can have other handlers like 'console', 'file', etc.
-        },
-        "loggers": {
-            "": {  # root logger
-                "handlers": ["in_memory_handler"],
-                "level": "DEBUG",
-                "propagate": True,
-            },
-        },
-    }
+    #     LOGGING = {
+    #         "version": 1,
+    #         "disable_existing_loggers": True,
+    #         "formatters": {
+    #             "simple": {
+    #                 "format": "{levelname}:{name}:{message}",
+    #                 "style": "{",
+    #             },
+    #         },
+    #         "handlers": {
+    #             "in_memory_handler": {
+    #                 "level": "DEBUG",
+    #                 "class": "webapp.logger.InMemoryLogHandler",
+    #                 "formatter": "simple",
+    #             },
+    #             # you can have other handlers like 'console', 'file', etc.
+    #         },
+    #         "loggers": {
+    #             "": {  # root logger
+    #                 "handlers": ["in_memory_handler"],
+    #                 "level": "DEBUG",
+    #                 "propagate": True,
+    #             },
+    #         },
+    #     }
 
     # Channels Redis Configuration
     CHANNEL_LAYERS = {

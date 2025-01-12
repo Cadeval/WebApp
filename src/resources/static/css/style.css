@@ -31,6 +31,12 @@
     }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
 /* Manual Dark Mode Toggle — overrides above vars */
 body.dark-mode {
     --primary-bg: #2a2d31;
@@ -351,6 +357,7 @@ h4 {
     height: 90%;
     transform: translateX(-50%);
 }
+
 .left-anchor {
     left: 0.5em;
 }

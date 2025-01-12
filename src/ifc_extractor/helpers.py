@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 import gc
+import json
 import multiprocessing
 import os
 import time
 import pprint
+import csv
+import io
 from collections import defaultdict
+import pandas as pd
 
 from ifcopenshell.geom import iterator
+from twisted.python import filepath
 
 from model_manager.models import (
     BuildingMetrics,
@@ -53,6 +58,7 @@ DEBUG_VERBOSE = False
     "IfcWindow",
     "IfcDoor",
 """
+
 
 def create_plan_svg_bboxes(ifc_path, svg_size=1000, margin=20):
     """
@@ -272,9 +278,9 @@ def create_plan_svg_bboxes(ifc_path, svg_size=1000, margin=20):
     return svg_str
 
 
-def csv_to_dict(filepath, delimiter=';'):
+def file_to_dict(filepath: str, delimiter: str = ';'):
     """
-    Reads a CSV file and returns a nested dictionary with two keys:
+    Reads a CSV or XLSX file and returns a nested dictionary with two keys:
       {
         "header": [... list of column headers ...],
         "data": {
@@ -286,37 +292,54 @@ def csv_to_dict(filepath, delimiter=';'):
 
     - "header" is a list of column headers (excluding the first column).
     - "data" is a dictionary keyed by the first column in each row.
+    - `sheet_name` specifies which sheet to read (default is the first sheet).
     """
     nested_result = {
         "header": [],
         "data": {}
     }
+    if filepath.endswith(".csv"):
+        with open(filepath, mode='r', encoding='utf-8') as f:
+            reader = csv.reader(f, delimiter=delimiter)
 
-    with open(filepath, mode='r', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=delimiter)
+            # Read the header row
+            header_row = next(reader)
+            # Store the header row (excluding the first column)
+            nested_result["header"] = header_row[1:]
 
-        # Read the header row
-        header_row = next(reader)
-        # Store the header row (excluding the first column)
-        nested_result["header"] = header_row[1:]
+            # Read the data
+            for row in reader:
+                outer_key = row[0]
+                inner_dict = {
+                    header_row[i]: row[i]
+                    for i in range(1, len(header_row))
+                }
+                nested_result["data"][outer_key] = inner_dict
+        return nested_result
 
-        # Read the data
-        for row in reader:
-            outer_key = row[0]
-            inner_dict = {
-                header_row[i]: row[i]
-                for i in range(1, len(header_row))
-            }
+    elif filepath.endswith(".xlsx"):
+        # Read the Excel file into a pandas DataFrame
+        df = pd.read_excel(filepath, na_values=["", "NA"]).fillna(0)
+
+        # Ensure there is at least one column
+        if df.shape[1] < 2:
+            raise ValueError("The Excel file must have at least two columns.")
+
+        # Extract the header row (excluding the first column)
+        nested_result["header"] = list(df.columns[1:])
+
+        # Iterate over the rows and build the nested dictionary
+        for _, row in df.iterrows():
+            outer_key = str(row.iloc[0])  # First column value as the key
+            inner_dict = row.iloc[1:].to_dict()  # Remaining columns as a dictionary
             nested_result["data"][outer_key] = inner_dict
 
-    return nested_result
+        return nested_result
+    else:
+        print("Unsupported file type.")
 
 
-import csv
-import io
-
-
-def dict_to_csv_string(nested_dict, delimiter=';'):
+def dict_to_file_string(nested_dict, delimiter=';', filename="Config.xlsx"):
     """
     Inverse of csv_to_dict: takes a nested dictionary of this form:
       {
@@ -333,6 +356,16 @@ def dict_to_csv_string(nested_dict, delimiter=';'):
       (outer_key1), (val1), (val2), ...
       (outer_key2), (val3), (val4), ...
       ...
+
+    Alternatively:
+
+    Into an Excel file (binary content) with columns:
+      FirstColumnName, header1, header2, ...
+      (outer_key1), (val1), (val2), ...
+      (outer_key2), (val3), (val4), ...
+      ...
+
+    Returns a bytes object that can be used for file downloads.
     """
     headers = nested_dict["header"]
     data_dict = nested_dict["data"]
@@ -340,23 +373,52 @@ def dict_to_csv_string(nested_dict, delimiter=';'):
 
     # StringIO lets us write CSV data to an in-memory buffer
     output = io.StringIO()
-    writer = csv.writer(output, delimiter=delimiter)
 
-    # Write the header row: e.g. ["Key", "header1", "header2", ...]
-    writer.writerow([first_column_name] + headers)
+    if filename.endswith(".csv"):
+        writer = csv.writer(output, delimiter=delimiter)
 
-    # Write each row from the data dictionary
-    for outer_key, row_dict in data_dict.items():
-        row = [outer_key]  # start the row with the outer key
-        # Append each column value in the same order as 'headers'
-        for col in headers:
-            row.append(row_dict.get(col, ""))  # fallback to "" if missing
-        writer.writerow(row)
+        # Write the header row: e.g. ["Key", "header1", "header2", ...]
+        writer.writerow([first_column_name] + headers)
 
-    # Retrieve the entire CSV string from the StringIO buffer
-    csv_string = output.getvalue()
-    output.close()
-    return csv_string
+        # Write each row from the data dictionary
+        for outer_key, row_dict in data_dict.items():
+            row = [outer_key]  # start the row with the outer key
+            # Append each column value in the same order as 'headers'
+            for col in headers:
+                row.append(row_dict.get(col, ""))  # fallback to "" if missing
+            writer.writerow(row)
+
+        # Retrieve the entire CSV string from the StringIO buffer
+        csv_string = output.getvalue()
+        output.close()
+        return csv_string
+    elif filename.endswith(".xlsx"):
+        headers = nested_dict["header"]
+        data_dict = nested_dict["data"]
+        first_column_name = "Key"  # or "ID", or whatever you'd like
+
+        # Create a list of rows for the DataFrame
+        rows = []
+        for outer_key, row_dict in data_dict.items():
+            row = {first_column_name: outer_key}  # Start with the first column (Key/ID)
+            row.update(row_dict)  # Add the rest of the columns
+            rows.append(row)
+
+        # Create a DataFrame from the rows
+        df = pd.DataFrame(rows)
+
+        # Ensure the column order matches: first column + headers
+        df = df[[first_column_name] + headers]
+
+        # Write the DataFrame to an Excel file in memory
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Sheet1")
+
+        # Retrieve the binary content of the Excel file
+        excel_bytes = output.getvalue()
+        output.close()
+        return excel_bytes
 
 
 prices_unknown_ifc_name_set: set[str | str] = set()
@@ -530,6 +592,7 @@ def ifc_product_walk(
             ):
 
                 pset_dict = ifcopenshell.util.element.get_psets(element=element)
+                ifcopenshell.util.element.get_pset("Component Quantities")
                 if not pset_dict.get("Component Quantities"):
                     pprint.pprint(pset_dict, sort_dicts=True)
                     continue
@@ -542,7 +605,7 @@ def ifc_product_walk(
                     # and we are only interested in the quantities of the sub elements.
                     if ifc_name != "id":
                         subdict = pset_dict.get("Component Quantities").get(ifc_name)
-                        # pprint({ifc_name:subdict}, sort_dicts=True)
+                        pprint.pprint({ifc_name: subdict}, sort_dicts=True)
                         # volume: float = subdict.get("Schicht/Komponenten Volumen (brutto)") or subdict["properties"].get("Schicht/Komponenten Volumen (brutto)")
 
                         if user_config.get(ifc_name):
@@ -661,3 +724,41 @@ def float_or_zero(property_dict: dict, property_name: str) -> float:
         return 0.0
     else:
         return float(element_property.replace(",", "."))
+
+
+def prepare_comparison_data(documents, selected_property):
+    """
+    Prepares the comparison data for a selected material property.
+    """
+    # Initialize a dictionary to hold comparison data
+    comparison_data = {"Material Name": []}
+    document_names = [f"Document {i + 1}" for i in range(len(documents))]
+
+    # Prepare columns for each document in the comparison
+    for doc_index, document in enumerate(documents):
+        comparison_data[document_names[doc_index]] = []
+
+    # Collect material names from all documents and ensure uniqueness
+    all_materials = set()
+    for document in documents:
+        materials = document.material_properties.all()
+        material_names = {material.name for material in materials}
+        all_materials.update(material_names)
+
+    # Iterate over all unique materials and build the comparison table
+    for material_name in sorted(all_materials):
+        comparison_data["Material Name"].append(material_name)
+        for doc_index, document in enumerate(documents):
+            # Get the material with the same name in the current document
+            material: MaterialProperties = document.material_properties.filter(name=material_name).first()
+
+            # If the material exists, fetch the selected property; otherwise, set to 0
+            if material:
+                property_value = getattr(material, selected_property, 0)
+            else:
+                property_value = 0
+
+            comparison_data[document_names[doc_index]].append(property_value)
+
+    # Convert the comparison data to a Pandas DataFrame
+    return pd.DataFrame(comparison_data)

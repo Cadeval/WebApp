@@ -4,8 +4,10 @@ from pprint import pprint
 import plotly.graph_objs as go
 import plotly.io as pio
 from asgiref.sync import sync_to_async
+from django.db.models import QuerySet
 from plotly.subplots import make_subplots
 
+from helpers import prepare_comparison_data
 from model_manager.models import CadevilDocument
 
 
@@ -78,7 +80,8 @@ def plot_mass(
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="mass_pie", config={"responsive": True})
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
+                                 div_id="mass_pie", config={"responsive": True})
 
     return html_plot
 
@@ -143,7 +146,8 @@ def plot_material_waste_grades(
     # For local debugging
     # fig.show()
 
-    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="material_plot")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
+                                 div_id="material_plot")
 
     return html_plot
 
@@ -217,7 +221,6 @@ def create_onorm_1800_visualization(
     # )
     fig = go.Figure()
 
-
     # First subplot - Bar chart with metrics
     metric_names = list(metrics.keys())
     metric_values = [metrics[m]["value"] for m in metric_names]
@@ -274,12 +277,85 @@ def create_onorm_1800_visualization(
     fig.update_xaxes(title_text="Metrics")
     fig.update_yaxes(title_text="Value")
 
-    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, div_id="1800_plot")
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
+                                 div_id="1800_plot")
 
     return html_plot
 
-# Example usage
-# if __name__ == "__main__":
 
-# Option 3: Save the plot as a static image
-# pio.write_image(fig, file="../material_waste_grades.png")
+@lru_cache(maxsize=1000)
+def material_property_table(
+        ifc_document_list: QuerySet[CadevilDocument],
+):
+    """
+    Plots a comparison chart with a dropdown selector for material properties.
+    """
+    # List of material properties
+    # material_properties = [
+    #     "global_brutto_price", "local_brutto_price", "local_netto_price",
+    #     "volume", "area", "length", "mass", "penrt_ml", "gwp_ml", "ap_ml",
+    #     "recyclable_mass", "waste_mass"
+    # ]
+    material_properties = ["volume"]
+
+    # Prepare initial data for the first property
+    initial_property = material_properties[0]
+    df = prepare_comparison_data(ifc_document_list, initial_property)
+
+    # Create the initial table
+    fig = go.Figure(
+        data=[
+            go.Table(
+                header=dict(
+                    values=list(df.columns),
+                    fill_color="lightgrey",
+                    align="center",
+                ),
+                cells=dict(
+                    values=[df[col] for col in df.columns],
+                    fill_color="white",
+                    align="center",
+                ),
+            )
+        ]
+    )
+
+    # Add dropdown buttons for each material property
+    dropdown_buttons = []
+    for property_name in material_properties:
+        # Prepare data for the selected property
+        temp_df = prepare_comparison_data(ifc_document_list, property_name)
+        dropdown_buttons.append(
+            dict(
+                args=[
+                    {
+                        "cells.values": [temp_df[col] for col in temp_df.columns],
+                        "header.values": list(temp_df.columns),
+                    }
+                ],
+                label=property_name,
+                method="relayout",  # Use relayout instead of restyle
+            )
+        )
+
+    # Add dropdown to the layout
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                buttons=dropdown_buttons,
+                direction="down",
+                showactive=True,
+                x=0.5,
+                xanchor="center",
+                y=1.1,
+                yanchor="top",
+            )
+        ],
+        title="Comparison of Material Properties Across Documents",
+    )
+    pprint(fig.data)
+    # Show the plot
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
+                                 div_id="property_table")
+
+    return html_plot

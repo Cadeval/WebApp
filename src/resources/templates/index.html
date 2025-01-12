@@ -16,9 +16,6 @@
     {# NOTE: Not sure yet if I should keep this #}
     <meta name="htmx-config" content='{"historyCacheSize": 15}'/>
 
-    <!-- Single page application -->
-    <script src="{% static 'js/htmx.min.js' %}"></script>
-
     <!-- Language information -->
     <link rel="alternate" hreflang="de" href="/de"/>
     <link rel="alternate" hreflang="en" href="/en"/>
@@ -26,7 +23,11 @@
     {# Reusable resources #}
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 
-    {# TODO: Get rid of this #}
+    <!-- Single page application -->
+    <script src="{% static 'js/htmx.js' %}"></script>
+    <script defer src="{% static 'js/htmx-override.js' %}"></script>
+    <script defer src="{% static 'js/plotly-2.35.3.min.js' %}"></script>
+
     <script src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -63,7 +64,7 @@
     <meta property="og:url" content="https://cadevil.at/"/>
 </head>
 
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 <header>
     <button popovertarget='menu-popover' class='menu-button'>
         <svg
@@ -88,7 +89,6 @@
     {% endif %}
 
 </header>
-
 <div popover class='popover-small left-anchor' id='menu-popover'>
     {# <input type="checkbox" id="toggleMode">#}
     {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
@@ -118,7 +118,7 @@
         <button class='button-wide fa fa-list'
                 hx-get="{% url 'model_manager' %}"
                 hx-target="#content-container"
-                hx-swap="innerHTML">
+                hx-swap="outerHTML">
             Model Manager
         </button>
 
@@ -126,7 +126,7 @@
         <button class='button-wide fa fa-balance-scale'
                 hx-get="{% url 'model_comparison' %}"
                 hx-target="#content-container"
-                hx-swap="innerHTML">
+                hx-swap="outerHTML">
             Model Comparison
         </button>
 
@@ -197,37 +197,11 @@
             <pre id="logArea">{{ initial_logs }}</pre>
         </div>
     </div>
-    <script>
-        const logArea = document.getElementById("logArea");
-
-        // For local dev: ws://127.0.0.1:8000/ws/logs/
-        // In production: wss://yourdomain.com/ws/logs/
-        const socket = new WebSocket("ws://" + window.location.host + "/ws/logs/");
-
-        socket.onmessage = function (e) {
-
-            // Each incoming message is a single log line
-            const logLine = e.data;
-            console.log("Message from server:", logLine);
-            logArea.textContent += logLine + "\n";
-            // optionally auto-scroll
-            logArea.scrollTop = logArea.scrollHeight;
-        };
-
-        socket.onopen = function (e) {
-            console.log("WebSocket connection established!");
-        };
-        socket.onerror = function (e) {
-            console.error("WebSocket error:", e);
-        };
-        socket.onclose = function (e) {
-            console.log("WebSocket connection closed.");
-        };
-    </script>
 </div>
 
 <main>
     <div id="content-container">
+
     </div>
 </main>
 <!-- Footer Section -->

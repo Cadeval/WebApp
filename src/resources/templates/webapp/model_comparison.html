@@ -7,37 +7,42 @@
 
 <div id="content-container">
 
-  {% for group in user.groups.all %}
+    {#  {% for group in user.groups.all %}#}
               {# TODO Check if this is the proper placement for the group check, as in if this query takes more resources than necessary #}
               {# Maybe we should put this in the doc.filter params? idk future me will love this <3 #}
       {#    <details class="collapsible-details" open="open">#}
       {#        <summary>#}
       {#            Group: {{ group }}#}
       {#        </summary>#}
-
-    <table>
-        <tr>
-            <th>Property</th>
-            {% for item in data %}
-                {% if item.group == group %}
-                    <th>{{ item.description }}</th>
-                {% endif %}
-            {% endfor %}
-        </tr>
+    {##}
+    {#    <table>#}
+    {#        <tr>#}
+    {#            <th>Property</th>#}
+    {#            {% for item in data %}#}
+    {#                {% if item.group == group %}#}
+    {#                    <th>{{ item.description }}</th>#}
+    {#                {% endif %}#}
+    {#            {% endfor %}#}
+    {#        </tr>#}
         {#        {% for key in properties %}#}
-            <tr>
-                <td>{{ key }}</td>
+    {#            <tr>#}
+    {#                <td>{{ key }}</td>#}
                 {#                <td>{{ key|max_value:data |floatformat:-2 }}</td>#}
-                {% for item in data %}
-                    {% if item.group == group %}
-                        <td>{{ item.building_metrics|async_get }}</td>
+    {#                {% for item in data %}#}
+    {#                    {% if item.group == group %}#}
+    {#                        <td>{{ item.building_metrics|async_get }}</td>#}
                         {#                        <td>{{ item.building_metrics }}</td>#}
-                    {% endif %}
-                {% endfor %}
-            </tr>
+    {#                    {% endif %}#}
+    {#                {% endfor %}#}
+    {#            </tr>#}
         {#        {% endfor %}#}
-    </table>
-      <br>
+    {#    </table>#}
+    {#      <br>#}
       {#    </details>#}
+    {#    {% endfor %}#}
+    {% for plot in html_plot %}
+        <div class="flex-graph-active">
+            {{ plot|safe }}
+        </div>
     {% endfor %}
 </div>

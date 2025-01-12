@@ -28,7 +28,8 @@
                                      src="{% static 'images/house_1.png' %}"/>
                             </a>
                             <h4>{{ item.description }}</h4>
-                            <p class="text_column">User: {{ item.user }}<br>Group: {{ item.group }}<br>ID: {{ item.id }}
+                            <p class="text_column">
+                                User: {{ item.user }}<br>Group: {{ item.group }}<br>ID: {{ item.id }}
                             </p>
                             <form class='action-form' action="/change_group/" method="get" id={{ item.id }}>
                                 {{ group_form }}
@@ -45,7 +46,7 @@
                             {% if item.user == user %}
                                 <form class="action-form"
                                       id="{{ item.id }}"
-                                      hx-post="/api/cadevil_document/{{ item.id }}/delete/"
+                                      hx-delete="/api/cadevil_document/{{ item.id }}/"
                                       hx-target="#object-{{ item.id }}"
                                       hx-swap="delete">
                                     {% csrf_token %}
@@ -61,7 +62,7 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <br> <!-- FIXME remove this br and switch to something better -->
+            <br> {# FIXME newline to pad out the bottom after the details #}
         </details>
     {% endfor %}
 </div>
