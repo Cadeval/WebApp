@@ -1,13 +1,14 @@
 from functools import lru_cache
 from pprint import pprint
 
+import pandas as pd
 import plotly.graph_objs as go
 import plotly.io as pio
 from asgiref.sync import sync_to_async
 from django.db.models import QuerySet
 from plotly.subplots import make_subplots
 
-from helpers import prepare_comparison_data
+from ifc_extractor.helpers import prepare_comparison_data, float_or_zero
 from model_manager.models import CadevilDocument
 
 
@@ -291,28 +292,42 @@ def material_property_table(
     Plots a comparison chart with a dropdown selector for material properties.
     """
     # List of material properties
-    # material_properties = [
-    #     "global_brutto_price", "local_brutto_price", "local_netto_price",
-    #     "volume", "area", "length", "mass", "penrt_ml", "gwp_ml", "ap_ml",
-    #     "recyclable_mass", "waste_mass"
-    # ]
-    material_properties = ["volume"]
+    material_properties = [
+        "global_brutto_price", "local_brutto_price", "local_netto_price",
+        "volume", "area", "length", "mass", "penrt_ml", "gwp_ml", "ap_ml",
+        "recyclable_mass", "waste_mass"
+    ]
 
-    # Prepare initial data for the first property
+    # Precompute data frames for all properties
+    property_data_frames = {}
+    for property_name in material_properties:
+        df = prepare_comparison_data(ifc_document_list, property_name)
+
+        # Debug: Log the data retrieved for this property
+        print(f"Data for {property_name}:")
+        print(df)
+
+        # Check if the data is valid
+        if df.isnull().values.any():
+            print(f"Warning: Missing data for property {property_name}")
+
+        property_data_frames[property_name] = df
+
+    # Use the first property for the initial table
     initial_property = material_properties[0]
-    df = prepare_comparison_data(ifc_document_list, initial_property)
+    initial_df = property_data_frames[initial_property]
 
-    # Create the initial table
+    # Initialize the table with the first property
     fig = go.Figure(
         data=[
             go.Table(
                 header=dict(
-                    values=list(df.columns),
+                    values=list(initial_df.columns),
                     fill_color="lightgrey",
                     align="center",
                 ),
                 cells=dict(
-                    values=[df[col] for col in df.columns],
+                    values=[initial_df[col].tolist() for col in initial_df.columns],
                     fill_color="white",
                     align="center",
                 ),
@@ -320,25 +335,40 @@ def material_property_table(
         ]
     )
 
-    # Add dropdown buttons for each material property
+    # Add dropdown buttons for each property
     dropdown_buttons = []
-    for property_name in material_properties:
-        # Prepare data for the selected property
-        temp_df = prepare_comparison_data(ifc_document_list, property_name)
+    for property_name, temp_df in property_data_frames.items():
         dropdown_buttons.append(
             dict(
                 args=[
-                    {
-                        "cells.values": [temp_df[col] for col in temp_df.columns],
-                        "header.values": list(temp_df.columns),
-                    }
+                    [  # Replace figure's data
+                        go.Table(
+                            header=dict(
+                                values=list(temp_df.columns),
+                                fill_color="lightgrey",
+                                align="center",
+                            ),
+                            cells=dict(
+                                values=[temp_df[col].tolist() for col in temp_df.columns],
+                                fill_color="white",
+                                align="center",
+                            ),
+                        )
+                    ]
                 ],
                 label=property_name,
-                method="relayout",  # Use relayout instead of restyle
+                method="update",  # Replace the whole figure's data
             )
         )
 
-    # Add dropdown to the layout
+        # Debug: Log dropdown button configuration
+        print(f"Dropdown Button for {property_name}:")
+        print({
+            "header.values": list(temp_df.columns),
+            "cells.values": [temp_df[col].tolist() for col in temp_df.columns],
+        })
+
+    # Add the dropdown menu to the layout
     fig.update_layout(
         updatemenus=[
             dict(
@@ -353,8 +383,57 @@ def material_property_table(
         ],
         title="Comparison of Material Properties Across Documents",
     )
-    pprint(fig.data)
+
+    fig.show()
     # Show the plot
+    html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
+                                 div_id="property_table")
+
+    return html_plot
+
+
+def simulate_material_decay_plotly(ifc_document: CadevilDocument, config_dict: dict, years=100):
+    material_data = ifc_document.material_properties.all()[7]
+    material_name = material_data.name
+    nutzungsdauer = float_or_zero(config_dict[material_name], "Nutzungsdauer")
+    abfallreduktion = float_or_zero(config_dict[material_name], "Abfallreduktion") / 100  # Convert to fraction
+    recycling = float_or_zero(config_dict[material_name], "Recycling") / 100  # Convert to fraction
+
+    # Initialize simulation
+    results = {"Year": [], "Material Left (%)": []}
+    material_left = 100.0  # Start with 100% of the material
+
+    for year in range(1, years + 1):
+        if year % nutzungsdauer == 0:  # Apply reduction/recycling every Nutzungsdauer
+            material_left = (
+                    material_left * (1 - abfallreduktion) + material_left * recycling
+            )
+        results["Year"].append(year)
+        results["Material Left (%)"].append(material_left)
+
+    # Convert results to a DataFrame
+    results_df = pd.DataFrame(results)
+
+    # Create a Plotly figure
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            x=results_df["Year"],
+            y=results_df["Material Left (%)"],
+            mode="lines+markers",
+            name=material_name
+        )
+    )
+    fig.update_layout(
+        title=f"Material Decay Simulation for {material_name}",
+        xaxis_title="Year",
+        yaxis_title="Material Left (%)",
+        template="plotly_white"
+    )
+
+    # Show the plot
+    fig.show()
+
     html_plot: str = pio.to_html(fig, auto_play=True, full_html=False, include_plotlyjs=False, include_mathjax=False,
                                  div_id="property_table")
 
