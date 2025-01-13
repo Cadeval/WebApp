@@ -521,10 +521,10 @@ def ifc_product_walk(
     iterator = ifcopenshell.geom.iterator(
         settings=settings,
         file_or_filename=ifc_model,
-        num_threads=multiprocessing.cpu_count() * 2,
+        num_threads=multiprocessing.cpu_count() - 1,
         # TODO: Chceck if this introduces errors
         # Currently lowers the calculation time by 50%
-        geometry_library="hybrid-cgal-simple-opencascade",
+        # geometry_library="hybrid-cgal-simple-opencascade",
     )
     elements_by_material: defaultdict[str, MaterialProperties] = defaultdict(
         MaterialProperties
@@ -591,22 +591,23 @@ def ifc_product_walk(
                     or element.is_a("IfcBuildingElementProxy")
             ):
 
-                pset_dict = ifcopenshell.util.element.get_psets(element=element)
-                ifcopenshell.util.element.get_pset("Component Quantities")
-                if not pset_dict.get("Component Quantities"):
-                    pprint.pprint(pset_dict, sort_dicts=True)
-                    continue
-                else:
-                    keys = pset_dict.get("Component Quantities")
+                # pset_dict = ifcopenshell.util.element.get_psets(element=element)
+                pset_dict = ifcopenshell.util.element.get_pset(element=element, name="Component Quantities")
+                # if not pset_dict.get("Component Quantities"):
+                #     pprint.pprint(pset_dict, sort_dicts=True)
+                #     continue
+                # else:
+                #     keys = pset_dict.get("Component Quantities")
 
-                for ifc_name in keys:
+                for ifc_name in pset_dict.keys():
 
                     # Filter out the "id" of the "Component Quantities" object as it contains an int,
                     # and we are only interested in the quantities of the sub elements.
                     if ifc_name != "id":
-                        subdict = pset_dict.get("Component Quantities").get(ifc_name)
-                        pprint.pprint({ifc_name: subdict}, sort_dicts=True)
-                        # volume: float = subdict.get("Schicht/Komponenten Volumen (brutto)") or subdict["properties"].get("Schicht/Komponenten Volumen (brutto)")
+                        subdict = pset_dict.get(ifc_name)
+                        # pprint.pprint({ifc_name: subdict}, sort_dicts=True)
+                        volume: float = subdict.get("Schicht/Komponenten Volumen (brutto)") or subdict[
+                            "properties"].get("Schicht/Komponenten Volumen (brutto)") or volume
 
                         if user_config.get(ifc_name):
                             element_properties = user_config[ifc_name]
