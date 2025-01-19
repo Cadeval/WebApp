@@ -621,14 +621,6 @@ def ifc_product_walk(
                         ap = float_or_zero(property_dict=element_properties, property_name="AP")
                         penrt = float_or_zero(property_dict=element_properties, property_name="PENRT")
 
-                        # if material_type !+ "single":
-                        #     waste_grade = float(element_config[1])
-                        # else:
-                        #     waste_grade = float(element_config[1])
-                        #     if surrounding_material_names[0]:
-                        #
-                        #     if surrounding_material_names[1]:
-
                         waste_grade = float_or_zero(property_dict=element_properties,
                                                     property_name="NEU Abfallreduktion")
                         recyclable_grade = float_or_zero(property_dict=element_properties,
@@ -646,34 +638,27 @@ def ifc_product_walk(
                         # see the comments above the definition
                         # for information on the indices
                         # pprint(f"$?: {element_prices}")
-                        # Base case is
-                        # if element_prices[7] == "Fläche":
-                        #     multiplier = area
-                        #
-                        # elif element_prices[7] == "Masse":
-                        #     multiplier = mass
-                        #
-                        # elif element_prices[7] == "Länge":
-                        #     multiplier = length
-                        #
-                        # elif element_prices[7] == "Volumen":
-                        #     multiplier = volume
-                        #     # pprint(f"$?: {volume * float(element_prices[5])}")
-                        # else:
-                        #     pprint.pprint(
-                        #         f">>! ERROR: multiplier type {element_prices[7]} is unknown!"
-                        #     )
-                        #     multiplier: float = 1
-                        #
-                        # elements_by_material[
-                        #     ifc_name
-                        # ].global_brutto_price += multiplier * float(element_prices[3])
-                        # elements_by_material[
-                        #     ifc_name
-                        # ].local_brutto_price += multiplier * float(element_prices[4])
-                        # elements_by_material[
-                        #     ifc_name
-                        # ].local_netto_price += multiplier * float(element_prices[5])
+                        multiplier_type = float_or_zero(property_dict=element_properties,
+                                                        property_name="Preis Multiplikator")
+
+                        match multiplier_type:
+                            case "Volumen":
+                                multiplier = volume
+                            case "Fläche":
+                                multiplier = area
+                            case "Länge":
+                                multiplier = length
+                            case _:
+                                multiplier = volume
+
+                        global_brutto_price = float_or_zero(property_dict=element_properties,
+                                                            property_name="Globaler Brutto Preis") * multiplier
+
+                        local_brutto_price = float_or_zero(property_dict=element_properties,
+                                                           property_name="Lokaler Brutto Preis") * multiplier
+
+                        local_netto_price = float_or_zero(property_dict=element_properties,
+                                                          property_name="Lokaler Netto Preis") * multiplier
 
                         elements_by_material[ifc_name].volume += volume
                         elements_by_material[ifc_name].mass += mass
@@ -687,33 +672,35 @@ def ifc_product_walk(
                         elements_by_material[ifc_name].gwp_ml += gwp_ml
                         elements_by_material[ifc_name].penrt_ml += penrt_ml
 
+                        elements_by_material[ifc_name].global_brutto_price += global_brutto_price
+                        elements_by_material[ifc_name].local_brutto_price += local_brutto_price
+                        elements_by_material[ifc_name].local_netto_price += local_netto_price
+
                         # For debugging the dict layout
                         # pprint.pprint(str(elements_by_material[ifc_name]))
 
-                        # assert elements_by_material[ifc_name].waste_grade == elements_by_material[ifc_name].recyclable_grade
-                        # elements_by_material[ifc_name].density = float(element_config[0])
-
             i += 1
-        logger.sync_emit(record=f">>>?? {metrics.netto_raumfläche}?", user_id=user_id)
-        logger.sync_emit(record=f">>>?? {metrics.konstruktions_grundfläche}?", user_id=user_id)
-        logger.sync_emit(record=f">>>?? {metrics.brutto_grundfläche}?", user_id=user_id)
-        logger.sync_emit(record=f">>>?? {metrics.bebaute_fläche}?", user_id=user_id)
 
         metrics.grundstuecksfläche = metrics.bebaute_fläche + metrics.unbebaute_fläche
         metrics.bgf_bf_ratio = metrics.brutto_grundfläche / metrics.bebaute_fläche
         metrics.bri_bgf_ratio = metrics.brutto_rauminhalt / metrics.brutto_grundfläche
 
-    logger.sync_emit(record="Materials not yet in material passport file", user_id=user_id)
-    logger.sync_emit(record=passport_unknown_ifc_name_set, user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.netto_raumfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.konstruktions_grundfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.brutto_grundfläche}?", user_id=user_id)
+        logger.sync_emit(record=f">>>?? {metrics.bebaute_fläche}?", user_id=user_id)
 
-    logger.sync_emit(record="Materials not yet in prices file", user_id=user_id)
-    logger.sync_emit(record=prices_unknown_ifc_name_set, user_id=user_id)
+        logger.sync_emit(record="Materials not yet in material passport file", user_id=user_id)
+        logger.sync_emit(record=passport_unknown_ifc_name_set, user_id=user_id)
 
-    logger.sync_emit(record="Materials Found!", user_id=user_id)
-    logger.sync_emit(record=elements_by_material, user_id=user_id)
+        logger.sync_emit(record="Materials not yet in prices file", user_id=user_id)
+        logger.sync_emit(record=prices_unknown_ifc_name_set, user_id=user_id)
 
-    logger.sync_emit(record="Properties:", user_id=user_id)
-    logger.sync_emit(record=metrics, user_id=user_id)
+        logger.sync_emit(record="Materials Found!", user_id=user_id)
+        logger.sync_emit(record=elements_by_material, user_id=user_id)
+
+        logger.sync_emit(record="Properties:", user_id=user_id)
+        logger.sync_emit(record=metrics, user_id=user_id)
 
     return elements_by_material, metrics
 
