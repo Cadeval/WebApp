@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
+import csv
 import gc
-import json
+import io
 import multiprocessing
 import os
-import time
 import pprint
-import csv
-import io
+import time
 from collections import defaultdict
-import pandas as pd
 
+import pandas as pd
 from ifcopenshell.geom import iterator
-from twisted.python import filepath
 
 from model_manager.models import (
     BuildingMetrics,

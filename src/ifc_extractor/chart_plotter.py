@@ -11,7 +11,6 @@ from plotly.subplots import make_subplots
 from ifc_extractor.helpers import prepare_comparison_data, float_or_zero
 from model_manager.models import CadevilDocument
 
-
 # def debug_show_plot(plt):
 
 
