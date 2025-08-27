@@ -1,0 +1,82 @@
+---
+version: "3"
+services:
+    cadevil:
+        image: cadevil-webapp-cadevil:latest
+        container_name: cadevil
+        environment:
+            - TZ=Europe/Vienna
+            - PRODUCTION=1
+            - DB_NAME=cadevil
+            - DB_USER=admin
+            - DB_PASSWORD=aiwelfj89008u32jr'r2ji3
+            - DB_HOST=postgresql
+            - PYTHONMALLOC=malloc
+            - PYTHONOPTIMIZE=1
+            - PYTHONUNBUFFERED=1
+        restart: unless-stopped
+        cpu_count: 8
+        shm_size: 2gb
+        tmpfs:
+            - /tmp
+        volumes:
+            - '/srv/cadevil/data:/home/cadevil/data/'
+        depends_on:
+            - postgresql
+            - redis
+        networks:
+            swagnet:
+                aliases:
+                    - nginx
+            cadevil:
+                aliases:
+                    - nginx
+
+    redis:
+        image: docker.io/bitnami/redis:7.4
+        hostname: redis
+        environment:
+            # ALLOW_EMPTY_PASSWORD is recommended only for development.
+            - ALLOW_EMPTY_PASSWORD=yes
+            - REDIS_AOF_ENABLED=no
+            - REDIS_IO_THREADS=4
+            - REDIS_IO_THREADS_DO_READS=yes
+        volumes:
+            - '/srv/cadevil/redis:/bitnami/redis/data'
+        networks:
+            cadevil:
+                aliases:
+                    - redis
+
+    postgresql:
+        image: bitnami/postgresql:latest
+        hostname: postgresql
+        container_name: bitnami-postgresql
+        restart: always
+        environment:
+            - POSTGRESQL_USERNAME=admin           # Set the PostgreSQL username
+            - POSTGRESQL_PASSWORD=aiwelfj89008u32jr'r2ji3 # Set the PostgreSQL password
+            - POSTGRESQL_DATABASE=cadevil     # Set the initial database name
+            - POSTGRESQL_WAL_LEVEL=logical
+        volumes:
+            - /srv/cadevil/postgresql:/bitnami/postgresql
+            # Persist PostgreSQL data using a named volume
+        networks:
+            cadevil:
+                aliases:
+                    - postgresql
+
+networks:
+    cadevil:
+        driver: bridge
+        driver_opts:
+            com.docker.network.bridge.name: br-cadevil
+            com.docker.network.driver.mtu: "9000"  # Example jumbo frame MTU
+        enable_ipv6: true
+        ipam:
+            driver: default
+            config:
+                - subnet: ${IPV4_NETWORK:-172.23.1}.0/24
+                - subnet: ${IPV6_NETWORK:-fd4d:6269:6c63:6f77::/64}
+    swagnet:
+        external: true

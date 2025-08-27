@@ -10,15 +10,15 @@ install:
 
 debug:
 	cd src && \
-	python manage.py runserver 0.0.0.0:8000
+	python manage.py runserver -6 [::]:8000
 
 run:
 	cd src && \
-	python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host 127.0.0.1 --port 8000
+	python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host [::] --port 8000
 
 testrun:
 	cd src && \
-	python -m gunicorn webapp.asgi:application -k uvicorn.workers.UvicornWorker --reload --preload --threads 8 --reuse-port -b 127.0.0.1:8000
+	python -m gunicorn webapp.asgi:application -k uvicorn.workers.UvicornWorker --preload --threads 8 --reuse-port -b [::]:8000
 
 migrate:
 	cd src && \
