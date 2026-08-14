@@ -1,6 +1,0 @@
-Dockerfile
-.env
-.envrc
-.ipynb_checkpoints
-__pycache__
-/data/
