@@ -4,40 +4,59 @@
 # regardless of how many lines it contains.
 .ONESHELL:
 
+.PHONY: install debug run testrun migrate test test-django test-javascript test-rust \
+	rebuild build-example-plugin-wasm build-rust-example-plugin-wasm flush superuser \
+	keydb_server
+
 install:
-	python -m pip install --upgrade pip && \
-	pip install -r requirements.txt
+	uv sync --frozen
 
 debug:
 	cd src && \
-	python manage.py runserver -6 [::]:8000
+	uv run python manage.py runbolt --dev
 
 run:
 	cd src && \
-	python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host [::] --port 8000
-
-testrun:
-	cd src && \
-	python -m gunicorn webapp.asgi:application -k uvicorn.workers.UvicornWorker --preload --threads 8 --reuse-port -b [::]:8000
+	uv run python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host [::] --port 8000
 
 migrate:
 	cd src && \
-	python manage.py makemigrations
-	python manage.py makemigrations model_manager
-	python manage.py migrate --run-syncdb
+	uv run python manage.py makemigrations && \
+	uv run python manage.py migrate --run-syncdb
+#	uv run python manage.py makemigrations mycelium && \
 
-test:
-	cd src && \
-	python manage.py test
+test: test-django test-javascript test-rust
+
+test-javascript:
+	npm test
+
+test-rust:
+	cargo test --manifest-path src/example_plugin/Cargo.toml && \
+	cargo test --manifest-path src/rust_example_plugin/Cargo.toml
+
+rebuild: build-example-plugin-wasm build-rust-example-plugin-wasm
+
+build-example-plugin-wasm:
+	npm run build:example-plugin-wasm
+
+build-rust-example-plugin-wasm:
+	npm run build:rust-example-plugin-wasm
 
 flush:
 	cd src && \
-	python manage.py flush
+	uv run python manage.py flush
 
 superuser:
 	cd src && \
-	python manage.py createsuperuser
+	uv run python manage.py createsuperuser
 
-collectstatic:
-	cd src && \
-	python manage.py collectstatic
+#collectstatic:
+#	cd src && \
+#	python manage.py collectstatic && \
+#	sudo chown -R 911:1000 src/resources/collected_static && \
+#	rsync -avzzpP --delete src/resources/collected_static root@meanderingmind.me:/srv/nginx/config/www/cadevil/ && \
+#	sudo rm -rfv src/resources/collected_static
+
+keydb_server:
+	cd data && \
+	keydb-server
