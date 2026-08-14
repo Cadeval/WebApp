@@ -1,0 +1,45 @@
+<section id="material-recycling-simulation"
+         class="model-detail__card model-detail__card--wide"
+         aria-labelledby="material-recycling-heading">
+    <h3 id="material-recycling-heading">Material recycling &amp; cost simulation</h3>
+    {% if materials %}
+        <form method="get"
+              action="{% url 'material_recycling_simulation' pk=data.id %}"
+              class="material-selector">
+            <label for="recycling-material-{{ data.id }}">Material</label>
+            <select id="recycling-material-{{ data.id }}"
+                    name="material_id"
+                    hx-get="{% url 'material_recycling_simulation' pk=data.id %}"
+                    hx-target="#material-recycling-simulation"
+                    hx-swap="outerHTML"
+                    hx-trigger="change"
+                    required>
+                {% for material in materials %}
+                    <option value="{{ material.id }}" {% if selected_material.id == material.id %}selected{% endif %}>
+                        {{ material.name|default:"Unnamed material" }}
+                    </option>
+                {% endfor %}
+            </select>
+            <noscript><button type="submit" class="button">Update simulation</button></noscript>
+        </form>
+
+        {% if recycling_error %}
+            <p class="error-text" role="alert">{{ recycling_error }}</p>
+        {% else %}
+            {% if recycling_plot %}
+                <div class="model-detail__plot" aria-live="polite">
+                    {{ recycling_plot|safe }}
+                </div>
+            {% endif %}
+            {% if cost_plot %}
+                <div class="model-detail__plot" aria-live="polite">
+                    {{ cost_plot|safe }}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <p class="model-detail__empty" role="status">
+            No materials are available for this model.
+        </p>
+    {% endif %}
+</section>

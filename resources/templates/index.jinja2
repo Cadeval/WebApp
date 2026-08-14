@@ -1,0 +1,458 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    {# Global annotations #}
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="msapplication-TileColor" content="#ffffff"/>
+    <meta name="theme-color" content="#ffffff"/>
+
+    {# NOTE: Not sure yet if I should keep this #}
+    {# globalViewTransitions enables the native View Transition API for htmx content swaps (scene transitions). #}
+    <meta name="htmx-config" content='{"historyCacheSize": 15, "globalViewTransitions": true}'/>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"
+      }
+    }
+    </script>
+
+    <!-- Language information -->
+{#    <link rel="alternate" hreflang="de" href="/de"/>#}
+{#    <link rel="alternate" hreflang="en" href="/en"/>#}
+    <link rel="preload" type="text/css" href="{% static 'css/style.css' %}" as="style">
+
+    {# Reusable resources #}
+    <link rel="stylesheet"  href="{% static 'css/style.css' %}">
+
+    {% if user.is_authenticated %}
+        <!-- Single page application -->
+        <link rel="preload" href="{% static 'js/plotly-2.35.3.min.js' %}" as="script" type="application/javascript"/>
+
+        <script defer src="{% static 'js/htmx.js' %}"></script>
+        <script defer src="{% static 'js/htmx-override.js' %}"></script>
+        <script type="module" src="{% static 'js/plugin_runtime.js' %}"></script>
+        <script type="module" src="{% static 'js/plugins/snake_game_controller.js' %}"></script>
+        <script type="module" src="{% static 'js/ifc_editor_controller.js' %}"></script>
+        <script defer src="{% static 'js/plotly-2.35.3.min.js' %}"></script>
+        <script defer src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
+        <script defer src="{% static 'js/utils.js' %}"></script>
+    {% endif %}
+
+{#    <link rel="preload" href="{% static 'webfonts/fa-regular-400.woff2' %}" as="font" type="font/woff2" crossorigin="anonymous"/>#}
+{#    <link rel="preload" href="{% static 'webfonts/fa-brands-400.woff2' %}" as="font" type="font/woff2" crossorigin="anonymous"/>#}
+{#    <link rel="preload" href="{% static 'webfonts/fa-solid-900.woff2' %}" as="font" type="font/woff2" crossorigin="anonymous"/>#}
+{#    <link rel="stylesheet" href="{% static 'css/font-awesome-all.min.css' %}">#}
+
+
+    {# TODO Fix favicon not loading on safari #}
+    <!-- SVG Favicon for modern browsers -->
+    <link rel="icon" href="{% static 'images/favicon.svg' %}" type="image/svg+xml">
+
+    <!-- PNG Fallback for older browsers -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png" sizes="32x32">
+
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}">
+
+    <!-- Safari Pinned Tab Icon -->
+    <link rel="mask-icon" href="{% static 'images/favicon.svg' %}" color="#5bbad5">
+
+    <!-- Mobile specific -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- TODO Implement this maybe? -->
+    <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
+
+    {# Metadata #}
+    <title>Building Comparison Report</title>
+
+    <meta name="description" content="Cadevil - Computer Aided Design and Model Comparison Tool."/>
+    <meta name="author" content="Iuliia Radynska"/>
+
+    {# FIXME: Check what this shit does #}
+    <meta property="og:description" content="IFC Based Comparison Report for OID and ÖNORM 1800."/>
+    <meta property="og:image" content="{% static 'images/house_1.png' %}"/>
+    <meta property="og:site_name" content="Cadevil"/>
+    <meta property="og:title" content="Cadevil - Computer Aided Design and Building Comparison"/>
+    <meta property="og:url" content="https://cadevil.at/"/>
+</head>
+
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<header>
+    <button popovertarget='menu-popover' class='menu-button'>
+        <svg
+                id="menu-icon"
+                data-name="Logo Layer"
+                class="svg"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 1190.55 841.89"
+                style="fill: var(--primary-color); width: 2em; height: 2em;"
+        >
+            <title>AAE_logo_black</title>
+            <path d="M1009.53,643.05H675.09c-31.58,0-31.64,49.08,0,49.08h334.44C1041.11,692.13,1041.16,643.05,1009.53,643.05Z"/>
+            <path d="M675.09,194.63h334.44c31.58,0,31.63-49.09,0-49.09H675.09C643.51,145.54,643.45,194.63,675.09,194.63Z"/>
+            <path d="M923.84,443.38c31.59,0,31.64-49.08,0-49.08H610.22q-43.74-102.9-87.47-205.81L509.67,157.7c-3.71-8.73-16-13-24.46-11.72-10.49,1.58-16.44,8.13-20.4,17.58q-35.3,84.32-70.58,168.64-43.47,103.89-87,207.77h-131c-31.58,0-31.64,49.09,0,49.09H286.73q-2.21,5.25-4.4,10.52l-25.74,61.49c-5.12,12.23,5.52,27,17.15,30.19,14.14,3.88,25-4.86,30.18-17.14l35.6-85.06H534.24a21.1,21.1,0,0,0,7-.43,21.74,21.74,0,0,0,15.71-10.47c4.39-5.81,6.57-13.14,3.63-20.17q-26.65-63.75-53.33-127.5l-7.6-18.18c-4.93-11.79-16.46-21.58-30.19-17.14-11.33,3.67-22.44,17.51-17.14,30.19L500.24,540H360.06q7.23-17.24,14.44-34.49,56-133.69,111.91-267.38c.74-1.79,1.49-3.57,2.24-5.36q35.63,83.85,71.27,167.69L573,431.23a18.94,18.94,0,0,0,10.51,9.86,24.65,24.65,0,0,0,10.69,2.29H923.84Z"/>
+        </svg>
+        Cadevil
+    </button>
+
+    <div id="viewer-header-slot" class="viewer-header-slot" aria-label="3D viewer controls"></div>
+
+    {% if user.is_authenticated %}
+        <div class="config-editor-actions">
+            <button type="submit" class="menu-button fa fa-save" form="config_form" title="Save" aria-label="Save"></button>
+            <button type="submit" class="menu-button fa fa-download" form="download_form" title="Download" aria-label="Download"></button>
+        </div>
+        <button popovertarget='notification-popover' class="menu-button fa fa-bell"></button>
+        <button popovertarget='filemanager-popover' class="openbtn">User Files &#9776;</button>
+    {% endif %}
+
+</header>
+<div popover class='popover-small left-anchor' id='menu-popover'>
+    {# <input type="checkbox" id="toggleMode">#}
+    {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
+    {# <label for="toggleMode" class="toggleLight">Light Mode</label>#}
+    {% if user.is_authenticated %}
+
+        <a href="/">
+            <button class='button-wide fa fa-home'>
+                Home
+            </button>
+        </a>
+
+        <button class='button-wide fa fa-id-card'
+                hx-get="{% url 'user' %}?id={{ user.id }}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            User ({{ user.username }})
+        </button>
+
+        <button class='button-wide fa fa-gear'
+                hx-get="{% url 'config_editor' %}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            Configuration Editor
+        </button>
+
+        <button class='button-wide fa fa-list'
+                hx-get="{% url 'model_manager' %}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            Model Manager
+        </button>
+
+
+        <button class='button-wide fa fa-balance-scale'
+                hx-get="{% url 'model_comparison' %}"
+                hx-target="#content-container"
+                hx-swap="outerHTML">
+            Model Comparison
+        </button>
+
+        {% include "plugin_manager/_plugin_nav_items.jinja2" %}
+
+        {% if user.is_staff %}
+            <button class='button-wide fa fa-plug'
+                    hx-get="{% url 'plugin_manager:plugin_list' %}"
+                    hx-target="#content-container"
+                    hx-swap="outerHTML"
+                    hx-push-url="true">
+                Plugin Manager
+            </button>
+        {% endif %}
+
+        {% if user.username == "admin" %}
+            <a href="/admin/">
+                <button class='button-wide fa fa-shield'>
+                    Django Admin Panel
+                </button>
+            </a>
+        {% endif %}
+
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button class='button-wide fa fa-sign-out' type="submit">Log Out</button>
+        </form>
+    {% else %}
+
+        <a href="{% url 'login' %}">
+            <button class='button-wide fa fa-sign-in'>
+                Log In
+            </button>
+        </a>
+    {% endif %}
+</div>
+<div id="htmx-throbber"><div class="spinner"></div></div>
+
+<div popover class="popover-big center-anchor-big" id="filemanager-popover">
+    <div class="popover-content" id="upload-popover-content">
+        <h4>File Upload</h4>
+        <form method="post" class="form" action="{% url 'upload_model' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="flexgrid-container">
+                <label for="id_description">Description:</label><br>
+                <input type="text" name="description" maxlength="255" id="id_description">
+            </div>
+            <div>
+                <input class="button-wide" type="file" name="document" required="" id="id_document">
+            </div>
+
+            <button class="button-wide" type="submit">Upload</button>
+        </form>
+        <hr>
+        {% for item in files %}
+            <li> {{ item.description }}
+
+                <form
+                        id="deletion-form-{{ item.id }}"
+                        hx-post="/api/model_file/{{ item.id }}/calculate_model/"
+                        hx-target="#cadevil-document-grid"
+                        hx-swap="update">
+                    {% csrf_token %}
+                    <label for="epw-file-{{ item.id }}">Weather for energy simulation</label>
+                    <select id="epw-file-{{ item.id }}" name="epw_file_id" class="button-wide">
+                        <option value="">No energy simulation</option>
+                        {% for epw in epw_files %}
+                            <option value="{{ epw.id }}">
+                                {{ epw.description|default:epw.document.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate
+                    </button>
+                </form>
+                <form action="/delete_model_file/" method="post" id={{ item.id }}>
+                    {% csrf_token %}
+                    <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete
+                    </button>
+                </form>
+                <hr>
+            </li>
+        {% endfor %}
+    </div>
+</div>
+
+<div popover class="popover-full center-anchor-full" id="notification-popover">
+    <div class="popover-content" id="popover-content">
+        <div class="container">
+            <pre id="logArea">{{ initial_logs }}</pre>
+        </div>
+    </div>
+</div>
+
+<main>
+    <div id="content-container">
+        <p>
+            <a href="https://opensource.org/licenses/MIT"><img src="{% static 'images/License-MIT.svg' %}"
+                                                               alt="License: MIT"></a>
+            <a href="https://python.org"><img src="{% static 'images/python.svg' %}" alt="Python: 3.9+"></a>
+            <a href="https://github.com/psf/black"><img src="{% static 'images/code-style-black.svg' %}"
+                                                        alt="Code style: black"></a>
+            <a href="https://www.djangoproject.com/"><img src="{% static 'images/django.svg' %}" alt="Django: 4.2+"></a>
+            <a href="https://github.com/Cadeval/WebApp/actions/workflows/django.yml"><img
+                    src="https://github.com/Cadeval/WebApp/actions/workflows/django.yml/badge.svg" alt="Django CI"></a>
+        </p>
+
+        <p>Please note that this is a WIP,</p>
+        <p>If you have a login please use the link in the hamburger menu on the top left.</p>
+        <p>
+            CadEval is an open-source building analysis platform that enables architects and engineers to evaluate and
+            compare building parameters using IFC models.
+        </p>
+        <p>
+            Built with Django and IFCOpenShell, it provides powerful tools for building performance analysis,
+            spatial optimization, and design validation. It is the product from a TU Master Thesis project.
+        </p>
+
+        <h2>🚀 Planned Features</h2>
+        <ul>
+            <li><strong>IFC Model Analysis</strong>
+                <ul>
+                    <li>Automated property extraction</li>
+                    <li>Geometry validation</li>
+                    <li>Spatial relationship analysis</li>
+                    <li>Material quantity takeoffs</li>
+                </ul>
+            </li>
+            <li><strong>Building Comparison</strong>
+                <ul>
+                    <li>Side-by-side model comparison</li>
+                    <li>Parameter-based evaluation</li>
+                    <li>Custom metric definition</li>
+                    <li>Automated reporting</li>
+                </ul>
+            </li>
+            <li><strong>Web Interface</strong> <em>NOT IMPLEMENTED YET</em>
+                <ul>
+                    <li>Interactive 3D visualization</li>
+                    <li>Real-time parameter updates</li>
+                    <li>Collaborative analysis tools</li>
+                    <li>Export capabilities</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>📋 Requirements</h2>
+        <ul>
+            <li>Python 3.9+</li>
+            <li>Django 4.2+</li>
+            <li>IFCOpenShell 0.7+</li>
+            <li>PostgreSQL 13+</li>
+            <li>Redis (for Celery)</li>
+        </ul>
+
+        <h2>⚡ Quick Start</h2>
+        <pre>
+            <code>
+# Clone the repository
+$ git clone https://github.com/cadeval/cadeval
+$ cd cadeval
+
+# Set up virtual environment
+$ python -m venv venv
+$ source venv/bin/activate  # Unix
+$ .\venv\Scripts\activate   # Windows
+
+# Install requirements
+$ pip install -r requirements.txt
+
+# Set up environment variables
+$ cp .env.example .env
+# Edit .env with your settings
+
+# Run migrations
+$ python manage.py migrate
+
+# Create superuser
+$ python manage.py createsuperuser
+
+# Run development server
+$ python manage.py runserver
+            </code>
+        </pre>
+        <p>Visit <code>http://localhost:8000/admin</code> to access the admin interface.</p>
+
+        <h2>🔧 Configuration</h2>
+        <p>Key settings in <code>.env</code>:</p>
+        <pre>
+            <code>
+                DEBUG=True
+                SECRET_KEY=your-secret-key
+                DATABASE_URL=postgres://user:password@localhost:5432/cadeval
+                REDIS_URL=redis://localhost:6379/0
+            </code>
+        </pre>
+
+        <h2>🏗️ Project Structure</h2>
+        <pre>
+            <code>
+├── src/
+│   ├── manage.py                   # Django management script
+│   ├── ifc_extractor/          # IFC file processing module
+│   │   ├── energy_modeling.py
+│   │   └── energy.py
+│   ├── model_manager/              # Main application module
+│   │   ├── models.py               # Database models
+│   │   ├── views.py                # View controllers
+│   │   └── urls.py                 # URL routing
+│   └── webapp/                     # Web application configuration
+│       ├── settings.py
+│       └── urls.py
+            </code>
+        </pre>
+
+        <h2>🔌 API Documentation</h2>
+        <p>Once this part is finished the api end points will be implemented as follows.</p>
+        <p>API documentation is available at <code>/api/docs/</code> when running the server. Key endpoints:</p>
+        <ul>
+            <li><code>/api/models/</code> - IFC model management</li>
+            <li><code>/api/analysis/</code> - Building analysis</li>
+            <li><code>/api/compare/</code> - Model comparison</li>
+            <li><code>/api/reports/</code> - Report generation</li>
+        </ul>
+
+        <h2>🧪 Testing</h2>
+        <pre>
+            <code>
+# Clone the repository
+git clone https://github.com/cadeval/[project-name]
+gh repo clone Cadeval/[project-name]
+
+# Create virtual environment
+$ python -m venv venv
+$ source venv/bin/activate  # Unix
+$ .\venv\Scripts\activate   # Windows
+
+# Install dependencies
+$ pip install -r requirements.txt
+
+# Or using uv by [astral](https://docs.astral.sh/uv)
+$ uv venv
+
+# Please note that the venv dir in that case is .venv
+# Activation follows the same pattern as above
+
+# A Python version can be requested, e.g., to create a virtual environment with Python 3.11:
+# Note this requires the requested Python version to be available on the system. However, if unavailable, uv will download Python for you. See the Python version documentation for more details.
+$ uv venv --python 3.11
+
+# Install a package in the new virtual environment
+$ uv pip install ruff
+
+# Run migrations
+$ python manage.py migrate
+
+# Start development server
+$ python manage.py runserver
+            </code>
+        </pre>
+
+        <h2>🤝 Contributing</h2>
+        <p>
+            We welcome contributions! Please see our
+            <a href="https://github.com/Cadeval/.github/blob/main/profile/CONTRIBUTING.md">Contributing Guidelines</a>
+            and
+            <a href="https://github.com/Cadeval/.github/blob/main/profile/CODE_OF_CONDUCT.md">Code of Conduct</a>.
+        </p>
+
+        <h2>🔒 Security</h2>
+        <p>To report security vulnerabilities, please email <strong>security@cadeval.org</strong>.</p>
+
+        <h2>📄 License</h2>
+        <p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+
+        <h2>🙏 Acknowledgments</h2>
+        <ul>
+            <li><a href="https://ifcopenshell.org/">IFCOpenShell</a> for IFC processing</li>
+            <li><a href="https://www.djangoproject.com/">Django</a> for the web framework</li>
+            <li>All our <a href="CONTRIBUTORS.md">contributors</a></li>
+        </ul>
+
+        <h2>📮 Contact</h2>
+        <ul>
+            <li>Website: <a href="https://cadeval.org">https://cadeval.org</a></li>
+            <li>Email: <strong>info@cadeval.org</strong></li>
+        </ul>
+
+        <hr>
+        <p>Made with ❤️ by the CadEval team</p>
+    </div>
+</main>
+<!-- Footer Section -->
+<!-- Copyrights Section -->
+<!-- Main Container Ends -->
+<footer class="footer">
+    <div class="copyright">&copy; {% now 'Y' %} - <strong>Iuliia</strong></div>
+</footer>
+
+</body>
+</html>

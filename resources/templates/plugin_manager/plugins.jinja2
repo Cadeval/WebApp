@@ -1,0 +1,117 @@
+{% load static %}
+
+<div id="content-container">
+    <section class="plugin-manager-shell" aria-labelledby="plugin-manager-title">
+        <div class="plugin-manager-hero">
+            <div>
+                <span class="viewer-eyebrow">Workspace settings</span>
+                <h1 id="plugin-manager-title">Plugin Manager</h1>
+                <p>
+                    Extend CADevil with reviewed tools while keeping every uploaded browser plugin
+                    isolated from the application.
+                </p>
+            </div>
+            <div class="plugin-manager-summary" aria-label="Plugin inventory">
+                <span class="fa fa-puzzle-piece" aria-hidden="true"></span>
+                <span><strong>{{ records|length }}</strong> registered</span>
+                <button type="button"
+                        class="button plugin-reload-button fa fa-refresh"
+                        hx-post="{% url 'plugin_manager:plugin_reload' %}"
+                        hx-target="#content-container"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="this">
+                    Reload plugins
+                </button>
+            </div>
+        </div>
+
+        {% if reload_summary %}
+            <p class="plugin-reload-status" role="status" aria-live="polite">
+                <span class="fa fa-check-circle" aria-hidden="true"></span>
+                {{ reload_summary }}
+            </p>
+            {% include "plugin_manager/_plugin_nav_items.jinja2" with plugin_nav_oob=True %}
+        {% endif %}
+
+        <section class="plugin-upload-card" aria-labelledby="plugin-upload-title">
+            <div class="plugin-section-heading">
+                <div class="plugin-section-icon fa fa-shield" aria-hidden="true"></div>
+                <div>
+                    <span class="viewer-eyebrow">Sandboxed upload</span>
+                    <h2 id="plugin-upload-title">Add a browser plugin</h2>
+                    <p>Upload a JavaScript worker or WebAssembly module for staff review.</p>
+                </div>
+            </div>
+
+            <form class="plugin-upload-form"
+                  method="post"
+                  enctype="multipart/form-data"
+                  hx-post="{% url 'plugin_manager:plugin_upload' %}"
+                  hx-target="#plugin-table-body"
+                  hx-swap="beforeend">
+                {% csrf_token %}
+                <div class="plugin-upload-grid">
+                    {% for field in upload_form %}
+                        <div class="plugin-form-field{% if field.errors %} plugin-form-field--error{% endif %}">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <span class="plugin-field-error" role="alert">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="plugin-upload-footer">
+                    <p class="plugin-help-text">
+                        <span class="fa fa-lock" aria-hidden="true"></span>
+                        Accepted: UTF-8 <code>.js</code>/<code>.mjs</code> and <code>.wasm</code>.
+                        New uploads stay disabled until reviewed.
+                    </p>
+                    <button type="submit" class="button plugin-upload-submit fa fa-upload">
+                        Upload plugin
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="plugin-catalog-card" aria-labelledby="plugin-catalog-title">
+            <div class="plugin-section-heading plugin-section-heading--compact">
+                <div class="plugin-section-icon fa fa-th-large" aria-hidden="true"></div>
+                <div>
+                    <span class="viewer-eyebrow">Installed extensions</span>
+                    <h2 id="plugin-catalog-title">Plugin catalog</h2>
+                </div>
+            </div>
+
+            <div class="plugin-table-viewport" tabindex="0" aria-label="Registered plugins table">
+                <table id="plugin-table" class="plugin-table">
+                    {#                    <caption>Registered plugin versions, compatibility, status, and controls</caption>#}
+                    <thead>
+                    <tr>
+                        <th scope="col">Plugin</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">API</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Error</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="plugin-table-body">
+                    {% for record in records %}
+                        {% include "plugin_manager/_plugin_row.jinja2" %}
+                        {% empty %}
+                        <tr>
+                            <td class="plugin-empty-state" colspan="7">
+                                <span class="fa fa-puzzle-piece" aria-hidden="true"></span>
+                                <strong>No plugins registered</strong>
+                                <span>Upload a sandboxed plugin to get started.</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </section>
+</div>
