@@ -1,5 +1,5 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 class PluginActivationError(ValueError):
@@ -32,7 +32,9 @@ class PluginRecord(models.Model):
     priority = models.IntegerField(default=100)
     enabled = models.BooleanField(default=True)
     error = models.TextField(blank=True, default="")
-    source = models.CharField(max_length=16, choices=Source.choices, default=Source.PACKAGE)
+    source = models.CharField(
+        max_length=16, choices=Source.choices, default=Source.PACKAGE
+    )
     artifact_type = models.CharField(
         max_length=8,
         choices=ArtifactType.choices,
