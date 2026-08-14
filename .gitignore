@@ -3,3 +3,6 @@
 .ipynb_checkpoints
 __pycache__
 /data/
+/src/plugins/example_plugin/target/
+/src/plugins/rust_example_plugin/target/
+*.rdb
