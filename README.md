@@ -43,7 +43,7 @@ cd cadeval
 uv sync --frozen
 
 # Run migrations
-cd src
+cd apps
 uv run python manage.py migrate
 
 # Create superuser
@@ -107,7 +107,7 @@ Rust/WebAssembly plugins:
 ├── pyproject.toml              # Python dependencies, tooling, and plugin entry points
 ├── uv.lock                     # Reproducible Python dependency lockfile
 ├── data/                       # Runtime uploads and persistent application data
-└── src/
+└── apps/
     ├── manage.py               # Django management entry point
     ├── webapp/                 # Django settings, URLs, ASGI/WSGI, and logging
     ├── model_manager/          # Core models, views, API, tasks, and WebSocket consumers
@@ -118,9 +118,9 @@ Rust/WebAssembly plugins:
     │   └── migrations/
     ├── ifc_extractor/          # IFC/OpenStudio energy and plotting utilities
     ├── example_plugin/         # Rust-based IFC editor plugin and Django integration
-    │   └── src/lib.rs          # IFC editor core compiled to WebAssembly
+    │   └── apps/lib.rs          # IFC editor core compiled to WebAssembly
     ├── rust_example_plugin/    # Rust Snake plugin and Django integration
-    │   └── src/lib.rs          # Game core compiled to WebAssembly
+    │   └── apps/lib.rs          # Game core compiled to WebAssembly
     └── resources/
         ├── templates/          # Jinja2 application and plugin templates
         └── static/             # CSS, images, JavaScript, and WebAssembly assets
@@ -143,7 +143,7 @@ The bundled `cadevil.example.editor` plugin adds **IFC Editor** to the SPA navig
 without uploading or replacing the server model, then lets users browse entities and edit supported positional
 attributes. Quoted strings, numbers, enumerations, entity references, and unset values are validated by the
 dependency-free Rust library in
-`src/plugins/example_plugin/src/lib.rs`; nested values remain visible but read-only.
+`src/apps/plugins/example_plugin/src/lib.rs`; nested values remain visible but read-only.
 
 The compiled WebAssembly runs with no host imports inside a dedicated module worker. Untouched source bytes are
 preserved, hot reload restarts the worker, and **Download modified IFC** creates a local Save As copy on the main
@@ -156,7 +156,7 @@ Install Rust and its WebAssembly target, then rebuild the checked-in browser art
 rustup target add wasm32-unknown-unknown
 npm run build:example-plugin-wasm
 # Or run the Rust builder directly:
-cargo run --manifest-path src/example_plugin/Cargo.toml --bin build-wasm
+cargo run --manifest-path apps/example_plugin/Cargo.toml --bin build-wasm
 ```
 
 ### Rust Snake plugin
@@ -164,8 +164,8 @@ cargo run --manifest-path src/example_plugin/Cargo.toml --bin build-wasm
 The bundled `cadevil.rust-example.editor` plugin adds **Rust Snake** to the SPA navigation. Selecting it loads a
 script-free game fragment into the content container with HTMX. Movement, food placement, growth, scoring, and collision
 rules are implemented in the dependency-free Rust library at
-`src/plugins/rust_example_plugin/src/lib.rs`. The compiled WebAssembly runs inside a dedicated module worker; the host
-controller only validates snapshots, draws the canvas, and forwards focused keyboard or touch input.
+`src/apps/plugins/rust_example_plugin/apps/lib.rs`. The compiled WebAssembly runs inside a dedicated module worker; the
+host controller only validates snapshots, draws the canvas, and forwards focused keyboard or touch input.
 
 Install Rust and its WebAssembly target, then rebuild the checked-in browser artifact after changing the Rust source:
 
@@ -173,7 +173,7 @@ Install Rust and its WebAssembly target, then rebuild the checked-in browser art
 rustup target add wasm32-unknown-unknown
 npm run build:rust-example-plugin-wasm
 # Or run the Rust builder directly:
-cargo run --manifest-path src/rust_example_plugin/Cargo.toml --bin build-wasm
+cargo run --manifest-path apps/rust_example_plugin/Cargo.toml --bin build-wasm
 ```
 
 ### Uploaded plugins
@@ -215,7 +215,6 @@ If an existing checkout reports
 application:
 
 ```bash
-cd src
 uv run python manage.py migrate model_manager
 ```
 

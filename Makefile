@@ -12,18 +12,15 @@ install:
 	uv sync --frozen
 
 debug:
-	cd src && \
 	uv run python manage.py runbolt --dev
 
 run:
-	cd src && \
 	uv run python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host [::] --port 8000
 
 migrate:
-	cd src && \
-	uv run python manage.py makemigrations && \
+	uv run python manage.py makemigrations
 	uv run python manage.py migrate --run-syncdb
-#	uv run python manage.py makemigrations mycelium && \
+#	uv run python manage.py makemigrations mycelium
 
 test: test-django test-javascript test-rust
 
@@ -43,19 +40,16 @@ build-rust-example-plugin-wasm:
 	npm run build:rust-example-plugin-wasm
 
 flush:
-	cd src && \
 	uv run python manage.py flush
 
 superuser:
-	cd src && \
 	uv run python manage.py createsuperuser
 
 #collectstatic:
-#	cd src && \
 #	python manage.py collectstatic && \
-#	sudo chown -R 911:1000 src/resources/collected_static && \
-#	rsync -avzzpP --delete src/resources/collected_static root@meanderingmind.me:/srv/nginx/config/www/cadevil/ && \
-#	sudo rm -rfv src/resources/collected_static
+#	sudo chown -R 911:1000 apps/resources/collected_static && \
+#	rsync -avzzpP --delete apps/resources/collected_static root@meanderingmind.me:/srv/nginx/config/www/cadevil/ && \
+#	sudo rm -rfv apps/resources/collected_static
 
 keydb_server:
 	cd data && \

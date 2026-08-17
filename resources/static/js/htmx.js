@@ -3394,7 +3394,7 @@ var htmx = (function () {
         if (elt.name === '' || elt.name == null || elt.disabled || closest(elt, 'fieldset[disabled]')) {
             return false
         }
-        // ignore "submitter" types (see jQuery src/serialize.js)
+        // ignore "submitter" types (see jQuery apps/serialize.js)
         if (elt.type === 'button' || elt.type === 'submit' || elt.tagName === 'image' || elt.tagName === 'reset' || elt.tagName === 'file') {
             return false
         }

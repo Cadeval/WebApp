@@ -5,9 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "django-bolt>=0.10.0",
+    "channels>=4.3.2",
+    "django-bolt==0.10.2",
     "django-stubs>=6.1.0",
+    "djust==1.0.8",
+    "plotly>=6.9.0",
     "pyrefly>=1.2.0",
+    "types-channels>=4.3.0.20260518",
 ]
 
 [project.entry-points."cadevil.plugins"]
