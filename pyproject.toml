@@ -12,6 +12,7 @@ dependencies = [
     "plotly>=6.9.0",
     "pyrefly>=1.2.0",
     "types-channels>=4.3.0.20260518",
+    "watchdog>=6.0.0",
 ]
 
 [project.entry-points."cadevil.plugins"]
