@@ -17,10 +17,14 @@
       <sourceFolder url="file://$MODULE_DIR$/reference/_src/plugins/example_plugin/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/reference/_src/plugins/rust_example_plugin/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/reference/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/apps" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/reference" />
       <excludeFolder url="file://$MODULE_DIR$/reference/_src/plugins/example_plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/reference/_src/plugins/rust_example_plugin/target" />
+      <excludeFolder url="file://$MODULE_DIR$/data" />
     </content>
     <orderEntry type="jdk" jdkName="~/Desktop/projects/cadevil-webapp/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
