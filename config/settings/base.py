@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "djust",  # Core LiveView framework
     "apps.shared",  # BaseLiveView, context processors, theming
-    "apps.home",  # Home page — your first LiveView
+    "apps.mycelium",  # Home page — your first LiveView
 ]
 
 # djust[theming] — 60+ theme packs, dark/light mode, CSS variable system.
@@ -134,7 +134,7 @@ STATICFILES_DIRS = [BASE_DIR / "resources/static"]
 
 # Register every module that contains LiveView subclasses you want mountable
 # over WebSockets. Unregistered views will silently fail to connect.
-LIVEVIEW_ALLOWED_MODULES = ["apps.home.views"]
+LIVEVIEW_ALLOWED_MODULES = ["apps.mycelium.views"]
 
 # LiveView state backend.
 # "memory"          — in-process, lost on restart. Fine for single-server dev.

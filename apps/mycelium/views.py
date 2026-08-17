@@ -11,9 +11,9 @@ EMOJIS = ["🔥", "❤️", "🚀", "👏", "💯", "😍"]
 POLL_OPTIONS = ["Forms", "Components", "Realtime", "Auth"]
 
 
-class HomeView(BaseLiveView):
-    template_name = "home/home.html"
-    presence_key = "home:landing"  # all sessions of HomeView share this bucket
+class MyceliumView(BaseLiveView):
+    template_name = "mycelium/mycelium.html"
+    presence_key = "mycelium:landing"  # all sessions of MyceliumView share this bucket
 
     def mount(self, request, **kwargs):
         super().mount(request, **kwargs)
@@ -24,9 +24,9 @@ class HomeView(BaseLiveView):
         self._rebuild_messages()
         # Source code shown in the demo panels — pulled live from this file
         # so editing the handler updates the displayed code automatically.
-        self.react_src = inspect.getsource(HomeView.react)
-        self.vote_src = inspect.getsource(HomeView.vote)
-        self.post_message_src = inspect.getsource(HomeView.post_message)
+        self.react_src = inspect.getsource(MyceliumView.react)
+        self.vote_src = inspect.getsource(MyceliumView.vote)
+        self.post_message_src = inspect.getsource(MyceliumView.post_message)
 
     # ─── state helpers ────────────────────────────────────────────────────
 
@@ -65,7 +65,7 @@ class HomeView(BaseLiveView):
         row.save()
         self._rebuild_reactions()
         push_to_view(
-            "apps.home.views.HomeView",
+            "apps.mycelium.views.MyceliumView",
             state={"reactions": self.reactions},
         )
 
@@ -78,7 +78,7 @@ class HomeView(BaseLiveView):
         row.save()
         self._rebuild_poll()
         push_to_view(
-            "apps.home.views.HomeView",
+            "apps.mycelium.views.MyceliumView",
             state={"poll_data": self.poll_data},
         )
 
@@ -90,7 +90,7 @@ class HomeView(BaseLiveView):
         GuestbookMessage.objects.create(text=text)
         self._rebuild_messages()
         push_to_view(
-            "apps.home.views.HomeView",
+            "apps.mycelium.views.MyceliumView",
             state={"messages": self.messages},
         )
 
@@ -104,7 +104,7 @@ class HomeView(BaseLiveView):
         self._rebuild_poll()
         self._rebuild_messages()
         push_to_view(
-            "apps.home.views.HomeView",
+            "apps.mycelium.views.MyceliumView",
             state={
                 "reactions": self.reactions,
                 "poll_data": self.poll_data,

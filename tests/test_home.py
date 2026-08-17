@@ -15,28 +15,28 @@ def test_theme_cookies_are_namespaced(client):
 
 
 @pytest.mark.django_db
-class TestHomeViewRebuildHelpers:
+class TestMyceliumViewRebuildHelpers:
     """Test the data-shaping helpers directly, without going through @action."""
 
     def _mount(self):
-        from apps.home.views import HomeView
+        from apps.mycelium.views import MyceliumView
 
         rf = RequestFactory()
         req = rf.get("/")
         req.user = AnonymousUser()
-        view = HomeView()
+        view = MyceliumView()
         view.mount(req)
         return view
 
     def test_mount_initializes_reactions_in_canonical_order(self):
-        from apps.home.views import EMOJIS
+        from apps.mycelium.views import EMOJIS
 
         view = self._mount()
         assert [r["emoji"] for r in view.reactions] == EMOJIS
         assert all(r["count"] == 0 for r in view.reactions)
 
     def test_mount_initializes_poll_in_canonical_order(self):
-        from apps.home.views import POLL_OPTIONS
+        from apps.mycelium.views import POLL_OPTIONS
 
         view = self._mount()
         assert [r["option"] for r in view.poll_data] == POLL_OPTIONS
@@ -48,7 +48,7 @@ class TestHomeViewRebuildHelpers:
         assert view.messages == []
 
     def test_rebuild_reactions_reflects_db_counts(self):
-        from apps.home.models import ReactionCount
+        from apps.mycelium.models import ReactionCount
 
         ReactionCount.objects.create(emoji="🔥", count=5)
         view = self._mount()
@@ -56,7 +56,7 @@ class TestHomeViewRebuildHelpers:
         assert fire["count"] == 5
 
     def test_rebuild_poll_computes_percentages(self):
-        from apps.home.models import PollVote
+        from apps.mycelium.models import PollVote
 
         PollVote.objects.create(option="Forms", count=3)
         PollVote.objects.create(option="Components", count=1)
@@ -70,7 +70,7 @@ class TestHomeViewRebuildHelpers:
         assert realtime["pct"] == 0
 
     def test_rebuild_messages_limits_to_five_newest_first(self):
-        from apps.home.models import GuestbookMessage
+        from apps.mycelium.models import GuestbookMessage
 
         for i in range(7):
             GuestbookMessage.objects.create(text=f"msg {i}")
@@ -95,7 +95,7 @@ def test_home_page_returns_200(client):
 
 @pytest.mark.django_db
 def test_reactioncount_starts_at_zero_when_created():
-    from apps.home.models import ReactionCount
+    from apps.mycelium.models import ReactionCount
 
     row, created = ReactionCount.objects.get_or_create(emoji="🔥")
     assert created is True
@@ -104,7 +104,7 @@ def test_reactioncount_starts_at_zero_when_created():
 
 @pytest.mark.django_db
 def test_pollvote_starts_at_zero_when_created():
-    from apps.home.models import PollVote
+    from apps.mycelium.models import PollVote
 
     row, created = PollVote.objects.get_or_create(option="Forms")
     assert created is True
@@ -113,7 +113,7 @@ def test_pollvote_starts_at_zero_when_created():
 
 @pytest.mark.django_db
 def test_guestbookmessage_stores_text_and_timestamps():
-    from apps.home.models import GuestbookMessage
+    from apps.mycelium.models import GuestbookMessage
 
     msg = GuestbookMessage.objects.create(text="hello")
     assert msg.text == "hello"
@@ -121,21 +121,21 @@ def test_guestbookmessage_stores_text_and_timestamps():
 
 
 @pytest.mark.django_db
-class TestHomeViewActions:
+class TestMyceliumViewActions:
     def _mount(self):
-        from apps.home.views import HomeView
+        from apps.mycelium.views import MyceliumView
 
         rf = RequestFactory()
         req = rf.get("/")
         req.user = AnonymousUser()
-        view = HomeView()
+        view = MyceliumView()
         view.mount(req)
         return view
 
     # ─── react ────────────────────────────────────────────────────────────
 
     def test_react_increments_db_count_and_state(self):
-        from apps.home.models import ReactionCount
+        from apps.mycelium.models import ReactionCount
 
         view = self._mount()
         view.react(emoji="🔥")
@@ -152,7 +152,7 @@ class TestHomeViewActions:
         assert heart["count"] == 3
 
     def test_react_ignores_invalid_emoji(self):
-        from apps.home.models import ReactionCount
+        from apps.mycelium.models import ReactionCount
 
         view = self._mount()
         view.react(emoji="💣")  # not in EMOJIS
@@ -161,7 +161,7 @@ class TestHomeViewActions:
     # ─── vote ─────────────────────────────────────────────────────────────
 
     def test_vote_increments_db_count_and_state(self):
-        from apps.home.models import PollVote
+        from apps.mycelium.models import PollVote
 
         view = self._mount()
         view.vote(option="Forms")
@@ -171,7 +171,7 @@ class TestHomeViewActions:
         assert forms["pct"] == 100.0
 
     def test_vote_ignores_invalid_option(self):
-        from apps.home.models import PollVote
+        from apps.mycelium.models import PollVote
 
         view = self._mount()
         view.vote(option="Nonsense")
@@ -191,7 +191,7 @@ class TestHomeViewActions:
     # ─── post_message ────────────────────────────────────────────────────
 
     def test_post_message_saves_and_appears_in_state(self):
-        from apps.home.models import GuestbookMessage
+        from apps.mycelium.models import GuestbookMessage
 
         view = self._mount()
         view.post_message(text="hello world")
@@ -199,7 +199,7 @@ class TestHomeViewActions:
         assert view.messages[0]["text"] == "hello world"
 
     def test_post_message_ignores_empty_text(self):
-        from apps.home.models import GuestbookMessage
+        from apps.mycelium.models import GuestbookMessage
 
         view = self._mount()
         view.post_message(text="")
@@ -209,7 +209,7 @@ class TestHomeViewActions:
         assert view.messages == []
 
     def test_post_message_trims_to_280_chars(self):
-        from apps.home.models import GuestbookMessage
+        from apps.mycelium.models import GuestbookMessage
 
         view = self._mount()
         view.post_message(text="x" * 500)
@@ -226,7 +226,7 @@ class TestHomeViewActions:
     # ─── reset_demo ──────────────────────────────────────────────────────
 
     def test_reset_demo_clears_all_three_models(self):
-        from apps.home.models import GuestbookMessage, PollVote, ReactionCount
+        from apps.mycelium.models import GuestbookMessage, PollVote, ReactionCount
 
         view = self._mount()
         view.react(emoji="🔥")
@@ -292,4 +292,4 @@ def test_home_page_renders_guestbook(client):
 def test_home_page_includes_dj_view_binding(client):
     response = client.get("/")
     content = response.content.decode()
-    assert 'dj-view="apps.home.views.HomeView"' in content
+    assert 'dj-view="apps.mycelium.views.MyceliumView"' in content

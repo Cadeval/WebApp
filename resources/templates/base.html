@@ -12,15 +12,15 @@
        panel still lets users switch to light/system (overwrites this value). #}
     <script>try { if (!localStorage.getItem('djust-theme-mode')) localStorage.setItem('djust-theme-mode', 'dark'); } catch (e) {}</script>
     {{ theme_head }}
-    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mycelium.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
 {# dj-view wraps nav AND content so the presence chip in the nav can be
    reactively patched by the LiveView (it can only diff DOM inside its
    own root). Subclasses override {% block live_view %} to mount a
-   different view; defaults to HomeView for the starter's single page. #}
-<div dj-view="{% block live_view %}apps.home.views.HomeView{% endblock %}">
+   different view; defaults to MyceliumView for the starter's single page. #}
+<div dj-view="{% block live_view %}apps.mycelium.views.MyceliumView{% endblock %}">
     <nav class="site-nav">
         <a href="/" class="site-brand">
             <img src="https://djust.org/static/images/djust-logo.png" alt="djust" class="brand-logo">
