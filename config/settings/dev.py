@@ -19,6 +19,8 @@ CHANNEL_LAYERS = {
 # is visible alongside the Makefile note about not running uvicorn with
 # --reload (uvicorn's worker restart would defeat HVR's state preservation).
 LIVEVIEW_CONFIG = {
-    **LIVEVIEW_CONFIG,  # noqa: F405 — base.py exports this via `import *`
-    "hvr_enabled": True,
-}
+    "hot_reload": True,  # file watcher on
+    "hot_reload_auto_enable": True,  # call enable_hot_reload() from DjustConfig.ready()
+    "hvr_enabled": True,  # v0.6.1 — state-preserving reload
+}  # ty: ignore[invalid-assignment]
+# FIXME: Fix live view config type inference
