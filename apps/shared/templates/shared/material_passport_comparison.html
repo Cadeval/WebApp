@@ -1,0 +1,13 @@
+{% load static %}
+<div {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
+{% include "bim/nav.html" %}
+<h1>Compare building assessments</h1><p><a href="{% url 'material_passport:calculate' %}">Assess another model</a></p>
+<p>Select assessed models from your library. Comparable results require the same reference data, observation period, exclusions and calculation policies. These indicators support design decisions and do not define a universal architectural ranking.</p>
+<form hx-boost="false" method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Compare selected models</button></form>
+{% if charts %}<h2>Comparison coverage</h2>
+{% if comparable %}<p>Selected assessments have matching reference data and boundaries, with complete recorded assessment coverage. This does not certify source-model correctness.</p>{% else %}<p class="warnings"><strong>Comparison is not established as complete and consistent.</strong></p>{% endif %}
+<ul class="warnings">{% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+<ul>{% for document in documents %}<li><a href="{% url 'material_passport:report' document.pk %}">{{ document.description }}</a></li>{% endfor %}</ul>
+<h2>Selected assessment policies</h2><ul>{% for item in assessments %}<li>{{ item.document.description }}: {{ item.report.options.years }} years; endpoint {{ item.report.options.include_endpoint|yesno:'included,excluded' }}; grade weighting {{ item.report.options.grade_weighting }}; LCA averages {{ item.report.lca_averages.unit_basis }}. {{ item.report.lca_averages.note }}</li>{% endfor %}</ul>
+{% include 'shared/material_passport_charts.html' with chart_heading='Graphical model comparison' %}
+{% endif %}</div>

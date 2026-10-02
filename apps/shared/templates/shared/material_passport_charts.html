@@ -1,0 +1,17 @@
+{% load l10n %}{% localize off %}
+<h2>{{ chart_heading|default:"Graphical material report" }}</h2>
+<p>Each indicator uses its own scale and unit. Negative values extend left of zero. Unavailable contributions have no bar. Material charts describe the assessed inventory; omissions and missing values must be reviewed before comparing full buildings.</p>
+{% for chart in charts %}<details {% if forloop.first %}open{% endif %}>
+<summary>{{ chart.label }} ({{ chart.unit }})</summary>
+<div class="scroll" style="max-height:32rem;overflow:auto">
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="{{ chart.height }}" viewBox="0 0 700 {{ chart.height }}" role="img" aria-label="{{ chart.label }} by model or material">
+<title>{{ chart.label }} ({{ chart.unit }})</title>
+<line x1="{{ chart.baseline }}" x2="{{ chart.baseline }}" y1="0" y2="{{ chart.height }}" stroke="var(--bim-muted)"/>
+{% for bar in chart.bars %}<g transform="translate(0,{% widthratio forloop.counter0 1 40 %})">
+<title>{{ bar.label }}: {% if bar.available %}{{ bar.display }} {{ chart.unit }}{% else %}Unavailable{% endif %}</title>
+<text x="4" y="24" font-size="12">{{ bar.label|truncatechars:20 }}</text>
+{% if bar.available %}<rect x="{{ bar.x }}" y="8" width="{{ bar.width }}" height="24" fill="var(--bim-link)"/>{% endif %}
+<text x="552" y="24" font-size="12">{% if bar.available %}{{ bar.display }}{% else %}Unavailable{% endif %}</text>
+</g>{% endfor %}</svg></div>
+<div class="bim-table-scroll"><table><caption>{{ chart.label }} chart data ({{ chart.unit }})</caption><tr><th>Model or material</th><th>Value</th></tr>{% for bar in chart.bars %}<tr><th>{{ bar.label }}</th><td>{% if bar.available %}{{ bar.display }}{% else %}Unavailable{% endif %}</td></tr>{% endfor %}</table></div>
+</details>{% endfor %}{% endlocalize %}

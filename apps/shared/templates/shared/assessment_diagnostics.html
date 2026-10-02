@@ -1,0 +1,6 @@
+<h2>Assessment warnings and errors</h2>
+<p>Repeated messages are grouped with their occurrence counts. Select an affected element to highlight and frame it in the 3D viewer. Some IFC records describe non-geometric data and have no renderable element.</p>
+{% for group in report.diagnostic_groups %}<details class="bim-diagnostic-group"><summary><strong>{{ group.category }}</strong>: {{ group.summary }} <strong>— {{ group.count }} occurrence{{ group.count|pluralize }}</strong></summary>
+{% if group.attribute %}<p>Attribute or rule: {{ group.attribute }}</p>{% endif %}
+<details><summary>Technical explanation</summary><pre class="bim-diagnostic-message">{{ group.message }}</pre></details>
+<ul>{% for element in group.elements %}<li><a href="{% url 'bim:viewer' document.upload_id %}?element={{ element.element_id|urlencode }}" hx-get="{% url 'bim:viewer' document.upload_id %}?element={{ element.element_id|urlencode }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">{{ element.display_name|default:element.name }}</a></li>{% empty %}<li>No associated geometric element. Review the technical explanation.</li>{% endfor %}</ul></details>{% empty %}<p>No assessment diagnostics recorded.</p>{% endfor %}

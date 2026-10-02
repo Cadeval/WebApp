@@ -1,0 +1,75 @@
+{
+  "thesis_sources": [
+    {
+      "name": "Master_thesis_june_2026.docx",
+      "sha256": "61f655ebbbadde3364a736db2c46589eb32bf4ba7bd9c4b1004f6bdee651ae13",
+      "paragraphs": 961
+    },
+    {
+      "name": "Master_thesis_completed_revised.docx",
+      "sha256": "26e39cb98e88153e2a4eb7edefd4a021cbd4ec3556a15d0c82b8c01782222a6b",
+      "paragraphs": 630
+    }
+  ],
+  "workbook": "/Users/mia/Library/Mobile Documents/com~apple~CloudDocs/Cadevil/Tables June 2026/MP indicators and modfications.xlsx",
+  "workbook_sha256": "4bbefa2e1a6d0694258baaaf44140b4275286bcca9795b6086e98d656ac87d0e",
+  "records": 115,
+  "missing_coefficients": {
+    "Dichte": 16,
+    "GWP": 16,
+    "AP": 16,
+    "PENRT": 16,
+    "Nutzungsdauer": 17
+  },
+  "latest_workbook_fixture": {
+    "mass_kg": 8250.0,
+    "global_gross_cost": 729.4999999999999,
+    "complete": true,
+    "source_unchanged": true
+  },
+  "accepted_scenario": {
+    "years": 50,
+    "include_endpoint": true,
+    "grade_weighting": "mass",
+    "lca_averaging": "installed_mass",
+    "replacement_method": "discrete",
+    "excluded_classes": [
+      "IfcWindow",
+      "IfcDoor",
+      "IfcWindowStandardCase",
+      "IfcDoorStandardCase"
+    ]
+  },
+  "independent_arithmetic": {
+    "mass": 8250,
+    "mass_observation": 10350,
+    "gwp_a1_a3": 2064.3,
+    "gwp_b4": 903,
+    "gwp_a1_a3_b4": 2967.3,
+    "waste_mass": 5925,
+    "recyclable_mass": 2325,
+    "recycling_grade": 2.8727272727272726
+  },
+  "installed_mass_gwp_average": 0.3596727272727273,
+  "native_workbook_workflow": {
+    "native_upload_status": 302,
+    "native_assessment_status": 302,
+    "imported_records": 115,
+    "mass_kg": 8250.0,
+    "global_gross_cost": 729.4999999999999,
+    "options": {
+      "years": 50,
+      "include_endpoint": true,
+      "grade_weighting": "mass",
+      "lca_averaging": "installed_mass",
+      "replacement_method": "discrete",
+      "excluded_classes": [
+        "IfcWindow",
+        "IfcDoor",
+        "IfcWindowStandardCase",
+        "IfcDoorStandardCase"
+      ]
+    },
+    "reference_sha256": "4bbefa2e1a6d0694258baaaf44140b4275286bcca9795b6086e98d656ac87d0e"
+  }
+}
