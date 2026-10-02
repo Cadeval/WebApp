@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse, resolve
 
-from apps.plugin_manager.models import PluginRecord
+from apps.plugin_manager.models import PluginRecord, UserPluginSelection
 from apps.plugin_manager.registry import PluginRegistry, NAV_ITEM_EXTENSION_POINT
 from apps.plugins.bim_model_manager import PLUGIN_ID, plugin_manifest
 from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics
@@ -25,7 +25,9 @@ class BimPageIntegrationTests(TestCase):
         setting.enable(); self.addCleanup(setting.disable)
         self.user = get_user_model().objects.create_user(username='bim-pages', password='test-password')
         self.other = get_user_model().objects.create_user(username='other-pages')
-        PluginRecord.objects.update_or_create(plugin_id=PLUGIN_ID, defaults={'enabled': True})
+        self.bim_plugin,_=PluginRecord.objects.update_or_create(plugin_id=PLUGIN_ID, defaults={'enabled': True})
+        for user in (self.user,self.other):
+            UserPluginSelection.objects.create(user=user,plugin=self.bim_plugin)
         self.client = BoltBrowser()
         self.addCleanup(self.client.close)
         self.client.force_login(self.user)

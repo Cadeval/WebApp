@@ -20,7 +20,7 @@ from apps.plugin_manager.manifest import (
     PluginManifest,
     is_api_version_compatible,
 )
-from apps.plugin_manager.models import PluginRecord
+from apps.plugin_manager.models import PluginRecord, UserPluginSelection
 from apps.plugin_manager.registry import (
     EDITOR_PLUGIN_EXTENSION_POINT,
     NAV_ITEM_EXTENSION_POINT,
@@ -347,12 +347,13 @@ class NativePluginTests(TestCase):
         fragment=self.client.get("/plugins/manage/",HTTP_HX_REQUEST="true")
         self.assertNotContains(fragment,"<html"); self.assertContains(fragment,'id="content-container"',count=1)
 
-    def test_anonymous_and_nonstaff_cannot_manage(self):
+    def test_anonymous_redirects_and_regular_users_only_browse_or_publish(self):
         self.client.logout(); self.assertEqual(self.client.get("/plugins/manage/").status_code,302)
         self.client.force_login(self.regular)
-        self.assertEqual(self.client.get("/plugins/manage/").status_code,403)
-        for path in [self.action("enable"),self.action("disable"),"/plugins/reload/","/plugins/upload/"]:
+        self.assertEqual(self.client.get("/plugins/manage/").status_code,200)
+        for path in [self.action("enable"),self.action("disable"),"/plugins/reload/"]:
             self.assertEqual(self.client.post(path).status_code,403)
+        self.assertEqual(self.client.post("/plugins/upload/").status_code,400)
 
     def test_mutations_are_post_only_and_csrf_protected(self):
         for path in [self.action("enable"),self.action("disable"),"/plugins/reload/","/plugins/upload/"]:
@@ -382,11 +383,15 @@ class NativePluginTests(TestCase):
         path="/plugins/uploaded-test/assets/worker.js"
         self.assertEqual(self.client.get(path).status_code,404)
         self.assertEqual(self.client.post("/plugins/uploaded-test/enable/").status_code,200)
+        self.assertEqual(self.client.get(path).status_code,404)
+        self.assertEqual(self.client.post("/plugins/store/uploaded-test/enable/",HTTP_HX_REQUEST="true").status_code,200)
         response=self.client.get(path); self.assertEqual(response.status_code,200)
         self.assertEqual(response['X-Content-Type-Options'],'nosniff')
         self.assertEqual(response['Cache-Control'],'private, no-store')
         self.assertIn("connect-src 'none'",response['Content-Security-Policy'])
-        self.client.logout(); self.client.force_login(self.regular); self.assertEqual(self.client.get(path).status_code,200)
+        self.client.logout(); self.client.force_login(self.regular); self.assertEqual(self.client.get(path).status_code,404)
+        self.assertEqual(self.client.post("/plugins/store/uploaded-test/enable/",HTTP_HX_REQUEST="true").status_code,200)
+        self.assertEqual(self.client.get(path).status_code,200)
         self.client.logout(); self.assertEqual(self.client.get(path).status_code,302)
 
     def test_plugin_upload_is_outside_public_media_storage(self):
@@ -397,11 +402,13 @@ class NativePluginTests(TestCase):
 
     def test_disabled_or_error_upload_artifact_is_unavailable(self):
         self.upload(); record=PluginRecord.objects.get(plugin_id="uploaded-test")
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         record.enabled=True; record.error="failed"; record.save()
         self.assertEqual(self.client.get("/plugins/uploaded-test/assets/worker.js").status_code,404)
 
     def test_missing_uploaded_file_returns_not_found(self):
         self.upload(); record=PluginRecord.objects.get(plugin_id="uploaded-test")
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         record.enabled=True; record.save(); record.artifact.delete(save=False)
         self.assertEqual(self.client.get("/plugins/uploaded-test/assets/worker.js").status_code,404)
 
@@ -413,16 +420,19 @@ class NativePluginTests(TestCase):
     def test_upload_wasm_header_and_editor_urls(self):
         self.assertEqual(self.upload(wasm=True).status_code,201)
         record=PluginRecord.objects.get(plugin_id="uploaded-test"); record.set_enabled(True)
-        items=plugin_editor_items(RequestFactory().get("/"))["plugin_editor_items"]
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
+        request=RequestFactory().get("/");request.user=self.staff
+        items=plugin_editor_items(request)["plugin_editor_items"]
         item=next(item for item in items if item.id==record.plugin_id)
         self.assertEqual(item.worker_url,"/static/js/plugins/wasm_plugin_worker.js?v=20261002-plugins")
         self.assertEqual(item.wasm_url,"/plugins/uploaded-test/assets/calculator.wasm")
 
     def test_native_configuration_editor_contains_upload_controls(self):
         self.upload()
-        PluginRecord.objects.get(plugin_id="uploaded-test").set_enabled(True)
+        record=PluginRecord.objects.get(plugin_id="uploaded-test");record.set_enabled(True)
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         from apps.plugin_manager.context_processors import _uploaded_editor_items
-        html=render_to_string("bim/editor.html",{"plugin_editor_items":_uploaded_editor_items(),"fragment":True})
+        html=render_to_string("bim/editor.html",{"plugin_editor_items":_uploaded_editor_items(self.staff),"fragment":True})
         self.assertIn('data-editor-plugin="uploaded-test"',html)
         self.assertIn('data-worker-url="/plugins/uploaded-test/assets/worker.js"',html)
         self.assertIn('data-plugin-action="run"',html)
@@ -441,6 +451,7 @@ class NativePluginTests(TestCase):
     def test_browser_pages_require_active_package_and_authentication(self):
         for plugin_id,path,title in [(EXAMPLE_PLUGIN_ID,"/plugins/ifc-editor/","IFC Editor"),(RUST_EXAMPLE_PLUGIN_ID,"/plugins/rust-snake/","Snake")]:
             record,_=PluginRecord.objects.update_or_create(plugin_id=plugin_id,defaults={"enabled":True,"error":""})
+            UserPluginSelection.objects.get_or_create(user=self.staff,plugin=record)
             response=self.client.get(path,HTTP_HX_REQUEST="true"); self.assertContains(response,title)
             self.assertContains(response,'id="content-container"',count=1)
             self.assertNotContains(response,"<html")
@@ -451,6 +462,7 @@ class NativePluginTests(TestCase):
 
     def test_bim_error_gate_blocks_enabled_record_with_error(self):
         record,_=PluginRecord.objects.update_or_create(plugin_id="cadevil.bim.model_manager",defaults={"enabled":True,"error":"failed"})
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         self.assertEqual(self.client.get("/plugins/bim/model_manager/").status_code,404)
 
     def test_full_page_navigation_remains_regular_link(self):

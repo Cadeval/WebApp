@@ -1,0 +1,10 @@
+{% load static %}
+<section {% if fragment %}id="content-container"{% endif %} class="plugin-store" aria-labelledby="plugin-workflow-title">
+    <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261003-user-plugins">
+    <div class="plugin-store-heading">
+        <span class="viewer-eyebrow">Your workflow tool</span>
+        <h1 id="plugin-workflow-title">{{ record.name|default:record.plugin_id }}</h1>
+        <p><a href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to Plugin Store</a></p>
+    </div>
+    {% include 'plugin_manager/editor_panels.html' %}
+</section>

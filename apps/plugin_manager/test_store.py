@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from .packages import validate_package
-from .models import PluginRecord, PluginSigningKey
+from .models import PluginRecord, PluginSigningKey, UserPluginSelection
 from .context_processors import _uploaded_editor_items
 from . import tests as existing_tests
 from .signatures import canonical_payload
@@ -90,27 +90,32 @@ class PluginStoreTests(TestCase):
         return self.client.post(endpoint,{**(data or {}),'artifact':SimpleUploadedFile('plugin.zip',content,content_type='application/zip')},HTTP_HX_REQUEST='true')
 
     def test_store_page_full_fragment_search_and_user_permissions(self):
-        record=PluginRecord.objects.create(plugin_id='catalog.example',name='Searchable tool',enabled=False)
+        record=PluginRecord.objects.create(plugin_id='catalog.example',name='Searchable tool',enabled=True)
+        self.assertContains(self.client.get('/plugins/manage/'),'Searchable tool')
+        self.assertNotContains(self.client.get('/plugins/store/'),'Searchable tool')
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         self.assertContains(self.client.get('/plugins/store/'),'Plugin Store')
         fragment=self.client.get('/plugins/store/',HTTP_HX_REQUEST='true')
         self.assertNotContains(fragment,'<html');self.assertContains(fragment,'id="content-container"',count=1)
         self.assertContains(self.client.get('/plugins/store/',{'q':'Searchable'}),'Searchable tool')
         self.assertNotContains(self.client.get('/plugins/store/',{'q':'Missing'}),'Searchable tool')
         self.client.logout();self.client.force_login(self.regular)
-        self.assertContains(self.client.get('/plugins/store/'),'Searchable tool')
-        self.assertContains(self.client.get('/plugins/store/'),'Upload a plugin')
+        self.assertContains(self.client.get('/plugins/manage/'),'Searchable tool')
+        self.assertNotContains(self.client.get('/plugins/store/'),'Searchable tool')
+        self.assertContains(self.client.get('/plugins/manage/'),'Signed plugin package')
         self.assertEqual(self.upload_zip().status_code,403)
-        self.assertEqual(self.client.post('/plugins/store/catalog.example/enable/').status_code,403)
+        self.assertEqual(self.client.post('/plugins/store/catalog.example/enable/',HTTP_HX_REQUEST='true').status_code,200)
+        self.assertContains(self.client.get('/plugins/store/'),'Searchable tool')
         self.client.logout();self.assertEqual(self.client.get('/plugins/store/').status_code,302)
 
     def test_archive_only_form_and_raw_file_rejection_on_both_upload_routes(self):
         from .forms import PluginUploadForm
         self.assertEqual(list(PluginUploadForm().fields),['artifact'])
-        for route in ['/plugins/store/','/plugins/manage/']:
-            response=self.client.get(route)
-            self.assertNotContains(response,'name="plugin_id"')
-            self.assertNotContains(response,'name="name"')
-            self.assertContains(response,'Signed plugin package')
+        response=self.client.get('/plugins/manage/')
+        self.assertNotContains(response,'name="plugin_id"')
+        self.assertNotContains(response,'name="name"')
+        self.assertContains(response,'Signed plugin package')
+        self.assertNotContains(self.client.get('/plugins/store/'),'name="artifact"')
         for route in ['/plugins/store/upload/','/plugins/upload/']:
             for filename,content,mime in [('worker.js',JS,'text/javascript'),('worker.mjs',JS,'text/javascript'),('calculator.wasm',b'\x00asm\x01\x00\x00\x00','application/wasm')]:
                 response=self.client.post(route,{'artifact':SimpleUploadedFile(filename,content,content_type=mime)},HTTP_HX_REQUEST='true')
@@ -120,7 +125,7 @@ class PluginStoreTests(TestCase):
     def test_legacy_single_file_endpoint_and_editor_contribution_are_removed(self):
         legacy=PluginRecord.objects.create(plugin_id='legacy',source='upload',artifact_type='js',enabled=True,artifact='plugins/old.js')
         self.assertEqual(self.client.get('/plugins/legacy/artifact/').status_code,404)
-        self.assertEqual(_uploaded_editor_items(),[])
+        self.assertEqual(_uploaded_editor_items(self.staff),[])
         from .models import PluginActivationError
         with self.assertRaises(PluginActivationError):legacy.set_enabled(True)
 
@@ -136,13 +141,15 @@ class PluginStoreTests(TestCase):
         self.upload_zip()
         path='/plugins/zip.calculator/assets/lib/calc.js'
         self.assertEqual(self.client.get(path).status_code,404)
+        self.assertEqual(self.client.post('/plugins/store/zip.calculator/enable/',HTTP_HX_REQUEST='true').status_code,409)
+        self.assertEqual(self.client.post('/plugins/zip.calculator/enable/').status_code,200)
         response=self.client.post('/plugins/store/zip.calculator/enable/',HTTP_HX_REQUEST='true')
-        self.assertContains(response,'Plugin enabled.');self.assertContains(response,'hx-swap-oob="outerHTML"')
+        self.assertContains(response,'Plugin enabled for your workflow.');self.assertContains(response,'hx-swap-oob="outerHTML"')
         self.assertEqual(response['HX-Push-Url'],'false')
         response=self.client.get(path);self.assertEqual(response.status_code,200);self.assertIn(b'calculate',response.content)
         self.assertIn('script-src',response['Content-Security-Policy']);self.assertIn("connect-src 'none'",response['Content-Security-Policy'])
         self.assertEqual(response['Cache-Control'],'private, no-store')
-        self.assertEqual(_uploaded_editor_items()[0].worker_url,'/plugins/zip.calculator/assets/worker.js')
+        self.assertEqual(_uploaded_editor_items(self.staff)[0].worker_url,'/plugins/zip.calculator/assets/worker.js')
         self.assertEqual(self.client.get('/plugins/zip.calculator/assets/plugin.json').status_code,404)
         self.assertEqual(self.client.get('/plugins/zip.calculator/assets/missing.js').status_code,404)
         self.client.post('/plugins/store/zip.calculator/disable/',HTTP_HX_REQUEST='true')
@@ -150,6 +157,7 @@ class PluginStoreTests(TestCase):
 
     def test_asset_auth_error_and_integrity_checks(self):
         self.upload_zip();record=PluginRecord.objects.get(plugin_id='zip.calculator');record.set_enabled(True)
+        UserPluginSelection.objects.create(user=self.staff,plugin=record)
         path='/plugins/zip.calculator/assets/worker.js'
         self.client.logout();self.assertEqual(self.client.get(path).status_code,302)
         self.client.force_login(self.staff)
@@ -168,6 +176,8 @@ class PluginStoreTests(TestCase):
     def test_manager_also_accepts_zip_upload(self):
         response=self.upload_zip(endpoint='/plugins/upload/')
         self.assertEqual(response.status_code,201);self.assertTrue(PluginRecord.objects.filter(plugin_id='zip.calculator',enabled=False).exists())
+        self.assertContains(response,'id="content-container"',count=1,status_code=201)
+        self.assertNotContains(response,'<html',status_code=201)
 
     def test_csrf_and_post_only_store_management(self):
         self.client.auto_csrf=False

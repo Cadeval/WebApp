@@ -54,7 +54,9 @@ class BoltBrowser:
             headers['Content-Type'] = content_type
         if method == 'POST' and self.auto_csrf:
             if 'csrftoken' not in self.transport.cookies:
-                self.get('/plugins/bim/model_manager/')
+                self.get('/plugins/manage/')
+                if 'csrftoken' not in self.transport.cookies:
+                    self.get('/plugins/bim/model_manager/')
             headers['X-CSRFToken'] = self.transport.cookies.get('csrftoken', '')
         contexts = []
         def capture(sender, template, context, **_):

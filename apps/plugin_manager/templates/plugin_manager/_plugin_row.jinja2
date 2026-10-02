@@ -1,62 +1,23 @@
-{% load static %}
 <tr id="plugin-row-{{ record.plugin_id }}" class="plugin-row{% if record.has_error %} plugin-row--error{% endif %}">
-    <th scope="row" class="plugin-identity">
-        <strong>{{ record.name }}</strong>
-        <code>{{ record.plugin_id }}</code>
-        <span class="plugin-status">{{ record.get_compatibility_display }}</span>
-    </th>
-    <td>{{ record.version|default:"—" }}</td>
-    <td>{{ record.api_version|default:"—" }}</td>
-    <td>{{ record.priority }}</td>
+    <th scope="row" class="plugin-identity"><strong>{{ record.name|default:record.plugin_id }}</strong><code>{{ record.plugin_id }}</code><span class="plugin-status">{{ record.get_compatibility_display }}</span>{% if description %}<span class="plugin-row-description">{{ description }}</span>{% endif %}</th>
+    <td>{{ record.version|default:'—' }}</td><td>{{ record.api_version|default:'—' }}</td><td>{{ record.priority }}</td>
     <td aria-live="polite">
-        {% if not record.environment_compatible %}
-            <span class="plugin-status">Unavailable in this environment</span>
-        {% elif record.enabled %}
-            <span class="plugin-status plugin-status--enabled">
-                <span class="fa fa-check-circle" aria-hidden="true"></span> Enabled
-            </span>
-        {% elif record.has_error %}
-            <span class="plugin-status plugin-status--error">
-                <span class="fa fa-exclamation-circle" aria-hidden="true"></span> Error
-            </span>
-        {% else %}
-            <span class="plugin-status plugin-status--disabled">
-                <span class="fa fa-pause-circle" aria-hidden="true"></span> Disabled
-            </span>
-        {% endif %}
+        {% if not record.environment_compatible %}<span class="plugin-status">Unavailable in this environment</span>
+        {% elif record.has_error %}<span class="plugin-status plugin-status--error"><span class="fa fa-exclamation-circle" aria-hidden="true"></span> Error</span>
+        {% elif record.enabled %}<span class="plugin-status plugin-status--enabled"><span class="fa fa-check-circle" aria-hidden="true"></span> Enabled for the site</span>
+        {% else %}<span class="plugin-status plugin-status--disabled"><span class="fa fa-pause-circle" aria-hidden="true"></span> Disabled for the site</span>{% endif %}
     </td>
-    <td class="plugin-error-cell">
-        {% if record.has_error %}
-            <span title="{{ record.error }}">{{ record.error }}</span>
-        {% else %}
-            <span aria-hidden="true">—</span>
-        {% endif %}
-    </td>
+    <td class="plugin-error-cell">{% if record.has_error %}<span>{{ record.error }}</span>{% else %}<span aria-hidden="true">—</span>{% endif %}</td>
     <td class="plugin-actions">
-        {% if record.enabled %}
-            <button type="button"
-                    class="button plugin-action-button fa fa-toggle-off"
-                    hx-post="{% url 'plugin_manager:plugin_disable' record.plugin_id %}"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-target="closest tr"
-                    hx-swap="outerHTML">
-                Disable
-            </button>
-        {% elif not record.has_error and record.environment_compatible %}
-            <button type="button"
-                    class="button plugin-action-button fa fa-toggle-on"
-                    hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}"
-                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-                    hx-target="closest tr"
-                    hx-swap="outerHTML">
-                Enable
-            </button>
-        {% else %}
-            <span class="plugin-action-unavailable"
-                  title="Resolve the error and rediscover this plugin before enabling it.">
-                <span class="fa fa-ban" aria-hidden="true"></span>
-                Unavailable
-            </span>
+        <div class="plugin-global-actions">
+            {% if record.enabled %}<button type="button" class="button plugin-action-button fa fa-toggle-off" hx-post="{% url 'plugin_manager:plugin_disable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="closest tr" hx-swap="outerHTML" hx-disabled-elt="this">Disable globally</button>
+            {% elif not record.has_error and record.environment_compatible %}<button type="button" class="button plugin-action-button fa fa-toggle-on" hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="closest tr" hx-swap="outerHTML" hx-disabled-elt="this">Enable globally</button>
+            {% else %}<span class="plugin-action-unavailable">Unavailable</span>{% endif %}
+            {% if record.artifact_type == 'zip' %}<a href="{% url 'plugin_manager:plugin_package_download' record.plugin_id %}" hx-boost="false">Review package</a>{% endif %}
+        </div>
+        {% if is_workflow %}
+            {% if selected %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disabled-elt="this">Remove from my store</button></form>
+            {% elif available %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disabled-elt="this">Add to my store</button></form>{% endif %}
         {% endif %}
     </td>
 </tr>

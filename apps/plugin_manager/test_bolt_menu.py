@@ -31,10 +31,12 @@ class PluginMenuTests(TestCase):
         self.assertNotContains(fragment,'<html')
         self.assertContains(fragment,'id="content-container"',count=1)
 
-    def test_nonstaff_cannot_access_manager_or_actions(self):
+    def test_regular_users_can_browse_manager_without_global_actions(self):
         self.client.force_login(self.regular)
-        self.assertNotContains(self.client.get('/'),'href="'+self.url+'"')
-        self.assertEqual(self.client.get(self.url).status_code,403)
+        self.assertContains(self.client.get('/'),'hx-get="'+self.url+'"')
+        response=self.client.get(self.url)
+        self.assertEqual(response.status_code,200)
+        self.assertNotContains(response,self.record.name)
         action=reverse('plugin_manager:plugin_enable',args=[self.record.plugin_id])
         self.assertEqual(self.client.post(action).status_code,403)
         self.record.refresh_from_db();self.assertFalse(self.record.enabled)

@@ -141,11 +141,11 @@
 
 
 
+        <a class="button-wide fa fa-plug" href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugin Manager</a>
         <a class="button-wide fa fa-puzzle-piece" href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugin Store</a>
         {% include "plugin_manager/_plugin_nav_items.jinja2" %}
 
         {% if user.is_staff %}
-            <a class="button-wide fa fa-plug" href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugin Manager</a>
             <a href="/admin/" hx-boost="false">
                 <button class='button-wide fa fa-shield'>
                     Django Admin Panel

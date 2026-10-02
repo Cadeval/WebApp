@@ -178,24 +178,39 @@ cargo run --manifest-path apps/rust_example_plugin/Cargo.toml --bin build-wasm
 
 ### Uploaded plugins
 
-Staff users can upload a single `.js`, `.mjs`, or `.wasm` file from **Plugin Manager**. Uploads are validated,
-content-hashed, recorded with their uploader, and disabled until explicitly loaded. Use the same page, REST actions, or
-the central `manage_plugin(plugin_id, action)` function to load and unload plugins; these lifecycle transitions are
-logged by the `plugin_manager` logger.
+**Plugin Manager** (`/plugins/manage/`) is the site-wide catalog. Authenticated users can browse approved tools and
+publish signed ZIP, TAR, tar.gz or tar.xz browser packages using their own registered signing key. Generate a key in
+the web interface, sign your archive locally with the downloaded CLI, and upload it for administrator review. Package
+metadata comes from `plugin.json`; individual JavaScript/WASM uploads are rejected.
+
+Administrators review uploaded code and control site availability. **Plugin Store** (`/plugins/store/`) contains each
+user's explicit workflow selections. Adding or removing a plugin changes only that user's collection. Navigation,
+editor panels, workflow pages and uploaded worker assets require both a personal selection and current site approval.
+Existing users start with an empty collection: add BIM Workspace from Manager to resume BIM workflows. Saved models
+and reports remain associated with their owners.
+
+Uploaded browser plugins have an independent worker page and do not require selecting BIM Workspace. Administrator
+disable, discovery failure, environment mismatch or signing-key revocation blocks use while retaining the user's
+choice in Store. Developer MCP tools remain administrator-controlled debug services and are excluded from personal
+workflow collections.
 
 Use **Reload plugins** in the Plugin Manager to discover newly installed plugins without restarting the application. The
-same audited operation is available through `reload_plugins()`, `POST /api/plugins/reload/`, and:
+same audited operation is available through `reload_plugins()`, `POST /plugins/reload/`, and:
 
 ```bash
-python manage.py plugins reload
+uv run python manage.py plugins reload
 ```
 
 Uploaded code is never imported by Python or inserted into the page. JavaScript runs only in a dedicated module worker
-served with a restrictive CSP that blocks network connections, nested workers, object loading, and dynamic module
-imports. WebAssembly is instantiated with no host imports inside a host-owned worker. Worker messages are
+served with a restrictive CSP that blocks network connections, nested workers and object loading; module imports are
+limited to the verified package assets. WebAssembly is instantiated with no host imports inside a host-owned worker. Worker messages are
 schema-checked, execution has a time limit, and workers are terminated when unloaded or replaced. Installed Python
 entry-point packages are administrator-installed trusted host integrations and must be reviewed like any other server
 dependency.
+
+The administrator-managed external repository proposal is documented in
+[docs/external-plugin-repositories.md](docs/external-plugin-repositories.md). Repository fetching is not enabled yet;
+the design keeps remote catalog trust, package review and personal workflow selection separate.
 
 ## 🧪 Testing
 

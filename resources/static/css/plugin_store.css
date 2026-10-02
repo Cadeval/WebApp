@@ -22,3 +22,37 @@
 .plugin-store fieldset {border:0;padding:0;min-width:0;}
 .plugin-store fieldset label {display:flex;flex-direction:column;gap:.5rem;}
 .plugin-store pre {white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;background:var(--secondary-bg);}
+
+.plugin-manager-shell a {color:var(--primary-color);text-underline-offset:.2em;}
+.plugin-manager-shell > * {min-width:0;}
+.plugin-manager-shell .plugin-table-viewport {width:100%;min-width:0;}
+.plugin-manager-shell .plugin-actions {min-width:12rem;white-space:normal;}
+.plugin-manager-shell .plugin-global-actions .plugin-action-button {white-space:normal;}
+.plugin-manager-summary {flex-wrap:wrap;justify-content:center;max-width:100%;white-space:normal;}
+.plugin-manager-shell .plugin-store-search {margin:1rem 0;}
+.plugin-manager-shell .plugin-catalog-card > .plugin-store-search {margin:1rem 1.5rem;}
+.plugin-manager-shell .plugin-manager-hero p,.plugin-manager-shell .plugin-section-heading p,.plugin-manager-shell .plugin-help-text,.plugin-manager-shell .plugin-identity code,.plugin-manager-shell .plugin-field-error,.plugin-manager-shell .plugin-reload-status,.plugin-manager-shell .plugin-status--enabled,.plugin-manager-shell .plugin-status--error,.plugin-manager-shell .plugin-row--error .plugin-error-cell {color:var(--primary-color);}
+.plugin-manager-shell .viewer-eyebrow,.plugin-store .viewer-eyebrow {color:var(--primary-color);opacity:.75;}
+.plugin-manager-shell .plugin-store-search input {flex:1;min-width:10rem;padding:.55rem .75rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);}
+.plugin-manager-shell .plugin-store-search button,.plugin-manager-shell .plugin-actions form button,.plugin-manager-shell .plugin-collection-actions button {padding:.55rem .9rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);cursor:pointer;}
+.plugin-manager-shell .plugin-store-search button:hover,.plugin-manager-shell .plugin-actions form button:hover,.plugin-manager-shell .plugin-collection-actions button:hover {background:var(--primary-bg);}
+.plugin-manager-shell button:disabled {opacity:.6;cursor:wait;}
+.plugin-manager-shell input:focus-visible,.plugin-manager-shell button:focus-visible,.plugin-manager-shell a:focus-visible {outline:2px solid var(--primary-color);outline-offset:3px;}
+.plugin-manager-shell .plugin-store-grid .editor-plugin-card {justify-content:flex-start;gap:.75rem;}
+.plugin-manager-shell .plugin-store-grid h2,.plugin-manager-shell .plugin-store-grid p {margin:0;}
+.plugin-collection-actions {display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:auto;padding-top:.5rem;}
+.plugin-collection-actions form {margin:0;}
+.plugin-open-tool {padding:.55rem .9rem;border:1px solid var(--primary-color);border-radius:.5rem;text-decoration:none;color:var(--primary-color);background:var(--primary-bg);}
+.plugin-collection-empty {grid-column:1/-1;padding:2rem;border:1px dashed var(--border-low-contrast);border-radius:var(--border-radius);text-align:center;background:var(--secondary-bg);}
+.plugin-collection-empty h2,.plugin-collection-empty h3 {margin:.75rem 0;}
+.plugin-collection-empty p {margin:0 0 1rem;}
+.plugin-publishing-links {display:flex;gap:1rem;flex-wrap:wrap;}
+.plugin-global-actions {display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem;}
+.plugin-actions form {margin:0;}
+.plugin-row-description {font-weight:400;max-width:26rem;white-space:normal;}
+.plugin-availability-message {color:var(--primary-color);padding:.6rem .75rem;background:var(--secondary-bg);border:1px solid var(--border-low-contrast);border-radius:.5rem;}
+
+@media (max-width:48rem) {
+  .plugin-manager-shell .plugin-manager-hero {flex-direction:column;align-items:stretch;}
+  .plugin-manager-shell .plugin-manager-summary {align-self:flex-start;border-radius:var(--border-radius);}
+}

@@ -115,3 +115,20 @@ class PluginSigningKey(models.Model):
         ordering=["-created_at"]
 
     def __str__(self): return f"{self.label} ({self.fingerprint[:16]})"
+
+
+class UserPluginSelection(models.Model):
+    """An explicit workflow choice; site availability remains administrator-owned."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                             related_name="plugin_selections")
+    plugin = models.ForeignKey(PluginRecord, on_delete=models.CASCADE,
+                               related_name="user_selections")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["user", "plugin"],
+                                               name="unique_user_plugin_selection")]
+
+    def __str__(self):
+        return f"{self.user_id}: {self.plugin.plugin_id}"

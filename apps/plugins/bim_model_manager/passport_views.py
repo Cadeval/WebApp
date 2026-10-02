@@ -2,31 +2,31 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from apps.plugin_manager.models import PluginRecord
-from apps.plugin_manager.environments import active_plugin
+from apps.plugin_manager.workflows import workflow_plugin_enabled
 from . import PLUGIN_ID
 
 
-def _enabled():
-    if not active_plugin(PLUGIN_ID):
-        raise Http404('BIM assessment plugin is not enabled.')
+def _enabled(request):
+    if not workflow_plugin_enabled(request.user, PLUGIN_ID):
+        raise Http404('Add BIM Workspace to your Plugin Store to use this workflow.')
 
 
 @login_required(login_url='/mycelium/login')
 def calculate(request):
-    _enabled()
+    _enabled(request)
     from apps.shared.assessment_web import calculate as handler
     return handler(request)
 
 
 @login_required(login_url='/mycelium/login')
 def report(request,pk):
-    _enabled()
+    _enabled(request)
     from apps.shared.assessment_web import report as handler
     return handler(request,pk)
 
 
 @login_required(login_url='/mycelium/login')
 def compare(request):
-    _enabled()
+    _enabled(request)
     from apps.shared.assessment_web import compare as handler
     return handler(request)

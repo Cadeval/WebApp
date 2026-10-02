@@ -9,7 +9,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from apps.plugin_manager.models import PluginRecord
+from apps.plugin_manager.models import PluginRecord, UserPluginSelection
 from apps.plugin_manager.registry import PluginRegistry
 from apps.plugins.bim_model_manager import PLUGIN_ID, plugin_manifest
 from .models import BuildingMetrics, CadevilDocument, ConfigUpload, FileUpload
@@ -23,7 +23,8 @@ class MaterialPassportWebTests(TestCase):
         self.settings.enable()
         self.addCleanup(self.settings.disable);self.addCleanup(self.directory.cleanup)
         self.user=get_user_model().objects.create_user(username='passport',password='test-pass')
-        PluginRecord.objects.update_or_create(plugin_id=PLUGIN_ID,defaults={'enabled':True})
+        self.bim_plugin,_=PluginRecord.objects.update_or_create(plugin_id=PLUGIN_ID,defaults={'enabled':True})
+        UserPluginSelection.objects.create(user=self.user,plugin=self.bim_plugin)
         self.url=reverse('material_passport:calculate')
         self.client = BoltBrowser()
         self.addCleanup(self.client.close)
@@ -63,6 +64,7 @@ class MaterialPassportWebTests(TestCase):
         self.assertEqual(downloaded.json()['provenance']['ifc_schema'],'IFC4')
         self.assertIn('configuration',downloaded.json()['provenance'])
         other=get_user_model().objects.create_user(username='other',password='test-pass')
+        UserPluginSelection.objects.create(user=other,plugin=self.bim_plugin)
         self.client.force_login(other)
         self.assertEqual(self.client.get(response.url).status_code,404)
         self.assertEqual(self.client.get(response.url+'?download=json').status_code,404)
@@ -123,6 +125,7 @@ class MaterialPassportWebTests(TestCase):
         csv_response=self.client.get(response.url+'?download=recovery_csv')
         self.assertContains(csv_response,'known_cost_eur')
         other=get_user_model().objects.create_user(username='cost-other')
+        UserPluginSelection.objects.create(user=other,plugin=self.bim_plugin)
         self.client.force_login(other)
         self.assertEqual(self.client.get(response.url+'?download=recovery_csv').status_code,404)
 

@@ -1,34 +1,24 @@
-# from plugin_manager.services import create_uploaded_plugin
-# from plugin_manager.forms import PluginUploadForm
-# from plugin_manager.services import staff_required
-import msgspec
-from django.contrib.auth import get_user_model
-from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404, HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.vary import vary_on_headers
-from django_bolt import BoltAPI, IsAuthenticated, JWTAuthentication, Response
-from django.shortcuts import render
-from apps.shared.page_views import render_page
+from django_bolt import BoltAPI, AllowAny
 from apps.shared.bolt_pages import page_endpoint
-from django_bolt import AllowAny
 from django_bolt.request import Request
 
-from apps import plugin_manager
-from apps.plugin_manager.forms import PluginUploadForm
 from apps.plugin_manager.models import PluginActivationError, PluginRecord
 from apps.plugin_manager.services import (
-    create_uploaded_plugin,
     manage_plugin,
     reload_plugins,
 )
 from apps.shared.services import staff_required
+from .store import catalog_entry, catalog_response, plugin_catalog, store_upload
+from .models import UserPluginSelection
 
-# from apps.plugin_manager.models import PluginActivationError, PluginRecord
-# from apps.plugin_manager.services import manage_plugin, reload_plugins
 
+def _row_context(request, record):
+    selected = UserPluginSelection.objects.filter(user=request.user, plugin=record).exists()
+    return catalog_entry(record, selected)
 
 api = BoltAPI(namespace="plugin_manager",trailing_slash="keep",django_middleware=True)
 
@@ -39,11 +29,11 @@ def _toggle(request: HttpRequest, plugin_id: str, enabled: bool) -> HttpResponse
         manage_plugin(plugin_id, "load" if enabled else "unload")
     except PluginActivationError:
         record.refresh_from_db()
-        response = render(request, "plugin_manager/_plugin_row.jinja2", {"record": record}, status=409)
+        response = render(request, "plugin_manager/_plugin_row.jinja2", _row_context(request, record), status=409)
         response["HX-Push-Url"] = "false"
         return response
     record.refresh_from_db()
-    response = render(request, "plugin_manager/_plugin_toggle.jinja2", {"record": record})
+    response = render(request, "plugin_manager/_plugin_toggle.jinja2", _row_context(request, record))
     response["HX-Push-Url"] = "false"
     return response
 
@@ -58,29 +48,9 @@ def plugin_disable(request: HttpRequest, plugin_id: str) -> HttpResponse:
     return _toggle(request, plugin_id, False)
 
 
-@staff_required
+@login_required(login_url='/mycelium/login')
 def plugin_upload(request: HttpRequest) -> HttpResponse:
-    form = PluginUploadForm(request.POST, request.FILES)
-    if not form.is_valid():
-        response = render_page(
-            request,
-            "plugin_manager/plugins.jinja2",
-            {"records": PluginRecord.objects.all(), "upload_form": form},
-            status=400,
-        )
-        response["HX-Retarget"] = "#content-container"
-        response["HX-Reswap"] = "outerHTML"
-        return response
-    try:
-        record = create_uploaded_plugin(form, request.user)
-    except IntegrityError:
-        return HttpResponse("A plugin with this id already exists. Refresh the manager and choose another id.", status=409, content_type="text/plain")
-    return render(
-        request,
-        "plugin_manager/_plugin_row.jinja2",
-        {"record": record},
-        status=201,
-    )
+    return store_upload(request)
 
 
 @staff_required
@@ -91,22 +61,13 @@ def plugin_reload(request: HttpRequest) -> HttpResponse:
         return redirect("/plugins/manage/")
     loaded = sum(1 for result in results if result.ok)
     failed = len(results) - loaded
-    return render_page(
-        request,
-        "plugin_manager/plugins.jinja2",
-        {
-            "records": PluginRecord.objects.all(),
-            "upload_form": PluginUploadForm(),
-            "reload_summary": f"Discovery refreshed: {loaded} loaded, {failed} failed. Restart the server after changing installed Python code.",
-        },
-    )
+    return catalog_response(request, manager=True, reload_summary=f"Discovery refreshed: {loaded} loaded, {failed} failed. Restart the server after changing installed Python code.")
 
 
 @api.get('/plugins/manage/',name='plugin_list',guards=[AllowAny()])
 @page_endpoint
-@staff_required
 def manager_page(request: Request):
-    return render_page(request,'plugin_manager/plugins.jinja2',{'records':PluginRecord.objects.all(),'upload_form':PluginUploadForm()})
+    return plugin_catalog(request)
 
 @api.post('/plugins/{plugin_id}/enable/',name='plugin_enable',guards=[AllowAny()])
 @page_endpoint
@@ -131,6 +92,12 @@ def manager_reload(request: Request):
 
 
 from .store import plugin_store, store_upload, store_action, package_asset, sample_package
+
+@api.get('/plugins/workflows/{plugin_id}/',name='plugin_workflow',guards=[AllowAny()])
+@page_endpoint
+def selected_workflow(request: Request):
+    from .store import plugin_workflow
+    return plugin_workflow(request, request.params['plugin_id'])
 
 @api.get('/plugins/store/',name='plugin_store',guards=[AllowAny()])
 @page_endpoint

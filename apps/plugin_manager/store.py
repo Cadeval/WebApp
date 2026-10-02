@@ -1,4 +1,4 @@
-"""Local plugin catalog and protected package assets."""
+"""Shared catalog, personal plugin collection and protected package assets."""
 import hashlib
 import io
 import json
@@ -15,9 +15,10 @@ from django.urls import reverse
 from apps.shared.page_views import render_page
 from apps.shared.services import staff_required
 from .forms import PluginUploadForm
-from .models import PluginRecord, PluginActivationError
-from .services import create_uploaded_plugin, manage_plugin
+from .models import PluginRecord, UserPluginSelection
+from .services import create_uploaded_plugin
 from .packages import safe_path, MAX_MEMBER_BYTES
+from .workflows import is_workflow_plugin, selectable_plugin, workflow_plugin_enabled
 
 BUILTINS={
     'cadevil.bim.model_manager':('BIM Workspace','Manage IFC models, reference configurations, material passports and comparisons.','/plugins/bim/model_manager/'),
@@ -26,17 +27,44 @@ BUILTINS={
 }
 
 
-def store_response(request, *, form=None, notice='', status=200):
+def catalog_entry(record, selected=False):
+    builtin = BUILTINS.get(record.plugin_id)
+    description = (builtin[1] if builtin else record.package_manifest.get('description', '')) or (
+        'Installed Python package. Server installation and code updates require a restart.'
+        if record.source == 'package' else 'Reviewed browser plugin running in a background worker.')
+    return {'record': record, 'description': description,
+            'url': builtin[2] if builtin else (reverse('plugin_manager:plugin_workflow', args=[record.plugin_id]) if is_workflow_plugin(record) else ''),
+            'category': 'Bundled tool' if builtin else ('Installed Python package' if record.source == 'package' else 'Uploaded browser plugin'),
+            'selected': selected, 'available': selectable_plugin(record), 'is_workflow': is_workflow_plugin(record)}
+
+
+def catalog_response(request, *, manager=False, form=None, notice='', reload_summary='', status=200):
     query=request.GET.get('q','').strip()[:200]
+    selected = set(UserPluginSelection.objects.filter(user=request.user).values_list('plugin_id', flat=True))
     catalog=[]
-    for record in PluginRecord.objects.select_related("signing_key__owner").all():
-        builtin=BUILTINS.get(record.plugin_id)
-        description=(builtin[1] if builtin else record.package_manifest.get('description','')) or ('Installed Python package. Server installation and code updates require a restart.' if record.source=='package' else 'Reviewed browser plugin, available in the Configuration Editor when enabled.')
-        if query and query.casefold() not in (' '.join([record.plugin_id,record.name,description])).casefold(): continue
-        catalog.append({'record':record,'description':description,'url':builtin[2] if builtin else ('' if record.plugin_id.startswith('cadevil.mcp.') else '/plugins/bim/config_editor/'),'category':'Bundled tool' if builtin else ('Installed Python package' if record.source=='package' else 'Uploaded browser plugin')})
-    response=render_page(request,'plugin_manager/store.html',{'catalog':catalog,'query':query,'notice':notice,'upload_form':form or PluginUploadForm()},status=status)
+    records = PluginRecord.objects.select_related('signing_key__owner')
+    if not manager:
+        records = records.filter(pk__in=selected)
+    for record in records:
+        item = catalog_entry(record, record.pk in selected)
+        if not manager and not item['is_workflow']: continue
+        if manager and not request.user.is_staff and not item['available']: continue
+        if query and query.casefold() not in (' '.join([record.plugin_id, record.name, item['description']])).casefold(): continue
+        catalog.append(item)
+    response=render_page(request,'plugin_manager/plugins.jinja2' if manager else 'plugin_manager/store.html',
+                         {'catalog':catalog, 'records':[item['record'] for item in catalog], 'query':query,
+                          'notice':notice, 'reload_summary':reload_summary, 'upload_form':form or PluginUploadForm()}, status=status)
     if request.method=='POST': response['HX-Push-Url']='false'
     return response
+
+
+def store_response(request, **kwargs):
+    return catalog_response(request, **kwargs)
+
+
+@login_required(login_url='/mycelium/login')
+def plugin_catalog(request):
+    return catalog_response(request, manager=True)
 
 
 @login_required(login_url='/mycelium/login')
@@ -46,7 +74,7 @@ def plugin_store(request): return store_response(request)
 @login_required(login_url='/mycelium/login')
 def store_upload(request):
     form=PluginUploadForm(request.POST,request.FILES)
-    if not form.is_valid(): return store_response(request,form=form,status=400)
+    if not form.is_valid(): return catalog_response(request,manager=True,form=form,status=400)
     artifact=form.cleaned_data["artifact"]
     if not request.user.is_staff and (artifact.signing_key.owner_id!=request.user.pk):
         from django.core.exceptions import PermissionDenied
@@ -54,23 +82,43 @@ def store_upload(request):
     try: record=create_uploaded_plugin(form,request.user)
     except IntegrityError:
         form.add_error('artifact','A plugin with this id was installed while the upload was being processed. Choose a different id.')
-        return store_response(request,form=form,status=409)
-    if request.headers.get('HX-Request')!='true': return redirect('plugin_manager:plugin_store')
-    return store_response(request,notice=f'{record.name} uploaded. ' + ('Review its code and enable it when ready.' if request.user.is_staff else 'An administrator must review and enable it.'),status=201)
+        return catalog_response(request,manager=True,form=form,status=409)
+    if request.headers.get('HX-Request')!='true': return redirect('plugin_manager:plugin_list')
+    return catalog_response(request,manager=True,notice=f'{record.name} uploaded. ' + ('Review its code and enable it for the site when ready.' if request.user.is_staff else 'An administrator must review and enable it.'),status=201)
 
 
-@staff_required
+@login_required(login_url='/mycelium/login')
 def store_action(request,plugin_id,action):
-    get_object_or_404(PluginRecord,plugin_id=plugin_id)
     if action not in {'enable','disable'}: raise Http404('Unknown plugin store action.')
-    try: manage_plugin(plugin_id,action)
-    except PluginActivationError as error: return store_response(request,notice=str(error),status=409)
-    if request.headers.get('HX-Request')!='true': return redirect('plugin_manager:plugin_store')
-    return store_response(request,notice='Plugin enabled.' if action=='enable' else 'Plugin disabled.')
+    record = get_object_or_404(PluginRecord.objects.select_related('signing_key'),plugin_id=plugin_id)
+    manager = request.POST.get('return_to') == 'manager'
+    if action == 'enable':
+        if not selectable_plugin(record):
+            return catalog_response(request,manager=manager,notice='This plugin is unavailable for personal workflows. An administrator must approve it for this environment.',status=409)
+        UserPluginSelection.objects.get_or_create(user=request.user,plugin=record)
+    else:
+        UserPluginSelection.objects.filter(user=request.user,plugin=record).delete()
+    if request.headers.get('HX-Request')!='true':
+        return redirect('plugin_manager:plugin_list' if manager else 'plugin_manager:plugin_store')
+    return catalog_response(request,manager=manager,notice='Plugin enabled for your workflow.' if action=='enable' else 'Plugin removed from your workflow.')
+
+
+@login_required(login_url='/mycelium/login')
+def plugin_workflow(request, plugin_id):
+    if not workflow_plugin_enabled(request.user, plugin_id):
+        raise Http404('This plugin is not enabled for your workflow.')
+    from .context_processors import plugin_editor_items
+    items = [item for item in plugin_editor_items(request)['plugin_editor_items'] if item.id == plugin_id]
+    if not items:
+        raise Http404('This plugin does not provide a browser worker.')
+    record = get_object_or_404(PluginRecord, plugin_id=plugin_id)
+    return render_page(request, 'plugin_manager/workflow.html', {'record':record, 'plugin_editor_items':items})
 
 
 @login_required(login_url='/mycelium/login')
 def package_asset(request,plugin_id,asset_path):
+    if not workflow_plugin_enabled(request.user, plugin_id):
+        raise Http404('This plugin is not enabled for your workflow.')
     record=get_object_or_404(PluginRecord,plugin_id=plugin_id,source='upload',artifact_type='zip',enabled=True,error='',signing_key__isnull=False,signing_key__revoked_at__isnull=True,signing_key__owner__isnull=False)
     if not record.environment_compatible: raise Http404('Plugin is unavailable in this environment.')
     try: safe_path(asset_path)
@@ -104,7 +152,7 @@ def sample_package(request):
         archive.writestr('plugin.json',json.dumps(manifest,indent=2))
         archive.writestr('worker.js',"import { calculate } from './lib/calculate.js';\nself.onmessage = ({data}) => {\n  if (data.type === 'initialize') postMessage({type:'ready'});\n  else if (data.type === 'run') postMessage({type:'result',value:calculate(data.value)});\n};\n")
         archive.writestr('lib/calculate.js','export const calculate = value => value * 2;\n')
-        archive.writestr('README.md','# Browser plugin example\nSign this package with the local CLI, then upload it through the plugin store for administrator review.\nInstalled Python package code is not accepted in ZIP uploads.\n')
+        archive.writestr('README.md','# Browser plugin example\nSign this package with the local CLI, then upload it through Plugin Manager for administrator review.\nAfter site approval, add it to your personal Plugin Store.\nInstalled Python package code is not accepted in ZIP uploads.\n')
     response=HttpResponse(memory.getvalue(),content_type='application/zip')
     response['Content-Disposition']='attachment; filename="cadevil-plugin-example.zip"'
     response['Cache-Control']='private, no-store'

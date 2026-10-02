@@ -25,7 +25,7 @@ def bim_page(view):
     @vary_on_headers('HX-Request')
     @wraps(view)
     def wrapped(request, *args, **kwargs):
-        _enabled()
+        _enabled(request)
         return view(request, *args, **kwargs)
     return wrapped
 
