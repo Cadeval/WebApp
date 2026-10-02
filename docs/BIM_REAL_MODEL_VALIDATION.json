@@ -1,0 +1,66 @@
+{
+  "model_directory": "/Users/mia/Desktop/projects/cadevil-data/IFC",
+  "reference": "/Users/mia/Desktop/projects/cadevil-data/schema/MP_indicators_and_modfications_short.csv",
+  "results": [
+    {
+      "filename": "Modell_A 28V_new.ifc",
+      "bytes": 202603893,
+      "http_status": 422,
+      "elapsed_seconds": 148.09,
+      "upload_succeeded": true,
+      "assessment": "rejected_invalid_input",
+      "diagnostic_count": 22674,
+      "diagnostic_samples": [
+        "Attribute not optional",
+        "Attribute not optional",
+        "Attribute not optional"
+      ],
+      "saved_invalid_report": false
+    },
+    {
+      "filename": "Modell_B 28V_new.ifc",
+      "bytes": 244143225,
+      "http_status": 422,
+      "elapsed_seconds": 188.74,
+      "upload_succeeded": true,
+      "assessment": "rejected_invalid_input",
+      "diagnostic_count": 28535,
+      "diagnostic_samples": [
+        "Attribute not optional",
+        "Attribute not optional",
+        "Attribute not optional"
+      ],
+      "saved_invalid_report": false
+    },
+    {
+      "filename": "Modell_C_28V_new.ifc",
+      "bytes": 187354831,
+      "http_status": 422,
+      "elapsed_seconds": 136.05,
+      "upload_succeeded": true,
+      "assessment": "rejected_invalid_input",
+      "diagnostic_count": 16089,
+      "diagnostic_samples": [
+        "Attribute not optional",
+        "Attribute not optional",
+        "Attribute not optional"
+      ],
+      "saved_invalid_report": false
+    },
+    {
+      "filename": "Modell_D_28V_new.ifc",
+      "bytes": 199463146,
+      "http_status": 422,
+      "elapsed_seconds": 149.76,
+      "upload_succeeded": true,
+      "assessment": "rejected_invalid_input",
+      "diagnostic_count": 21373,
+      "diagnostic_samples": [
+        "Attribute not optional",
+        "Attribute not optional",
+        "Attribute not optional"
+      ],
+      "saved_invalid_report": false
+    }
+  ]
+}

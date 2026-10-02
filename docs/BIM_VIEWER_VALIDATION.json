@@ -1,0 +1,42 @@
+[
+  {
+    "filename": "Modell_A 28V_new.ifc",
+    "source_sha256": "adea2d7e808976cdd2be9ac11a0a5a9997f4b029f297649109800af1516f3bf1",
+    "http_status": 200,
+    "glb_bytes": 23848976,
+    "meshes": 4998,
+    "nodes_with_ifc_identity": 4998,
+    "elapsed_seconds": 71.58,
+    "source_unchanged": true
+  },
+  {
+    "filename": "Modell_B 28V_new.ifc",
+    "source_sha256": "5ea4521ab926882f94c0e630068371f5325db8aa70339a993211f1de0df90d54",
+    "http_status": 200,
+    "glb_bytes": 29208240,
+    "meshes": 14318,
+    "nodes_with_ifc_identity": 14318,
+    "elapsed_seconds": 61.9,
+    "source_unchanged": true
+  },
+  {
+    "filename": "Modell_C_28V_new.ifc",
+    "source_sha256": "4d63dc07e3e8ce7bed2b73c67a4985bd75cd6517a4cd2833d355e7df58d3d38b",
+    "http_status": 200,
+    "glb_bytes": 29613496,
+    "meshes": 8873,
+    "nodes_with_ifc_identity": 8873,
+    "elapsed_seconds": 68.78,
+    "source_unchanged": true
+  },
+  {
+    "filename": "Modell_D_28V_new.ifc",
+    "source_sha256": "52335be36ffc7b0ea944ff4377ab83eec6aebcd9cc4072028fc7ab017445287d",
+    "http_status": 200,
+    "glb_bytes": 24057604,
+    "meshes": 5019,
+    "nodes_with_ifc_identity": 5019,
+    "elapsed_seconds": 61.14,
+    "source_unchanged": true
+  }
+]

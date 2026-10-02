@@ -1,0 +1,11 @@
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
+{% include 'bim/nav.html' %}
+<h1>Reference configurations</h1>
+<p>Upload a headed semicolon CSV or XLSX material reference. The uploaded file becomes your active configuration.</p>
+<form hx-boost="false" method="post" enctype="multipart/form-data" action="{% url 'bim:configuration_library' %}">{% csrf_token %}{{ form.as_p }}<button type="submit">Upload reference</button></form>
+<h2>Select an existing reference</h2>
+<form hx-boost="false" method="post" action="{% url 'bim:save_config' %}">{% csrf_token %}{{ selection_form.as_p }}<button type="submit">Use reference</button></form>
+{% if active %}<p>Active: <strong>{{ active.upload.description|default:active.upload.document.name }}</strong>. <a href="{% url 'bim:config_editor' %}">Edit configuration</a></p>{% endif %}
+<h2>Your reference files</h2>
+<ul>{% for upload in uploads %}<li>{{ upload.description|default:upload.document.name }} — {{ upload.uploaded_at }}</li>{% empty %}<li>No reference files uploaded yet.</li>{% endfor %}</ul>
+</section>

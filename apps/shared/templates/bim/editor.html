@@ -1,0 +1,16 @@
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
+{% include 'bim/nav.html' %}
+<h1>Configuration editor</h1>
+{% if active %}
+<p>Editing {{ active.upload.description|default:active.upload.document.name }}. Saving creates a new reference version and preserves the original file. Select the saved version when calculating a passport.</p>
+{% for error in errors %}<p role="alert">{{ error }}</p>{% endfor %}
+<form hx-boost="false" method="post" id="config_form" action="{% url 'bim:config_editor' %}">
+{% csrf_token %}<input type="hidden" name="source" value="{{ active.upload_id }}">
+<div class="config-editor-viewport"><div class="config-editor-pan"><table class="config-editor-table"><thead><tr><th>Material</th>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in rows %}<tr><th scope="row">{{ row.material }}</th>{% for cell in row.cells %}<td><input type="text" name="{{ cell.field }}" value="{{ cell.value }}" aria-label="{{ row.material }} column {{ forloop.counter }}"></td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
+<button type="submit">Save new reference version</button>
+</form>
+<p><a href="{% url 'bim:download_csv' %}">Download active configuration CSV</a></p>
+{% else %}<p>No active configuration. <a href="{% url 'bim:configuration_library' %}">Upload or select a reference file</a> to begin.</p>{% endif %}
+{% include "plugin_manager/editor_panels.html" %}
+</section>
