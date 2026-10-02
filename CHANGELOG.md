@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 — Unreleased
+
+### Changed
+
+- Plugin Manager is the shared catalog and Plugin Store is each user's chosen collection, adjacent in navigation.
+- Workflow navigation, editor contributions, pages and signed worker assets require an explicit user selection.
+- Publishing moved to Manager; uploaded workers have an independent workflow page.
+- Documented administrator-managed external repositories, publisher trust and reviewed release imports.
+
+### Breaking changes
+
+- Store enable/disable actions now affect the current user's selection. Staff site-wide activation remains at
+  `/plugins/{plugin_id}/enable/` and `/plugins/{plugin_id}/disable/`.
+- Existing users must choose their workflow tools in Manager. Global availability alone no longer grants workflow access.
+
 ## 0.2.0 — Unreleased
 
 ### Added
