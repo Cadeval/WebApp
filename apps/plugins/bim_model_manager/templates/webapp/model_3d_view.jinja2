@@ -1,0 +1,107 @@
+{% load static %}
+
+<div id="content-container">
+<section id="viewer-app"
+         class="viewer-shell"
+         data-model-url="/api/model_file/{{ upload_id }}/stream_gltf/"
+         aria-label="3D model viewer">
+    <div id="viewer-overlay" class="viewer-toolbar" data-viewer-header-content>
+        <a class="button fa fa-arrow-left" href="/" hx-get="/model_manager/"
+           hx-target="#content-container" hx-swap="innerHTML"
+           hx-push-url="/model_manager/"
+           title="Back to Model Manager"> Back</a>
+        <div class="viewer-heading">
+            <span class="viewer-eyebrow">3D model</span>
+            <strong id="viewer-title">{{ document.description }}</strong>
+        </div>
+        <div class="viewer-tools" role="toolbar" aria-label="Viewer controls">
+            <button class="button fa fa-crosshairs" type="button"
+                    data-viewer-action="fit" title="Fit model in view"> Fit</button>
+            <button class="button fa fa-th" type="button"
+                    data-viewer-action="toggle-grid" aria-pressed="true"
+                    title="Show or hide the ground grid"> Grid</button>
+            <a class="button fa fa-download"
+               href="/api/model_file/{{ upload_id }}/download_model/"
+               download title="Download original IFC"> IFC</a>
+            <a class="button fa fa-cube"
+               href="/api/model_file/{{ upload_id }}/stream_gltf/"
+               download="{{ document.description }}.glb"
+               title="Download GLB"> GLB</a>
+        </div>
+    </div>
+
+    <div class="viewer-workspace">
+        <div id="viewer-viewport" class="viewer-viewport">
+            <canvas id="viewer-canvas" tabindex="0"
+                    aria-label="Interactive 3D model. Drag to orbit and select a building part for details."></canvas>
+            <div class="viewer-hint" aria-hidden="true">
+                <span class="fa fa-mouse-pointer"></span> Select a part
+                <span class="viewer-hint-separator">·</span>
+                Drag to orbit
+                <span class="viewer-hint-separator">·</span>
+                Scroll to zoom
+            </div>
+
+            <div id="loading-overlay" class="viewer-state-overlay" role="status">
+                <span class="viewer-loader" aria-hidden="true"></span>
+                <span id="loading-text">Loading 3D model…</span>
+                <progress id="loading-bar" max="100" value="0"></progress>
+            </div>
+
+            <div id="error-overlay" class="viewer-state-overlay viewer-error" role="alert">
+                <span class="fa fa-exclamation-triangle viewer-state-icon" aria-hidden="true"></span>
+                <h3>Failed to load 3D model</h3>
+                <p id="error-message"></p>
+                <a class="button fa fa-arrow-left" href="/"
+                   hx-get="/model_manager/" hx-target="#content-container"
+                   hx-swap="innerHTML"> Back to Model Manager</a>
+            </div>
+
+            <aside id="viewer-sidebar" class="viewer-sidebar" aria-labelledby="selection-heading">
+                <div class="viewer-sidebar-header">
+                    <div>
+                        <span class="viewer-eyebrow">Inspector</span>
+                        <h2 id="selection-heading">Building part</h2>
+                    </div>
+                    <button class="viewer-icon-button fa fa-times" type="button"
+                            data-viewer-action="clear-selection"
+                            title="Clear selection" aria-label="Clear selected building part" disabled></button>
+                </div>
+
+                <p id="selection-status" class="selection-status" aria-live="polite">
+                    Nothing selected
+                </p>
+
+                <div id="selection-empty" class="selection-empty">
+                    <span class="fa fa-mouse-pointer" aria-hidden="true"></span>
+                    <strong>Explore the model</strong>
+                    <p>Select a building part to inspect its identity, IFC properties, and geometry.</p>
+                </div>
+
+                <div id="selection-details" class="selection-details" hidden>
+                    <dl class="part-identity">
+                        <div><dt>Name</dt><dd id="part-name">—</dd></div>
+                        <div><dt>Type</dt><dd id="part-type">—</dd></div>
+                        <div><dt>Global ID</dt><dd id="part-guid">—</dd></div>
+                    </dl>
+                    <h3>Metrics</h3>
+                    <dl id="part-metrics" class="part-metrics"></dl>
+                    <p id="metrics-empty" class="metrics-empty" hidden>
+                        No additional metrics are embedded in this part.
+                    </p>
+                </div>
+
+                <div class="viewer-summary" aria-label="Model summary">
+                    <h3>Model summary</h3>
+                    <dl>
+                        <div><dt>Parts</dt><dd id="model-part-count">—</dd></div>
+                        <div><dt>Size</dt><dd id="model-size">—</dd></div>
+                    </dl>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script type="module" src="{% static 'js/3d_view.js' %}"></script>
+</div>

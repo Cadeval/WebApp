@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Log Stream</title>
+</head>
+<body>
+<pre id="logArea"></pre>
+
+<script>
+    const logArea = document.getElementById("logArea");
+
+    // For local dev: ws://127.0.0.1:8000/ws/logs/
+    // In production: wss://yourdomain.com/ws/logs/
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/logs/");
+
+    socket.onmessage = function (e) {
+        // Each incoming message is a single log line
+        const logLine = e.data;
+        logArea.textContent += logLine + "\n";
+        // optionally auto-scroll
+        logArea.scrollTop = logArea.scrollHeight;
+    };
+
+    socket.onopen = function (e) {
+        console.log("WebSocket connection established!");
+    };
+
+    socket.onclose = function (e) {
+        console.log("WebSocket connection closed.");
+    };
+</script>
+</body>
+</html>
