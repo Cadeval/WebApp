@@ -1,6 +1,6 @@
 # Plugin Store and signed browser packages
 
-Authenticated users can browse `/plugins/store/`, create signing keys at `/plugins/keys/`, and publish packages signed with their own active key. Administrators review the downloadable package and enable it. Uploaded Python code is not installed or executed. Existing installed Python plugins retain their separate server installation workflow; administrators can continue uploading single JS/WASM files.
+Authenticated users can browse `/plugins/store/`, create signing keys at `/plugins/keys/`, and publish packages signed with their own active key. Administrators review the downloadable package and enable it. Uploaded Python code is not installed or executed. Existing installed Python plugins retain their separate server installation workflow. Standalone JS/WASM uploads are not accepted.
 
 ## Publish a package
 
@@ -13,7 +13,7 @@ Authenticated users can browse `/plugins/store/`, create signing keys at `/plugi
    ```
 
    The CLI prompts for the passphrase and refuses to overwrite the input or an existing output. It supports `.zip`, `.tar`, `.tar.gz`/`.tgz`, and `.tar.xz`/`.txz` outputs.
-4. Upload the signed archive. Its manifest supplies the plugin id, name, description and version. It remains disabled until an administrator reviews and enables it. Enabled plugins appear in the Configuration Editor.
+4. Upload the signed archive. Its manifest supplies the plugin id, name, description and version; the upload form has only the package file field. It remains disabled until an administrator reviews and enables it. Enabled plugins appear in the Configuration Editor.
 
 ## Package format
 

@@ -83,38 +83,6 @@ def plugin_upload(request: HttpRequest) -> HttpResponse:
     )
 
 
-@login_required(login_url="/mycelium/login")
-def plugin_artifact(request: HttpRequest, plugin_id: str) -> FileResponse:
-    record = get_object_or_404(
-        PluginRecord,
-        plugin_id=plugin_id,
-        source=PluginRecord.Source.UPLOAD,
-        enabled=True,
-        error="",
-        artifact_type__in=[PluginRecord.ArtifactType.JAVASCRIPT, PluginRecord.ArtifactType.WEBASSEMBLY],
-    )
-    if not record.artifact:
-        raise Http404("Plugin artifact is unavailable.")
-    content_type = (
-        "application/wasm"
-        if record.artifact_type == PluginRecord.ArtifactType.WEBASSEMBLY
-        else "text/javascript"
-    )
-    try:
-        stream = record.artifact.open("rb")
-    except (OSError, ValueError) as error:
-        raise Http404("Plugin artifact is unavailable.") from error
-    response = FileResponse(stream, content_type=content_type)
-    response["X-Content-Type-Options"] = "nosniff"
-    response["Cross-Origin-Resource-Policy"] = "same-origin"
-    response["Content-Security-Policy"] = (
-        "default-src 'none'; connect-src 'none'; worker-src 'none'; "
-        "object-src 'none'; base-uri 'none'"
-    )
-    response["Cache-Control"] = "private, no-store"
-    return response
-
-
 @staff_required
 @vary_on_headers("HX-Request")
 def plugin_reload(request: HttpRequest) -> HttpResponse:
@@ -160,10 +128,7 @@ def manager_upload(request: Request):
 def manager_reload(request: Request):
     return plugin_reload(request)
 
-@api.get('/plugins/{plugin_id}/artifact/',name='plugin_artifact',guards=[AllowAny()])
-@page_endpoint
-def manager_artifact(request: Request):
-    return plugin_artifact(request,request.params['plugin_id'])
+
 
 from .store import plugin_store, store_upload, store_action, package_asset, sample_package
 

@@ -48,9 +48,9 @@ def store_upload(request):
     form=PluginUploadForm(request.POST,request.FILES)
     if not form.is_valid(): return store_response(request,form=form,status=400)
     artifact=form.cleaned_data["artifact"]
-    if not request.user.is_staff and (artifact.plugin_type!="zip" or artifact.signing_key.owner_id!=request.user.pk):
+    if not request.user.is_staff and (artifact.signing_key.owner_id!=request.user.pk):
         from django.core.exceptions import PermissionDenied
-        raise PermissionDenied("Publish a package signed with one of your own keys. Single-file uploads require administrator access.")
+        raise PermissionDenied("Publish a package signed with one of your own keys.")
     try: record=create_uploaded_plugin(form,request.user)
     except IntegrityError:
         form.add_error('artifact','A plugin with this id was installed while the upload was being processed. Choose a different id.')

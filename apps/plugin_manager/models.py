@@ -23,8 +23,6 @@ class PluginRecord(models.Model):
 
     class ArtifactType(models.TextChoices):
         NONE = "", "None"
-        JAVASCRIPT = "js", "JavaScript"
-        WEBASSEMBLY = "wasm", "WebAssembly"
         ZIP = "zip", "Browser package ZIP"
 
     plugin_id = models.CharField(max_length=255, unique=True, db_index=True)
@@ -69,6 +67,8 @@ class PluginRecord(models.Model):
         return bool(self.error)
 
     def set_enabled(self, enabled: bool) -> None:
+        if enabled and self.source == self.Source.UPLOAD and self.artifact_type != self.ArtifactType.ZIP:
+            raise PluginActivationError("Repackage this legacy upload as a signed archive before enabling it.")
         if enabled and self.artifact_type == self.ArtifactType.ZIP and (not self.signing_key or self.signing_key.revoked_at or self.signing_key.owner_id is None):
             raise PluginActivationError("A package requires an active registered signing key before it can be enabled.")
         if enabled and self.has_error:

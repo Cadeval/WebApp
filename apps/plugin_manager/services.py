@@ -1,6 +1,5 @@
 import functools
 import logging
-from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -57,19 +56,18 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
     if not form.is_valid():
         raise ValueError("A valid plugin upload form is required.")
     artifact = form.cleaned_data["artifact"]
-    suffix = Path(artifact.name).suffix.lower()
-    storage_name = f"{artifact.content_hash}{suffix}"
-    manifest = getattr(artifact,"package_manifest",{})
+    storage_name = f"{artifact.content_hash}.zip"
+    manifest = artifact.package_manifest
     record = PluginRecord(
-        plugin_id=form.cleaned_data["plugin_id"],
-        name=form.cleaned_data["name"],
+        plugin_id=manifest["id"],
+        name=manifest["name"],
         version=manifest.get("version","1.0.0"),
         api_version=manifest.get("api_version","1.0"),
         package_manifest=manifest,
-        signing_key=getattr(artifact,"signing_key",None),
+        signing_key=artifact.signing_key,
         enabled=False,
         source=PluginRecord.Source.UPLOAD,
-        artifact_type=artifact.plugin_type,
+        artifact_type=PluginRecord.ArtifactType.ZIP,
         content_hash=artifact.content_hash,
         uploaded_by=user if isinstance(user, get_user_model()) else None,
         uploaded_at=timezone.now(),
@@ -83,7 +81,7 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
         record.artifact.delete(save=False)
         raise
     logger.info(
-        "Uploaded sandboxed %s plugin '%s'", record.artifact_type, record.plugin_id
+        "Uploaded signed %s plugin '%s'", record.artifact_type, record.plugin_id
     )
     return record
 

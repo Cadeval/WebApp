@@ -311,7 +311,8 @@ class HardenedRegistryTests(TestCase):
 
     def test_upload_storage_is_removed_when_database_insert_fails(self):
         with TemporaryDirectory() as folder, override_settings(MEDIA_ROOT=Path(folder)/"media", PLUGIN_ARTIFACT_ROOT=Path(folder)/"private"):
-            form=PluginUploadForm({"plugin_id":"storage-failure", "name":"Failure"}, {"artifact":SimpleUploadedFile("worker.js", b"self.onmessage = () => {};", content_type="text/javascript")})
+            from .package_fixtures import signed_package
+            form=PluginUploadForm({}, {"artifact":SimpleUploadedFile("package.zip", signed_package(plugin_id="storage-failure"), content_type="application/zip")})
             self.assertTrue(form.is_valid())
             with patch.object(PluginRecord, "save", side_effect=IntegrityError("duplicate")), self.assertRaises(IntegrityError):
                 create_uploaded_plugin(form, None)
@@ -334,8 +335,11 @@ class NativePluginTests(TestCase):
         self.client.get("/plugins/manage/")
 
     def action(self, action): return f"/plugins/{self.record.plugin_id}/{action}/"
-    def upload(self, content=b"self.onmessage = () => {};", name="worker.js", content_type="text/javascript", plugin_id="uploaded-test"):
-        return self.client.post("/plugins/upload/", {"plugin_id":plugin_id,"name":"Uploaded test","artifact":SimpleUploadedFile(name,content,content_type=content_type)}, HTTP_HX_REQUEST="true")
+    def upload(self, content=None, name="package.zip", content_type="application/zip", plugin_id="uploaded-test", *, wasm=False):
+        from .package_fixtures import signed_package
+        if content is None:
+            content=signed_package(self.staff, plugin_id, wasm=wasm)
+        return self.client.post("/plugins/upload/", {"artifact":SimpleUploadedFile(name,content,content_type=content_type)}, HTTP_HX_REQUEST="true")
 
     def test_manager_full_and_fragment_use_one_content_boundary(self):
         full=self.client.get("/plugins/manage/")
@@ -375,14 +379,14 @@ class NativePluginTests(TestCase):
     def test_upload_starts_disabled_and_requires_enabled_artifact(self):
         response=self.upload(); self.assertEqual(response.status_code,201)
         record=PluginRecord.objects.get(plugin_id="uploaded-test"); self.assertFalse(record.enabled)
-        path="/plugins/uploaded-test/artifact/"
+        path="/plugins/uploaded-test/assets/worker.js"
         self.assertEqual(self.client.get(path).status_code,404)
         self.assertEqual(self.client.post("/plugins/uploaded-test/enable/").status_code,200)
         response=self.client.get(path); self.assertEqual(response.status_code,200)
         self.assertEqual(response['X-Content-Type-Options'],'nosniff')
         self.assertEqual(response['Cache-Control'],'private, no-store')
         self.assertIn("connect-src 'none'",response['Content-Security-Policy'])
-        self.client.force_login(self.regular); self.assertEqual(self.client.get(path).status_code,200)
+        self.client.logout(); self.client.force_login(self.regular); self.assertEqual(self.client.get(path).status_code,200)
         self.client.logout(); self.assertEqual(self.client.get(path).status_code,302)
 
     def test_plugin_upload_is_outside_public_media_storage(self):
@@ -394,12 +398,12 @@ class NativePluginTests(TestCase):
     def test_disabled_or_error_upload_artifact_is_unavailable(self):
         self.upload(); record=PluginRecord.objects.get(plugin_id="uploaded-test")
         record.enabled=True; record.error="failed"; record.save()
-        self.assertEqual(self.client.get("/plugins/uploaded-test/artifact/").status_code,404)
+        self.assertEqual(self.client.get("/plugins/uploaded-test/assets/worker.js").status_code,404)
 
     def test_missing_uploaded_file_returns_not_found(self):
         self.upload(); record=PluginRecord.objects.get(plugin_id="uploaded-test")
         record.enabled=True; record.save(); record.artifact.delete(save=False)
-        self.assertEqual(self.client.get("/plugins/uploaded-test/artifact/").status_code,404)
+        self.assertEqual(self.client.get("/plugins/uploaded-test/assets/worker.js").status_code,404)
 
     def test_invalid_or_empty_artifacts_are_rejected(self):
         for content,name,mime in [(b"", "empty.js", "text/javascript"), (b"<script>x</script>","html.js","text/javascript"), (b"\x00asm", "truncated.wasm", "application/wasm"), (b"\x00asm\x02\x00\x00\x00", "version.wasm", "application/wasm"), (b"print(1)","server.py","text/plain")]:
@@ -407,12 +411,12 @@ class NativePluginTests(TestCase):
         self.assertFalse(PluginRecord.objects.filter(source="upload").exists())
 
     def test_upload_wasm_header_and_editor_urls(self):
-        self.assertEqual(self.upload(b"\x00asm\x01\x00\x00\x00","demo.wasm","application/wasm").status_code,201)
+        self.assertEqual(self.upload(wasm=True).status_code,201)
         record=PluginRecord.objects.get(plugin_id="uploaded-test"); record.set_enabled(True)
         items=plugin_editor_items(RequestFactory().get("/"))["plugin_editor_items"]
         item=next(item for item in items if item.id==record.plugin_id)
         self.assertEqual(item.worker_url,"/static/js/plugins/wasm_plugin_worker.js?v=20261002-plugins")
-        self.assertEqual(item.wasm_url,"/plugins/uploaded-test/artifact/")
+        self.assertEqual(item.wasm_url,"/plugins/uploaded-test/assets/calculator.wasm")
 
     def test_native_configuration_editor_contains_upload_controls(self):
         self.upload()
@@ -420,7 +424,7 @@ class NativePluginTests(TestCase):
         from apps.plugin_manager.context_processors import _uploaded_editor_items
         html=render_to_string("bim/editor.html",{"plugin_editor_items":_uploaded_editor_items(),"fragment":True})
         self.assertIn('data-editor-plugin="uploaded-test"',html)
-        self.assertIn('data-worker-url="/plugins/uploaded-test/artifact/"',html)
+        self.assertIn('data-worker-url="/plugins/uploaded-test/assets/worker.js"',html)
         self.assertIn('data-plugin-action="run"',html)
 
     def test_duplicate_upload_is_readable_validation_error(self):

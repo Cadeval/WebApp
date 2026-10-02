@@ -103,6 +103,27 @@ class PluginStoreTests(TestCase):
         self.assertEqual(self.client.post('/plugins/store/catalog.example/enable/').status_code,403)
         self.client.logout();self.assertEqual(self.client.get('/plugins/store/').status_code,302)
 
+    def test_archive_only_form_and_raw_file_rejection_on_both_upload_routes(self):
+        from .forms import PluginUploadForm
+        self.assertEqual(list(PluginUploadForm().fields),['artifact'])
+        for route in ['/plugins/store/','/plugins/manage/']:
+            response=self.client.get(route)
+            self.assertNotContains(response,'name="plugin_id"')
+            self.assertNotContains(response,'name="name"')
+            self.assertContains(response,'Signed plugin package')
+        for route in ['/plugins/store/upload/','/plugins/upload/']:
+            for filename,content,mime in [('worker.js',JS,'text/javascript'),('worker.mjs',JS,'text/javascript'),('calculator.wasm',b'\x00asm\x01\x00\x00\x00','application/wasm')]:
+                response=self.client.post(route,{'artifact':SimpleUploadedFile(filename,content,content_type=mime)},HTTP_HX_REQUEST='true')
+                self.assertContains(response,'Single JavaScript and WASM files are not accepted',status_code=400)
+        self.assertFalse(PluginRecord.objects.filter(source='upload').exists())
+
+    def test_legacy_single_file_endpoint_and_editor_contribution_are_removed(self):
+        legacy=PluginRecord.objects.create(plugin_id='legacy',source='upload',artifact_type='js',enabled=True,artifact='plugins/old.js')
+        self.assertEqual(self.client.get('/plugins/legacy/artifact/').status_code,404)
+        self.assertEqual(_uploaded_editor_items(),[])
+        from .models import PluginActivationError
+        with self.assertRaises(PluginActivationError):legacy.set_enabled(True)
+
     def test_zip_upload_manifest_metadata_and_private_storage(self):
         response=self.upload_zip();self.assertEqual(response.status_code,201)
         record=PluginRecord.objects.get(plugin_id='zip.calculator')
@@ -138,8 +159,8 @@ class PluginStoreTests(TestCase):
 
     def test_upload_metadata_conflicts_duplicate_and_invalid_zip_display_errors(self):
         response=self.upload_zip(data={'plugin_id':'different','name':'Different'})
-        self.assertEqual(response.status_code,400);self.assertContains(response,'must match plugin.json',status_code=400)
-        self.assertEqual(self.upload_zip().status_code,201)
+        self.assertEqual(response.status_code,201)
+        self.assertEqual(PluginRecord.objects.get(plugin_id="zip.calculator").name,"ZIP Calculator")
         self.assertEqual(self.upload_zip().status_code,400)
         self.assertEqual(self.upload_zip(extra={'../bad.js':b'bad'}).status_code,400)
         self.assertEqual(PluginRecord.objects.filter(source='upload').count(),1)

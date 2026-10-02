@@ -40,7 +40,7 @@
                 <div>
                     <span class="viewer-eyebrow">Reviewed browser upload</span>
                     <h2 id="plugin-upload-title">Add a browser plugin</h2>
-                    <p>Upload a trusted JavaScript worker or WebAssembly module for staff review. Workers separate execution from the page; they are not a complete security sandbox.</p>
+                    <p>Upload a signed archive containing plugin.json and browser JavaScript or WebAssembly files for staff review. Workers separate execution from the page; they are not a complete security sandbox.</p>
                 </div>
             </div>
 
@@ -65,7 +65,7 @@
                 <div class="plugin-upload-footer">
                     <p class="plugin-help-text">
                         <span class="fa fa-lock" aria-hidden="true"></span>
-                        For ZIP packages, leave id and name blank to use plugin.json. Accepted: <code>.zip</code>, UTF-8 <code>.js</code>/<code>.mjs</code> and <code>.wasm</code>.
+                        Accepted: signed <code>.zip</code>, <code>.tar</code>, <code>.tar.gz</code>/<code>.tgz</code> and <code>.tar.xz</code>/<code>.txz</code>. All metadata comes from plugin.json.
                         New uploads stay disabled until reviewed. WASM modules must export calculate(number), returning a finite number. JavaScript workers must handle initialize/run messages and reply with ready/result messages.
                     </p>
                     <button type="submit" class="button plugin-upload-submit fa fa-upload">
@@ -106,7 +106,7 @@
                             <td class="plugin-empty-state" colspan="7">
                                 <span class="fa fa-puzzle-piece" aria-hidden="true"></span>
                                 <strong>No plugins registered</strong>
-                                <span>Upload a sandboxed plugin to get started.</span>
+                                <span>Upload a signed package to get started.</span>
                             </td>
                         </tr>
                     {% endfor %}
