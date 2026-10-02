@@ -75,7 +75,7 @@ def validate_package(content):
             try: manifest=json.loads(files['plugin.json'].decode('utf-8'))
             except (ValueError,UnicodeDecodeError) as error: raise ValidationError('plugin.json must contain valid UTF-8 JSON.') from error
             if not isinstance(manifest,dict): raise ValidationError('plugin.json must be a JSON object.')
-            allowed={'id','name','version','api_version','description','type','entrypoint'}
+            allowed={'id','name','version','api_version','description','type','entrypoint','compatibility'}
             if set(manifest)-allowed: raise ValidationError('plugin.json contains unsupported fields.')
             for field,limit in [('id',180),('name',255),('version',50),('api_version',20),('description',2000),('type',16),('entrypoint',200)]:
                 value=manifest.get(field, '' if field=='description' else None)
@@ -83,6 +83,9 @@ def validate_package(content):
                     raise ValidationError(f'plugin.json requires a valid {field}.')
             if not ID_PATTERN.fullmatch(manifest['id']): raise ValidationError('The package id must use lowercase letters and numbers separated by dots, dashes or underscores.')
             if not is_api_version_compatible(manifest['api_version']): raise ValidationError('This package API version is incompatible with the host.')
+            compatibility = manifest.get('compatibility', 'both')
+            if not isinstance(compatibility, str) or compatibility not in {'debug','production','both'}:
+                raise ValidationError('Package compatibility must be debug, production or both.')
             kind=manifest['type'];entry=safe_path(manifest['entrypoint'])
             if kind not in {'javascript','wasm'}: raise ValidationError('Package type must be javascript or wasm.')
             suffix=PurePosixPath(entry).suffix.lower()

@@ -3,12 +3,15 @@
     <th scope="row" class="plugin-identity">
         <strong>{{ record.name }}</strong>
         <code>{{ record.plugin_id }}</code>
+        <span class="plugin-status">{{ record.get_compatibility_display }}</span>
     </th>
     <td>{{ record.version|default:"—" }}</td>
     <td>{{ record.api_version|default:"—" }}</td>
     <td>{{ record.priority }}</td>
     <td aria-live="polite">
-        {% if record.enabled %}
+        {% if not record.environment_compatible %}
+            <span class="plugin-status">Unavailable in this environment</span>
+        {% elif record.enabled %}
             <span class="plugin-status plugin-status--enabled">
                 <span class="fa fa-check-circle" aria-hidden="true"></span> Enabled
             </span>
@@ -39,7 +42,7 @@
                     hx-swap="outerHTML">
                 Disable
             </button>
-        {% elif not record.has_error %}
+        {% elif not record.has_error and record.environment_compatible %}
             <button type="button"
                     class="button plugin-action-button fa fa-toggle-on"
                     hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}"

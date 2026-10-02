@@ -25,6 +25,13 @@ class PluginRecord(models.Model):
         NONE = "", "None"
         ZIP = "zip", "Browser package ZIP"
 
+    class Compatibility(models.TextChoices):
+        DEBUG = "debug", "Debug only"
+        PRODUCTION = "production", "Production only"
+        BOTH = "both", "Debug and production"
+
+    compatibility = models.CharField(max_length=16, choices=Compatibility.choices, default=Compatibility.BOTH)
+
     plugin_id = models.CharField(max_length=255, unique=True, db_index=True)
     name = models.CharField(max_length=255, blank=True, default="")
     version = models.CharField(max_length=50, blank=True, default="")
@@ -66,7 +73,18 @@ class PluginRecord(models.Model):
     def has_error(self) -> bool:
         return bool(self.error)
 
+    @property
+    def environment_compatible(self):
+        from .environments import compatible
+        return compatible(self.compatibility)
+
+    @property
+    def effective_enabled(self):
+        return self.enabled and not self.has_error and self.environment_compatible
+
     def set_enabled(self, enabled: bool) -> None:
+        if enabled and not self.environment_compatible:
+            raise PluginActivationError(f"This plugin is {self.get_compatibility_display().lower()} and unavailable in the current environment.")
         if enabled and self.source == self.Source.UPLOAD and self.artifact_type != self.ArtifactType.ZIP:
             raise PluginActivationError("Repackage this legacy upload as a signed archive before enabling it.")
         if enabled and self.artifact_type == self.ArtifactType.ZIP and (not self.signing_key or self.signing_key.revoked_at or self.signing_key.owner_id is None):

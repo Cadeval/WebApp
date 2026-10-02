@@ -239,6 +239,9 @@ PLUGIN_BUILTINS: dict[str, str] = {
     "cadevil.example.editor": "example_plugin:plugin_manifest",
     "cadevil.rust-example.editor": "rust_example_plugin:plugin_manifest",
     "cadevil.bim.model_manager": "bim_model_manager:plugin_manifest",
+    "cadevil.mcp.context7": "development_mcp:context7_manifest",
+    "cadevil.mcp.git": "development_mcp:git_manifest",
+    "cadevil.mcp.native": "development_mcp:native_manifest",
 }
 
 # =======================

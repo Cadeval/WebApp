@@ -11,6 +11,8 @@ class PluginRecordAdminForm(forms.ModelForm):
 
     def clean_enabled(self):
         enabled = self.cleaned_data["enabled"]
+        if enabled and not self.instance.environment_compatible:
+            raise forms.ValidationError("This plugin is unavailable in the current environment.")
         if enabled and self.instance.has_error:
             raise forms.ValidationError("Resolve the discovery error before enabling this plugin.")
         return enabled
@@ -24,13 +26,14 @@ class PluginRecordAdmin(admin.ModelAdmin):
         "name",
         "source",
         "artifact_type",
+        "compatibility",
         "version",
         "api_version",
         "priority",
         "enabled",
         "has_error_display",
     ]
-    list_filter = ["source", "artifact_type", "enabled"]
+    list_filter = ["source", "artifact_type", "compatibility", "enabled"]
     search_fields = ["plugin_id", "name"]
     readonly_fields = [
         "plugin_id",
@@ -39,6 +42,7 @@ class PluginRecordAdmin(admin.ModelAdmin):
         "api_version",
         "priority",
         "source",
+        "compatibility",
         "artifact_type",
         "artifact",
         "content_hash",

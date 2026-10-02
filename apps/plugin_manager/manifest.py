@@ -36,6 +36,7 @@ class PluginManifest:
     # plugin can register nav items / other extensions. Failures raised here
     # are isolated by the registry and never crash discovery/startup.
     register: Callable[[Any], None] | None = None
+    compatibility: str = "both"
 
 
 def _major_version(version: str) -> int | None:

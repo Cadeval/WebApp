@@ -19,3 +19,8 @@ CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
 
 # Development-only read-only tools. DEBUG=False always prevents an MCP mount.
 DEVELOPMENT_MCP_ENABLED = True
+
+# Installed developer tools only; not part of the application's production dependencies.
+DEVELOPMENT_MCP_TOOL_ROOT = os.environ.get("CADEVIL_MCP_TOOL_ROOT", "/Users/mia/Documents/ChatGPT/CadEval/mcp_tools")
+DEVELOPMENT_MCP_CONTEXT7_PORT = 8017
+DEVELOPMENT_MCP_GIT_PORT = 8018

@@ -5,12 +5,13 @@ from django_bolt import BoltAPI, AllowAny
 from apps.shared.bolt_pages import page_endpoint
 from apps.shared.page_views import render_page
 from apps.plugin_manager.models import PluginRecord
+from apps.plugin_manager.environments import active_plugin
 
 api = BoltAPI(trailing_slash="keep", django_middleware=True)
 
 
 def browser_page(request, plugin_id, template):
-    if not PluginRecord.objects.filter(plugin_id=plugin_id, source=PluginRecord.Source.PACKAGE, enabled=True, error="").exists():
+    if not active_plugin(plugin_id):
         raise Http404("This plugin is not available.")
     return render_page(request, template)
 

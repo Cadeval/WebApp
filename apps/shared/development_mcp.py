@@ -15,8 +15,16 @@ DEMO_REPORTS = {
 READ_ONLY = {'readOnlyHint': True, 'destructiveHint': False, 'idempotentHint': True, 'openWorldHint': False}
 
 
-def project_info() -> dict:
+async def require_native_plugin():
+    from apps.plugin_manager.environments import active_plugin
+    from asgiref.sync import sync_to_async
+    if not settings.DEBUG or not getattr(settings, 'DEVELOPMENT_MCP_ENABLED', False) or not await sync_to_async(active_plugin, thread_sensitive=True)('cadevil.mcp.native'):
+        raise ValueError('The development MCP plugin is disabled or unavailable in this environment.')
+
+
+async def project_info() -> dict:
     """Describe the public development features and signed plugin package contract."""
+    await require_native_plugin()
     return {
         'project': 'Cadevil',
         'framework': 'Django-Bolt',
@@ -28,8 +36,9 @@ def project_info() -> dict:
     }
 
 
-def demo_report(model: Literal['house-a', 'house-b', 'house-c', 'house-d', 'example-a', 'example-b']) -> dict:
+async def demo_report(model: Literal['house-a', 'house-b', 'house-c', 'house-d', 'example-a', 'example-b']) -> dict:
     """Read precomputed public demo statistics, including provisional assessment status."""
+    await require_native_plugin()
     if model not in DEMO_REPORTS:
         raise ValueError('Choose a listed public demo model.')
     root = Path(settings.BASE_DIR) / 'resources/static/bim-demo'

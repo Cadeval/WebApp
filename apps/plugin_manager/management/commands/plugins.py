@@ -40,7 +40,7 @@ class Command(BaseCommand):
             return
         for record in records:
             status = "enabled" if record.enabled else "disabled"
-            line = f"{record.plugin_id}\t{record.name}\t{record.version}\t{status}"
+            line = f"{record.plugin_id}\t{record.name}\t{record.version}\t{record.get_compatibility_display()}\t{status}"
             if record.error:
                 line += f"\tERROR: {record.error}"
             self.stdout.write(line)

@@ -1,0 +1,22 @@
+
+
+[mcp_servers.context7]
+# Debug-only: managed by the corresponding Cadevil plugin in make debug.
+url = "http://127.0.0.1:8017/mcp/"
+enabled = true
+enabled_tools = ["resolve-library-id", "query-docs"]
+startup_timeout_sec = 30
+
+[mcp_servers.cadevil_development]
+url = "http://127.0.0.1:8000/dev/mcp"
+enabled = true
+enabled_tools = ["project_info", "demo_report"]
+startup_timeout_sec = 30
+
+[mcp_servers.gitolite_repository]
+# Debug-only: managed by the corresponding Cadevil plugin in make debug.
+url = "http://127.0.0.1:8018/mcp/"
+enabled = true
+enabled_tools = ["git_status", "git_diff_unstaged", "git_diff_staged", "git_diff", "git_log", "git_show", "git_branch"]
+startup_timeout_sec = 30
+

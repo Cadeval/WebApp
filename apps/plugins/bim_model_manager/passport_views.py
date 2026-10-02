@@ -2,11 +2,12 @@
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from apps.plugin_manager.models import PluginRecord
+from apps.plugin_manager.environments import active_plugin
 from . import PLUGIN_ID
 
 
 def _enabled():
-    if not PluginRecord.objects.filter(plugin_id=PLUGIN_ID,enabled=True,error="",source=PluginRecord.Source.PACKAGE).exists():
+    if not active_plugin(PLUGIN_ID):
         raise Http404('BIM assessment plugin is not enabled.')
 
 

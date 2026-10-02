@@ -64,6 +64,7 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
         version=manifest.get("version","1.0.0"),
         api_version=manifest.get("api_version","1.0"),
         package_manifest=manifest,
+        compatibility=manifest.get("compatibility", "both"),
         signing_key=artifact.signing_key,
         enabled=False,
         source=PluginRecord.Source.UPLOAD,

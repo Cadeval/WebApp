@@ -12,10 +12,13 @@ install:
 	uv sync --frozen
 
 debug:
-	uv run python manage.py runbolt --dev
+	uv run python manage.py debugserver --settings=config.settings.dev --processes 4 --max-rss 512
 
 run:
-	uv run python -m uvicorn --workers 4 webapp.asgi:application --lifespan auto --log-level debug --host [::] --port 8000
+	uv run python manage.py runbolt --settings=config.settings.prod --processes 8 \
+    --max-rss 512 \
+    --workers-lifetime 21600 \
+    --respawn-failed-workers
 
 migrate:
 	uv run python manage.py makemigrations

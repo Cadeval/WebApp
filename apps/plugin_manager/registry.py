@@ -112,6 +112,7 @@ class DiscoveryResult:
     api_version: str = ""
     priority: int = 100
     error: str = ""
+    compatibility: str = "both"
 
     @property
     def ok(self) -> bool:
@@ -160,6 +161,13 @@ class PluginRegistry:
             raise PluginError("A registration hook may only contribute for its own plugin id.")
         if not isinstance(priority, int) or isinstance(priority, bool):
             raise PluginError("Contribution priority must be an integer.")
+        if point == "debug_mcp_process":
+            from .debug_processes import MCPProcess
+            manifest = self._manifests.get(plugin_id)
+            if not isinstance(value, MCPProcess) or value.plugin_id != plugin_id or not manifest or manifest.compatibility != "debug" or not self._environment_compatible("debug"):
+                raise PluginError("MCP subprocess contributions require a debug-only plugin in debug mode.")
+            if not value.command or not all(isinstance(arg, str) and arg for arg in value.command) or not 1024 <= value.port <= 65535:
+                raise PluginError("Invalid MCP subprocess command or port.")
         if point == NAV_ITEM_EXTENSION_POINT:
             if not isinstance(value, NavItem) or not isinstance(value.label, str) or not value.label.strip() or len(value.label) > 255 or not isinstance(value.icon, str) or not isinstance(value.full_page, bool):
                 raise PluginError("Invalid navigation contribution.")
@@ -199,7 +207,7 @@ class PluginRegistry:
         return [
             entry.value
             for entry in self.get_extensions(point)
-            if entry.plugin_id in enabled
+            if entry.plugin_id in enabled and (entry.plugin_id not in self._manifests or self._environment_compatible(self._manifests[entry.plugin_id].compatibility))
         ]
 
     # -- Typed convenience wrapper for the navigation extension point ---
@@ -237,6 +245,11 @@ class PluginRegistry:
             editor_plugin,
             priority=editor_plugin.priority,
         )
+
+    @staticmethod
+    def _environment_compatible(value):
+        from .environments import compatible
+        return compatible(value)
 
     def _enabled_plugin_ids(self) -> set[str]:
         # Imported lazily to avoid AppRegistryNotReady during app startup.
@@ -326,6 +339,9 @@ class PluginRegistry:
                     raise PluginError("Manifest priority must be a signed 32-bit integer.")
                 if manifest.register is not None and not callable(manifest.register):
                     raise PluginError("Manifest registration hook must be callable.")
+                from .environments import COMPATIBILITY
+                if manifest.compatibility not in COMPATIBILITY:
+                    raise PluginError("Manifest compatibility must be debug, production or both.")
                 if plugin_id in seen_ids:
                     # Do not reuse the colliding id as the DiscoveryResult's
                     # plugin_id: that would make sync_plugin_records()
@@ -351,7 +367,7 @@ class PluginRegistry:
                 seen_ids.add(plugin_id)
                 self._manifests[plugin_id] = manifest
 
-                if manifest.register is not None:
+                if manifest.register is not None and self._environment_compatible(manifest.compatibility):
                     previous_extensions = {key: list(value) for key, value in self._extensions.items()}
                     try:
                         self._registering_plugin = plugin_id
@@ -373,6 +389,7 @@ class PluginRegistry:
                                 version=manifest.version,
                                 api_version=manifest.api_version,
                                 priority=manifest.priority,
+                                compatibility=manifest.compatibility,
                                 error=f"Error while registering hooks: {exc}",
                             )
                         )
@@ -385,6 +402,7 @@ class PluginRegistry:
                         version=manifest.version,
                         api_version=manifest.api_version,
                         priority=manifest.priority,
+                        compatibility=manifest.compatibility,
                     )
                 )
             except Exception as exc:  # noqa: BLE001 - discovery must never crash startup
@@ -410,6 +428,7 @@ class PluginRegistry:
                     "api_version": result.api_version,
                     "priority": result.priority,
                     "error": result.error,
+                    "compatibility": result.compatibility,
                 }
                 record, created = PluginRecord.objects.get_or_create(
                     plugin_id=result.plugin_id,

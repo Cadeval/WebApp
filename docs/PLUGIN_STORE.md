@@ -50,3 +50,5 @@ Owners and administrators may revoke a public key. Linked packages are disabled,
 ## OpenZL
 
 OpenZL compresses typed data or byte streams; a multi-file package would need a container such as TAR inside the compressed stream. No OpenZL decoder is installed or integrated here. `.zl` uploads receive a clear unsupported-format message. Repack the file contents into ZIP/TAR/gzip/xz and sign them. The signature protocol is independent of the container, leaving room for a bounded, tested OpenZL decoder later. Primary documentation: https://openzl.org/getting-started/quick-start/ and https://openzl.org/api/py/decompress/.
+
+The optional signed manifest field `compatibility` accepts `debug`, `production`, or `both` (default). It controls environment availability; commands and MCP subprocess declarations cannot be uploaded in browser archives.

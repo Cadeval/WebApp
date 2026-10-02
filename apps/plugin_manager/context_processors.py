@@ -49,6 +49,8 @@ def _uploaded_editor_items() -> list[Any]:
     ).select_related("signing_key").exclude(artifact="")
     items = []
     for record in records:
+        if not record.environment_compatible:
+            continue
         if not record.signing_key or record.signing_key.revoked_at or record.signing_key.owner_id is None:
             continue
         manifest = record.package_manifest

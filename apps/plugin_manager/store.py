@@ -33,7 +33,7 @@ def store_response(request, *, form=None, notice='', status=200):
         builtin=BUILTINS.get(record.plugin_id)
         description=(builtin[1] if builtin else record.package_manifest.get('description','')) or ('Installed Python package. Server installation and code updates require a restart.' if record.source=='package' else 'Reviewed browser plugin, available in the Configuration Editor when enabled.')
         if query and query.casefold() not in (' '.join([record.plugin_id,record.name,description])).casefold(): continue
-        catalog.append({'record':record,'description':description,'url':builtin[2] if builtin else '/plugins/bim/config_editor/','category':'Bundled tool' if builtin else ('Installed Python package' if record.source=='package' else 'Uploaded browser plugin')})
+        catalog.append({'record':record,'description':description,'url':builtin[2] if builtin else ('' if record.plugin_id.startswith('cadevil.mcp.') else '/plugins/bim/config_editor/'),'category':'Bundled tool' if builtin else ('Installed Python package' if record.source=='package' else 'Uploaded browser plugin')})
     response=render_page(request,'plugin_manager/store.html',{'catalog':catalog,'query':query,'notice':notice,'upload_form':form or PluginUploadForm()},status=status)
     if request.method=='POST': response['HX-Push-Url']='false'
     return response
@@ -72,6 +72,7 @@ def store_action(request,plugin_id,action):
 @login_required(login_url='/mycelium/login')
 def package_asset(request,plugin_id,asset_path):
     record=get_object_or_404(PluginRecord,plugin_id=plugin_id,source='upload',artifact_type='zip',enabled=True,error='',signing_key__isnull=False,signing_key__revoked_at__isnull=True,signing_key__owner__isnull=False)
+    if not record.environment_compatible: raise Http404('Plugin is unavailable in this environment.')
     try: safe_path(asset_path)
     except ValidationError as error: raise Http404('Package asset is unavailable.') from error
     suffix=PurePosixPath(asset_path).suffix.lower()
