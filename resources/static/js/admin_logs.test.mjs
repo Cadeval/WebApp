@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('./admin_logs.js', import.meta.url),'utf8');
+test('log display buffers safely, pauses, clears, deduplicates and closes on HTMX cleanup',async()=>{
+ const listeners={};const fields={};
+ for(const key of ['output','status','pause','clear','follow']) fields[key]={textContent:'',checked:true,scrollTop:0,scrollHeight:20};
+ const root={dataset:{socketPath:'/ws/logs'},querySelector:s=>fields[s.match(/data-log-(\w+)/)[1]]};
+ globalThis.document={querySelector:()=>root,addEventListener:(n,f)=>listeners[n]=f};
+ globalThis.window={addEventListener:(n,f)=>listeners[n]=f};
+ globalThis.location={protocol:'https:',host:'testserver'};
+ const sockets=[];globalThis.WebSocket=class{constructor(url){this.url=url;sockets.push(this)}close(){this.closed=true}};
+ await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+ const socket=sockets[0];assert.equal(socket.url,'wss://testserver/ws/logs');socket.onopen();assert.equal(fields.status.textContent,'Live');
+ const entry=(id,message)=>({id,time:'now',level:'INFO',logger:'app',message});
+ socket.onmessage({data:JSON.stringify({type:'logs',entries:[entry(1,'<script>literal log</script>')]})});
+ assert.equal(fields.output.textContent,'now INFO app: <script>literal log</script>');
+ fields.pause.onclick();socket.onmessage({data:JSON.stringify({type:'logs',entries:[entry(2,'Paused update')]})});
+ assert(!fields.output.textContent.includes('Paused update'));fields.pause.onclick();assert(fields.output.textContent.includes('Paused update'));
+ socket.onmessage({data:JSON.stringify({type:'logs',entries:[entry(2,'Duplicate')]})});assert(!fields.output.textContent.includes('Duplicate'));
+ socket.onmessage({data:JSON.stringify({type:'logs',entries:Array.from({length:1100},(_,i)=>entry(i+3,'line'))})});assert.equal(fields.output.textContent.split('\n').length,1000);
+ fields.clear.onclick();assert.equal(fields.output.textContent,'');
+ listeners['htmx:beforeCleanupElement']({detail:{elt:{contains:el=>el===root}}});assert(socket.closed);
+ for(const key of ['document','window','location','WebSocket'])delete globalThis[key];
+});

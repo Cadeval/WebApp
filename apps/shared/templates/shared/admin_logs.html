@@ -1,0 +1,12 @@
+{% load static %}
+<div {% if fragment %}id="content-container"{% endif %} class="bim-workspace" hx-history="false">
+<link rel="stylesheet" href="{% static 'css/bim.css' %}">
+<section data-admin-logs data-socket-path="/ws/logs" aria-labelledby="log-heading">
+<h1 id="log-heading">Live application logs</h1>
+<p>Staff only. Includes recent application logs from all server workers. Older entries expire automatically.</p>
+<p role="status" data-log-status>Connecting…</p>
+<button type="button" data-log-pause>Pause display</button>
+<button type="button" data-log-clear>Clear display</button>
+<label><input type="checkbox" data-log-follow checked> Follow latest entries</label>
+<pre data-log-output aria-label="Application logs" tabindex="0" style="max-height:65vh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bim-panel);color:var(--bim-text);border:1px solid var(--bim-border);padding:1rem;border-radius:.5rem"></pre>
+</section></div>
