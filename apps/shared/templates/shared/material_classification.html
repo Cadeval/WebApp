@@ -1,0 +1,10 @@
+{% if report.material_classification %}
+<h2>Material reference matching</h2>
+<p>{{ report.material_classification.notice }}</p>
+<p>{{ report.material_classification.method }}. Scores rank name similarity; they are not certainty percentages.</p>
+{% for material in report.material_classification.materials %}<details><summary>{{ material.material }} — {{ material.status }}{% if material.coverage %} · {{ material.coverage.known_fields }}/{{ material.coverage.required_fields }} reference fields available{% endif %}</summary>
+{% if material.coverage.missing_fields %}<p>Missing or invalid reference fields: {{ material.coverage.missing_fields|join:', ' }}.</p>{% endif %}
+{% if material.candidates %}<div class="bim-table-scroll"><table><tr><th>Suggested reference</th><th>Name similarity score</th><th>Reference fields available</th><th>Missing or invalid fields</th></tr>{% for candidate in material.candidates %}<tr><td>{{ candidate.reference }}</td><td>{{ candidate.similarity|floatformat:"4" }}</td><td>{{ candidate.coverage.known_fields }}/{{ candidate.coverage.required_fields }}</td><td>{{ candidate.coverage.missing_fields|join:', '|default:'None' }}</td></tr>{% endfor %}</table></div><p>Confirm material composition and edit the reference mapping before recalculating. Suggestions have not been applied.</p>{% elif not material.reference %}<p>No sufficiently similar reference name found.</p>{% endif %}
+<ul>{% for element in material.element_references %}<li><a href="{% url 'bim:viewer' document.upload_id %}?element={{ element.element_id|urlencode }}">Inspect {{ element.display_name }}</a></li>{% endfor %}</ul>
+</details>{% endfor %}
+{% endif %}
