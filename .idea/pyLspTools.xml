@@ -3,14 +3,14 @@
   <component name="PyToolsState">
     <option name="tools">
       <map>
-        <entry key="ruff">
+        <entry key="pyrefly">
           <value>
             <ToolEntry>
               <option name="enabled" value="true" />
             </ToolEntry>
           </value>
         </entry>
-        <entry key="ty">
+        <entry key="ruff">
           <value>
             <ToolEntry>
               <option name="enabled" value="true" />
