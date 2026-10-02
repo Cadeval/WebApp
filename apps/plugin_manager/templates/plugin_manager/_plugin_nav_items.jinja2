@@ -1,0 +1,6 @@
+<div id="plugin-navigation-items"{% if plugin_nav_oob %} hx-swap-oob="outerHTML"{% endif %}>
+{% for nav_item in plugin_nav_items %}
+    <a class="button-wide fa {{ nav_item.icon }}" href="{{ nav_item.url }}"
+       {% if nav_item.full_page %}hx-boost="false"{% else %}hx-get="{{ nav_item.url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% endif %}>{{ nav_item.label }}</a>
+{% endfor %}
+</div>

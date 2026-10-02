@@ -1,0 +1,63 @@
+{% load static %}
+
+<div {% if fragment %}id="content-container"{% endif %}>
+    <section class="snake-game"
+             data-snake-game
+             data-worker-url="{% static 'js/plugins/snake_game_worker.js' %}"
+             data-wasm-url="{% static 'wasm/rust_example_plugin.wasm' %}"
+             tabindex="0"
+             aria-labelledby="snake-game-title"
+             aria-describedby="snake-game-instructions">
+        <div class="snake-game__header">
+            <div>
+                <h1 id="snake-game-title">Snake</h1>
+                <p id="snake-game-instructions">
+                    Focus the game and use the arrow or WASD keys. On touch screens, use the direction pad.
+                </p>
+            </div>
+            <button type="button"
+                    class="button snake-game__restart fa fa-refresh"
+                    data-snake-action="restart">
+                Restart game
+            </button>
+        </div>
+
+        <div class="snake-game__layout">
+            <div class="snake-game__stage">
+                <canvas data-snake-canvas
+                        width="480"
+                        height="480"
+                        aria-label="Snake game board">
+                    Your browser does not support the canvas used by Rust Snake.
+                </canvas>
+            </div>
+
+            <aside class="snake-game__sidebar" aria-label="Snake game information and controls">
+                <div class="snake-game__metrics">
+                    <div>
+                        <span>Score</span>
+                        <strong data-snake-field="score">0</strong>
+                    </div>
+                    <div>
+                        <span>Length</span>
+                        <strong data-snake-field="length">3</strong>
+                    </div>
+                </div>
+                <p class="snake-game__status" data-snake-field="status" role="status" aria-live="polite">
+                    Loading isolated game worker…
+                </p>
+
+                <div class="snake-game__direction-pad" aria-label="Snake direction controls">
+                    <button type="button" data-snake-direction="up" aria-label="Move up">↑</button>
+                    <button type="button" data-snake-direction="left" aria-label="Move left">←</button>
+                    <button type="button" data-snake-direction="down" aria-label="Move down">↓</button>
+                    <button type="button" data-snake-direction="right" aria-label="Move right">→</button>
+                </div>
+                <p class="snake-game__sandbox-note">
+                    <span class="fa fa-shield" aria-hidden="true"></span>
+                    Game rules run in Rust WebAssembly inside a dedicated worker.
+                </p>
+            </aside>
+        </div>
+    </section>
+</div>

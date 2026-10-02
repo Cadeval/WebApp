@@ -1,0 +1,38 @@
+    {% if plugin_editor_items %}
+        <section class="editor-plugins" aria-label="Editor plugins">
+            {% for editor_plugin in plugin_editor_items %}
+                <article class="editor-plugin-card"
+                         data-editor-plugin="{{ editor_plugin.id }}"
+                         data-worker-url="{{ editor_plugin.worker_url }}"
+                         data-wasm-url="{{ editor_plugin.wasm_url }}"
+                         data-artifact-type="{{ editor_plugin.artifact_type }}"
+                         data-content-hash="{{ editor_plugin.content_hash }}"
+                         data-max-run-ms="{{ editor_plugin.max_run_ms }}">
+                    <div class="editor-plugin-card__header">
+                        <div>
+                            <span class="viewer-eyebrow">Plugin managed UI</span>
+                            <h2>{{ editor_plugin.name }}</h2>
+                        </div>
+                        <span class="editor-plugin-badge" data-plugin-field="generation">Generation 0</span>
+                    </div>
+                    <p>{{ editor_plugin.description }}</p>
+                    <div class="editor-plugin-controls">
+                        <label>
+                            Value
+                            <input type="number" value="21" data-plugin-field="input">
+                        </label>
+                        <button type="button" class="button fa fa-play" data-plugin-action="run" disabled>
+                            Run in worker
+                        </button>
+                        <button type="button" class="button fa fa-refresh" data-plugin-action="reload">
+                            Reload worker
+                        </button>
+                    </div>
+                    <dl class="editor-plugin-output">
+                        <div><dt>Status</dt><dd data-plugin-field="status" aria-live="polite">Starting worker…</dd></div>
+                        <div><dt>Result</dt><dd data-plugin-field="result">—</dd></div>
+                    </dl>
+                </article>
+            {% endfor %}
+        </section>
+    {% endif %}
