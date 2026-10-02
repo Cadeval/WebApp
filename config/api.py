@@ -14,3 +14,6 @@ api.mount('', log_api)
 
 from apps.plugins.browser_pages import api as browser_plugin_api
 api.mount("", browser_plugin_api)
+
+from apps.shared.development_mcp import mount_development_mcp
+mount_development_mcp(api)

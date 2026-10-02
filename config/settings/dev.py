@@ -16,3 +16,6 @@ CHANNEL_LAYERS = {
 # Native WebSockets reject browser Origins unless explicitly configured.
 # The log handler additionally requires Origin to equal the request Host.
 CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']
+
+# Development-only read-only tools. DEBUG=False always prevents an MCP mount.
+DEVELOPMENT_MCP_ENABLED = True
