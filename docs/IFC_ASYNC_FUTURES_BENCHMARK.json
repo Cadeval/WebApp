@@ -1,0 +1,36 @@
+[
+  {
+    "house": "House A",
+    "source_sha256": "adea2d7e808976cdd2be9ac11a0a5a9997f4b029f297649109800af1516f3bf1",
+    "parallel_seconds": 144.62,
+    "building_matches_recorded_actual_model": true,
+    "schema_occurrences": 22674,
+    "source_unchanged": true,
+    "serial_seconds": 179.3,
+    "speedup": 1.24
+  },
+  {
+    "house": "House B",
+    "source_sha256": "5ea4521ab926882f94c0e630068371f5325db8aa70339a993211f1de0df90d54",
+    "parallel_seconds": 180.67,
+    "building_matches_recorded_actual_model": true,
+    "schema_occurrences": 28535,
+    "source_unchanged": true
+  },
+  {
+    "house": "House C",
+    "source_sha256": "4d63dc07e3e8ce7bed2b73c67a4985bd75cd6517a4cd2833d355e7df58d3d38b",
+    "parallel_seconds": 133.66,
+    "building_matches_recorded_actual_model": true,
+    "schema_occurrences": 16089,
+    "source_unchanged": true
+  },
+  {
+    "house": "House D",
+    "source_sha256": "52335be36ffc7b0ea944ff4377ab83eec6aebcd9cc4072028fc7ab017445287d",
+    "parallel_seconds": 148.21,
+    "building_matches_recorded_actual_model": true,
+    "schema_occurrences": 21373,
+    "source_unchanged": true
+  }
+]
