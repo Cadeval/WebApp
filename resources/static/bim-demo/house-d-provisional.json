@@ -1,0 +1,161 @@
+{
+  "building": {
+    "volume": null,
+    "volume_known_subtotal": 6036.751526622605,
+    "area": null,
+    "area_known_subtotal": 84554.7708612281,
+    "length": null,
+    "length_known_subtotal": 36893.89373351572,
+    "mass": null,
+    "mass_known_subtotal": 7156609.006471792,
+    "mass_observation": null,
+    "mass_observation_known_subtotal": 7607392.627671271,
+    "waste_mass": null,
+    "waste_mass_known_subtotal": 3655138.424726694,
+    "recyclable_mass": null,
+    "recyclable_mass_known_subtotal": 3501470.581745098,
+    "waste_mass_observation": null,
+    "waste_mass_observation_known_subtotal": 3870478.944344251,
+    "recyclable_mass_observation": null,
+    "recyclable_mass_observation_known_subtotal": 3736913.6833270197,
+    "global_brutto_price": null,
+    "global_brutto_price_known_subtotal": 1887638.2666938326,
+    "local_brutto_price": null,
+    "local_brutto_price_known_subtotal": 2263278.2817659057,
+    "local_netto_price": null,
+    "local_netto_price_known_subtotal": 1890463.2994008209,
+    "gwp_a1_a3": null,
+    "gwp_a1_a3_known_subtotal": 1268273.6731907518,
+    "gwp_b4": null,
+    "gwp_b4_known_subtotal": 333967.80930714024,
+    "gwp_a1_a3_b4": null,
+    "gwp_a1_a3_b4_known_subtotal": 1602241.482497892,
+    "ap_a1_a3": null,
+    "ap_a1_a3_known_subtotal": 3491.231048675678,
+    "ap_b4": null,
+    "ap_b4_known_subtotal": 1379.4551849657573,
+    "ap_a1_a3_b4": null,
+    "ap_a1_a3_b4_known_subtotal": 4870.686233641435,
+    "penrt_a1_a3": null,
+    "penrt_a1_a3_known_subtotal": 13862791.458838519,
+    "penrt_b4": null,
+    "penrt_b4_known_subtotal": 5423869.543410822,
+    "penrt_a1_a3_b4": null,
+    "penrt_a1_a3_b4_known_subtotal": 19286661.00224934,
+    "recycling_grade": null
+  },
+  "complete": false,
+  "lca_averages": {
+    "method": "installed_mass",
+    "denominator": null,
+    "values": {
+      "gwp_a1_a3": null,
+      "gwp_a1_a3_b4": null,
+      "ap_a1_a3": null,
+      "ap_a1_a3_b4": null,
+      "penrt_a1_a3": null,
+      "penrt_a1_a3_b4": null
+    },
+    "note": "Both periods are divided by installed mass at year 0; observation-period values retain replacement production impacts per initially installed kg.",
+    "unit_basis": "per installed kg"
+  },
+  "recovery_cost_analysis": {
+    "currency": "EUR",
+    "cost_basis": "Initial global gross material cost",
+    "method": "Sum material-row purchase costs by their descriptive recovery grade; no assumed resale or disposal value.",
+    "known_cost_eur": 1887638.2666938314,
+    "groups": [
+      {
+        "grade": 1,
+        "known_cost_eur": 571259.5182518596,
+        "priced_rows": 1893,
+        "missing_price_rows": 0,
+        "rows": 1893,
+        "cost_eur": 571259.5182518596,
+        "share_of_known_cost_percent": 30.263188044625284
+      },
+      {
+        "grade": 2,
+        "known_cost_eur": 659218.5197416443,
+        "priced_rows": 744,
+        "missing_price_rows": 0,
+        "rows": 744,
+        "cost_eur": 659218.5197416443,
+        "share_of_known_cost_percent": 34.92292624986116
+      },
+      {
+        "grade": 3,
+        "known_cost_eur": 335507.6662204408,
+        "priced_rows": 1233,
+        "missing_price_rows": 0,
+        "rows": 1233,
+        "cost_eur": 335507.6662204408,
+        "share_of_known_cost_percent": 17.773938584540204
+      },
+      {
+        "grade": 4,
+        "known_cost_eur": 321652.56247988663,
+        "priced_rows": 363,
+        "missing_price_rows": 0,
+        "rows": 363,
+        "cost_eur": 321652.56247988663,
+        "share_of_known_cost_percent": 17.03994712097334
+      },
+      {
+        "grade": 5,
+        "known_cost_eur": 0.0,
+        "priced_rows": 0,
+        "missing_price_rows": 0,
+        "rows": 0,
+        "cost_eur": 0.0,
+        "share_of_known_cost_percent": 0.0
+      },
+      {
+        "grade": null,
+        "known_cost_eur": 0.0,
+        "priced_rows": 0,
+        "missing_price_rows": 3852,
+        "rows": 3852,
+        "cost_eur": null,
+        "share_of_known_cost_percent": 0.0
+      }
+    ]
+  },
+  "geometry_processing": {
+    "engine": "IfcOpenShell multicore iterator",
+    "threads": 4,
+    "converted": 2834,
+    "serial_fallbacks": 116
+  },
+  "options": {
+    "years": 50,
+    "include_endpoint": true,
+    "grade_weighting": "mass",
+    "lca_averaging": "installed_mass",
+    "replacement_method": "discrete",
+    "excluded_classes": [
+      "IfcWindow",
+      "IfcDoor",
+      "IfcWindowStandardCase",
+      "IfcDoorStandardCase"
+    ]
+  },
+  "status": "Provisional estimate: IFC validation warnings and incomplete material coverage",
+  "schema_diagnostics": 21373,
+  "issue_count": 811,
+  "quantity_warning_count": 1750,
+  "source_sha256": "52335be36ffc7b0ea944ff4377ab83eec6aebcd9cc4072028fc7ab017445287d",
+  "reference_sha256": "4bbefa2e1a6d0694258baaaf44140b4275286bcca9795b6086e98d656ac87d0e",
+  "calculation_seconds": 152.19,
+  "calculated_at": "2026-10-02T19:58:53.645848+00:00",
+  "code_files_sha256": {
+    "material_assessment.py": "65e4c7dfc4f49f42d8bd52738f92909df3b7337de1acfd5408f5ebd9c0eac834",
+    "ifc_assessment.py": "fd28a68da7eb44cddbdb20bb74c0541d907c03e7724a2b5cf8e5eae788c9e0c2",
+    "quantity_resolution.py": "2496a08020d9e8ac9fefb9c8070eb9670ef417c8a3c9bdeb23e67e192620801a",
+    "parallel_geometry.py": "597721cd5e5cff63d7ecf2e2b4b11d72ad4256edd92f3e52d248c50dd65c8579",
+    "recovery_costs.py": "e27edc64c207e132da7fae791fdee26094b5778331ef97bc74db10895ec81c06",
+    "diagnostics.py": "e2f86cf8512de2af6912b3a48828ada962c4e8679e2780ee58da690bbc5eebce",
+    "material_neighbors.py": "601d046362d10de81ec303ff3a1fbcd12478dd07af0df3d964e00da428d4b524",
+    "assessment_futures.py": "027650af27e9763fabd5647a10090df27da7356aaa77a1848ccdbc3720130787"
+  }
+}
