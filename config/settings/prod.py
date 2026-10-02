@@ -30,6 +30,23 @@ SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+# Allow specific origins
+CORS_ALLOWED_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if o.strip()
+]
+
+# Allow all origins (development only!)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Additional settings
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["Content-Type", "Authorization", "X-Requested-With"]
+CORS_EXPOSE_HEADERS = ["X-Total-Count", "X-Page-Count"]
+CORS_MAX_AGE = 86400  # 24 hours
+
 # State channel layer — InMemoryChannelLayer works for single-process deploys.
 # For multi-process or multi-server, switch to RedisChannelLayer:
 #   pip install channels-redis

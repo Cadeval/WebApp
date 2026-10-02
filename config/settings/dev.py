@@ -13,14 +13,6 @@ CHANNEL_LAYERS = {
     }
 }
 
-# Hot View Replacement — reloads LiveView Python code in dev without
-# disconnecting the client or losing state. Requires watchdog (in dev
-# extras: `pip install -e ".[dev]"`). Declared explicitly so the intent
-# is visible alongside the Makefile note about not running uvicorn with
-# --reload (uvicorn's worker restart would defeat HVR's state preservation).
-LIVEVIEW_CONFIG = {
-    "hot_reload": True,  # file watcher on
-    "hot_reload_auto_enable": True,  # call enable_hot_reload() from DjustConfig.ready()
-    "hvr_enabled": True,  # v0.6.1 — state-preserving reload
-}  # ty: ignore[invalid-assignment]
-# FIXME: Fix live view config type inference
+# Native WebSockets reject browser Origins unless explicitly configured.
+# The log handler additionally requires Origin to equal the request Host.
+CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']

@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
+from django_bolt import IsAuthenticated, JWTAuthentication
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY — set SECRET_KEY in .env before deploying to production.
@@ -13,34 +15,10 @@ ALLOWED_HOSTS = [
     h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 ]
 
-INSTALLED_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "daphne",
-    "django.contrib.staticfiles",
-    "djust",  # Core LiveView framework
-    "apps.shared",  # BaseLiveView, context processors, theming
-    "apps.mycelium",  # Home page — your first LiveView
-]
+# =======================
+#  Middleware & Apps
+# =======================
 
-# djust[theming] — 60+ theme packs, dark/light mode, CSS variable system.
-try:
-    import djust.theming  # noqa: F401
-
-    INSTALLED_APPS.append("djust.theming")
-except ImportError:
-    pass
-
-# djust[components] — buttons, cards, modals, tabs, and more.
-try:
-    import djust.components  # noqa: F401
-
-    INSTALLED_APPS.append("djust.components")
-except ImportError:
-    pass
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -52,20 +30,67 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "daphne",
+    "django.contrib.staticfiles",
+    "django_bolt",  # Core LiveView framework
+    "django_htmx",
+    "apps.shared",  # BaseLiveView, context processors, theming
+    "apps.mycelium",  # Home page — your first LiveView
+    "apps.plugin_manager",
+]
 
+# =======================
+# URL and ASGI/WSGI Configuration
+# =======================
+
+ROOT_URLCONF: str = "config.urls"
+
+ASGI_APPLICATION = "config.asgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
+
+# Redirect URLs
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+# =======================
+# Paths and Directories
+# =======================
+
+STATIC_URL: str = "static/"
+STATICFILES_DIRS: list[Path] = [BASE_DIR / "resources/static"]
+STATIC_ROOT: str = os.path.join(BASE_DIR, "resources/collected_static/")
+
+TEMPLATE_URL: str = "templates/"
+TEMPLATEFILES_DIRS: list[Path] = [BASE_DIR / "resources/templates"]
+
+MEDIA_URL: str = "user_uploads/"
+MEDIA_ROOT: Path = BASE_DIR / "data/user_uploads/"
+
+# OpenStudio energy simulations. Leave the CLI path empty to let the
+# installed Python package or PATH provide it.
+OPENSTUDIO_CLI_PATH: str | None = os.environ.get("OPENSTUDIO_CLI_PATH") or None
+OPENSTUDIO_TIMEOUT_SECONDS: int = int(
+    os.environ.get("OPENSTUDIO_TIMEOUT_SECONDS", "900")
+)
+
+
+# =======================
+# Templates Settings
+# =======================
 _context_processors = [
     "django.template.context_processors.debug",
     "django.template.context_processors.request",
     "django.contrib.auth.context_processors.auth",
     "django.contrib.messages.context_processors.messages",
+    "apps.plugin_manager.context_processors.plugin_nav_items",
+    "apps.plugin_manager.context_processors.plugin_editor_items",
 ]
-try:
-    import djust.theming.context_processors  # noqa: F401
-
-    _context_processors.append("djust.theming.context_processors.theme_context")
-except ImportError:
-    pass
 
 TEMPLATES = [
     {
@@ -78,8 +103,50 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "config.asgi.application"
-WSGI_APPLICATION = "config.wsgi.application"
+# =======================
+# Authentication Settings
+# =======================
+
+AUTH_USER_MODEL = "shared.CadevilUser"
+# AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
+
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+# =======================
+# django-bolt Settings
+# =======================
+
+# Global defaults applied to every BoltAPI route that doesn't override
+# `auth=`/`guards=` explicitly (see apps/mycelium/api.py). Routes that must
+# stay public (e.g. the login page/endpoint) opt out with `guards=[AllowAny()]`.
+# `secret=SECRET_KEY` is passed explicitly (instead of leaving JWTAuthentication
+# fall back to `django.conf.settings.SECRET_KEY` on its own) because settings
+# are still being assembled at this point — reading `django.conf.settings`
+# here would re-enter Django's settings setup.
+# BOLT_AUTHENTICATION_CLASSES = [
+#     JWTAuthentication(cookie="access_token", secret=SECRET_KEY),
+#     JWTAuthentication(secret=SECRET_KEY),
+# ]
+# BOLT_DEFAULT_PERMISSION_CLASSES = [IsAuthenticated()]
+
+MESSAGE_STORAGE: str = "django.contrib.messages.storage.cookie.CookieStorage"
+
+# Do not keep the session open indefinitely
+SESSION_EXPIRE_AT_BROWSER_CLOSE: bool = True
+
 
 # DATABASE_URL — unset defaults to SQLite (fine for local dev, no action needed).
 # Supported schemes:
@@ -98,11 +165,15 @@ if _database_url:
             _path = _path[1:]
         elif _path.startswith("/"):
             # three-slash: sqlite:///mydb.db → treat as BASE_DIR relative
-            _path = str(BASE_DIR / _path.lstrip("/"))
+            _path = str(_path.lstrip("/"))
+            _path = str(BASE_DIR / _path)
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
                 "NAME": _path or str(BASE_DIR / "data/db-instance.sqlite3"),
+                "OPTIONS": {
+                    "init_command": "PRAGMA journal_mode=wal;",
+                },
             }
         }
     elif _scheme in ("postgres", "postgresql"):
@@ -126,90 +197,60 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "data/db-instance.sqlite3",
+            "OPTIONS": {
+                "init_command": "PRAGMA journal_mode=wal;",
+            },
         }
     }
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# STATIC_ROOT = str(BASE_DIR / "resources/static")
 STATICFILES_DIRS = [BASE_DIR / "resources/static"]
-
-# Register every module that contains LiveView subclasses you want mountable
-# over WebSockets. Unregistered views will silently fail to connect.
-LIVEVIEW_ALLOWED_MODULES = ["apps.mycelium.views"]
-
-# LiveView state backend.
-# "memory"          — in-process, lost on restart. Fine for single-server dev.
-# "redis://..."     — Redis. Required for multi-process or multi-server deploys.
-# "rediss://..."    — Redis over TLS.
-DJUST_STATE_BACKEND = os.environ.get("DJUST_STATE_BACKEND", "memory")
-if DJUST_STATE_BACKEND.startswith(("redis://", "rediss://")):
-    DJUST_REDIS_URL = DJUST_STATE_BACKEND
-
-DJUST_CONFIG = {
-    # T002: dj-root is auto-inferred — informational only.
-    "suppress_checks": ["T002"],
-}
-
-# Fine-grained djust behaviour. All values below are the defaults — uncomment
-# and change only what you need. Full reference: docs.djust.org/api/config/
-# ─── Cookie namespace ────────────────────────────────────────────────────
-# Cookies are scoped per-host, not per-port, so every app served from
-# 127.0.0.1 (or any shared domain) otherwise shares Django's default
-# `sessionid` / `csrftoken` and the djust theme cookies. Prefixing them with
-# a per-project namespace keeps this app's session, CSRF token, and theme
-# choice from colliding with other djust apps on the same host.
-COOKIE_NAMESPACE = "djstart"
-SESSION_COOKIE_NAME = f"{COOKIE_NAMESPACE}_sessionid"
-CSRF_COOKIE_NAME = f"{COOKIE_NAMESPACE}_csrftoken"
-
-LIVEVIEW_CONFIG = {
-    # Namespace the four djust theme cookies (djust_theme, _preset, _pack,
-    # _layout) as <ns>_djust_theme* so theme choices don't bleed across djust
-    # apps sharing this host. djust's ThemeManager reads/writes the namespaced
-    # cookies natively (theme.js write-side, theme_context read-side).
-    "theme": {"cookie_namespace": COOKIE_NAMESPACE},
-    # CSS framework djust-components emits classes for. Determines whether
-    # {% dj_button %} / {% card %} / {% dj_input %} render Bootstrap-style
-    # ('.btn .btn-danger', '.card .card-header') or Tailwind-style
-    # ('px-4 py-2 bg-red-500', etc) markup. Component CSS is loaded
-    # automatically by {% theme_head %} — no manual <link> needed.
-    # Options: "bootstrap5" | "bootstrap4" | "tailwind" | "plain" | None
-    "css_framework": "bootstrap5",
-    # Event handler security mode.
-    # "strict" — only @event_handler / @action decorated methods can be
-    #            called (default, recommended).
-    # "warn"   — allow undecorated methods but log a deprecation warning.
-    # "open"   — no restriction (legacy, not recommended).
-    # "event_security": "strict",
-    # Set to False to fall back to HTTP polling instead of WebSockets.
-    # "use_websocket": True,
-    # Hot View Replacement — reloads LiveView Python code in dev without
-    # disconnecting the client or losing state. Requires watchdog (in dev
-    # deps). Dev-only: enabled in config/settings/dev.py — do NOT set here
-    # in base.py because prod.py inherits base and would also pick it up
-    # (prod doesn't want hot reload, and watchdog isn't installed there).
-    # Rate limiting for WebSocket events (token bucket algorithm).
-    # "rate_limit": {
-    #     "rate": 100,                  # sustained events per second per connection
-    #     "burst": 20,                  # burst allowance above the rate
-    #     "max_connections_per_ip": 10, # max concurrent connections per IP
-    # },
-    # Maximum incoming WebSocket message size in bytes. 0 = no limit
-    # (not recommended in production).
-    # "max_message_size": 65536,  # 64 KB default
-    # Enable detailed VDOM patching logs in the server console (dev only).
-    # "debug_vdom": False,
-    # Raise TypeError for non-serializable view state values instead of
-    # silently coercing to str().
-    # "strict_serialization": False,
-}
-
-# djust_theming.W001 — contrast ratio warnings on the built-in default preset.
-# These are upstream issues in the theme pack, not fixable in user code.
-SILENCED_SYSTEM_CHECKS = ["djust_theming.W001"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"  # e.g. "America/New_York", "Europe/London"
 USE_I18N = True
 USE_TZ = True
+
+# =======================
+# Data Upload
+# =======================
+
+# FIXME: This is for the config editor change save post request to work.
+#        Maybe if we used a diff we could lower the number of fields sent?
+DATA_UPLOAD_MAX_NUMBER_FIELDS: int = 8192
+
+# =======================
+# Plugin System Settings
+# =======================
+
+# The API version implemented by this host application. Plugins declare the
+# API version they were built against in their PluginManifest, and are only
+# activated when their major version matches this one. Kept in settings so
+# it can be overridden per-deployment if ever needed.
+PLUGIN_API_VERSION: str = "1.0"
+PLUGIN_MAX_UPLOAD_SIZE: int = 2 * 1024 * 1024
+
+# Plugins shipped with the application use the same manifest contract as
+# third-party ``cadevil.plugins`` entry points, but do not require this source
+# checkout to be installed as a Python distribution before they can be tested.
+PLUGIN_BUILTINS: dict[str, str] = {
+    "cadevil.example.editor": "example_plugin:plugin_manifest",
+    "cadevil.rust-example.editor": "rust_example_plugin:plugin_manifest",
+    "cadevil.bim.model_manager": "bim_model_manager:plugin_manifest",
+}
+
+# =======================
+# Celery Settings
+# =======================
+
+CELERY_RESULT_BACKEND: str = "django-db"
+CELERY_CACHE_BACKEND: str = "django-cache"
+
+# Native geometry workers per assessment; bounded to avoid oversubscribing HTTP workers.
+IFC_GEOMETRY_THREADS = int(os.environ.get('IFC_GEOMETRY_THREADS', '4'))
+
+# Overlap CPU-heavy schema validation with geometry/calculation for large IFCs.
+IFC_PARALLEL_VALIDATION = os.environ.get('IFC_PARALLEL_VALIDATION', 'true').lower() in {'1', 'true', 'yes', 'on'}
+IFC_PARALLEL_VALIDATION_MIN_BYTES = int(os.environ.get('IFC_PARALLEL_VALIDATION_MIN_BYTES', '2000000'))

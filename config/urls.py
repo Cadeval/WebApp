@@ -2,6 +2,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("", include("apps.mycelium.urls")),
+    path("", include("django_bolt.urls")),
     path("admin/", admin.site.urls),
 ]

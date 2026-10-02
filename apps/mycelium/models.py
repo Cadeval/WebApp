@@ -1,8 +1,6 @@
 from django.db import models
-from djust.db import notify_on_save
 
 
-@notify_on_save
 class ReactionCount(models.Model):
     """Per-emoji running total for the Live Reactions hero demo."""
 
@@ -13,7 +11,6 @@ class ReactionCount(models.Model):
         return f"{self.emoji} ({self.count})"
 
 
-@notify_on_save
 class PollVote(models.Model):
     """Per-option running total for the Live Poll supporting demo."""
 
@@ -24,7 +21,6 @@ class PollVote(models.Model):
         return f"{self.option}: {self.count}"
 
 
-@notify_on_save
 class GuestbookMessage(models.Model):
     """One message in the Live Guestbook supporting demo."""
 
