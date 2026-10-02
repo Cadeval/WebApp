@@ -59,11 +59,14 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
     artifact = form.cleaned_data["artifact"]
     suffix = Path(artifact.name).suffix.lower()
     storage_name = f"{artifact.content_hash}{suffix}"
+    manifest = getattr(artifact,"package_manifest",{})
     record = PluginRecord(
         plugin_id=form.cleaned_data["plugin_id"],
         name=form.cleaned_data["name"],
-        version="1.0.0",
-        api_version="1.0",
+        version=manifest.get("version","1.0.0"),
+        api_version=manifest.get("api_version","1.0"),
+        package_manifest=manifest,
+        signing_key=getattr(artifact,"signing_key",None),
         enabled=False,
         source=PluginRecord.Source.UPLOAD,
         artifact_type=artifact.plugin_type,

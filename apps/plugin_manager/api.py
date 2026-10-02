@@ -164,3 +164,49 @@ def manager_reload(request: Request):
 @page_endpoint
 def manager_artifact(request: Request):
     return plugin_artifact(request,request.params['plugin_id'])
+
+from .store import plugin_store, store_upload, store_action, package_asset, sample_package
+
+@api.get('/plugins/store/',name='plugin_store',guards=[AllowAny()])
+@page_endpoint
+def store_page(request: Request): return plugin_store(request)
+
+@api.post('/plugins/store/upload/',name='plugin_store_upload',guards=[AllowAny()])
+@page_endpoint
+def upload_store_package(request: Request): return store_upload(request)
+
+@api.post('/plugins/store/{plugin_id}/{action}/',name='plugin_store_action',guards=[AllowAny()])
+@page_endpoint
+def toggle_store_package(request: Request): return store_action(request,request.params['plugin_id'],request.params['action'])
+
+@api.get('/plugins/{plugin_id}/assets/{asset_path:path}',name='plugin_asset',guards=[AllowAny()])
+@page_endpoint
+def uploaded_package_asset(request: Request): return package_asset(request,request.params['plugin_id'],request.params['asset_path'])
+
+@api.get('/plugins/store/example.zip',name='plugin_sample',guards=[AllowAny()])
+@page_endpoint
+def download_package_example(request: Request): return sample_package(request)
+
+from .keys import signing_keys_page, register_signing_key, revoke_signing_key, signing_cli
+
+@api.get('/plugins/keys/',name='plugin_keys',guards=[AllowAny()])
+@page_endpoint
+def keys_page(request: Request): return signing_keys_page(request)
+
+@api.post('/plugins/keys/register/',name='plugin_key_register',guards=[AllowAny()])
+@page_endpoint
+def create_public_signing_key(request: Request): return register_signing_key(request)
+
+@api.post('/plugins/keys/{key_id}/revoke/',name='plugin_key_revoke',guards=[AllowAny()])
+@page_endpoint
+def revoke_public_signing_key(request: Request): return revoke_signing_key(request,request.params['key_id'])
+
+@api.get('/plugins/keys/cli.py',name='plugin_sign_cli',guards=[AllowAny()])
+@page_endpoint
+def download_signing_cli(request: Request): return signing_cli(request)
+
+from .store import package_download
+
+@api.get('/plugins/{plugin_id}/package.zip',name='plugin_package_download',guards=[AllowAny()])
+@page_endpoint
+def review_package_download(request: Request): return package_download(request,request.params['plugin_id'])

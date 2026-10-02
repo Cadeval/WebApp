@@ -1,0 +1,24 @@
+.plugin-store {max-width:76rem;margin:0 auto;padding:1.5rem;color:var(--primary-color);}
+.plugin-store-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:1rem;margin:1.5rem 0;}
+.plugin-store-grid article {display:flex;flex-direction:column;gap:.5rem;min-width:0;}
+.plugin-store code {overflow-wrap:anywhere;}
+.plugin-store-grid form {margin-top:auto;}
+.plugin-store-search {display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+.plugin-store-search input {flex:1;min-width:10rem;}
+.plugin-store-upload form p {display:flex;flex-direction:column;gap:.4rem;}
+.plugin-store-upload .errorlist {color:var(--primary-color);font-weight:600;}
+.plugin-store-notice {padding:1rem;border:1px solid var(--border-low-contrast);background:var(--secondary-bg);border-radius:var(--border-radius);}
+
+.plugin-store-heading {position:static;display:block;margin-bottom:1.5rem;}
+.plugin-store a {color:var(--primary-color);text-underline-offset:.2em;}
+.plugin-store a:hover {text-decoration-thickness:2px;}
+.plugin-store button {padding:.55rem .9rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);cursor:pointer;}
+.plugin-store button:hover {background:var(--primary-bg);}
+.plugin-store button:disabled {opacity:.6;cursor:wait;}
+.plugin-store input:not([type=file]) {padding:.55rem .75rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);}
+.plugin-store input:focus-visible,.plugin-store button:focus-visible,.plugin-store a:focus-visible {outline:2px solid var(--primary-color);outline-offset:3px;}
+.plugin-store-grid .editor-plugin-card {justify-content:flex-start;gap:.75rem;}
+.plugin-store-grid .editor-plugin-card h2,.plugin-store-grid .editor-plugin-card p {margin:0;}
+.plugin-store fieldset {border:0;padding:0;min-width:0;}
+.plugin-store fieldset label {display:flex;flex-direction:column;gap:.5rem;}
+.plugin-store pre {white-space:pre-wrap;overflow-wrap:anywhere;padding:1rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;background:var(--secondary-bg);}

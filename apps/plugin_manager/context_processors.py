@@ -45,19 +45,28 @@ def _uploaded_editor_items() -> list[Any]:
         source=PluginRecord.Source.UPLOAD,
         enabled=True,
         error="",
-        artifact_type__in=[PluginRecord.ArtifactType.JAVASCRIPT, PluginRecord.ArtifactType.WEBASSEMBLY],
-    ).exclude(artifact="")
+        artifact_type__in=[PluginRecord.ArtifactType.JAVASCRIPT, PluginRecord.ArtifactType.WEBASSEMBLY, PluginRecord.ArtifactType.ZIP],
+    ).select_related("signing_key").exclude(artifact="")
     items = []
     for record in records:
         artifact_url = reverse(
             "plugin_manager:plugin_artifact", args=[record.plugin_id]
         )
-        is_wasm = record.artifact_type == PluginRecord.ArtifactType.WEBASSEMBLY
+        is_zip = record.artifact_type == PluginRecord.ArtifactType.ZIP
+        if is_zip:
+            if not record.signing_key or record.signing_key.revoked_at or record.signing_key.owner_id is None:
+                continue
+            manifest=record.package_manifest
+            entry=manifest.get("entrypoint")
+            if not entry or entry not in manifest.get("files",{}):
+                continue
+            artifact_url=reverse("plugin_manager:plugin_asset",kwargs={"plugin_id":record.plugin_id,"asset_path":entry})
+        is_wasm = record.artifact_type == PluginRecord.ArtifactType.WEBASSEMBLY or (is_zip and record.package_manifest.get("type")=="wasm")
         items.append(
             EditorPlugin(
                 id=record.plugin_id,
                 name=record.name or record.plugin_id,
-                description="Reviewed plugin running in a background worker.",
+                description=record.package_manifest.get("description") or "Reviewed plugin running in a background worker.",
                 worker_url=(
                     static("js/plugins/wasm_plugin_worker.js") + "?v=20261002-plugins"
                     if is_wasm

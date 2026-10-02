@@ -7,7 +7,7 @@
                 <span class="viewer-eyebrow">Workspace settings</span>
                 <h1 id="plugin-manager-title">Plugin Manager</h1>
                 <p>
-                    Extend CADevil with reviewed tools. Installed Python packages run with server privileges;
+                    <a href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Browse the Plugin Store</a>. Extend CADevil with reviewed tools. Installed Python packages run with server privileges;
                     browser uploads run in workers and must also be trusted.
                 </p>
             </div>
@@ -65,7 +65,7 @@
                 <div class="plugin-upload-footer">
                     <p class="plugin-help-text">
                         <span class="fa fa-lock" aria-hidden="true"></span>
-                        Accepted: UTF-8 <code>.js</code>/<code>.mjs</code> and <code>.wasm</code>.
+                        For ZIP packages, leave id and name blank to use plugin.json. Accepted: <code>.zip</code>, UTF-8 <code>.js</code>/<code>.mjs</code> and <code>.wasm</code>.
                         New uploads stay disabled until reviewed. WASM modules must export calculate(number), returning a finite number. JavaScript workers must handle initialize/run messages and reply with ready/result messages.
                     </p>
                     <button type="submit" class="button plugin-upload-submit fa fa-upload">

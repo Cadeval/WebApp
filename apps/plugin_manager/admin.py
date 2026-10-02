@@ -42,6 +42,8 @@ class PluginRecordAdmin(admin.ModelAdmin):
         "artifact_type",
         "artifact",
         "content_hash",
+        "package_manifest",
+        "signing_key",
         "uploaded_by",
         "uploaded_at",
         "error",

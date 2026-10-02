@@ -1,0 +1,15 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261002">
+<section {% if fragment %}id="content-container"{% endif %} class="plugin-store">
+<h1>Plugin signing keys</h1><p><a href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to Plugin Store</a></p>
+<p>Create an Ed25519 key in your browser, then use its encrypted private key with the local CLI. The server receives only your public key and proof that you own it. Signing identifies the publisher and detects changed files; administrators still review and enable uploaded packages.</p>
+{% if notice %}<p role="status">{{ notice }}</p>{% endif %}
+{{ registration|json_script:'key-registration' }}
+<form method="post" data-signing-key-form hx-boost="false" action="{% url 'plugin_manager:plugin_key_register' %}" class="editor-plugin-card">
+<fieldset disabled data-key-controls><noscript>Enable JavaScript to create and encrypt a key locally.</noscript>{% csrf_token %}<h2>Create a signing key</h2><p><label>Key name <input name="label" required maxlength="120" autocomplete="off"></label></p>
+<p><label>Encryption passphrase <input type="password" name="passphrase" required minlength="12" autocomplete="new-password"></label></p><p><label>Confirm passphrase <input type="password" name="confirm" required minlength="12" autocomplete="new-password"></label></p>
+<p>Your passphrase stays in this browser. Keep the encrypted key file and passphrase: the server cannot recover them.</p><button type="submit">Create key and download</button><p role="status" aria-live="polite"></p><div data-key-download></div>
+</fieldset></form>
+<h2>Your public keys</h2>{% for key in signing_keys %}<article class="editor-plugin-card"><h3>{{ key.label }}</h3><p><code>{{ key.fingerprint }}</code></p>{% if key.revoked_at %}<p>Revoked</p>{% else %}<form method="post" action="{% url 'plugin_manager:plugin_key_revoke' key.fingerprint %}" hx-post="{% url 'plugin_manager:plugin_key_revoke' key.fingerprint %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<p>Revoking disables all packages signed with this key.</p><button type="submit">Revoke key</button></form>{% endif %}</article>{% empty %}<p>No registered public keys yet.</p>{% endfor %}
+<h2>Sign your package locally</h2><p><a href="{% url 'plugin_manager:plugin_sign_cli' %}" hx-boost="false">Download the signing CLI</a> and <a href="{% url 'plugin_manager:plugin_sample' %}" hx-boost="false">example package</a>.</p><pre>uv run --with cryptography cadevil_sign.py sign plugin.zip --key your-key.cadevil-key.json --output plugin.signed.zip</pre><p>The CLI prompts for your passphrase locally. Upload the resulting signed archive to the store. It signs every file, including plugin.json, and refuses to overwrite the input archive.</p>
+</section>

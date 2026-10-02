@@ -25,6 +25,7 @@ class PluginRecord(models.Model):
         NONE = "", "None"
         JAVASCRIPT = "js", "JavaScript"
         WEBASSEMBLY = "wasm", "WebAssembly"
+        ZIP = "zip", "Browser package ZIP"
 
     plugin_id = models.CharField(max_length=255, unique=True, db_index=True)
     name = models.CharField(max_length=255, blank=True, default="")
@@ -43,6 +44,8 @@ class PluginRecord(models.Model):
         blank=True,
     )
     artifact = models.FileField(upload_to="plugins/", blank=True, storage=PrivatePluginStorage())
+    signing_key = models.ForeignKey("PluginSigningKey",null=True,blank=True,on_delete=models.PROTECT,related_name="plugins")
+    package_manifest = models.JSONField(default=dict, blank=True)
     content_hash = models.CharField(max_length=64, blank=True, default="")
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -66,6 +69,8 @@ class PluginRecord(models.Model):
         return bool(self.error)
 
     def set_enabled(self, enabled: bool) -> None:
+        if enabled and self.artifact_type == self.ArtifactType.ZIP and (not self.signing_key or self.signing_key.revoked_at or self.signing_key.owner_id is None):
+            raise PluginActivationError("A package requires an active registered signing key before it can be enabled.")
         if enabled and self.has_error:
             raise PluginActivationError(
                 f"Plugin '{self.plugin_id}' cannot be enabled until its discovery error is resolved."
@@ -78,3 +83,17 @@ class PluginRecord(models.Model):
         else:
             type(self).objects.filter(pk=self.pk).update(enabled=False)
         self.enabled = enabled
+
+
+class PluginSigningKey(models.Model):
+    owner=models.ForeignKey(settings.AUTH_USER_MODEL,null=True,on_delete=models.SET_NULL,related_name="plugin_signing_keys")
+    label=models.CharField(max_length=120)
+    fingerprint=models.CharField(max_length=64,unique=True)
+    public_key=models.CharField(max_length=44)
+    created_at=models.DateTimeField(auto_now_add=True)
+    revoked_at=models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        ordering=["-created_at"]
+
+    def __str__(self): return f"{self.label} ({self.fingerprint[:16]})"
