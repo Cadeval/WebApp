@@ -9,6 +9,20 @@ function text(tag, value) {const node=document.createElement(tag); node.textCont
 function definition(rows) {const list=document.createElement('dl'); for(const [label,value] of rows) list.append(text('dt',label),text('dd',String(value))); return list;}
 function table(headers,rows) {const result=document.createElement('table');const head=document.createElement('thead');const hrow=document.createElement('tr');for(const h of headers) hrow.append(text('th',h));head.append(hrow);result.append(head);const body=document.createElement('tbody');for(const values of rows){const row=document.createElement('tr');for(const value of values)row.append(text('td',String(value)));body.append(row);}result.append(body);return result;}
 
+export function recenterPreviewModel(model) {
+  const bounds=new THREE.Box3().setFromObject(model);
+  if(!bounds.isEmpty())model.position.sub(bounds.getCenter(new THREE.Vector3()));
+  model.updateMatrixWorld(true);
+  return new THREE.Box3().setFromObject(model);
+}
+
+export function fitPreviewGrid(grid,bounds) {
+  const size=bounds.getSize(new THREE.Vector3()),center=bounds.getCenter(new THREE.Vector3());
+  const extent=Math.max(size.x,size.z,1)*1.35;
+  grid.scale.set(extent/12,1,extent/12);
+  grid.position.set(center.x,bounds.min.y-Math.max(.01,Math.max(size.x,size.y,size.z)*.002),center.z);
+}
+
 const recordings=new WeakSet();
 export async function initializeRecording(root) {
   if(!root || recordings.has(root)) return;
@@ -42,22 +56,27 @@ export async function initializeRecording(root) {
       if(disposed)return;
       status.textContent=`Loading ${entry.name}…`;
       const gltf=await new GLTFLoader().loadAsync(new URL(entry.asset,recordingUrl).href);
-      gltf.scene.traverse(part=>{for(const material of (Array.isArray(part.material)?part.material:[part.material])){if(material?.color)material.color.set('#adb5bd');}});
+      recenterPreviewModel(gltf.scene);
       models.push(gltf.scene);loadedModels=models;
       if(disposed){dispose();return;}
     }
-    renderer=new THREE.WebGLRenderer({canvas:pick('canvas'),antialias:true});
+    const canvas=pick('canvas'),context=canvas.getContext('webgl2',{antialias:true});
+    renderer=new THREE.WebGLRenderer({canvas,context,antialias:true,reversedDepthBuffer:Boolean(context?.getExtension('EXT_clip_control'))});
     renderer.setPixelRatio(Math.min(devicePixelRatio,2));
     renderer.outputColorSpace=THREE.SRGBColorSpace;
+    renderer.toneMapping=THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure=1.05;
     const scene=new THREE.Scene();scene.background=new THREE.Color();
-    scene.add(new THREE.HemisphereLight(0xffffff,0x737373,2.5));
-    const sun=new THREE.DirectionalLight(0xffffff,3);sun.position.set(3,6,5);scene.add(sun);
+    scene.add(new THREE.HemisphereLight(0xffffff,0x737373,1.6));
+    const sun=new THREE.DirectionalLight(0xffffff,2.3);sun.position.set(3,6,5);scene.add(sun);
+    const fill=new THREE.DirectionalLight(0xffffff,.55);fill.position.set(-5,2,-5);scene.add(fill);
     const camera=new THREE.PerspectiveCamera(38,1,.01,100);
     const bounds=models.map(model=>new THREE.Box3().setFromObject(model));
     const centers=bounds.map(box=>box.getCenter(new THREE.Vector3()));
     const sizes=bounds.map(box=>box.getSize(new THREE.Vector3()));
     for(const model of models)scene.add(model);
-    const grid=new THREE.GridHelper(12,12,0x999999,0xcccccc);grid.position.y=Math.min(...bounds.map(b=>b.min.y));scene.add(grid);
+    const grid=new THREE.GridHelper(12,12,0x999999,0xcccccc);
+    grid.material.opacity=.28;grid.material.transparent=true;grid.material.depthWrite=false;scene.add(grid);
     const viewport=pick('.demo-scene');
     observer=new ResizeObserver(()=>{const w=viewport.clientWidth,h=viewport.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();});observer.observe(viewport);
     const detail=pick('[data-demo-detail]');
@@ -116,10 +135,11 @@ export async function initializeRecording(root) {
       previousStep.disabled=index===0;nextStep.disabled=index===STEPS.length-1;
       for(let i=0;i<models.length;i++)models[i].visible=i===active;
       const center=centers[active],size=sizes[active];
+      fitPreviewGrid(grid,bounds[active]);
       const angle=reduceMotion ? .75 : .75+state.seconds*.025;
-      const distance=Math.max(size.x,size.y,size.z)*2.1;
+      const distance=Math.max(size.x,size.y,size.z,1)*2.1/Math.min(Math.max(camera.aspect,.1),1);
       camera.position.set(center.x+Math.cos(angle)*distance,center.y+distance*.42,center.z+Math.sin(angle)*distance);
-      camera.near=Math.max(.01,distance/1000);camera.far=Math.max(100,distance*20);camera.updateProjectionMatrix();
+      camera.near=Math.max(.01,distance/100);camera.far=Math.max(10,distance*1.5+size.length());camera.updateProjectionMatrix();
       camera.lookAt(center);
       // Follow the shared landing-page palette, including theme changes.
       scene.background.set(getComputedStyle(viewport).backgroundColor);
