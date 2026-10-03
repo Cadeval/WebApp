@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 — Unreleased
+
+### Added
+
+- User settings for profile, theme, password, signing keys and access/capacity.
+- Permission-aware user and group administration, with delegated grant limits and protected administrators.
+- Debug-only UI/UX Suite MCP plugin for bounded local frontend audits and guidance.
+
+### Changed
+
+- Unified the plugin catalog and personal collection into Plugins with a single navigation entry.
+- Upgraded to HTMX 4.0.0; migrated inheritance, lifecycle cleanup and full/partial history responses.
+- Improved landing-page guidance, accessible form feedback and readable neutral themes.
+
+### Breaking changes
+
+- Legacy Store and signing-key pages redirect to Plugins and Security settings respectively.
+- Shell integrations use HTMX 4 colon-delimited events and explicit attribute inheritance.
+
 ## 0.3.0 — Unreleased
 
 ### Changed
