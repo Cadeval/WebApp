@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import AbstractUser, Group, GroupManager, Permission
 from django.core.exceptions import ValidationError
-from django.core.validators import FileExtensionValidator, MinValueValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models.query import QuerySet
 from django.db.models.signals import post_save
@@ -289,6 +289,38 @@ class FileUpload(models.Model):
 
     def __str__(self) -> str:
         return f"{self.description} - {self.document.name}"
+
+
+
+def cityjson_source_path(instance, filename):
+    from pathlib import Path
+    from django.utils.text import get_valid_filename
+    return f"cityjson/{instance.upload.user_id}/{instance.upload_id}/{get_valid_filename(Path(filename).name)}"
+
+
+class ModelConversion(models.Model):
+    """Private original CityJSON and immutable conversion provenance."""
+    upload = models.OneToOneField(FileUpload, on_delete=models.CASCADE, related_name="conversion")
+    source = models.FileField(upload_to=cityjson_source_path)
+    source_sha256 = models.CharField(max_length=64)
+    output_sha256 = models.CharField(max_length=64)
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class BuildingLocation(models.Model):
+    """Owner-supplied or conversion-derived position for an uploaded building."""
+    upload = models.ForeignKey(FileUpload, on_delete=models.CASCADE, related_name="building_locations")
+    guid = models.CharField(max_length=22)
+    latitude = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)])
+    longitude = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)])
+    source = models.CharField(max_length=24, choices=[("manual", "Owner-set location"), ("cityjson_geometry", "CityJSON geometry")], default="manual")
+    source_sha256 = models.CharField(max_length=64, blank=True)
+    note = models.CharField(max_length=255, blank=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["upload", "guid"], name="unique_upload_building_location")]
 
 
 class CadevilDocument(models.Model):
