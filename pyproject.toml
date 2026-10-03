@@ -1,6 +1,6 @@
 [project]
 name = "cadevil-webapp"
-version = "0.6.0"
+version = "0.7.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -22,6 +22,8 @@ dependencies = [
     "ifccityjson==0.8.5",
     "pyproj>=3.7,<4",
     "jsonschema>=4.26,<5",
+    "httpx>=0.28,<1",
+    "shapely>=2.1,<3",
 ]
 
 [project.entry-points."cadevil.plugins"]
