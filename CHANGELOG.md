@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0 — Unreleased
+
+- Look up local data from a selected building-map marker, retaining the owned source/CityJSON/manual location and the 3D viewer links.
+- Show dated Austrian wholesale electricity intervals in EUR/kWh, with a separate official retail tariff comparison.
+- Retrieve official Vienna district polygons, generalized zoning, planning documents and qualified statutory building-class context.
+- Include sourced Vienna water, sewer and waste tariffs with explicit effective dates and review deadlines; gas and district heating use contract-specific official sources.
+- Cache public data privately across workers, limit provider retries, label saved results during outages and keep failures nonfatal.
+- Bump BIM Workspace to 1.4.0 with compatibility for development and production.
+
 ## 0.6.0 — Unreleased
 
 - Add a private building map with searchable source models, shared-position markers, owner-set locations and links into the 3D viewer and saved assessments.
