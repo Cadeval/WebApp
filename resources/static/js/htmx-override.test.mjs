@@ -13,13 +13,17 @@ test('HTMX 4 request context preserves validation feedback and settles loading s
         if (!listeners.has(type)) listeners.set(type,[]);
         listeners.get(type).push(callback);
     }};
+    let scrollCount = 0;
     const doc = {body,addEventListener(){},querySelectorAll:() => [],querySelector:() => null,
         getElementById:id => ({'content-container':content,'menu-popover':menu,'htmx-throbber':throbber})[id]};
-    vm.runInNewContext(readFileSync(new URL('./htmx-override.js',import.meta.url),'utf8'),{document:doc,location:{pathname:'/',href:'http://localhost/'},URL});
+    vm.runInNewContext(readFileSync(new URL('./htmx-override.js',import.meta.url),'utf8'),{window:{scrollTo(){scrollCount++}},document:doc,location:{pathname:'/',href:'http://localhost/'},URL});
     const emit = (name,event={}) => listeners.get(name)?.forEach(callback => callback(event));
     emit('htmx:before:request',{detail:{ctx:{target:content,sourceElement:{menu:true}}}});
     assert(classes.has('active')); assert(menu.closed);
     emit('htmx:finally:request',{detail:{ctx:{}}}); assert(!classes.has('active'));
+    emit('htmx:after:swap',{detail:{ctx:{request:{method:'GET'},target:{id:'content-container'}}}});
+    emit('htmx:after:swap',{detail:{ctx:{request:{method:'POST'},target:{id:'content-container'}}}});
+    assert.equal(scrollCount,1);
     for (const status of [200,400,409,422]) {
         let cancelled = false;
         emit('htmx:before:swap',{detail:{ctx:{response:{status}}},preventDefault(){cancelled=true}});

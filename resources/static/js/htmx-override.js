@@ -175,3 +175,11 @@ document.addEventListener('DOMContentLoaded', updateNavigationState);
 document.body.addEventListener('htmx:after:settle', () => {
     document.querySelector('[data-form-errors]')?.focus();
 });
+
+// A new content page starts at its heading; POST updates retain reading position.
+document.body.addEventListener('htmx:after:swap', event => {
+    const ctx = event.detail.ctx;
+    if (ctx?.request?.method === 'GET' && ctx.target?.id === 'content-container') {
+        window.scrollTo({top: 0, left: 0, behavior: 'instant'});
+    }
+});
