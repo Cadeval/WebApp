@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — Unreleased
+
+- Add a private building map with searchable source models, shared-position markers, owner-set locations and links into the 3D viewer and saved assessments.
+- Import CityJSON through IfcCityJSON 0.8.5 with explicit LoD selection, retained originals, conversion provenance and geometry-derived map anchors.
+- Export detailed IFC components as schema-validated CityJSON 1.1, using parallel native tessellation and source-keyed private caches.
+- Keep map navigation within the HTMX content container and use locally bundled Leaflet in the site's grey/white scheme.
+- Bump BIM Workspace to 1.3.0; both development and production remain compatible.
+
 ## 0.5.0 — Unreleased
 
 ### Added
