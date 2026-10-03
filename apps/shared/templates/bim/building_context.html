@@ -1,0 +1,14 @@
+{% load static %}
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace building-context-page">
+    <link rel="stylesheet" href="{% static 'css/building_map.css' %}?v=1.1.0">
+    <div class="building-context-page-heading">
+        <h1>Local energy, utilities &amp; building rules</h1>
+        <p>{{ document.description|default:document.document.name }}</p>
+        <nav aria-label="Building context navigation" class="building-context-actions">
+            <a href="{% url 'bim:building_map' %}" hx-get="{% url 'bim:building_map' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to building map</a>
+            {% if location_url %}<a href="{{ location_url }}" hx-get="{{ location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Edit location</a>{% endif %}
+            <a href="{{ viewer_url }}" hx-get="{{ viewer_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open 3D viewer</a>
+        </nav>
+    </div>
+    {% include 'bim/_building_context_results.html' %}
+</section>

@@ -187,7 +187,8 @@ def building_map(request):
             row.update(id=f"{upload.pk}:{row['guid']}", upload_id=str(upload.pk), title=f"{label} · {row['name']}",
                 viewer_url=reverse("bim:viewer", args=[upload.pk]) + "?from=map",
                 overview_url=reverse("material_passport:report", args=[choices[0]]) if len(choices) == 1 else reverse("bim:viewer", args=[upload.pk]) + "?from=map" if choices else "",
-                location_url=reverse("bim:building_location", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "")
+                location_url=reverse("bim:building_location", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "",
+                context_url=reverse("bim:building_context", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "")
             rows.append(row)
     return page(request, "bim/building_map.html", {"title": "Building map", "buildings": rows, "map_features_json": rows,
         "total_count": len(rows), "located_count": sum(row["status"] == "located" for row in rows), "pagination": pagination,

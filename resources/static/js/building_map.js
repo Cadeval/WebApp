@@ -1,5 +1,6 @@
 const controllers = new Map();
 let leafletImport;
+let contextTargetCounter = 0;
 
 export function hasBuildingLocation(building) {
     return typeof building?.latitude === 'number' && Number.isFinite(building.latitude)
@@ -64,6 +65,7 @@ export function initializeBuildingMap(root, dependencies = {}) {
     const search = root.querySelector('[data-map-search]');
     const canvas = root.querySelector('[data-map-canvas]');
     const selection = root.querySelector('[data-map-selection]');
+    const contextHost = root.querySelector('[data-map-context-host]');
     const fitButton = root.querySelector('[data-map-fit]');
     const retryButton = root.querySelector('[data-map-retry]');
     const basemapToggle = root.querySelector('[data-map-basemap]');
@@ -76,6 +78,7 @@ export function initializeBuildingMap(root, dependencies = {}) {
     const listRows = [...root.querySelectorAll('[data-map-building]')];
     let visible = buildings;
     let selected = null;
+    let contextTargetId = null;
     let map = null;
     let markerLayer = null;
     let tiles = null;
@@ -91,7 +94,19 @@ export function initializeBuildingMap(root, dependencies = {}) {
     function selectBuilding(identifier) {
         const building = byId.get(identifier);
         if (!building || disposed) return;
+        const changed = selected !== identifier;
         selected = identifier;
+        const contextRoute = safeMapLink(building.context_url, windowRoot.location.origin);
+        if (contextHost && (changed || !contextTargetId)) {
+            contextHost.replaceChildren();
+            contextTargetId = null;
+            if (contextRoute) {
+                const target = documentRoot.createElement('div');
+                target.id = `building-map-context-${++contextTargetCounter}`;
+                contextTargetId = target.id;
+                contextHost.append(target);
+            }
+        }
         selection.hidden = false;
         root.querySelector('[data-map-selected-title]').textContent = building.title || 'Unnamed building';
         root.querySelector('[data-map-selected-site]').textContent = building.site_name || 'Site not specified';
@@ -101,13 +116,20 @@ export function initializeBuildingMap(root, dependencies = {}) {
         root.querySelector('[data-map-selected-message]').textContent = building.message
             || (['site-reference', 'ifc_site'].includes(building.source) ? 'The IFC supplies a site origin. Set a building location for a more precise marker.'
                 : hasBuildingLocation(building) ? '' : 'Set a location to place this building on the map.');
-        for (const [kind, value] of [['viewer', building.viewer_url], ['overview', building.overview_url], ['location', building.location_url]]) {
+        for (const [kind, value] of [['viewer', building.viewer_url], ['overview', building.overview_url],
+            ['location', building.location_url], ['context', building.context_url]]) {
             const link = root.querySelector(`[data-map-link="${kind}"]`);
+            if (!link) continue;
             const route = safeMapLink(value, windowRoot.location.origin);
             link.hidden = !route;
             if (route) {
                 link.setAttribute('href', route);
                 link.setAttribute('hx-get', route);
+                if (kind === 'context') {
+                    link.setAttribute('hx-target', `#${contextTargetId}`);
+                    link.setAttribute('hx-swap', 'outerHTML show:top');
+                    link.setAttribute('hx-push-url', 'false');
+                }
                 windowRoot.htmx?.process?.(link);
             } else {
                 link.removeAttribute('href');
@@ -247,6 +269,8 @@ export function initializeBuildingMap(root, dependencies = {}) {
             tiles?.off();
             map?.remove();
             markersById.clear();
+            contextHost?.replaceChildren();
+            contextTargetId = null;
             controllers.delete(root);
             delete root.dataset.mapInitialized;
         },

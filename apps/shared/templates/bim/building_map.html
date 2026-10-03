@@ -1,7 +1,7 @@
 {% load static %}
 <section {% if fragment %}id="content-container"{% endif %} class="bim-workspace building-map-page">
     <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}?v=1.9.4">
-    <link rel="stylesheet" href="{% static 'css/building_map.css' %}?v=1.0.0">
+    <link rel="stylesheet" href="{% static 'css/building_map.css' %}?v=1.1.0">
     <div class="building-map-heading">
         <div>
             <h1>Building map</h1>
@@ -43,6 +43,7 @@
                     <a class="button" data-map-link="viewer" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open 3D viewer</a>
                     <a data-map-link="overview" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>
                     <a data-map-link="location" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Set / edit location</a>
+                    <a data-map-link="context" hidden>Local data &amp; rules</a>
                 </div>
             </section>
             <ul class="building-map-list" data-map-list>
@@ -57,6 +58,7 @@
                         {% if building.viewer_url %}<a href="{{ building.viewer_url }}" hx-get="{{ building.viewer_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open model</a>{% endif %}
                         {% if building.overview_url %}<a href="{{ building.overview_url }}" hx-get="{{ building.overview_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>{% endif %}
                         {% if building.location_url %}<a href="{{ building.location_url }}" hx-get="{{ building.location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">{% if building.latitude != None and building.longitude != None %}Edit location{% else %}Set location{% endif %}</a>{% endif %}
+                        {% if building.context_url %}<a href="{{ building.context_url }}" hx-get="{{ building.context_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Local data &amp; rules</a>{% endif %}
                     </div>
                 </li>
                 {% empty %}
@@ -84,7 +86,8 @@
             </div>
             <p class="building-map-note">IFC site reference points are approximate locations, not measured building footprints.</p>
             <noscript><p>Interactive markers need JavaScript. You can still open models and edit locations from the building list.</p></noscript>
+            <div class="building-map-context-host" data-map-context-host></div>
         </div>
     </div>
-    <script type="module" src="{% static 'js/building_map.js' %}?v=1.0.0"></script>
+    <script type="module" src="{% static 'js/building_map.js' %}?v=1.1.0"></script>
 </section>

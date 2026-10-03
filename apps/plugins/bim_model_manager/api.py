@@ -6,7 +6,7 @@ from django_bolt.exceptions import HTTPException
 from django_bolt.request import Request
 
 from apps.shared.bolt_pages import page_endpoint
-from . import pages, passport_views, exchange_pages
+from . import pages, passport_views, exchange_pages, location_pages
 
 # Session authentication, ownership and the runtime plugin gate live in the
 # page handlers. AllowAny prevents unrelated global JWT defaults overriding
@@ -122,6 +122,13 @@ def building_map(request: Request):
 @page_endpoint
 def building_location(request: Request):
     return exchange_pages.building_location(request, object_id(request), request.params['guid'])
+
+
+@api.get('/plugins/bim/models/{pk}/buildings/{guid}/context/', name='building_context', guards=[AllowAny()])
+@api.post('/plugins/bim/models/{pk}/buildings/{guid}/context/', name='building_context', guards=[AllowAny()])
+@page_endpoint
+def building_context(request: Request):
+    return location_pages.building_context(request, object_id(request), request.params['guid'])
 
 
 @passport_api.get('/plugins/bim/material-passport/', name='calculate', guards=[AllowAny()])

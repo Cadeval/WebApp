@@ -1,0 +1,149 @@
+<section id="{{ result_id }}" class="building-context-results" aria-labelledby="{{ result_id }}-title">
+    <div class="building-context-heading">
+        <div>
+            <h2 id="{{ result_id }}-title">{{ building.name|default:'Building location' }}</h2>
+            <p>Local energy, utilities &amp; planning context · {{ lookup.country.label }}</p>
+            <p class="building-context-marker">{{ document.description|default:document.document.name }}<br>{% if building.latitude != None and building.longitude != None %}Marker {{ building.latitude|floatformat:'6u' }}, {{ building.longitude|floatformat:'6u' }} · {% if building.source == 'ifc_site' %}Approximate IFC site origin{% elif building.source == 'manual' %}User-set location{% elif building.source == 'projected_crs' %}Projected IFC location{% elif building.source == 'cityjson_geometry' %}CityJSON building geometry{% else %}{{ building.source|default:'Source location' }}{% endif %}{% else %}Location not set{% endif %}</p>
+        </div>
+        <form method="post" action="{{ lookup_url }}" hx-post="{{ lookup_url }}" hx-target="#{{ result_id }}" hx-swap="outerHTML" hx-push-url="false">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="refresh">
+            <button type="submit">Refresh local data</button>
+        </form>
+    </div>
+    {% if approximate %}<p class="building-context-notice">This marker uses the approximate IFC site origin. Set the building's actual location before relying on local planning context. {% if location_url %}<a href="{{ location_url }}" hx-get="{{ location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Edit location</a>{% endif %}</p>{% endif %}
+    {% if lookup.country.status == 'missing' or lookup.country.status == 'border' or lookup.country.status == 'unsupported' %}
+    <p class="building-context-notice" role="status">{{ lookup.country.note }} {% if lookup.country.status == 'missing' and location_url %}<a href="{{ location_url }}" hx-get="{{ location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Set location</a>{% endif %}</p>
+    {% endif %}
+    <div class="building-context-columns">
+        <section class="building-context-card" aria-labelledby="{{ result_id }}-energy">
+            <div class="building-context-card-heading"><h3 id="{{ result_id }}-energy">Electricity prices</h3><span class="building-context-status">{{ lookup.energy.status|capfirst }}</span></div>
+            {% if lookup.energy.cache.stale %}<p class="building-context-notice" role="status">These prices come from saved data. The provider has not supplied a fresh result.</p>{% endif %}
+            {% if lookup.energy.cache.busy %}<p class="building-context-notice" role="status">A price lookup is already running. Refresh again shortly.</p>{% endif %}
+            {% if lookup.energy.cache.notice %}<p class="building-context-notice" role="status">{{ lookup.energy.cache.notice }}</p>{% endif %}
+            {% if lookup.energy.current %}
+            <dl class="building-context-price">
+                <dt>{% if lookup.energy.cache.stale %}Saved current interval{% else %}Current wholesale interval{% endif %}</dt>
+                <dd><strong>{{ lookup.energy.current.price_eur_kwh|floatformat:4 }} EUR/kWh</strong><span>{{ lookup.energy.current.price_eur_mwh|floatformat:2 }} EUR/MWh</span></dd>
+            </dl>
+            <p class="building-context-time"><time datetime="{{ lookup.energy.current.start_local }}">{{ lookup.energy.current.start_local }}</time><br>to <time datetime="{{ lookup.energy.current.end_local }}">{{ lookup.energy.current.end_local }}</time></p>
+            {% elif lookup.energy.status == 'available' %}<p>No published interval covers the current time. The dated intervals remain available below.</p>
+            {% else %}<p>{{ lookup.energy.message|default:'Current wholesale prices are unavailable for this location.' }}</p>{% endif %}
+            <p class="building-context-note">{{ lookup.energy.note|default:'Wholesale prices exclude supplier and network charges, taxes and VAT. A household tariff needs a separate quote.' }}</p>
+            {% if lookup.energy.intervals %}
+            <details class="building-context-details">
+                <summary>{{ lookup.energy.coverage.interval_count }} published price intervals</summary>
+                <p class="building-context-note">Europe/Vienna times include their UTC offset. Prices are wholesale values in Euro.</p>
+                {% if lookup.energy.coverage.gap_count %}<p class="building-context-notice">{{ lookup.energy.coverage.gap_count }} gap{{ lookup.energy.coverage.gap_count|pluralize }} in the published intervals.</p>{% endif %}
+                <div class="building-context-table-wrap" tabindex="0" role="region" aria-label="Published wholesale price intervals">
+                    <table class="building-context-table">
+                        <thead><tr><th scope="col">From · Europe/Vienna</th><th scope="col">Until · Europe/Vienna</th><th scope="col">EUR/kWh</th></tr></thead>
+                        <tbody>{% for interval in lookup.energy.intervals %}<tr><td><time datetime="{{ interval.start_local }}">{{ interval.start_local }}</time></td><td><time datetime="{{ interval.end_local }}">{{ interval.end_local }}</time></td><td>{{ interval.price_eur_kwh|floatformat:4 }}</td></tr>{% endfor %}</tbody>
+                    </table>
+                </div>
+            </details>
+            {% endif %}
+            <div class="building-context-retail">
+                <h4>Household tariff comparison</h4>
+                <p>{{ lookup.energy.retail.note|default:'Compare full household tariffs using the postcode and annual electricity consumption.' }}</p>
+                <a href="{{ lookup.energy.retail.source_url|default:'https://www.e-control.at/tarifkalkulator' }}" hx-boost="false" target="_blank" rel="noopener noreferrer">Open E-Control tariff calculator</a>
+            </div>
+            <details class="building-context-details">
+                <summary>Price source &amp; freshness</summary>
+                <p>{{ lookup.energy.provider_name|default:'Austrian wholesale price provider' }}</p>
+                {% if lookup.energy.market_scope %}<p>{{ lookup.energy.market_scope }}</p>{% endif %}
+                <dl class="building-context-provenance">
+                    {% if lookup.energy.cache.retrieved_at %}<div><dt>Retrieved</dt><dd><time datetime="{{ lookup.energy.cache.retrieved_at }}">{{ lookup.energy.cache.retrieved_at }}</time></dd></div>{% elif lookup.energy.status == 'available' and lookup.energy.retrieved_at %}<div><dt>Retrieved</dt><dd><time datetime="{{ lookup.energy.retrieved_at }}">{{ lookup.energy.retrieved_at }}</time></dd></div>{% endif %}
+                    {% if lookup.energy.cache.age_seconds != None %}<div><dt>Saved data age</dt><dd>{{ lookup.energy.cache.age_seconds }} seconds</dd></div>{% endif %}
+                    {% if lookup.energy.cache.retry_after_seconds %}<div><dt>Next provider refresh</dt><dd>In {{ lookup.energy.cache.retry_after_seconds }} seconds</dd></div>{% endif %}
+                </dl>
+                {% if lookup.energy.documentation_url %}<a href="{{ lookup.energy.documentation_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">Provider documentation</a>{% endif %}
+                {% if lookup.energy.source_url %}<a href="{{ lookup.energy.source_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">Source feed</a>{% endif %}
+            </details>
+        </section>
+        <section class="building-context-card" aria-labelledby="{{ result_id }}-planning">
+            <div class="building-context-card-heading"><h3 id="{{ result_id }}-planning">Building rules context</h3><span class="building-context-status">{{ lookup.planning.status|capfirst }}</span></div>
+            <p>{{ lookup.planning.message }}</p>
+            {% if lookup.planning.cache.stale %}<p class="building-context-notice" role="status">This planning context comes from saved data. Check current official documents before using it.</p>{% endif %}
+            {% if lookup.planning.cache.busy %}<p class="building-context-notice" role="status">A planning lookup is already running. Refresh again shortly.</p>{% endif %}
+            {% if lookup.planning.cache.notice %}<p class="building-context-notice" role="status">{{ lookup.planning.cache.notice }}</p>{% endif %}
+            {% if lookup.planning.jurisdiction.known %}
+            <h4>Verified planning jurisdiction</h4>
+            <p>{{ lookup.planning.jurisdiction.state }}{% if lookup.planning.jurisdiction.country %} · {{ lookup.planning.jurisdiction.country }}{% endif %}</p>
+            <ul class="building-context-list">{% for district in lookup.planning.jurisdiction.districts %}<li>District {{ district.number }} · {{ district.name }}{% if district.boundary %} <span class="building-context-note">(boundary match)</span>{% endif %}{% if district.updated_at %}<br><span class="building-context-note">Layer updated {{ district.updated_at }}</span>{% endif %}</li>{% endfor %}</ul>
+            {% endif %}
+            {% if lookup.planning.zoning %}
+            <h4>Generalized zoning at this marker</h4>
+            <ul class="building-context-list">{% for zone in lookup.planning.zoning %}<li><strong>{{ zone.code }} · {{ zone.label }}</strong>{% if zone.class_label %}<br>{{ zone.class_label }}{% endif %}{% if zone.detail %}<p>{{ zone.detail }}</p>{% endif %}{% if zone.boundary %}<p class="building-context-note">Boundary match: check all returned candidates.</p>{% endif %}{% if zone.expires_on %}<p class="building-context-note">Recorded expiry {{ zone.expires_on }}{% if zone.expiry_plan %} · Plan {{ zone.expiry_plan }}{% endif %}</p>{% endif %}</li>{% endfor %}</ul>
+            {% endif %}
+            {% if lookup.planning.height_context %}
+            <h4>General height-class context</h4>
+            <p class="building-context-note">These statutory class ranges do not establish the height permitted on this parcel.</p>
+            {% for height in lookup.planning.height_context %}
+            <div class="building-context-height">
+                <p><strong>Building class {{ height.building_class }}</strong> · {{ height.min_m|floatformat:1 }} m{% if height.max_m != None %}–{{ height.max_m|floatformat:1 }} m{% else %} minimum; upper bounds require the plan{% endif %}</p>
+                <p class="building-context-note">{{ height.qualification }}</p>
+                <p class="building-context-note">Statutory version effective from {{ height.effective_from }} · Verified {{ height.verified_as_of }} · <a href="{{ height.source_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">§75 source</a></p>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% if lookup.planning.plans %}
+            <h4>Official plan references at this marker</h4>
+            <ul class="building-context-list">{% for plan in lookup.planning.plans %}<li><strong>Plan {{ plan.number }}</strong>{% if plan.type %} · {{ plan.type }}{% endif %}<p class="building-context-note">Published {{ plan.published_on|default:'date unavailable' }}{% if plan.effective_on %} · Effective {{ plan.effective_on }}{% endif %}</p><div class="building-context-actions"><a href="{{ plan.plan_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">View plan</a><a href="{{ plan.text_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">View plan text</a></div></li>{% endfor %}</ul>
+            <p class="building-context-note">References come from a map identification. Read the plan and its text together; the map service may not supply their effective dates.</p>
+            {% endif %}
+            <p class="building-context-note">{{ lookup.planning.notice|default:'Planning context is information for this map marker. The official plan, its text and the applicable building law determine site-specific limits.' }}</p>
+            {% if lookup.planning.missing_information %}
+            <h4>Still needed for parcel-specific limits</h4>
+            <ul class="building-context-list">{% for item in lookup.planning.missing_information %}<li>{{ item }}</li>{% endfor %}</ul>
+            {% endif %}
+            <details class="building-context-details">
+                <summary>Planning sources &amp; freshness</summary>
+                {% if lookup.planning.cache.retrieved_at %}<p>Lookup retrieved <time datetime="{{ lookup.planning.cache.retrieved_at }}">{{ lookup.planning.cache.retrieved_at }}</time></p>{% endif %}
+                {% if lookup.planning.cache.age_seconds != None %}<p>Saved data age: {{ lookup.planning.cache.age_seconds }} seconds.</p>{% endif %}
+                {% if lookup.planning.cache.retry_after_seconds %}<p>Next provider refresh in {{ lookup.planning.cache.retry_after_seconds }} seconds.</p>{% endif %}
+                <ul class="building-context-list">{% for source in lookup.planning.sources %}<li><a href="{{ source.url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">{{ source.provider }} · {{ source.layer }}</a><br><span class="building-context-note">Retrieved <time datetime="{{ source.retrieved_at }}">{{ source.retrieved_at }}</time>{% if source.effective_on %} · Effective {{ source.effective_on }}{% endif %}</span>{% if source.attribution %}<p class="building-context-note">{{ source.attribution }}{% if source.license %} · {{ source.license }}{% endif %}</p>{% endif %}</li>{% empty %}<li>No planning source could be retrieved for this marker.</li>{% endfor %}</ul>
+                <div class="building-context-actions">{% for reference in lookup.planning.reference_links %}<a href="{{ reference.url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">{{ reference.label }}</a>{% endfor %}</div>
+            </details>
+        </section>
+        {% if lookup.utilities %}
+        <section class="building-context-card building-context-utilities" aria-labelledby="{{ result_id }}-utilities">
+            <div class="building-context-card-heading"><h3 id="{{ result_id }}-utilities">Local utility charges</h3><span class="building-context-status">{{ lookup.utilities.status|capfirst }}</span></div>
+            <p>{{ lookup.utilities.note }}</p>
+            <ul class="building-context-utility-grid">
+                {% for utility in lookup.utilities.items %}
+                <li>
+                    <h4>{{ utility.name }}</h4>
+                    {% if utility.price != None and utility.current_effective %}
+                    <p class="building-context-utility-price"><strong>{{ utility.price|floatformat:2 }} {{ utility.unit }}</strong></p>
+                    {% elif utility.status == 'contract_quote_required' %}<p class="building-context-utility-price">Contract quote required</p>
+                    {% else %}<p class="building-context-utility-price">No current verified charge available</p>{% endif %}
+                    {% if utility.price != None and utility.current_effective and utility.vat_included %}<p class="building-context-note">Includes {{ utility.vat_percent }}% VAT.</p>{% endif %}
+                    {% if utility.price_basis == 'published_table_reference' %}<p class="building-context-note">Reference table entry; the building's charge depends on its assigned bins and collections.</p>{% endif %}
+                    {% if utility.required_input_labels %}<p class="building-context-note"><strong>{% if utility.price_basis == 'contract_quote_required' %}Quote needs:{% else %}Charge needs:{% endif %}</strong> {{ utility.required_input_labels|join:', ' }}</p>{% endif %}
+                    {% if utility.source_url %}<a href="{{ utility.source_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">{{ utility.source_name|default:'Official utility source' }}</a>{% endif %}
+                    <details class="building-context-details">
+                        <summary>Charge source &amp; dates</summary>
+                        <p class="building-context-note">{{ utility.note }}</p>
+                        {% if utility.price != None and utility.current_effective and utility.price_decimal %}<p>Published amount: {{ utility.price_decimal }} {{ utility.unit }}.</p>{% endif %}
+                        {% if utility.effective_from %}<p>Source rate effective from {{ utility.effective_from }}{% if utility.effective_until %} until {{ utility.effective_until }}{% else %}; no end date is supplied by the authority{% endif %}.</p>{% endif %}
+                        <div class="building-context-actions">
+                            {% if utility.legal_source_url %}<a href="{{ utility.legal_source_url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">Official fee notice</a>{% endif %}
+                            {% for additional in utility.additional_sources %}<a href="{{ additional.url }}" hx-boost="false" target="_blank" rel="noopener noreferrer">{{ additional.name }}</a>{% endfor %}
+                        </div>
+                        {% if utility.verified_as_of and utility.verified_as_of != lookup.utilities.verified_as_of %}<p>Source verified {{ utility.verified_as_of }}.</p>{% endif %}
+                        {% if utility.snapshot_valid_until and utility.snapshot_valid_until != lookup.utilities.snapshot_valid_until %}<p class="building-context-note">Snapshot review deadline: {{ utility.snapshot_valid_until }}. This review date is separate from the authority's effective period.</p>{% endif %}
+                    </details>
+                </li>
+                {% empty %}<li>No utility provider has supplied data for this location.</li>{% endfor %}
+            </ul>
+            <details class="building-context-details">
+                <summary>Utility rate freshness</summary>
+                {% if lookup.utilities.verified_as_of %}<p>Sources verified {{ lookup.utilities.verified_as_of }}.</p>{% endif %}
+                {% if lookup.utilities.snapshot_valid_until %}<p class="building-context-note">Snapshot review deadline: {{ lookup.utilities.snapshot_valid_until }}. This is the application's review date, separate from the authority's effective period.</p>{% endif %}
+            </details>
+        </section>
+        {% endif %}
+    </div>
+    {% if lookup.country.note %}<details class="building-context-details building-context-country"><summary>Country routing source</summary><p>{{ lookup.country.note }}</p><a href="https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-countries/" hx-boost="false" target="_blank" rel="noopener noreferrer">Natural Earth country data</a><a href="https://www.naturalearthdata.com/about/terms-of-use/" hx-boost="false" target="_blank" rel="noopener noreferrer">Public-domain terms</a></details>{% endif %}
+</section>

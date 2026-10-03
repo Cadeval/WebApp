@@ -170,7 +170,7 @@ class BimPageIntegrationTests(TestCase):
         from config.api import api
         from django_bolt.urls import build_urlpatterns
         self.assertFalse(api._asgi_mounts)
-        self.assertEqual(len(api._routes), 30)
+        self.assertEqual(len(api._routes), 32)
         self.assertTrue(build_urlpatterns(api))
         self.assertEqual(reverse('bim:model_manager'), '/plugins/bim/model_manager/')
         self.assertEqual(reverse('material_passport:calculate'), '/plugins/bim/material-passport/')
@@ -272,4 +272,3 @@ class BimPageIntegrationTests(TestCase):
         response = self.client.get(reverse('bim:model_geometry', args=[broken.pk]))
         self.assertEqual(response.status_code, 422)
         self.assertFalse(CadevilDocument.objects.exists())
-

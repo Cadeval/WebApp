@@ -66,6 +66,11 @@ class Node {
             toggle: (value, active) => active ? values.add(value) : values.delete(value) };
     }
     append(node) { this.children.push(node); node.parent = this; }
+    replaceChildren(...nodes) {
+        for (const child of this.children) child.parent = null;
+        this.children = [];
+        for (const node of nodes) this.append(node);
+    }
     setAttribute(name, value) { this.attributes.set(name, String(value)); }
     removeAttribute(name) { this.attributes.delete(name); }
     getAttribute(name) { return this.attributes.get(name) ?? null; }
@@ -94,10 +99,10 @@ function fixture(rows) {
     const root = new Node(document, { tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' });
     root.selectors = new Map();
     for (const selector of ['#building-map-data', '[data-map-status]', '[data-map-search]', '[data-map-canvas]',
-        '[data-map-selection]', '[data-map-fit]', '[data-map-retry]', '[data-map-basemap]', '[data-map-results]',
+        '[data-map-selection]', '[data-map-context-host]', '[data-map-fit]', '[data-map-retry]', '[data-map-basemap]', '[data-map-results]',
         '[data-map-no-results]', '[data-map-empty]', '[data-map-selected-title]', '[data-map-selected-site]',
         '[data-map-selected-source]', '[data-map-selected-coordinates]', '[data-map-selected-message]',
-        '[data-map-link="viewer"]', '[data-map-link="overview"]', '[data-map-link="location"]']) {
+        '[data-map-link="viewer"]', '[data-map-link="overview"]', '[data-map-link="location"]', '[data-map-link="context"]']) {
         const node = new Node(document);
         root.selectors.set(selector, node);
         root.append(node);
@@ -175,6 +180,58 @@ test('missing locations remain searchable and selection works while the map libr
     assert.equal(root.rows[0].hidden, false);
     assert.equal(root.querySelector('[data-map-fit]').disabled, true);
     controller.dispose();
+});
+
+test('lookup targets isolate a late previous-building response and preserve same-building results', async () => {
+    const rows = [{ id: 'a:guid', title: 'House A', latitude: 48, longitude: 16, context_url: '/context/a' },
+        { id: 'b:guid', title: 'House B', latitude: 48, longitude: 16, context_url: '/context/b' }];
+    const { root, loadLeaflet } = fixture(rows);
+    const controller = initializeBuildingMap(root, { loadLeaflet });
+    const host = root.querySelector('[data-map-context-host]');
+    const link = root.querySelector('[data-map-link="context"]');
+    controller.selectBuilding('a:guid');
+    const previousTarget = host.children[0];
+    assert.match(previousTarget.id, /^building-map-context-\d+$/);
+    assert.equal(link.getAttribute('href'), '/context/a');
+    assert.equal(link.getAttribute('hx-target'), `#${previousTarget.id}`);
+    assert.equal(link.getAttribute('hx-swap'), 'outerHTML show:top');
+    assert.equal(link.getAttribute('hx-push-url'), 'false');
+    controller.selectBuilding('b:guid');
+    const currentTarget = host.children[0];
+    assert.notEqual(currentTarget.id, previousTarget.id);
+    assert.equal(link.getAttribute('hx-get'), '/context/b');
+    const lateResult = new Node(root.ownerDocument);
+    lateResult.textContent = 'Old House A result';
+    previousTarget.replaceChildren(lateResult);
+    assert.equal(root.contains(lateResult), false);
+    const loaded = new Node(root.ownerDocument);
+    loaded.id = currentTarget.id;
+    loaded.textContent = 'House B lookup';
+    host.replaceChildren(loaded);
+    controller.selectBuilding('b:guid');
+    assert.equal(host.children[0], loaded);
+    await controller.ready; // Leaflet initialization reselects the same building.
+    assert.equal(host.children[0], loaded);
+    assert.equal(link.getAttribute('hx-target'), `#${loaded.id}`);
+    controller.dispose();
+    assert.equal(host.children.length, 0);
+});
+
+test('lookup links reject external routes and targets remain unique after map remounting', async () => {
+    const first = fixture([{ id: 'a', context_url: '/context/a' }]);
+    const firstController = initializeBuildingMap(first.root, { loadLeaflet: first.loadLeaflet });
+    firstController.selectBuilding('a');
+    const firstId = first.root.querySelector('[data-map-context-host]').children[0].id;
+    firstController.dispose();
+    const second = fixture([{ id: 'a', context_url: '/context/a' }, { id: 'external', context_url: 'https://evil.example/context' }]);
+    const secondController = initializeBuildingMap(second.root, { loadLeaflet: second.loadLeaflet });
+    secondController.selectBuilding('a');
+    assert.notEqual(second.root.querySelector('[data-map-context-host]').children[0].id, firstId);
+    secondController.selectBuilding('external');
+    assert.equal(second.root.querySelector('[data-map-link="context"]').hidden, true);
+    assert.equal(second.root.querySelector('[data-map-context-host]').children.length, 0);
+    secondController.dispose();
+    await Promise.all([firstController.ready, secondController.ready]);
 });
 
 test('street-tile failures leave markers usable and retry clears the stale failure state', async () => {
