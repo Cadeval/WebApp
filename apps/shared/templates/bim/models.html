@@ -2,6 +2,8 @@
 {% include 'bim/nav.html' %}
 <h1>BIM model manager</h1>
 <p>Store IFC source files here, then calculate a material passport. Calculation validates each source before saving a report.</p>
+<p class="bim-actions"><a class="button" href="{% url 'bim:building_map' %}">Building map</a>
+<a class="button" href="{% url 'bim:import_cityjson' %}">Import CityJSON</a></p>
 <h2>Upload an IFC model</h2>
 <form hx-boost="false" method="post" enctype="multipart/form-data" action="{% url 'bim:model_manager' %}">
 {% csrf_token %}{{ form.as_p }}<button type="submit">Upload model</button>
@@ -12,6 +14,8 @@
 <a href="{% url 'bim:viewer' file.pk %}">Open 3D viewer</a>
 <a hx-boost="false" href="{% url 'bim:download_model' file.pk %}">Download IFC</a>
 <a href="{% url 'material_passport:calculate' %}?model={{ file.pk }}">Calculate passport</a>
+<a href="{% url 'bim:export_cityjson' file.pk %}">Export CityJSON</a>
+{% if file.conversion %}<a hx-boost="false" href="{% url 'bim:cityjson_source' file.pk %}">Original CityJSON</a>{% endif %}
 <form hx-boost="false" method="post" action="{% url 'bim:delete_model' file.pk %}">{% csrf_token %}<button type="submit">Delete unused source</button></form>
 </li>{% empty %}<li>No IFC files uploaded yet.</li>{% endfor %}</ul>
 <h2>Saved assessments</h2>

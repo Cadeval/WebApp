@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.vary import vary_on_headers
 from django.contrib.auth.decorators import login_required
 
-from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics
+from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics, ModelConversion
 from apps.shared.ifc_extractor.material_assessment import load_reference, number
 from .forms import UploadForm, ConfigUploadForm, CalculationConfigForm
 from .passport_views import _enabled
@@ -45,7 +45,7 @@ def model_manager(request):
         return redirect('bim:model_manager')
     return page(request, 'bim/models.html', {
         'title': 'BIM model manager', 'form': form,
-        'files': FileUpload.objects.filter(user=request.user).order_by('-uploaded_at'),
+        'files': FileUpload.objects.filter(user=request.user).select_related('conversion').order_by('-uploaded_at'),
         'documents': CadevilDocument.objects.filter(user=request.user).select_related('upload').order_by('-pk'),
     }, status=400 if request.method == 'POST' and form.errors else 200)
 
@@ -233,7 +233,8 @@ def viewer(request, pk):
                 'document': upload, 'upload_id': str(upload.pk), 'selected_element':request.GET.get('element',''),
                 'metadata_url': metadata_url, 'assessment_options': options,
                 'selected_assessment': assessment['id'], 'assessment_status': assessment['status'],
-                'assessment_notice': assessment['notice']})
+                'assessment_notice': assessment['notice'], 'from_map': request.GET.get('from') == 'map',
+                'conversion': ModelConversion.objects.filter(upload=upload).first()})
 
 
 def viewer_assessment_selection(request, upload):

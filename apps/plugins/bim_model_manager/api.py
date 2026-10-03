@@ -6,7 +6,7 @@ from django_bolt.exceptions import HTTPException
 from django_bolt.request import Request
 
 from apps.shared.bolt_pages import page_endpoint
-from . import pages, passport_views
+from . import pages, passport_views, exchange_pages
 
 # Session authentication, ownership and the runtime plugin gate live in the
 # page handlers. AllowAny prevents unrelated global JWT defaults overriding
@@ -83,6 +83,45 @@ def viewer_materials(request: Request):
 @page_endpoint
 def delete_model(request: Request):
     return pages.delete_model(request, object_id(request))
+
+
+@api.get('/plugins/bim/cityjson/import/', name='import_cityjson', guards=[AllowAny()])
+@api.post('/plugins/bim/cityjson/import/', name='import_cityjson', guards=[AllowAny()])
+@page_endpoint
+def import_cityjson(request: Request):
+    return exchange_pages.import_cityjson(request)
+
+
+@api.get('/plugins/bim/models/{pk}/cityjson-source/', name='cityjson_source', guards=[AllowAny()])
+@page_endpoint
+def cityjson_source(request: Request):
+    return exchange_pages.download_cityjson_source(request, object_id(request))
+
+
+@api.get('/plugins/bim/models/{pk}/cityjson/', name='export_cityjson', guards=[AllowAny()])
+@api.post('/plugins/bim/models/{pk}/cityjson/', name='export_cityjson', guards=[AllowAny()])
+@page_endpoint
+def export_cityjson(request: Request):
+    return exchange_pages.export_cityjson(request, object_id(request))
+
+
+@api.get('/plugins/bim/models/{pk}/cityjson/download/', name='download_cityjson', guards=[AllowAny()])
+@page_endpoint
+def download_cityjson(request: Request):
+    return exchange_pages.download_cityjson(request, object_id(request))
+
+
+@api.get('/plugins/bim/map/', name='building_map', guards=[AllowAny()])
+@page_endpoint
+def building_map(request: Request):
+    return exchange_pages.building_map(request)
+
+
+@api.get('/plugins/bim/models/{pk}/buildings/{guid}/location/', name='building_location', guards=[AllowAny()])
+@api.post('/plugins/bim/models/{pk}/buildings/{guid}/location/', name='building_location', guards=[AllowAny()])
+@page_endpoint
+def building_location(request: Request):
+    return exchange_pages.building_location(request, object_id(request), request.params['guid'])
 
 
 @passport_api.get('/plugins/bim/material-passport/', name='calculate', guards=[AllowAny()])

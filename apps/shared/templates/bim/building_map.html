@@ -1,0 +1,90 @@
+{% load static %}
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace building-map-page">
+    <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}?v=1.9.4">
+    <link rel="stylesheet" href="{% static 'css/building_map.css' %}?v=1.0.0">
+    <div class="building-map-heading">
+        <div>
+            <h1>Building map</h1>
+            <p>Select a building to explore its model and material assessment.</p>
+        </div>
+        <a class="button" href="{% url 'bim:model_manager' %}" hx-get="{% url 'bim:model_manager' %}"
+           hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Your models</a>
+    </div>
+    {% if pagination.paginator.num_pages > 1 %}
+    <nav class="building-map-pagination" aria-label="Building map pages">
+        <span>Models {{ pagination.start_index }}–{{ pagination.end_index }} of {{ pagination.paginator.count }}</span>
+        <div>
+            {% if pagination.has_previous %}<a href="{% url 'bim:building_map' %}?page={{ pagination.previous_page_number }}" hx-get="{% url 'bim:building_map' %}?page={{ pagination.previous_page_number }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Previous</a>{% endif %}
+            <span>Page {{ pagination.number }} of {{ pagination.paginator.num_pages }}</span>
+            {% if pagination.has_next %}<a href="{% url 'bim:building_map' %}?page={{ pagination.next_page_number }}" hx-get="{% url 'bim:building_map' %}?page={{ pagination.next_page_number }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Next</a>{% endif %}
+        </div>
+    </nav>
+    {% endif %}
+    <div class="building-map-workspace" data-building-map data-tile-url="{{ map_tile_url|default_if_none:'https://tile.openstreetmap.org/{z}/{x}/{y}.png' }}">
+        {{ map_features_json|json_script:'building-map-data' }}
+        <aside class="building-map-sidebar" aria-labelledby="building-list-title">
+            <div class="building-map-sidebar-heading">
+                <h2 id="building-list-title">Your buildings</h2>
+                <p>{{ located_count }} of {{ total_count }} located{% if pagination.paginator.num_pages > 1 %} on this page{% endif %}</p>
+                <label for="building-map-search">Search buildings or sites{% if pagination.paginator.num_pages > 1 %} on this page{% endif %}</label>
+                <input id="building-map-search" data-map-search type="search" autocomplete="off" placeholder="Building or site name">
+                <p class="building-map-result-count" data-map-results role="status">{{ total_count }} buildings</p>
+            </div>
+            <section class="building-map-selection" data-map-selection hidden aria-labelledby="map-selected-title">
+                <span class="building-map-eyebrow">Selected building</span>
+                <h3 id="map-selected-title" data-map-selected-title></h3>
+                <p data-map-selected-site></p>
+                <dl class="building-map-location">
+                    <div><dt>Location source</dt><dd data-map-selected-source></dd></div>
+                    <div><dt>Coordinates</dt><dd data-map-selected-coordinates></dd></div>
+                </dl>
+                <p class="building-map-note" data-map-selected-message></p>
+                <div class="building-map-actions">
+                    <a class="button" data-map-link="viewer" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open 3D viewer</a>
+                    <a data-map-link="overview" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>
+                    <a data-map-link="location" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Set / edit location</a>
+                </div>
+            </section>
+            <ul class="building-map-list" data-map-list>
+                {% for building in buildings %}
+                <li data-map-building="{{ building.id }}">
+                    <button type="button" class="building-map-list-select" data-map-select="{{ building.id }}" aria-pressed="false">
+                        <strong>{{ building.title }}</strong>
+                        <span>{{ building.site_name|default:'Site not specified' }}</span>
+                        <span class="building-map-list-location">{% if building.latitude != None and building.longitude != None %}{% if building.source == 'site-reference' or building.source == 'ifc_site' %}Approximate site origin{% else %}Located{% endif %}{% else %}Location needed{% endif %}</span>
+                    </button>
+                    <div class="building-map-list-links">
+                        {% if building.viewer_url %}<a href="{{ building.viewer_url }}" hx-get="{{ building.viewer_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open model</a>{% endif %}
+                        {% if building.overview_url %}<a href="{{ building.overview_url }}" hx-get="{{ building.overview_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>{% endif %}
+                        {% if building.location_url %}<a href="{{ building.location_url }}" hx-get="{{ building.location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">{% if building.latitude != None and building.longitude != None %}Edit location{% else %}Set location{% endif %}</a>{% endif %}
+                    </div>
+                </li>
+                {% empty %}
+                <li class="building-map-empty-list">No buildings yet. <a href="{% url 'bim:model_manager' %}">Upload an IFC model</a> to get started.</li>
+                {% endfor %}
+            </ul>
+            <p class="building-map-no-results" data-map-no-results hidden>No buildings match your search.</p>
+        </aside>
+        <div class="building-map-main">
+            <div class="building-map-tools">
+                <button type="button" class="button" data-map-fit>Fit buildings</button>
+                <label><input type="checkbox" data-map-basemap checked> Street map</label>
+                <span>Markers group buildings at the same location.</span>
+            </div>
+            <div class="building-map-viewport">
+                <div class="building-map-canvas" data-map-canvas aria-label="Interactive building map. Use the building list or map markers to select a building."></div>
+                <div class="building-map-empty" data-map-empty hidden>
+                    <strong>No buildings placed on the map</strong>
+                    <p>Select a building and set its location to add it to the map.</p>
+                </div>
+            </div>
+            <div class="building-map-status-row">
+                <p class="building-map-status" data-map-status role="status">Loading interactive map…</p>
+                <button type="button" data-map-retry hidden>Retry street map</button>
+            </div>
+            <p class="building-map-note">IFC site reference points are approximate locations, not measured building footprints.</p>
+            <noscript><p>Interactive markers need JavaScript. You can still open models and edit locations from the building list.</p></noscript>
+        </div>
+    </div>
+    <script type="module" src="{% static 'js/building_map.js' %}?v=1.0.0"></script>
+</section>

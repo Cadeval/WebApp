@@ -1,0 +1,10 @@
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
+<p><a href="{% url 'bim:building_map' %}">Building map</a> / Building location</p>
+<h1>Building location</h1>
+<p>{{ document.description|default:document.document.name }} · {{ building.name }}</p>
+<p>{{ building.message }}</p>
+<p>Set a WGS84 map marker for this building. This location applies to your uploaded model and leaves the source IFC geometry unchanged.</p>
+<form hx-boost="false" method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Save location</button></form>
+{% if has_override %}<form hx-boost="false" method="post">{% csrf_token %}<button type="submit" name="action" value="reset">Use source location</button></form>{% endif %}
+<p><a href="{% url 'bim:building_map' %}">Back to building map</a></p>
+</section>

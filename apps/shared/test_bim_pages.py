@@ -50,7 +50,7 @@ class BimPageIntegrationTests(TestCase):
     def test_all_contributed_routes_resolve_and_disabled_plugin_hides_pages(self):
         registry = PluginRegistry(); plugin_manifest().register(registry)
         items = registry.get_active(NAV_ITEM_EXTENSION_POINT, enabled_ids={PLUGIN_ID})
-        self.assertEqual(len(items), 5)
+        self.assertEqual(len(items), 6)
         for item in items:
             self.assertFalse(item.full_page)
             resolve(item.url)
@@ -170,7 +170,7 @@ class BimPageIntegrationTests(TestCase):
         from config.api import api
         from django_bolt.urls import build_urlpatterns
         self.assertFalse(api._asgi_mounts)
-        self.assertEqual(len(api._routes), 21)
+        self.assertEqual(len(api._routes), 30)
         self.assertTrue(build_urlpatterns(api))
         self.assertEqual(reverse('bim:model_manager'), '/plugins/bim/model_manager/')
         self.assertEqual(reverse('material_passport:calculate'), '/plugins/bim/material-passport/')

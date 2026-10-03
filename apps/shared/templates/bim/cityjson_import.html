@@ -1,0 +1,13 @@
+<section {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
+<p><a href="{% url 'bim:model_manager' %}">Model Manager</a> / CityJSON import</p>
+<h1>Import CityJSON</h1>
+<p>Convert a city model to IFC, then inspect its buildings in the 3D viewer, place them on the map and calculate a material passport.</p>
+<form hx-boost="false" method="post" enctype="multipart/form-data" action="{% url 'bim:import_cityjson' %}">
+{% csrf_token %}{{ form.as_p }}
+<button type="submit">Convert and open model</button>
+</form>
+<details><summary>What the conversion preserves</summary>
+<p>Your original CityJSON is retained privately. The generated IFC keeps supported geometry, object attributes and declared georeferencing.</p>
+<p>Geometry instances, interior solid shells and unsupported classes need conversion in the source tool first. Appearance, textures and material assignments are not transferred by IfcCityJSON. Material assessment remains subject to the source properties and reference data.</p>
+</details>
+</section>
