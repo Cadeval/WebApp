@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 — Unreleased
+
+- Show named loading tasks and elapsed time for calculations, uploads, CityJSON conversion and local data lookups, with safe duplicate-submit prevention.
+- Report measured 3D geometry download progress separately from indeterminate preparation, parsing and rendering stages.
+- Open authorized administrators' live logs in a dismissible popover; connect only while it is open and close the socket on dismissal.
+- Add optional preview landscaping and balanced outdoor illumination to the model viewer and public house previews, keeping decoration separate from IFC data and assessments.
+- Render settled model views and paused demos on demand, with bounded display resolution and throttled demo playback.
+
 ## 0.7.0 — Unreleased
 
 - Look up local data from a selected building-map marker, retaining the owned source/CityJSON/manual location and the 3D viewer links.
