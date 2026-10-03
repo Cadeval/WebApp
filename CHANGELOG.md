@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.0 — Unreleased
+
+- Show actual-geometry thumbnails in Model Manager, building-map selections, calculation and assessment-comparison choices.
+- Generate private source-versioned previews lazily, reuse viewer geometry and bound concurrent work across server workers and visible menu items.
+- Offer direct A–D house selection in the public demo with pre-generated thumbnail images and synchronized statistics.
+- Keep text controls usable when previews are pending or unavailable; preserve ownership, workflow access and original model data.
+- Add Pillow for small CPU-rendered PNGs and bump BIM Workspace to 1.6.0.
+
 ## 0.8.0 — Unreleased
 
 - Show named loading tasks and elapsed time for calculations, uploads, CityJSON conversion and local data lookups, with safe duplicate-submit prevention.
