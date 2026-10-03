@@ -1,0 +1,25 @@
+.passport-form-field { margin: 1.1rem 0; }
+.passport-form-field > fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.passport-form-field > fieldset > legend { margin-bottom: .6rem; font-weight: 600; }
+.passport-form-field .helptext { display: block; color: var(--muted-text, #666); font-size: .85rem; margin-top: .4rem; }
+.model-choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr)); gap: .75rem; max-width: 72rem; }
+.model-choice-card { position: relative; display: grid; grid-template-columns: 1.1rem 6rem minmax(0, 1fr); gap: .65rem; align-items: center; margin: 0; padding: .75rem; border: 1px solid var(--border-low-contrast, #ccc); border-radius: .65rem; background: var(--secondary-bg, #fff); color: var(--primary-color, #222); cursor: pointer; }
+.model-choice-card > input { position: static; width: 1rem; height: 1rem; margin: 0; accent-color: var(--primary-color, #444); }
+.model-choice-card:has(> input:checked) { border-color: var(--primary-color, #444); box-shadow: inset 0 0 0 1px var(--primary-color, #444); background: var(--primary-bg, #f5f5f5); }
+.model-choice-card:has(> input:focus-visible) { outline: 2px solid var(--primary-color, #444); outline-offset: 3px; }
+.model-choice-card:has(> input:disabled) { cursor: default; }
+.model-choice-caption { display: flex; flex-direction: column; gap: .25rem; min-width: 0; overflow-wrap: anywhere; }
+.model-choice-caption > strong { font-size: .9rem; }
+.model-choice-caption > span { font-size: .75rem; color: var(--muted-text, #666); }
+.model-choice-upload { display: grid; place-items: center; min-height: 4.5rem; border: 1px dashed var(--border-low-contrast, #ccc); border-radius: .4rem; font-size: 1.5rem; color: var(--muted-text, #666); }
+.model-choice-empty { grid-column: 1 / -1; color: var(--muted-text, #666); }
+.model-choice-group { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; gap: inherit; }
+.model-choice-group > h3 { grid-column: 1 / -1; }
+.demo-house-choices { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem; margin: 1rem 0; }
+.demo-house-choices > button { display: grid; grid-template-columns: 5rem minmax(0, 1fr); align-items: center; gap: .65rem; padding: .55rem; min-width: 0; color: var(--primary-color, #222); background: var(--secondary-bg, #fff); border: 1px solid var(--border-low-contrast, #ccc); border-radius: .55rem; cursor: pointer; }
+.demo-house-choices > button[aria-pressed="true"] { border-color: var(--primary-color, #444); box-shadow: inset 0 0 0 1px var(--primary-color, #444); }
+.demo-house-choices > button:focus-visible { outline: 2px solid var(--primary-color, #444); outline-offset: 3px; }
+.demo-house-choices > button:disabled { cursor: default; }
+.demo-house-choices > button > strong { font-size: .85rem; text-align: start; }
+@media (max-width: 900px) { .demo-house-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .demo-house-choices > button { grid-template-columns: 3.5rem minmax(0, 1fr); gap: .45rem; } }

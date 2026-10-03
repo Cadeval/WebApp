@@ -65,7 +65,7 @@ class Node {
         this.classList = { add: (value) => values.add(value), contains: (value) => values.has(value),
             toggle: (value, active) => active ? values.add(value) : values.delete(value) };
     }
-    append(node) { this.children.push(node); node.parent = this; }
+    append(...nodes) { for (const node of nodes) { this.children.push(node); node.parent = this; } }
     replaceChildren(...nodes) {
         for (const child of this.children) child.parent = null;
         this.children = [];
@@ -78,8 +78,17 @@ class Node {
     removeEventListener(name, fn) { this.listeners.get(name)?.delete(fn); }
     emit(name, target = this) { for (const fn of this.listeners.get(name) ?? []) fn({ target }); }
     contains(node) { return node === this || this.children.some((child) => child.contains(node)); }
-    querySelector(selector) { return this.selectors?.get(selector) ?? null; }
-    querySelectorAll(selector) { return selector === '[data-map-building]' ? this.rows ?? [] : []; }
+    querySelector(selector) { return this.selectors?.get(selector) ?? this.querySelectorAll(selector)[0] ?? null; }
+    matches(selector) {
+        if (selector === '[data-building-thumbnail]') return this.attributes.has('data-building-thumbnail');
+        if (selector === 'img[data-thumbnail-src]') return this.attributes.has('data-thumbnail-src');
+        if (selector === '[data-thumbnail-state]') return this.attributes.has('data-thumbnail-state');
+        return false;
+    }
+    querySelectorAll(selector) {
+        if (selector === '[data-map-building]') return this.rows ?? [];
+        return this.children.flatMap(child => [...(child.matches(selector) ? [child] : []), ...child.querySelectorAll(selector)]);
+    }
     closest(selector) { return selector === '[data-map-select]' && this.dataset.mapSelect ? this : null; }
 }
 
@@ -101,7 +110,7 @@ function fixture(rows) {
     for (const selector of ['#building-map-data', '[data-map-status]', '[data-map-search]', '[data-map-canvas]',
         '[data-map-selection]', '[data-map-context-host]', '[data-map-fit]', '[data-map-retry]', '[data-map-basemap]', '[data-map-results]',
         '[data-map-no-results]', '[data-map-empty]', '[data-map-selected-title]', '[data-map-selected-site]',
-        '[data-map-selected-source]', '[data-map-selected-coordinates]', '[data-map-selected-message]',
+        '[data-map-selected-source]', '[data-map-selected-coordinates]', '[data-map-selected-message]', '[data-map-selected-thumbnail]',
         '[data-map-link="viewer"]', '[data-map-link="overview"]', '[data-map-link="location"]', '[data-map-link="context"]']) {
         const node = new Node(document);
         root.selectors.set(selector, node);
@@ -129,8 +138,9 @@ function fixture(rows) {
         control: { scale: () => ({ addTo() {} }) },
         divIcon: (options) => options,
         marker(coordinates, options) {
-            const marker = { coordinates, options, element: new Node(document), bindPopup(value) { this.popup = value; return this; },
-                addTo() { state.markerGroups.push(this); return this; }, on() { return this; },
+            const marker = { coordinates, options, element: new Node(document), handlers: new Map(), bindPopup(value) { this.popup = value; return this; },
+                getPopup() { return {getContent: () => this.popup}; },
+                addTo() { state.markerGroups.push(this); return this; }, on(name, callback) { this.handlers.set(name, callback); return this; },
                 getElement() { return this.element; }, openPopup() { this.opened = true; return this; } };
             return marker;
         },
@@ -179,6 +189,51 @@ test('missing locations remain searchable and selection works while the map libr
     assert.equal(root.querySelector('[data-map-link="location"]').getAttribute('href'), '/location/missing');
     assert.equal(root.rows[0].hidden, false);
     assert.equal(root.querySelector('[data-map-fit]').disabled, true);
+    controller.dispose();
+});
+
+test('selected buildings and grouped marker popups use private previews without merging identities', async () => {
+    const rows = [{id: 'a:guid', title: '<b>House A</b>', latitude: 48, longitude: 16, thumbnail_url: '/thumbnail/a?building=guid'},
+        {id: 'b:guid', title: 'House B', latitude: 48, longitude: 16, thumbnail_url: '/thumbnail/b?building=guid'}];
+    const f = fixture(rows), mounted = [], removed = [];
+    const controller = initializeBuildingMap(f.root, {loadLeaflet: f.loadLeaflet,
+        mountThumbnails: root => mounted.push(root), disposeThumbnails: root => removed.push(root)});
+    await controller.ready;
+    const marker = f.state.markerGroups[0];
+    assert.equal(marker.popup.querySelectorAll('[data-building-thumbnail]').length, 2);
+    const popupImages = marker.popup.querySelectorAll('img[data-thumbnail-src]');
+    assert.equal(popupImages[0].getAttribute('data-thumbnail-src'), '/thumbnail/a?building=guid');
+    assert.equal(popupImages[1].getAttribute('data-thumbnail-src'), '/thumbnail/b?building=guid');
+    assert.equal(popupImages[0].getAttribute('alt'), 'Preview of <b>House A</b>');
+    marker.handlers.get('popupopen')();
+    assert.equal(mounted.at(-1), marker.popup);
+    marker.handlers.get('popupclose')();
+    assert.equal(removed.at(-1), marker.popup);
+    controller.selectBuilding('a:guid');
+    const selected = f.root.querySelector('[data-map-selected-thumbnail]');
+    const first = selected.children[0];
+    assert.equal(selected.hidden, false);
+    assert.equal(first.querySelector('img[data-thumbnail-src]').getAttribute('data-thumbnail-src'), rows[0].thumbnail_url);
+    controller.selectBuilding('a:guid');
+    assert.equal(selected.children[0], first, 'same selection keeps its completed image');
+    controller.selectBuilding('b:guid');
+    assert.notEqual(selected.children[0], first);
+    assert.equal(selected.children[0].querySelector('img[data-thumbnail-src]').getAttribute('data-thumbnail-src'), rows[1].thumbnail_url);
+    assert(removed.includes(selected));
+    controller.dispose();
+    assert(removed.includes(f.root));
+});
+
+test('map thumbnails reject external paths while preserving the building selection and viewer links', async () => {
+    const f = fixture([{id: 'a', title: 'House A', latitude: 48, longitude: 16,
+        thumbnail_url: 'https://evil.example/preview.png', viewer_url: '/viewer/a'}]);
+    const controller = initializeBuildingMap(f.root, {loadLeaflet: f.loadLeaflet,
+        mountThumbnails() { throw new Error('Unsafe thumbnail mounted'); }, disposeThumbnails() {}});
+    await controller.ready;
+    assert.equal(f.state.markerGroups[0].popup.querySelectorAll('[data-building-thumbnail]').length, 0);
+    controller.selectBuilding('a');
+    assert.equal(f.root.querySelector('[data-map-selected-thumbnail]').hidden, true);
+    assert.equal(f.root.querySelector('[data-map-link="viewer"]').getAttribute('href'), '/viewer/a');
     controller.dispose();
 });
 

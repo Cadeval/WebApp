@@ -1,0 +1,64 @@
+.model-thumbnail {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 8 / 5;
+    overflow: hidden;
+    border: 1px solid var(--border-low-contrast, #d0d3d6);
+    border-radius: .5rem;
+    background: var(--primary-bg, #f5f6f7);
+    color: var(--primary-color, #292d32);
+}
+.model-thumbnail img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity .15s ease;
+}
+.model-thumbnail img[hidden] { display: none; }
+.model-thumbnail[data-thumbnail-state="loading"] img { opacity: 0; }
+.model-thumbnail-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .6rem;
+    font-size: .75rem;
+    line-height: 1.4;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.model-thumbnail-state[hidden] { display: none; }
+.model-thumbnail[data-thumbnail-state="loading"] .model-thumbnail-state::before {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 1rem;
+    border: 2px solid var(--border-low-contrast, #d0d3d6);
+    border-top-color: var(--primary-color, #292d32);
+    border-radius: 50%;
+    animation: model-thumbnail-spin .8s linear infinite;
+}
+.model-thumbnail-note { position: absolute; inset: 0; display: grid; place-items: center; padding: .6rem; font-size: .75rem; background: var(--primary-bg, #f5f6f7); }
+.model-thumbnail--compact { width: 6.5rem; }
+.model-thumbnail--selected { margin: .7rem 0; }
+.model-thumbnail--popup { width: 5.2rem; }
+.bim-model-list > .bim-model-preview-row { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 1rem; align-items: start; }
+.bim-model-preview-body { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+.bim-model-preview-body > strong { flex-basis: 100%; }
+.bim-model-preview-body form { margin: 0; }
+.bim-model-list > .bim-model-preview-row:not(:has(.model-thumbnail)) { grid-template-columns: minmax(0, 1fr); }
+.building-map-list-select:has(.model-thumbnail) { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: .6rem; align-items: start; }
+.building-map-list-copy { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.building-map-popup button:has(.model-thumbnail) { display: flex; align-items: center; gap: .6rem; }
+.building-map-popup-title { min-width: 0; overflow-wrap: anywhere; }
+@keyframes model-thumbnail-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .model-thumbnail img { transition: none; } .model-thumbnail-state::before { animation: none !important; } }
+@media (max-width: 36rem) {
+    .bim-model-list > .bim-model-preview-row { grid-template-columns: 6.5rem minmax(0, 1fr); gap: .65rem; }
+}

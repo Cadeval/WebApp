@@ -1,0 +1,9 @@
+<div{% if widget.attrs.id %} id="{{ widget.attrs.id }}"{% endif %} class="model-choice-grid">
+{% for group, options, index in widget.optgroups %}
+    {% if group %}<div class="model-choice-group"><h3>{{ group }}</h3>{% endif %}
+    {% for option in options %}{% include option.template_name with widget=option %}{% endfor %}
+    {% if group %}</div>{% endif %}
+{% empty %}
+    <p class="model-choice-empty">No saved models are available yet.</p>
+{% endfor %}
+</div>

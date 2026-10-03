@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 import tempfile
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core.files.base import ContentFile
@@ -188,7 +189,9 @@ def building_map(request):
                 viewer_url=reverse("bim:viewer", args=[upload.pk]) + "?from=map",
                 overview_url=reverse("material_passport:report", args=[choices[0]]) if len(choices) == 1 else reverse("bim:viewer", args=[upload.pk]) + "?from=map" if choices else "",
                 location_url=reverse("bim:building_location", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "",
-                context_url=reverse("bim:building_context", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "")
+                context_url=reverse("bim:building_context", args=[upload.pk, row["guid"]]) if row["guid"] and row["status"] != "invalid" else "",
+                thumbnail_url=reverse("bim:model_thumbnail", args=[upload.pk]) +
+                    ("?" + urlencode({"building": row["guid"]}) if row["guid"] and row["status"] != "invalid" else ""))
             rows.append(row)
     return page(request, "bim/building_map.html", {"title": "Building map", "buildings": rows, "map_features_json": rows,
         "total_count": len(rows), "located_count": sum(row["status"] == "located" for row in rows), "pagination": pagination,

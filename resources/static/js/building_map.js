@@ -1,3 +1,5 @@
+import { createThumbnailElement, safeThumbnailUrl, mountBuildingThumbnailsWithin, disposeBuildingThumbnailsWithin } from './building_thumbnails.js?v=0.9.0';
+
 const controllers = new Map();
 let leafletImport;
 let contextTargetCounter = 0;
@@ -65,6 +67,10 @@ export function initializeBuildingMap(root, dependencies = {}) {
     const search = root.querySelector('[data-map-search]');
     const canvas = root.querySelector('[data-map-canvas]');
     const selection = root.querySelector('[data-map-selection]');
+    const selectedThumbnail = root.querySelector('[data-map-selected-thumbnail]');
+    const mountThumbnails = dependencies.mountThumbnails ?? mountBuildingThumbnailsWithin;
+    const disposeThumbnails = dependencies.disposeThumbnails ?? disposeBuildingThumbnailsWithin;
+    const popupNodes = new Set();
     const contextHost = root.querySelector('[data-map-context-host]');
     const fitButton = root.querySelector('[data-map-fit]');
     const retryButton = root.querySelector('[data-map-retry]');
@@ -108,6 +114,16 @@ export function initializeBuildingMap(root, dependencies = {}) {
             }
         }
         selection.hidden = false;
+        if (selectedThumbnail && changed) {
+            disposeThumbnails(selectedThumbnail);
+            selectedThumbnail.replaceChildren();
+            const url = safeThumbnailUrl(building.thumbnail_url, windowRoot.location.origin);
+            selectedThumbnail.hidden = !url;
+            if (url) {
+                selectedThumbnail.append(createThumbnailElement(documentRoot, url, building.title, 'model-thumbnail--selected'));
+                mountThumbnails(selectedThumbnail);
+            }
+        }
         root.querySelector('[data-map-selected-title]').textContent = building.title || 'Unnamed building';
         root.querySelector('[data-map-selected-site]').textContent = building.site_name || 'Site not specified';
         root.querySelector('[data-map-selected-source]').textContent = buildingLocationSource(building);
@@ -158,15 +174,25 @@ export function initializeBuildingMap(root, dependencies = {}) {
         for (const building of group.buildings) {
             const button = documentRoot.createElement('button');
             button.type = 'button';
-            button.textContent = building.title || 'Unnamed building';
+            const url = safeThumbnailUrl(building.thumbnail_url, windowRoot.location.origin);
+            if (url) {
+                button.append(createThumbnailElement(documentRoot, url, building.title, 'model-thumbnail--popup'));
+                const label = documentRoot.createElement('span');
+                label.className = 'building-map-popup-title';
+                label.textContent = building.title || 'Unnamed building';
+                button.append(label);
+            } else button.textContent = building.title || 'Unnamed building';
             button.addEventListener('click', () => selectBuilding(building.id));
             popup.append(button);
         }
+        popupNodes.add(popup);
         return popup;
     }
 
     function refreshMarkers() {
         if (!map) return;
+        for (const popup of popupNodes) disposeThumbnails(popup);
+        popupNodes.clear();
         markerLayer.clearLayers();
         markersById.clear();
         for (const group of groupBuildingsByLocation(visible)) {
@@ -176,6 +202,8 @@ export function initializeBuildingMap(root, dependencies = {}) {
                 title: label, alt: label, keyboard: true,
                 icon: L.divIcon({ className: 'building-map-marker', html: String(count), iconSize: [34, 34], iconAnchor: [17, 17] }),
             }).bindPopup(popupFor(group), { maxWidth: 300 }).addTo(markerLayer);
+            marker.on('popupopen', () => mountThumbnails(marker.getPopup().getContent()));
+            marker.on('popupclose', () => disposeThumbnails(marker.getPopup().getContent()));
             marker.on('click', () => { if (count === 1) selectBuilding(group.buildings[0].id); });
             for (const building of group.buildings) markersById.set(building.id, marker);
             if (group.buildings.some((building) => building.id === selected)) marker.getElement()?.classList.add('is-selected');
@@ -267,6 +295,9 @@ export function initializeBuildingMap(root, dependencies = {}) {
             resizeObserver?.disconnect();
             if (layoutFrame !== null) windowRoot.cancelAnimationFrame?.(layoutFrame);
             tiles?.off();
+            for (const popup of popupNodes) disposeThumbnails(popup);
+            popupNodes.clear();
+            disposeThumbnails(root);
             map?.remove();
             markersById.clear();
             contextHost?.replaceChildren();

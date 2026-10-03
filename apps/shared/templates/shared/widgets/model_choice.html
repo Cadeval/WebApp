@@ -1,0 +1,13 @@
+<label class="model-choice-card{% if not widget.thumbnail_url %} model-choice-card--upload{% endif %}"{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>
+    {% include 'django/forms/widgets/input.html' %}
+    {% if widget.thumbnail_url %}
+        {% include 'bim/_model_thumbnail.html' with thumbnail_url=widget.thumbnail_url thumbnail_label=widget.thumbnail_label thumbnail_class='model-thumbnail--choice' %}
+    {% else %}
+        <span class="model-choice-upload" aria-hidden="true">＋</span>
+    {% endif %}
+    <span class="model-choice-caption">
+        <strong>{{ widget.thumbnail_label }}</strong>
+        {% if widget.source_name %}<span>{{ widget.source_name }}</span>{% endif %}
+        {% if widget.assessment_id %}<span>Assessment {{ widget.assessment_id }}</span>{% endif %}
+    </span>
+</label>

@@ -1,0 +1,7 @@
+{% if thumbnail_url %}
+<span class="model-thumbnail {{ thumbnail_class|default:'' }}" data-building-thumbnail>
+    <img data-thumbnail-src="{{ thumbnail_url }}" alt="Preview of {{ thumbnail_label|default:'building model' }}" width="320" height="200" loading="lazy" decoding="async" hidden>
+    <span class="model-thumbnail-state" data-thumbnail-state>Building preview</span>
+    <noscript><span class="model-thumbnail-note">Open the 3D viewer for a model preview.</span></noscript>
+</span>
+{% endif %}

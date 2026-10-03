@@ -21,10 +21,12 @@ from .models import (BuildingMetrics, CadevilDocument, CalculationConfig, Config
                      FileUpload, MaterialProperties, validate_config_upload_size, validate_model_upload_size)
 from .page_views import render_page as render
 from .assessment_presentation import charts, comparison as comparison_data
+from .model_choice_widgets import ModelThumbnailRadioSelect, ModelThumbnailCheckboxSelect
 
 
 class PassportForm(forms.Form):
-    model = forms.ModelChoiceField(queryset=FileUpload.objects.none(), required=False)
+    model = forms.ModelChoiceField(queryset=FileUpload.objects.none(), required=False, blank=True,
+                                   empty_label='Upload a new IFC below', widget=ModelThumbnailRadioSelect)
     model_file = forms.FileField(required=False, validators=[FileExtensionValidator(['ifc']), validate_model_upload_size])
     reference = forms.ModelChoiceField(queryset=ConfigUpload.objects.none(), required=False)
     reference_file = forms.FileField(required=False, validators=[FileExtensionValidator(['xlsx','csv']), validate_config_upload_size])
@@ -178,11 +180,11 @@ def report(request, pk):
 
 
 class ComparisonForm(forms.Form):
-    models=forms.ModelMultipleChoiceField(queryset=CadevilDocument.objects.none(),widget=forms.CheckboxSelectMultiple)
+    models=forms.ModelMultipleChoiceField(queryset=CadevilDocument.objects.none(),widget=ModelThumbnailCheckboxSelect)
 
     def __init__(self,*args,user,**kwargs):
         super().__init__(*args,**kwargs)
-        self.fields['models'].queryset=CadevilDocument.objects.filter(user=user,building_metrics__isnull=False).distinct()
+        self.fields['models'].queryset=CadevilDocument.objects.filter(user=user,building_metrics__isnull=False).select_related('upload').distinct()
 
     def clean_models(self):
         models=self.cleaned_data['models']

@@ -33,6 +33,7 @@
             <section class="building-map-selection" data-map-selection hidden aria-labelledby="map-selected-title">
                 <span class="building-map-eyebrow">Selected building</span>
                 <h3 id="map-selected-title" data-map-selected-title></h3>
+                <div data-map-selected-thumbnail hidden></div>
                 <p data-map-selected-site></p>
                 <dl class="building-map-location">
                     <div><dt>Location source</dt><dd data-map-selected-source></dd></div>
@@ -50,9 +51,12 @@
                 {% for building in buildings %}
                 <li data-map-building="{{ building.id }}">
                     <button type="button" class="building-map-list-select" data-map-select="{{ building.id }}" aria-pressed="false">
+                        {% include 'bim/_model_thumbnail.html' with thumbnail_url=building.thumbnail_url thumbnail_label=building.title thumbnail_class='model-thumbnail--compact' %}
+                        <span class="building-map-list-copy">
                         <strong>{{ building.title }}</strong>
                         <span>{{ building.site_name|default:'Site not specified' }}</span>
                         <span class="building-map-list-location">{% if building.latitude != None and building.longitude != None %}{% if building.source == 'site-reference' or building.source == 'ifc_site' %}Approximate site origin{% else %}Located{% endif %}{% else %}Location needed{% endif %}</span>
+                        </span>
                     </button>
                     <div class="building-map-list-links">
                         {% if building.viewer_url %}<a href="{{ building.viewer_url }}" hx-get="{{ building.viewer_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open model</a>{% endif %}
@@ -89,5 +93,5 @@
             <div class="building-map-context-host" data-map-context-host></div>
         </div>
     </div>
-    <script type="module" src="{% static 'js/building_map.js' %}?v=1.1.0"></script>
+    <script type="module" src="{% static 'js/building_map.js' %}?v=1.2.0"></script>
 </section>
