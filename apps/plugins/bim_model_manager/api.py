@@ -6,7 +6,7 @@ from django_bolt.exceptions import HTTPException
 from django_bolt.request import Request
 
 from apps.shared.bolt_pages import page_endpoint
-from . import pages, passport_views, exchange_pages, location_pages
+from . import pages, passport_views, exchange_pages, location_pages, thumbnail_pages
 
 # Session authentication, ownership and the runtime plugin gate live in the
 # page handlers. AllowAny prevents unrelated global JWT defaults overriding
@@ -77,6 +77,11 @@ def model_geometry(request: Request):
 @page_endpoint
 def viewer_materials(request: Request):
     return pages.viewer_materials(request, object_id(request))
+
+
+@api.get('/plugins/bim/models/{pk}/thumbnail/', name='model_thumbnail', guards=[AllowAny()])
+async def model_thumbnail(request: Request):
+    return await thumbnail_pages.model_thumbnail(request, object_id(request))
 
 
 @api.post('/plugins/bim/models/{pk}/delete/', name='delete_model', guards=[AllowAny()])
