@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 — Unreleased
+
+### Added
+
+- IFC material textures and a selected-part inspector for declared physical properties, saved assessment impacts, Euro costs and recovery grades.
+- An owned, source-fingerprinted material index with cached element details loaded on demand.
+- Display controls for material textures, room envelopes and opening-cut volumes.
+
+### Changed
+
+- Fit directional shadows and camera clipping to each model, move the grid below its floor, and preserve authored transparency and IFC colors.
+- Place the inspector beside the canvas and dispose model resources on HTMX navigation.
+- Preserve authored colors in the demo and fit each preview's camera and ground grid to its own bounds.
+- Bump the BIM Workspace plugin to 1.2.0.
+
 ## 0.4.0 — Unreleased
 
 ### Added

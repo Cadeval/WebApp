@@ -1,0 +1,17 @@
+# IFC surfaces and material inspection
+
+Open a model from BIM Model Manager and select a building part. The inspector shows its IFC identity, material associations and declared physical properties. If a matching saved material assessment exists, it also shows reference density, component mass, GWP, AP, PENRT, service life, replacements, recovery grade and material costs in euros. Expand **Material properties & calculations** for the full component breakdown and **Element totals** for values across that part's materials.
+
+**Assessment & sources** selects the report when several belong to the same uploaded model and links to its building overview. UUID order does not identify the newest report. Source SHA-256 fingerprints must match before saved calculation values are displayed. Missing, excluded or incomplete values stay unavailable; whole-building material totals are never assigned to a clicked part. IFC declarations and assessment reference values have separate labels because they can differ.
+
+**Display options** controls procedural material textures and IFC room/opening volumes. Opening cuts and room envelopes are hidden initially because they overlap the construction surfaces; selecting one through an error deep link enables their display. They remain in the model and original downloads. Unknown or mixed material assemblies keep their authored appearance rather than guessing the visible layer. Concrete, wood, brick, plaster and metal use shared, subtle procedural maps when explicitly identified. Glass keeps its authored opacity and sidedness.
+
+The canvas uses a neutral studio environment, model-sized directional shadows with a small normal offset, a grid below the floor, display-only root recentering and camera clipping that follows orbit distance. Reversed depth is enabled when WebGL supports it. Geometry buffers, IFC coordinates, material colors and original files remain unchanged. Static shadow maps are updated only when model presentation changes; generated textures and GLB resources are disposed on HTMX cleanup.
+
+The initial material request is a compact source-only index. Full properties load only for the selected element and are cached by source hash and GlobalId. Saved user assessment data is attached per request and is never placed in the shared metadata cache. Access requires both model ownership and the selected BIM workflow. An unreadable property record or missing assessment does not prevent viewing geometry.
+
+## Verification
+
+All four supplied A–D `28V_new` IFCs and their existing GLBs were checked. Renderable GUIDs match each source, geometry positions/indices are valid, and source SHA-256 hashes remain unchanged. Compact indexes are 1.00–2.77 MB; representative selected-element property payloads are 18–39 KB. Cold IFC detail extraction takes about 7–10 seconds; cache hits avoid reparsing. Texture preparation on Three r184 took 0.14–0.30 seconds in Node and used 1.49–10.03 MB of generated geometry, within the 32 MiB budget.
+
+Coverage includes ownership and plugin gates, report selection and source mismatch, complex IFC quantities and units, component-vs-building scope, finite values and missing data, safe text rendering, conservative material recognition, authored maps/normals/transparency, seam-safe indexed UVs, shadow bounds, clipping, recentering and resource disposal. Browser verification uses the actual House A model with a genuine provisional assessment and isolated QA accounts.
