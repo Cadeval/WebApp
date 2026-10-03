@@ -1,8 +1,10 @@
-document.addEventListener("htmx:afterSwap", () => {
+function mountCopyBlocks() {
     // Make all metric/graph blocks copyable
     const copyBlocks = document.querySelectorAll(".copy-parent");
 
     copyBlocks.forEach(block => {
+        if (block.dataset.copyInitialized) return;
+        block.dataset.copyInitialized = "true";
         // Add an accessible title for hover hint
         if (!block.hasAttribute("title")) {
             block.setAttribute("title", "Klicken zum Kopieren");
@@ -50,5 +52,6 @@ document.addEventListener("htmx:afterSwap", () => {
         ta.select();
         try { document.execCommand("copy"); } catch(e) {}
         document.body.removeChild(ta);
-    }
-});
+    }}
+document.addEventListener('htmx:after:settle', mountCopyBlocks);
+document.addEventListener('DOMContentLoaded', mountCopyBlocks);

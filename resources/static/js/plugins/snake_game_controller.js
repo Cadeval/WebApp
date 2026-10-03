@@ -319,8 +319,8 @@ if (typeof document !== 'undefined' && typeof globalThis.Worker !== 'undefined')
     const runtime = new SnakeGameRuntime();
     const mount = (scope) => runtime.mount(scope ?? document);
     document.addEventListener('DOMContentLoaded', () => mount(document));
-    document.body?.addEventListener('htmx:afterSwap', (event) => mount(event.detail?.elt));
-    document.body?.addEventListener('htmx:beforeCleanupElement', (event) => {
-        runtime.unmountWithin(event.detail?.elt);
+    document.body?.addEventListener('htmx:after:settle', () => mount(document));
+    document.body?.addEventListener('htmx:before:cleanup', (event) => {
+        runtime.unmountWithin(event.target);
     });
 }

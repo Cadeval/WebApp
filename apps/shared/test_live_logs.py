@@ -31,7 +31,7 @@ class LiveLogTests(TestCase):
 
     def test_shell_fragment_history_and_admin_access(self):
         self.client.force_login(self.admin)
-        for path in ['/', '/mycelium/user', '/mycelium/profile', '/admin/logs/', '/plugins/bim/material-passport/', '/plugins/bim/material-passport/compare/'][:4]:
+        for path in ['/', '/mycelium/settings', '/mycelium/settings?section=access', '/admin/logs/']:
             full = self.client.get(path); self.assertEqual(full.status_code,200)
             self.assertContains(full,'<html');self.assertContains(full,'id="content-container"',count=1)
             fragment = self.client.get(path,HTTP_HX_REQUEST='true')
@@ -39,8 +39,12 @@ class LiveLogTests(TestCase):
             self.assertContains(fragment,'id="content-container"',count=1)
             restored = self.client.get(path,HTTP_HX_REQUEST='true',HTTP_HX_HISTORY_RESTORE_REQUEST='true')
             self.assertContains(restored,'<html');self.assertContains(restored,'id="content-container"',count=1)
+        for path in ['/mycelium/user', '/mycelium/profile']:
+            redirected = self.client.get(path)
+            self.assertEqual(redirected.status_code,302)
+            self.assertEqual(redirected.url,'/mycelium/settings')
         self.assertEqual(self.client.get('/admin/logs/')['Cache-Control'],'no-store')
-        self.assertContains(self.client.get('/admin/logs/'),'hx-history="false"')
+        self.assertEqual(self.client.get('/admin/logs/',HTTP_HX_REQUEST='true',HTTP_HX_HISTORY_RESTORE_REQUEST='true')['Cache-Control'],'no-store')
         self.client.force_login(self.regular);self.assertEqual(self.client.get('/admin/logs/').status_code,403)
         self.admin.user_permissions.clear();self.client.force_login(self.admin)
         self.assertEqual(self.client.get('/admin/logs/').status_code,403)

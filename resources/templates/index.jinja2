@@ -1,180 +1,35 @@
-{% load static %}
-    <div {% if fragment %}id="content-container"{% endif %} class="home-page">
-<section aria-labelledby="demo-link-heading">
-<h1 id="demo-link-heading">Explore Cadevil</h1>
-<p>See the actual A–D models and a recorded calculation walkthrough.</p>
-<a class="button" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
-</section>
-        <p>
-            <a href="https://opensource.org/licenses/MIT"><img src="{% static 'images/License-MIT.svg' %}"
-                                                               alt="License: MIT"></a>
-            <a href="https://python.org"><img src="{% static 'images/python.svg' %}" alt="Python: 3.9+"></a>
-            <a href="https://github.com/psf/black"><img src="{% static 'images/code-style-black.svg' %}"
-                                                        alt="Code style: black"></a>
-            <a href="https://www.djangoproject.com/"><img src="{% static 'images/django.svg' %}" alt="Django: 4.2+"></a>
-            <a href="https://github.com/Cadeval/WebApp/actions/workflows/django.yml"><img
-                    src="https://github.com/Cadeval/WebApp/actions/workflows/django.yml/badge.svg" alt="Django CI"></a>
-        </p>
+<div {% if fragment %}id="content-container"{% endif %} class="journey-page home-page">
+    <section class="journey-hero" aria-labelledby="home-title">
+        <span class="viewer-eyebrow">Building assessment</span>
+        <h1 id="home-title">Explore your building models</h1>
+        <p>Cadevil connects IFC geometry with material quantities, environmental impacts and recovery costs.</p>
+        <div class="journey-actions">
+            {% if user.is_authenticated %}
+                <a class="journey-button" href="/plugins/manage/" hx-get="/plugins/manage/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Choose workflow tools</a>
+                <a href="/mycelium/settings" hx-get="/mycelium/settings" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">User settings</a>
+            {% else %}
+                <a class="journey-button" href="/mycelium/login" hx-get="/mycelium/login" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Log in to your workspace</a>
+            {% endif %}
+            <a href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
+        </div>
+    </section>
 
-        <p>Please note that this is a WIP,</p>
-        <p>If you have a login please use the link in the hamburger menu on the top left.</p>
-        <p>
-            CadEval is an open-source building analysis platform that enables architects and engineers to evaluate and
-            compare building parameters using IFC models.
-        </p>
-        <p>
-            Built with Django and IFCOpenShell, it provides powerful tools for building performance analysis,
-            spatial optimization, and design validation. It is the product from a TU Master Thesis project.
-        </p>
+    {% if user.is_authenticated %}
+        <section aria-labelledby="home-workflow-title">
+            <div class="journey-section-heading"><h2 id="home-workflow-title">Your workflow</h2><p>Open a chosen tool or add another from Plugins.</p></div>
+            <div class="journey-grid">
+                {% for item in plugin_nav_items|slice:':3' %}
+                    <a class="journey-card journey-card-link" href="{{ item.url }}" {% if item.full_page %}hx-boost="false"{% else %}hx-get="{{ item.url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% endif %}><span class="fa {{ item.icon }}" aria-hidden="true"></span><h3>{{ item.label }}</h3><span>Open tool</span></a>
+                {% empty %}
+                    <div class="journey-card"><h3>Start with the tools you need</h3><p>Choose available plugins for your workflow. Your selection stays with your account.</p><a href="/plugins/manage/" hx-get="/plugins/manage/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Browse available tools</a></div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
 
-        <h2>🚀 Planned Features</h2>
-        <ul>
-            <li><strong>IFC Model Analysis</strong>
-                <ul>
-                    <li>Automated property extraction</li>
-                    <li>Geometry validation</li>
-                    <li>Spatial relationship analysis</li>
-                    <li>Material quantity takeoffs</li>
-                </ul>
-            </li>
-            <li><strong>Building Comparison</strong>
-                <ul>
-                    <li>Side-by-side model comparison</li>
-                    <li>Parameter-based evaluation</li>
-                    <li>Custom metric definition</li>
-                    <li>Automated reporting</li>
-                </ul>
-            </li>
-            <li><strong>Web Interface</strong> <em>NOT IMPLEMENTED YET</em>
-                <ul>
-                    <li>Interactive 3D visualization</li>
-                    <li>Real-time parameter updates</li>
-                    <li>Collaborative analysis tools</li>
-                    <li>Export capabilities</li>
-                </ul>
-            </li>
-        </ul>
-
-        <h2>📋 Requirements</h2>
-        <ul>
-            <li>Python 3.9+</li>
-            <li>Django 4.2+</li>
-            <li>IFCOpenShell 0.7+</li>
-            <li>PostgreSQL 13+</li>
-            <li>Redis (for Celery)</li>
-        </ul>
-
-        <h2>⚡ Quick Start</h2>
-        <pre>
-            <code>
-    # Clone the repository
-    $ git clone https://github.com/cadeval/cadeval
-    $ cd cadeval
-
-    # Set up virtual environment
-    $ python -m venv venv
-    $ source venv/bin/activate  # Unix
-    $ .\venv\Scripts\activate   # Windows
-
-    # Install requirements
-    $ pip install -r requirements.txt
-
-    # Set up environment variables
-    $ cp .env.example .env
-    # Edit .env with your settings
-
-    # Run migrations
-    $ python manage.py migrate
-
-    # Create superuser
-    $ python manage.py createsuperuser
-
-    # Run development server
-    $ python manage.py runserver
-            </code>
-        </pre>
-        <p>Visit <code>http://localhost:8000/admin</code> to access the admin interface.</p>
-
-        <h2>🔧 Configuration</h2>
-        <p>Key settings in <code>.env</code>:</p>
-        <pre>
-            <code>
-                DEBUG=True
-                SECRET_KEY=your-secret-key
-                DATABASE_URL=postgres://user:password@localhost:5432/cadeval
-                REDIS_URL=redis://localhost:6379/0
-            </code>
-        </pre>
-
-        <h2>BIM workspace</h2>
-        <p>Use the plugin menu to upload IFC models, manage reference configurations,
-            edit coefficients, calculate material passports and compare saved reports.</p>
-        <p>The workspace is available when the BIM plugin is enabled. Each user sees
-            their own models and reference files.</p>
-
-        <h2>🧪 Testing</h2>
-        <pre>
-            <code>
-    # Clone the repository
-    git clone https://github.com/cadeval/[project-name]
-    gh repo clone Cadeval/[project-name]
-
-    # Create virtual environment
-    $ python -m venv venv
-    $ source venv/bin/activate  # Unix
-    $ .\venv\Scripts\activate   # Windows
-
-    # Install dependencies
-    $ pip install -r requirements.txt
-
-    # Or using uv by [astral](https://docs.astral.sh/uv)
-    $ uv venv
-
-    # Please note that the venv dir in that case is .venv
-    # Activation follows the same pattern as above
-
-    # A Python version can be requested, e.g., to create a virtual environment with Python 3.11:
-    # Note this requires the requested Python version to be available on the system. However, if unavailable, uv will download Python for you. See the Python version documentation for more details.
-    $ uv venv --python 3.11
-
-    # Install a package in the new virtual environment
-    $ uv pip install ruff
-
-    # Run migrations
-    $ python manage.py migrate
-
-    # Start development server
-    $ python manage.py runserver
-            </code>
-        </pre>
-
-        <h2>🤝 Contributing</h2>
-        <p>
-            We welcome contributions! Please see our
-            <a href="https://github.com/Cadeval/.github/blob/main/profile/CONTRIBUTING.md">Contributing Guidelines</a>
-            and
-            <a href="https://github.com/Cadeval/.github/blob/main/profile/CODE_OF_CONDUCT.md">Code of Conduct</a>.
-        </p>
-
-        <h2>🔒 Security</h2>
-        <p>To report security vulnerabilities, please email <strong>security@cadeval.org</strong>.</p>
-
-        <h2>📄 License</h2>
-        <p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
-
-        <h2>🙏 Acknowledgments</h2>
-        <ul>
-            <li><a href="https://ifcopenshell.org/">IFCOpenShell</a> for IFC processing</li>
-            <li><a href="https://www.djangoproject.com/">Django</a> for the web framework</li>
-            <li>All our <a href="CONTRIBUTORS.md">contributors</a></li>
-        </ul>
-
-        <h2>📮 Contact</h2>
-        <ul>
-            <li>Website: <a href="https://cadeval.org">https://cadeval.org</a></li>
-            <li>Email: <strong>info@cadeval.org</strong></li>
-        </ul>
-
-        <hr>
-        <p>Made with ❤️ by the CadEval team</p>
-    </div>
+    <section class="journey-card home-demo" aria-labelledby="home-demo-title">
+        <span class="viewer-eyebrow">Try a walkthrough</span><h2 id="home-demo-title">See the models and calculations</h2>
+        <p>Explore the A–D house geometry and a recorded calculation walkthrough. The demo includes provisional material, environmental and cost estimates.</p>
+        <a class="journey-button" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
+    </section>
+</div>

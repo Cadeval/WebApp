@@ -350,25 +350,21 @@ export function initializeViewer(root) {
         controls.dispose();
         renderer.dispose();
         cleanupViewerHeader();
-        document.body.removeEventListener('htmx:beforeCleanupElement', cleanupHandler);
+        document.body.removeEventListener('htmx:before:cleanup', cleanupHandler);
     }
 
     function cleanupHandler(event) {
-        const cleanupElement = event.detail?.elt;
+        const cleanupElement = event.target;
         if (cleanupElement === root || cleanupElement?.contains?.(root)) dispose();
     }
-    document.body.addEventListener('htmx:beforeCleanupElement', cleanupHandler);
+    document.body.addEventListener('htmx:before:cleanup', cleanupHandler);
 
     return { clearSelection, dispose, fitModel };
 }
 
 if (typeof document !== 'undefined') {
     initializeViewer(document.getElementById('viewer-app'));
-    document.body.addEventListener('htmx:afterSwap', (event) => {
-        const swappedElement = event.detail?.elt;
-        const root = swappedElement?.matches?.('#viewer-app')
-            ? swappedElement
-            : swappedElement?.querySelector?.('#viewer-app');
-        initializeViewer(root);
+    document.body.addEventListener('htmx:after:settle', () => {
+        initializeViewer(document.getElementById('viewer-app'));
     });
 }

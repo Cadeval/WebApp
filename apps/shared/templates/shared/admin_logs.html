@@ -1,5 +1,5 @@
 {% load static %}
-<div {% if fragment %}id="content-container"{% endif %} class="bim-workspace" hx-history="false">
+<div {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
 <link rel="stylesheet" href="{% static 'css/bim.css' %}">
 <section data-admin-logs data-socket-path="/ws/logs" aria-labelledby="log-heading">
 <h1 id="log-heading">Live application logs</h1>

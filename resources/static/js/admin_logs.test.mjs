@@ -20,6 +20,6 @@ test('log display buffers safely, pauses, clears, deduplicates and closes on HTM
  socket.onmessage({data:JSON.stringify({type:'logs',entries:[entry(2,'Duplicate')]})});assert(!fields.output.textContent.includes('Duplicate'));
  socket.onmessage({data:JSON.stringify({type:'logs',entries:Array.from({length:1100},(_,i)=>entry(i+3,'line'))})});assert.equal(fields.output.textContent.split('\n').length,1000);
  fields.clear.onclick();assert.equal(fields.output.textContent,'');
- listeners['htmx:beforeCleanupElement']({detail:{elt:{contains:el=>el===root}}});assert(socket.closed);
+ listeners['htmx:before:cleanup']({target:{contains:el=>el===root},detail:{}});assert(socket.closed);
  for(const key of ['document','window','location','WebSocket'])delete globalThis[key];
 });

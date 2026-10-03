@@ -13,8 +13,8 @@
     <meta name="theme-color" content="#ffffff"/>
 
     {# NOTE: Not sure yet if I should keep this #}
-    {# globalViewTransitions enables the native View Transition API for htmx content swaps (scene transitions). #}
-    <meta name="htmx-config" content='{"historyCacheSize": 15, "globalViewTransitions": true}'/>
+    {# HTMX transitions preserve the shared page shell during content swaps. #}
+    <meta name="htmx-config" content='{"transitions": false, "mode": "same-origin", "defaultTimeout": 0}'/>
 
     <script type="importmap">
         {
@@ -26,11 +26,11 @@
     </script>
 
     <!-- Single page application -->
-    <script src="{% static 'js/htmx.js' %}"></script>
-    <script type="module" src="{% static 'js/plugin_runtime.js' %}?v=20261002-plugins"></script>
-    <script type="module" src="{% static 'js/plugin_keys.js' %}?v=20261002"></script>
-    <script defer src="{% static 'js/htmx-override.js' %}"></script>
-    <script type="module" src="{% static 'js/admin_logs.js' %}"></script>
+    <script src="{% static 'js/htmx.js' %}?v=4.0.0"></script>
+    <script type="module" src="{% static 'js/plugin_runtime.js' %}?v=20261003-journey"></script>
+    <script type="module" src="{% static 'js/plugin_keys.js' %}?v=20261003-journey"></script>
+    <script defer src="{% static 'js/htmx-override.js' %}?v=20261003-journey"></script>
+    <script type="module" src="{% static 'js/admin_logs.js' %}?v=20261003-journey"></script>
 
     {% if user.is_authenticated %}
         <!-- Single page application -->
@@ -39,11 +39,11 @@
 
 
 
-        <script type="module" src="{% static 'js/plugins/snake_game_controller.js' %}"></script>
-        <script type="module" src="{% static 'js/ifc_editor_controller.js' %}"></script>
+        <script type="module" src="{% static 'js/plugins/snake_game_controller.js' %}?v=20261003-journey"></script>
+        <script type="module" src="{% static 'js/ifc_editor_controller.js' %}?v=20261003-journey"></script>
         <script defer src="{% static 'js/plotly-2.35.3.min.js' %}"></script>
         <script defer src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
-        <script defer src="{% static 'js/utils.js' %}"></script>
+        <script defer src="{% static 'js/utils.js' %}?v=20261003-journey"></script>
     {% endif %}
 
     <!-- Language information -->
@@ -53,6 +53,7 @@
     {# Reusable resources #}
     <link rel="stylesheet" href="{% static 'css/vendor/normalize.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/journey.css' %}?v=20261003-journey">
 
     {# TODO: Get rid of this #}
 
@@ -91,9 +92,10 @@
     <meta property="og:url" content="https://cadevil.at/"/>
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body data-theme="{{ user.theme|default:'auto' }}" hx-headers:inherited='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<a class="skip-to-content" href="#main-content" hx-boost="false">Skip to content</a>
 <header>
-    <button popovertarget='menu-popover' class='menu-button'>
+    <button popovertarget='menu-popover' class='menu-button' aria-label="Open navigation">
         <svg
                 id="menu-icon"
                 data-name="Logo Layer"
@@ -115,24 +117,14 @@
     {% if user.is_staff and perms.shared.view_application_logs %}<a class="menu-button" href="/admin/logs/" hx-get="/admin/logs/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Live logs</a>{% endif %}
 </header>
 
-<div popover class='popover-small left-anchor' id='menu-popover' hx-boost="true" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">
+<nav popover class='popover-small left-anchor' id='menu-popover' aria-label="Main navigation" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
     {# <input type="checkbox" id="toggleMode">#}
     {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
     {# <label for="toggleMode" class="toggleLight">Light Mode</label>#}
     {% if user.is_authenticated %}
 
-        <a href="/">
-            <button class='button-wide fa fa-home'>
-                Home
-            </button>
-        </a>
-
-        <button class='button-wide fa fa-id-card'
-                hx-get="/mycelium/user?id={{ user.id }}"
-                hx-target="#content-container"
-                hx-swap="outerHTML" hx-push-url="true">
-            User ({{ user.username }})
-        </button>
+        <a class="button-wide fa fa-home" href="/" hx-get="/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if request.path == '/' %} aria-current="page"{% endif %}>Home</a>
+        <a class="button-wide fa fa-id-card" href="/mycelium/settings" hx-get="/mycelium/settings" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if request.path == '/mycelium/settings' %} aria-current="page"{% endif %}>User settings</a>
 
 
 
@@ -141,16 +133,11 @@
 
 
 
-        <a class="button-wide fa fa-plug" href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugin Manager</a>
-        <a class="button-wide fa fa-puzzle-piece" href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugin Store</a>
+        <a class="button-wide fa fa-puzzle-piece" href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if request.path == '/plugins/manage/' %} aria-current="page"{% endif %}>Plugins</a>
         {% include "plugin_manager/_plugin_nav_items.jinja2" %}
 
         {% if user.is_staff %}
-            <a href="/admin/" hx-boost="false">
-                <button class='button-wide fa fa-shield'>
-                    Django Admin Panel
-                </button>
-            </a>
+            <a class="button-wide fa fa-shield" href="/admin/" hx-boost="false">Django administration</a>
         {% endif %}
 
         <form hx-boost="false" action="/mycelium/logout" method="post">
@@ -159,13 +146,11 @@
         </form>
     {% else %}
 
-        <a href="/mycelium/login">
-            <button class='button-wide fa fa-sign-in'>
-                Log In
-            </button>
-        </a>
+        <a class="button-wide fa fa-home" href="/" hx-get="/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Home</a>
+        <a class="button-wide fa fa-cube" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Demo</a>
+        <a class="button-wide fa fa-sign-in" href="/mycelium/login" hx-get="/mycelium/login" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Log in</a>
     {% endif %}
-</div>
+</nav>
 
 {#<div popover class="popover-big center-anchor-big" id="filemanager-popover">#}
 {#    <div class="popover-content" id="upload-popover-content">#}
@@ -215,10 +200,11 @@
 {#    </div>#}
 {#</div>#}
 
+<p id="request-notice" class="request-notice" role="alert" hidden></p>
 <div id="htmx-throbber">
     <div class="spinner"></div>
 </div>
-<main hx-boost="true" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">
+<main id="main-content" tabindex="-1" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
     <div id="content-container">
 
         <!-- This is where the Debug Toolbar will be injected -->

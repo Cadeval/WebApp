@@ -47,9 +47,9 @@ function mount() {
 }
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', mount);
-    document.addEventListener('htmx:afterSettle', mount);
-    document.addEventListener('htmx:beforeCleanupElement', event => {
-        if (active && (event.detail.elt === active.root || event.detail.elt.contains(active.root))) {
+    document.addEventListener('htmx:after:settle', mount);
+    document.addEventListener('htmx:before:cleanup', event => {
+        if (active && (event.target === active.root || event.target.contains(active.root))) {
             active.dispose(); active = null;
         }
     });

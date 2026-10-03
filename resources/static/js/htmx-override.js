@@ -1,8 +1,22 @@
-document.body.addEventListener('htmx:beforeSwap', function (event) {
-    if ([204, 400, 409].includes(event.detail.xhr.status)) {
-        // Swap actionable validation/conflict responses so the server can
-        // display safe feedback instead of leaving the user with an HTMX error.
-        event.detail.shouldSwap = true;
+// HTMX 4 swaps validation responses by default. Keep actionable form errors,
+// but preserve the current page for unexpected server/permission failures.
+document.body.addEventListener('htmx:before:swap', event => {
+    const status = event.detail.ctx?.response?.status;
+    if (status >= 400 && ![400, 409, 422].includes(status)) event.preventDefault();
+});
+
+// Reject failures before history changes and offer readable recovery guidance.
+document.body.addEventListener('htmx:before:response', event => {
+    const status = event.detail.ctx?.response?.status;
+    if (status >= 400 && ![400, 409, 422].includes(status)) {
+        event.preventDefault();
+        const notice = document.getElementById('request-notice');
+        if (notice) {
+            notice.textContent = status === 403 ? 'The request was not permitted. Refresh the page and check your access.'
+                : status === 404 ? 'This page or tool is unavailable. Choose another link from the navigation.'
+                : 'The request could not be completed. Your current page has been kept; please try again.';
+            notice.hidden = false;
+        }
     }
 });
 
@@ -12,10 +26,10 @@ const throbber = document.getElementById('htmx-throbber');
 
 function isContentRequest(detail) {
     const content = document.getElementById('content-container');
-    if (!content || !detail || !detail.target) {
+    if (!content || !detail || !detail.ctx?.target) {
         return false;
     }
-    return detail.target === content || content.contains(detail.target);
+    return detail.ctx.target === content || content.contains(detail.ctx.target);
 }
 
 function showThrobber() {
@@ -31,21 +45,23 @@ function hideThrobber() {
 }
 
 // Show the throbber as soon as a request for the main content starts.
-document.body.addEventListener('htmx:beforeRequest', function (e) {
+document.body.addEventListener('htmx:before:request', function (e) {
+    const notice = document.getElementById('request-notice');
+    if (notice) notice.hidden = true;
     if (isContentRequest(e.detail)) {
         showThrobber();
     }
 });
 
 // Hide the throbber once the swapped-in content has been settled.
-document.body.addEventListener('htmx:afterSettle', hideThrobber);
+document.body.addEventListener('htmx:after:settle', hideThrobber);
 
 // Make sure the throbber never gets stuck if a request fails or is aborted.
-document.body.addEventListener('htmx:responseError', hideThrobber);
-document.body.addEventListener('htmx:sendError', hideThrobber);
-document.body.addEventListener('htmx:timeout', hideThrobber);
-document.body.addEventListener('htmx:afterRequest', function (e) {
-    if (!e.detail.successful) {
+document.body.addEventListener('htmx:response:error', hideThrobber);
+document.body.addEventListener('htmx:error', hideThrobber);
+document.body.addEventListener('htmx:finally:request', hideThrobber);
+document.body.addEventListener('htmx:after:request', function (e) {
+    if ((e.detail.ctx?.response?.status ?? 500) >= 400) {
         hideThrobber();
     }
 });
@@ -110,7 +126,7 @@ function initConfigEditorPanning() {
     });
 }
 
-document.body.addEventListener('htmx:afterSettle', initConfigEditorPanning);
+document.body.addEventListener('htmx:after:settle', initConfigEditorPanning);
 document.addEventListener('DOMContentLoaded', initConfigEditorPanning);
 
 
@@ -122,6 +138,10 @@ document.addEventListener('DOMContentLoaded', initConfigEditorPanning);
 //   - body.model-manager-active  -> the model manager is loaded
 //     (the "User Files" openbtn in the header becomes visible)
 function updateContextualChrome() {
+    const theme = document.querySelector('[data-user-theme]')?.dataset.userTheme;
+    if (theme) document.body.dataset.theme = theme;
+    const title = document.querySelector('#content-container h1')?.textContent.trim();
+    if (title) document.title = `${title} · Cadevil`;
     const isConfigEditor = !!document.getElementById('config_form');
     document.body.classList.toggle('config-editor-active', isConfigEditor);
 
@@ -132,10 +152,26 @@ function updateContextualChrome() {
     document.body.classList.toggle('viewer-active', isViewer);
 }
 
-document.body.addEventListener('htmx:afterSettle', updateContextualChrome);
+document.body.addEventListener('htmx:after:settle', updateContextualChrome);
 document.addEventListener('DOMContentLoaded', updateContextualChrome);
 
-document.body.addEventListener('htmx:beforeRequest', event => {
+document.body.addEventListener('htmx:before:request', event => {
     const menu = document.getElementById('menu-popover');
-    if (menu?.contains(event.detail.elt) && menu.matches(':popover-open')) menu.hidePopover();
+    if (menu?.contains(event.detail.ctx?.sourceElement) && menu.matches(':popover-open')) menu.hidePopover();
+});
+
+function updateNavigationState() {
+    const path = location.pathname;
+    document.querySelectorAll('#menu-popover a[href]').forEach(link => {
+        const current = new URL(link.href, location.href).pathname === path;
+        if (current) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+    });
+}
+document.body.addEventListener('htmx:after:settle', updateNavigationState);
+document.addEventListener('DOMContentLoaded', updateNavigationState);
+
+// Give validation feedback a predictable keyboard/screen-reader starting point.
+document.body.addEventListener('htmx:after:settle', () => {
+    document.querySelector('[data-form-errors]')?.focus();
 });

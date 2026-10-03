@@ -43,5 +43,5 @@ function mount(root=document) {
 }
 if(typeof document!=='undefined') {
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>mount());else mount();
-    document.body?.addEventListener('htmx:afterSettle',()=>mount());
+    document.body?.addEventListener('htmx:after:settle',()=>mount());
 }

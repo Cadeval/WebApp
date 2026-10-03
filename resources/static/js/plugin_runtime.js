@@ -150,8 +150,8 @@ export function bindRuntime(runtime, document, window) {
     const mount = () => runtime.mount(document);
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
     else mount();
-    document.body?.addEventListener('htmx:afterSettle', mount);
-    document.body?.addEventListener('htmx:beforeCleanupElement', event => runtime.unmount(event.detail?.elt || event.target));
+    document.body?.addEventListener('htmx:after:settle', mount);
+    document.body?.addEventListener('htmx:before:cleanup', event => runtime.unmount(event.target));
     window.addEventListener?.('pagehide', () => runtime.destroy());
     window.addEventListener?.('pageshow', event => { if (event.persisted) mount(); });
 }

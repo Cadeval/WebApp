@@ -18,14 +18,15 @@ export async function initializeRecording(root) {
   const status=pick('[data-demo-state]');
   const previousStep=pick('[data-demo-previous]'),nextStep=pick('[data-demo-next]'),houseButton=pick('[data-demo-house]');
   let state=restart(),disposed=false,renderer,observer,frame,previous,shown=-1,loadedModels=[],launch,manualHouse=null,shownHouse=-1;
-  function dispose(){disposed=true;recordings.delete(root);play.removeEventListener('click',launch);cancelAnimationFrame(frame);observer?.disconnect();renderer?.dispose();for(const model of loadedModels)model.traverse(part=>{part.geometry?.dispose();for(const material of (Array.isArray(part.material)?part.material:[part.material]))material?.dispose();});loadedModels=[];document.body.removeEventListener('htmx:beforeCleanupElement',cleanup);}
-  function cleanup(event){if(event.detail?.elt===root || event.detail?.elt?.contains(root))dispose();}
-  document.body.addEventListener('htmx:beforeCleanupElement',cleanup);
+  function dispose(){disposed=true;recordings.delete(root);play.removeEventListener('click',launch);cancelAnimationFrame(frame);observer?.disconnect();renderer?.dispose();for(const model of loadedModels)model.traverse(part=>{part.geometry?.dispose();for(const material of (Array.isArray(part.material)?part.material:[part.material]))material?.dispose();});loadedModels=[];document.body.removeEventListener('htmx:before:cleanup',cleanup);}
+  function cleanup(event){if(event.target===root || event.target?.contains(root))dispose();}
+  document.body.addEventListener('htmx:before:cleanup',cleanup);
   try {
     const recordingUrl=new URL(root.dataset.recordingUrl,location.href);
     const response=await fetch(recordingUrl);
     if(!response.ok) throw new Error(`Recording unavailable (${response.status})`);
     const recording=await response.json();
+    if(disposed) return;
     if(recording.kind!=='prerecorded-controlled-fixture-demo' || recording.models.length!==2) throw new Error('Unsupported recording.');
     pick('[data-demo-report]').href=new URL(recording.models[0].report,recordingUrl).href;
     // Large real models are loaded only after visitors deliberately start playback.
@@ -147,6 +148,5 @@ export async function initializeRecording(root) {
 }
 if(typeof document!=='undefined') {
   initializeRecording(document.querySelector('[data-recorded-demo]'));
-  document.body.addEventListener('htmx:historyRestore',()=>initializeRecording(document.querySelector('[data-recorded-demo]')));
-  document.body.addEventListener('htmx:afterSwap',event=>{const node=event.detail?.elt;initializeRecording(node?.matches?.('[data-recorded-demo]')?node:node?.querySelector?.('[data-recorded-demo]'));});
+  document.body.addEventListener('htmx:after:settle',()=>initializeRecording(document.querySelector('[data-recorded-demo]')));
 }

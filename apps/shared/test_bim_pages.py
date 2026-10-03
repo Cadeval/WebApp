@@ -52,13 +52,23 @@ class BimPageIntegrationTests(TestCase):
         items = registry.get_active(NAV_ITEM_EXTENSION_POINT, enabled_ids={PLUGIN_ID})
         self.assertEqual(len(items), 5)
         for item in items:
-            self.assertTrue(item.full_page)
+            self.assertFalse(item.full_page)
             resolve(item.url)
             self.assertEqual(self.client.get(item.url).status_code, 200, item.url)
         PluginRecord.objects.filter(plugin_id=PLUGIN_ID).update(enabled=False)
         self.assertEqual(registry.get_active(NAV_ITEM_EXTENSION_POINT, enabled_ids=set()), [])
         for item in items:
             self.assertEqual(self.client.get(item.url).status_code, 404)
+
+    def test_htmx_four_full_request_keeps_the_shell_for_history_restore(self):
+        route = reverse('bim:model_manager')
+        partial = self.client.get(route, HTTP_HX_REQUEST='true', HTTP_HX_REQUEST_TYPE='partial')
+        self.assertNotContains(partial, '<html')
+        self.assertContains(partial, 'id="content-container"')
+        full = self.client.get(route, HTTP_HX_REQUEST='true', HTTP_HX_REQUEST_TYPE='full')
+        self.assertContains(full, '<html')
+        self.assertContains(full, 'hx-headers:inherited')
+        self.assertIn('HX-Request-Type', full['Vary'])
 
     def test_anonymous_routes_redirect_to_current_login(self):
         self.client.logout()
@@ -262,3 +272,4 @@ class BimPageIntegrationTests(TestCase):
         response = self.client.get(reverse('bim:model_geometry', args=[broken.pk]))
         self.assertEqual(response.status_code, 422)
         self.assertFalse(CadevilDocument.objects.exists())
+
