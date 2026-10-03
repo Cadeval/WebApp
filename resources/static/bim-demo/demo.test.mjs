@@ -1,7 +1,24 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import * as THREE from 'three';
-import { initializeRecording, recenterPreviewModel, fitPreviewGrid, renderPlaybackPosition } from './demo.js';
+import { initializeRecording, recenterPreviewModel, fitPreviewGrid, renderPlaybackPosition, selectActualHouse, updateHouseChoiceState } from './demo.js';
+
+test('direct house selection pauses at the current chapter without changing the walkthrough clock', () => {
+    const state = { seconds: 37, playing: true, duration: 72 };
+    assert.deepEqual(selectActualHouse(state, 2), { state: { seconds: 37, playing: false, duration: 72 }, manualHouse: 2 });
+    assert.equal(state.playing, true);
+    for (const invalid of [-1, 4, 1.5, '1', NaN]) assert.equal(selectActualHouse(state, invalid), null);
+    assert.equal(selectActualHouse(state, 1, 1), null);
+});
+
+test('house thumbnail buttons identify only the rendered house and clear for controlled fixtures', () => {
+    const buttons = [0, 1, 2, 3].map(index => ({ dataset: { demoHouseChoice: String(index) }, attributes: new Map(),
+        setAttribute(name, value) { this.attributes.set(name, value); } }));
+    updateHouseChoiceState(buttons, 2);
+    assert.deepEqual(buttons.map(button => button.attributes.get('aria-pressed')), ['false', 'false', 'true', 'false']);
+    updateHouseChoiceState(buttons, null);
+    assert(buttons.every(button => button.attributes.get('aria-pressed') === 'false'));
+});
 
 test('walkthrough progress advances independently of the geometry download progress', () => {
     const download = { value: 100 }, playback = { value: 0 }, label = { textContent: '' };

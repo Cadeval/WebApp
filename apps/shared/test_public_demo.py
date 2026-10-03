@@ -6,6 +6,16 @@ from config.api import api
 from apps.mycelium.api import api as home_api
 from apps.plugin_manager.models import PluginRecord
 from apps.shared.models import FileUpload, ConfigUpload, CalculationConfig, CadevilDocument
+from html.parser import HTMLParser
+
+
+class DemoChoiceMarkup(HTMLParser):
+    def __init__(self, markup):
+        super().__init__(); self.buttons=[]; self.images=[]; self.feed(markup)
+    def handle_starttag(self, tag, attrs):
+        values=dict(attrs)
+        if tag=='button' and 'data-demo-house-choice' in values: self.buttons.append(values)
+        if tag=='img' and 'data-thumbnail-src' in values: self.images.append(values)
 
 class PublicDemoTests(TestCase):
     def setUp(self):
@@ -45,3 +55,15 @@ class PublicDemoTests(TestCase):
         self.client.force_login(self.user)
         self.assertNotContains(self.client.get('/'),'data-recorded-demo')
         self.assertContains(self.client.get('/demo'),'data-recorded-demo')
+
+    def test_house_thumbnail_choices_are_public_lazy_and_disabled_before_geometry_load(self):
+        response=self.client.get('/demo',HTTP_HX_REQUEST='true')
+        markup=DemoChoiceMarkup(response.content.decode())
+        self.assertEqual([button['data-demo-house-choice'] for button in markup.buttons],['0','1','2','3'])
+        self.assertTrue(all('disabled' in button and button['aria-pressed']=='false' for button in markup.buttons))
+        self.assertEqual(len(markup.images),4)
+        self.assertEqual([image['data-thumbnail-src'].rsplit('/',1)[-1] for image in markup.images],
+                         ['house-a-thumbnail.png','house-b-thumbnail.png','house-c-thumbnail.png','house-d-thumbnail.png'])
+        self.assertTrue(all('src' not in image for image in markup.images))
+        self.assertNotContains(response,str(self.private.pk))
+        self.assertNotContains(self.client.get('/'),'data-demo-house-choice')

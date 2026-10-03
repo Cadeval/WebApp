@@ -12,6 +12,15 @@ export function renderPlaybackPosition(root, seconds) {
   root.querySelector('[data-demo-playback-progress]').value=seconds;
   root.querySelector('.demo-clock').textContent=`${clock(seconds)} / 1:12`;
 }
+
+export function selectActualHouse(state, index, count = 4) {
+  if(!Number.isInteger(index) || index<0 || index>=count)return null;
+  return {state:{...state,playing:false},manualHouse:index};
+}
+
+export function updateHouseChoiceState(buttons, activeHouse) {
+  for(const button of buttons)button.setAttribute('aria-pressed',String(Number(button.dataset.demoHouseChoice)===activeHouse));
+}
 function text(tag, value) {const node=document.createElement(tag); node.textContent=value; return node;}
 function definition(rows) {const list=document.createElement('dl'); for(const [label,value] of rows) list.append(text('dt',label),text('dd',String(value))); return list;}
 function table(headers,rows) {const result=document.createElement('table');const head=document.createElement('thead');const hrow=document.createElement('tr');for(const h of headers) hrow.append(text('th',h));head.append(hrow);result.append(head);const body=document.createElement('tbody');for(const values of rows){const row=document.createElement('tr');for(const value of values)row.append(text('td',String(value)));body.append(row);}result.append(body);return result;}
@@ -41,6 +50,7 @@ export async function initializeRecording(root) {
   let loading=createGeometryActivity({target:viewport,overlay:pick('[data-demo-loading]'),message:pick('[data-demo-loading-message]'),detail:pick('[data-demo-loading-detail]'),progress:pick('[data-demo-loading-progress]'),label:'demo recording'});
   loading.stage('Loading demo recording…');
   const previousStep=pick('[data-demo-previous]'),nextStep=pick('[data-demo-next]'),houseButton=pick('[data-demo-house]');
+  const houseChoices=Array.from(root.querySelectorAll?.('[data-demo-house-choice]') || []);
   let state=restart(),disposed=false,renderer,environment,outdoorLights,landscape,sceneBounds,grid,observer,themeObserver,frame=null,renderUpdate,renderCount=0,previous,lastRendered,shown=-1,loadedModels=[],launch,manualHouse=null,shownHouse=-1;
   function listen(target,event,callback){target.addEventListener(event,callback);listeners.push([target,event,callback]);}
   function requestRender(){if(!disposed && frame===null)frame=requestAnimationFrame(now=>{
@@ -55,6 +65,7 @@ export async function initializeRecording(root) {
     disposed=true;abortLoad.abort();loading.finish();recordings.delete(root);
     play.removeEventListener('click',launch);cancelAnimationFrame(frame);frame=null;observer?.disconnect();themeObserver?.disconnect();
     for(const [target,event,callback] of listeners)target.removeEventListener(event,callback);
+    for(const button of houseChoices)button.disabled=true;
     landscape?.dispose();outdoorLights?.dispose();environment?.dispose();grid?.geometry.dispose();grid?.material.dispose();renderer?.dispose();
     for(const model of loadedModels)disposeModelResources(model);
     loadedModels=[];document.body.removeEventListener('htmx:before:cleanup',cleanup);
@@ -172,6 +183,7 @@ export async function initializeRecording(root) {
         fitShadowToBounds(outdoorLights.sun,bounds[active]);renderer.shadowMap.needsUpdate=true;shownHouse=active;
       }
       previousStep.disabled=index===0;nextStep.disabled=index===STEPS.length-1;
+      updateHouseChoiceState(houseChoices,active<2?null:active-2);
       for(let i=0;i<models.length;i++)models[i].visible=i===active;
       const center=centers[active],size=sizes[active];
       fitPreviewGrid(grid,bounds[active]);
@@ -195,9 +207,11 @@ export async function initializeRecording(root) {
     }
     renderUpdate=update;
     play.disabled=reset.disabled=houseButton.disabled=previousStep.disabled=nextStep.disabled=false;
+    const chooseHouse=index=>{const choice=selectActualHouse(state,index,recording.houses.length);if(!choice)return;state=choice.state;manualHouse=choice.manualHouse;previous=undefined;lastRendered=undefined;requestRender();};
+    for(const button of houseChoices){const index=Number(button.dataset.demoHouseChoice);button.disabled=index>=recording.houses.length;listen(button,'click',()=>chooseHouse(index));}
     const move=direction=>{state=seekStep(state,direction);manualHouse=null;previous=undefined;lastRendered=undefined;requestRender();};
     listen(previousStep,'click',()=>move(-1));listen(nextStep,'click',()=>move(1));
-    listen(houseButton,'click',()=>{const active=manualHouse==null?sceneIndex(state.seconds)-2:manualHouse;manualHouse=cycleHouse(active<0?-1:active);state={...state,playing:false};previous=undefined;lastRendered=undefined;requestRender();});
+    listen(houseButton,'click',()=>{const active=manualHouse==null?sceneIndex(state.seconds)-2:manualHouse;chooseHouse(cycleHouse(active<0?-1:active));});
     listen(play,'click',()=>{manualHouse=null;state=toggle(state);previous=undefined;lastRendered=undefined;requestRender();});
     listen(reset,'click',()=>{manualHouse=null;state=restart();previous=undefined;lastRendered=undefined;shown=-1;requestRender();});
     state=toggle(restart());

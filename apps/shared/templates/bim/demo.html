@@ -3,11 +3,22 @@
 {% if not public_demo %}{% include 'bim/nav.html' %}{% endif %}
 <link rel="stylesheet" href="{% static 'bim-demo/demo.css' %}">
 <link rel="stylesheet" href="{% static 'css/viewer_activity.css' %}?v=0.8.0">
+<link rel="stylesheet" href="{% static 'css/model_selection.css' %}?v=0.9.0">
 <div class="recorded-demo" data-recorded-demo data-recording-url="{% static 'bim-demo/demo-recording.json' %}">
   <header><div><div class="demo-tag">Demo · actual models and recorded examples</div><h1>A model-to-report walkthrough</h1></div><span class="demo-note">72 seconds</span></header>
   <div class="demo-body">
     <div class="demo-scene" aria-busy="false"><canvas aria-label="Recorded camera views of actual house geometry and controlled calculation fixtures"></canvas><div class="demo-loading-overlay" data-demo-loading role="status" aria-live="polite" aria-atomic="true"><span class="demo-loader" aria-hidden="true"></span><span data-demo-loading-message>Loading demo recording…</span><span class="model-loading-detail" data-demo-loading-detail aria-hidden="true"></span><progress data-demo-loading-progress max="100" aria-label="Loading demo recording"></progress></div><button type="button" class="demo-house-cycle" data-demo-house disabled>Next house</button><div class="demo-house-values" data-demo-house-values aria-live="polite"></div><div class="demo-model-label">Actual A–D models · ready to load</div></div>
     <div class="demo-story"><div class="demo-step">Step 1 of 6</div><h2 data-demo-title>Loading the recording</h2><p data-demo-caption>Start playback to load saved geometry and calculation results.</p><div class="demo-detail" data-demo-detail></div><details class="demo-recovery"><summary>Material cost by recovery grade</summary><div class="demo-detail" data-demo-recovery></div></details><p class="demo-note" data-demo-notice>This replay does not calculate new results or change your model library.</p></div>
+  </div>
+  <div class="demo-house-choices" role="group" aria-label="Choose an actual house preview">
+    {% static 'bim-demo/house-a-thumbnail.png' as house_a_thumbnail %}
+    {% static 'bim-demo/house-b-thumbnail.png' as house_b_thumbnail %}
+    {% static 'bim-demo/house-c-thumbnail.png' as house_c_thumbnail %}
+    {% static 'bim-demo/house-d-thumbnail.png' as house_d_thumbnail %}
+    <button type="button" data-demo-house-choice="0" aria-pressed="false" disabled>{% include 'bim/_model_thumbnail.html' with thumbnail_url=house_a_thumbnail thumbnail_label='House A' %}<strong>House A</strong></button>
+    <button type="button" data-demo-house-choice="1" aria-pressed="false" disabled>{% include 'bim/_model_thumbnail.html' with thumbnail_url=house_b_thumbnail thumbnail_label='House B' %}<strong>House B</strong></button>
+    <button type="button" data-demo-house-choice="2" aria-pressed="false" disabled>{% include 'bim/_model_thumbnail.html' with thumbnail_url=house_c_thumbnail thumbnail_label='House C' %}<strong>House C</strong></button>
+    <button type="button" data-demo-house-choice="3" aria-pressed="false" disabled>{% include 'bim/_model_thumbnail.html' with thumbnail_url=house_d_thumbnail thumbnail_label='House D' %}<strong>House D</strong></button>
   </div>
   <div class="demo-controls"><button type="button" data-demo-play disabled>Play walkthrough</button><button type="button" data-demo-previous aria-label="Previous demo step" disabled>&lt;</button><button type="button" data-demo-next aria-label="Next demo step" disabled>&gt;</button><button type="button" data-demo-restart disabled>Restart</button><progress data-demo-playback-progress max="72" value="0" aria-label="Walkthrough progress"></progress><span class="demo-clock">0:00 / 1:12</span><span data-demo-state role="status">Loading</span></div>
   <div class="demo-footnote">Calculation results belong to controlled fixtures. House A–D geometry previews use the actual supplied models. House estimates are provisional: the real A–D models fail strict input validation. Missing quantities or reference data remain unavailable; known subtotals are not complete totals. <a hx-boost="false" data-demo-report href="#">Download recorded example report</a></div>
@@ -15,4 +26,4 @@
 
 </section>
 
-<script type="module" src="{% static 'bim-demo/demo.js' %}?v=0.8.0"></script>
+<script type="module" src="{% static 'bim-demo/demo.js' %}?v=0.9.0"></script>
