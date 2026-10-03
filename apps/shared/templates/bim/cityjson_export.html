@@ -7,9 +7,11 @@
 <p>This export does not infer a watertight building envelope. Textures, IFC property sets and assessment results remain available through the source IFC and material passport. Conversion notes and any omitted element identifiers are included in the downloaded file.</p>
 {% if error %}<p role="alert">{{ error }}</p>{% endif %}
 {% if ready %}
-<p><a class="button" hx-boost="false" href="{% url 'bim:download_cityjson' document.pk %}">Download CityJSON</a></p>
+<p><a class="button" hx-boost="false" data-download-notice href="{% url 'bim:download_cityjson' document.pk %}">Download CityJSON</a></p>
 {% else %}
-<form hx-boost="false" method="post" action="{% url 'bim:export_cityjson' document.pk %}">{% csrf_token %}
+<form hx-boost="false" method="post" action="{% url 'bim:export_cityjson' document.pk %}"
+      hx-post="{% url 'bim:export_cityjson' document.pk %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
+      data-task-label="Preparing CityJSON export">{% csrf_token %}
 <button type="submit">Prepare CityJSON export</button>
 <p>Large models may take a few minutes. Repeated downloads reuse the completed export.</p>
 </form>

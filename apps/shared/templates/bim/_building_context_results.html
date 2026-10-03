@@ -5,7 +5,7 @@
             <p>Local energy, utilities &amp; planning context · {{ lookup.country.label }}</p>
             <p class="building-context-marker">{{ document.description|default:document.document.name }}<br>{% if building.latitude != None and building.longitude != None %}Marker {{ building.latitude|floatformat:'6u' }}, {{ building.longitude|floatformat:'6u' }} · {% if building.source == 'ifc_site' %}Approximate IFC site origin{% elif building.source == 'manual' %}User-set location{% elif building.source == 'projected_crs' %}Projected IFC location{% elif building.source == 'cityjson_geometry' %}CityJSON building geometry{% else %}{{ building.source|default:'Source location' }}{% endif %}{% else %}Location not set{% endif %}</p>
         </div>
-        <form method="post" action="{{ lookup_url }}" hx-post="{{ lookup_url }}" hx-target="#{{ result_id }}" hx-swap="outerHTML" hx-push-url="false">
+        <form method="post" action="{{ lookup_url }}" hx-post="{{ lookup_url }}" hx-target="#{{ result_id }}" hx-swap="outerHTML" hx-push-url="false" data-task-label="Refreshing local prices and building rules">
             {% csrf_token %}
             <input type="hidden" name="action" value="refresh">
             <button type="submit">Refresh local data</button>

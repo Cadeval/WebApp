@@ -43,7 +43,7 @@
                     <a class="button" data-map-link="viewer" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open 3D viewer</a>
                     <a data-map-link="overview" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>
                     <a data-map-link="location" hidden hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Set / edit location</a>
-                    <a data-map-link="context" hidden>Local data &amp; rules</a>
+                    <a data-map-link="context" hidden data-task-label="Looking up local prices and building rules">Local data &amp; rules</a>
                 </div>
             </section>
             <ul class="building-map-list" data-map-list>
@@ -58,7 +58,7 @@
                         {% if building.viewer_url %}<a href="{{ building.viewer_url }}" hx-get="{{ building.viewer_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open model</a>{% endif %}
                         {% if building.overview_url %}<a href="{{ building.overview_url }}" hx-get="{{ building.overview_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Assessments</a>{% endif %}
                         {% if building.location_url %}<a href="{{ building.location_url }}" hx-get="{{ building.location_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">{% if building.latitude != None and building.longitude != None %}Edit location{% else %}Set location{% endif %}</a>{% endif %}
-                        {% if building.context_url %}<a href="{{ building.context_url }}" hx-get="{{ building.context_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Local data &amp; rules</a>{% endif %}
+                        {% if building.context_url %}<a href="{{ building.context_url }}" hx-get="{{ building.context_url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" data-task-label="Looking up local prices and building rules">Local data &amp; rules</a>{% endif %}
                     </div>
                 </li>
                 {% empty %}

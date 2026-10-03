@@ -2,7 +2,7 @@
 <div {% if fragment %}id="content-container"{% endif %} class="bim-workspace">
 {% include "bim/nav.html" %}
 <h1>Material passport for {{ document.description }}</h1>
-<p><a hx-boost="false" href="?download=json">Download complete assessment and provenance as JSON</a> | <a hx-boost="false" href="?download=csv">Download material inventory as CSV</a> | <a href="{% url 'material_passport:calculate' %}">Calculate another model</a> | <a href="{% url 'material_passport:compare' %}">Compare assessed models</a></p>
+<p><a hx-boost="false" data-download-notice href="?download=json">Download complete assessment and provenance as JSON</a> | <a hx-boost="false" data-download-notice href="?download=csv">Download material inventory as CSV</a> | <a href="{% url 'material_passport:calculate' %}">Calculate another model</a> | <a href="{% url 'material_passport:compare' %}">Compare assessed models</a></p>
 {% if not report %}<p>Assessment unavailable. Recalculate this model.</p>{% else %}
 <p>Assessment coverage: {% if report.complete %}all assessed records have the required coefficients{% else %}<strong>incomplete</strong>. Unavailable totals are shown as unavailable, with known contributions retained separately in the download.{% endif %}</p>
 <p>Observation period: {{ report.options.years }} years. Replacement at the observation endpoint: {{ report.options.include_endpoint|yesno:"included,excluded" }}. Grade weighting: {{ report.options.grade_weighting|default:"unspecified" }}.</p>

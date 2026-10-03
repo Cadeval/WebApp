@@ -2,7 +2,7 @@
 
 BIM Workspace 1.3.0 adds a private building map at `/plugins/bim/map/`, available from the enabled workflow navigation and Model Manager. Search the building list, select a marker, then open its 3D model, assessments or location editor. Buildings at the same position share a marker with a building picker. Buildings without usable georeferencing stay in the list.
 
-Only the current user's uploads and reports are included. The workflow must be globally enabled and selected by that user. Source downloads, export downloads and location changes enforce the same ownership gate. All page links use the existing HTMX 4 outer replacement of `content-container`; file downloads and multipart conversion submissions use ordinary browser requests.
+Only the current user's uploads and reports are included. The workflow must be globally enabled and selected by that user. Source downloads, export downloads and location changes enforce the same ownership gate. Page links and multipart conversion forms use HTMX 4 outer replacement of `content-container`, with native form fallback. File downloads retain ordinary browser transfers. Import, export preparation and local data lookups show named loading indicators; see [Loading and task feedback](LOADING_AND_TASK_FEEDBACK.md).
 
 ## Locations
 

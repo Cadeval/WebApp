@@ -6,5 +6,7 @@
 <p>Use an IFC model and the MP reference workbook to calculate material quantities, initial impacts and replacements over a configurable observation period (50 years by default). Windows and doors are excluded from material calculations.</p>
 <p>The thesis does not prescribe an endpoint convention, building-grade weighting or LCA averaging denominator. Choose each below; each result records your choices. Grade averages are descriptive and do not represent a certified EI10 assessment.</p>
 {% if diagnostics %}<h2>Input validation</h2><ul class="bim-diagnostics">{% for message in diagnostics %}<li>{{ message }}</li>{% endfor %}</ul>{% endif %}
-<form hx-boost="false" method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button type="submit">Calculate material passport</button></form>
+<form hx-boost="false" method="post" enctype="multipart/form-data" action="{% url 'material_passport:calculate' %}"
+      hx-post="{% url 'material_passport:calculate' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
+      data-task-label="Calculating material passport">{% csrf_token %}{{ form.as_p }}<button type="submit">Calculate material passport</button></form>
 </div>

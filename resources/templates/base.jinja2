@@ -29,7 +29,8 @@
     <script src="{% static 'js/htmx.js' %}?v=4.0.0"></script>
     <script type="module" src="{% static 'js/plugin_runtime.js' %}?v=20261003-journey"></script>
     <script type="module" src="{% static 'js/plugin_keys.js' %}?v=20261003-journey"></script>
-    <script defer src="{% static 'js/htmx-override.js' %}?v=20261003-journey-2"></script>
+    <script defer src="{% static 'js/htmx-override.js' %}?v=0.8.0"></script>
+    <script type="module" src="{% static 'js/task_activity.js' %}?v=0.8.0"></script>
     <script type="module" src="{% static 'js/admin_logs.js' %}?v=20261003-journey"></script>
 
     {% if user.is_authenticated %}
@@ -52,8 +53,9 @@
 
     {# Reusable resources #}
     <link rel="stylesheet" href="{% static 'css/vendor/normalize.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?v=0.5.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?v=0.8.0">
     <link rel="stylesheet" href="{% static 'css/journey.css' %}?v=20261003-journey">
+    <link rel="stylesheet" href="{% static 'css/task_activity.css' %}?v=0.8.0">
 
     {# TODO: Get rid of this #}
 
@@ -201,9 +203,10 @@
 {#</div>#}
 
 <p id="request-notice" class="request-notice" role="alert" hidden></p>
-<div id="htmx-throbber">
-    <div class="spinner"></div>
-</div>
+<aside id="task-activity" class="task-activity" hidden aria-label="Current tasks">
+    <div class="task-activity-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <ol class="task-activity-list" aria-label="Tasks in progress"></ol>
+</aside>
 <main id="main-content" tabindex="-1" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
     <div id="content-container">
 

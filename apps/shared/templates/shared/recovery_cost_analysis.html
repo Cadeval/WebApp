@@ -2,7 +2,7 @@
 {% if report.recovery_cost_analysis %}
 <p>Initial global gross material costs in euros, grouped by each material record’s descriptive recovery grade. This is purchase-cost distribution, not resale revenue, recovery savings or disposal cost.</p>
 <p>Known cost subtotal: {{ report.recovery_cost_analysis.known_cost_eur|floatformat:"2" }} €. Shares refer to this known subtotal. Missing prices are excluded, and ungraded costs stay separate.</p>
-<p><a hx-boost="false" href="?download=recovery_csv">Download recovery-grade cost analysis as CSV</a></p>
+<p><a hx-boost="false" data-download-notice href="?download=recovery_csv">Download recovery-grade cost analysis as CSV</a></p>
 <div class="bim-table-scroll"><table><thead><tr><th>Recovery grade</th><th>Complete cost (€)</th><th>Known cost subtotal (€)</th><th>Share of known cost (%)</th><th>Missing prices / material records</th></tr></thead><tbody>
 {% for group in report.recovery_cost_analysis.groups %}<tr><th>{% if group.grade == None %}Ungraded{% else %}{{ group.grade }}{% endif %}</th><td>{{ group.cost_eur|floatformat:"2"|default:"Unavailable" }}</td><td>{{ group.known_cost_eur|floatformat:"2" }}</td><td>{{ group.share_of_known_cost_percent|floatformat:"2"|default:"Unavailable" }}</td><td>{{ group.missing_price_rows }} / {{ group.rows }}</td></tr>{% endfor %}
 </tbody></table></div>

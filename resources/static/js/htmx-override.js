@@ -20,50 +20,11 @@ document.body.addEventListener('htmx:before:response', event => {
     }
 });
 
-// Loading throbber: shown while an htmx request targeting the main content
-// container is in flight, and hidden once the new content has been settled.
-const throbber = document.getElementById('htmx-throbber');
-
-function isContentRequest(detail) {
-    const content = document.getElementById('content-container');
-    if (!content || !detail || !detail.ctx?.target) {
-        return false;
-    }
-    return detail.ctx.target === content || content.contains(detail.ctx.target);
-}
-
-function showThrobber() {
-    if (throbber) {
-        throbber.classList.add('active');
-    }
-}
-
-function hideThrobber() {
-    if (throbber) {
-        throbber.classList.remove('active');
-    }
-}
-
-// Show the throbber as soon as a request for the main content starts.
-document.body.addEventListener('htmx:before:request', function (e) {
+// New work supersedes previous request feedback. Task activity is managed in
+// task_activity.js, which keeps each overlapping request's lifecycle separate.
+document.body.addEventListener('htmx:before:request', function () {
     const notice = document.getElementById('request-notice');
     if (notice) notice.hidden = true;
-    if (isContentRequest(e.detail)) {
-        showThrobber();
-    }
-});
-
-// Hide the throbber once the swapped-in content has been settled.
-document.body.addEventListener('htmx:after:settle', hideThrobber);
-
-// Make sure the throbber never gets stuck if a request fails or is aborted.
-document.body.addEventListener('htmx:response:error', hideThrobber);
-document.body.addEventListener('htmx:error', hideThrobber);
-document.body.addEventListener('htmx:finally:request', hideThrobber);
-document.body.addEventListener('htmx:after:request', function (e) {
-    if ((e.detail.ctx?.response?.status ?? 500) >= 400) {
-        hideThrobber();
-    }
 });
 
 

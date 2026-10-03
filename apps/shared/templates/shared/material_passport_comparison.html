@@ -3,7 +3,9 @@
 {% include "bim/nav.html" %}
 <h1>Compare building assessments</h1><p><a href="{% url 'material_passport:calculate' %}">Assess another model</a></p>
 <p>Select assessed models from your library. Comparable results require the same reference data, observation period, exclusions and calculation policies. These indicators support design decisions and do not define a universal architectural ranking.</p>
-<form hx-boost="false" method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Compare selected models</button></form>
+<form hx-boost="false" method="post" action="{% url 'material_passport:compare' %}"
+      hx-post="{% url 'material_passport:compare' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
+      data-task-label="Comparing material passports">{% csrf_token %}{{ form.as_p }}<button type="submit">Compare selected models</button></form>
 {% if charts %}<h2>Comparison coverage</h2>
 {% if comparable %}<p>Selected assessments have matching reference data and boundaries, with complete recorded assessment coverage. This does not certify source-model correctness.</p>{% else %}<p class="warnings"><strong>Comparison is not established as complete and consistent.</strong></p>{% endif %}
 <ul class="warnings">{% for warning in warnings %}<li>{{ warning }}</li>{% endfor %}</ul>

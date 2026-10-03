@@ -27,7 +27,7 @@
         <summary>Publish a signed plugin</summary>
         <p>Contribute a browser tool to the site catalog. New packages are reviewed before becoming available.</p>
         <p class="plugin-publishing-links"><a href="/mycelium/settings?section=security" hx-get="/mycelium/settings?section=security" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Manage signing keys in User settings</a><a href="{% url 'plugin_manager:plugin_sample' %}" hx-boost="false">Download an example package</a></p>
-        <form class="plugin-upload-form" method="post" action="{% url 'plugin_manager:plugin_upload' %}" enctype="multipart/form-data" hx-post="{% url 'plugin_manager:plugin_upload' %}" hx-encoding="multipart/form-data" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">
+        <form class="plugin-upload-form" data-task-label="Uploading and checking plugin package" method="post" action="{% url 'plugin_manager:plugin_upload' %}" enctype="multipart/form-data" hx-post="{% url 'plugin_manager:plugin_upload' %}" hx-encoding="multipart/form-data" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">
             {% csrf_token %}<input type="hidden" name="return_to" value="manager">{{ upload_form.non_field_errors }}
             <div class="plugin-upload-grid">{% for field in upload_form %}<div class="plugin-form-field{% if field.errors %} plugin-form-field--error{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<span class="plugin-field-error" role="alert">{{ error }}</span>{% endfor %}</div>{% endfor %}</div>
             <div class="plugin-upload-footer"><p class="plugin-help-text">Sign your archive locally with the CLI. Accepted: ZIP, TAR, tar.gz/tgz and tar.xz/txz. The manifest supplies the plugin name, ID and version.</p><button class="button" type="submit" hx-disable="this">Publish plugin</button></div>
@@ -37,7 +37,7 @@
     {% if user.is_staff %}
         <details class="journey-card plugin-administration"{% if reload_summary %} open{% endif %}>
             <summary>Site plugin administration</summary><p>Global controls determine which plugins are available to the site. These settings are separate from your personal workflow.</p>
-            <button type="button" class="button" hx-post="{% url 'plugin_manager:plugin_reload' %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Refresh plugin discovery</button>
+            <button type="button" class="button" data-task-label="Refreshing plugin discovery" hx-post="{% url 'plugin_manager:plugin_reload' %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Refresh plugin discovery</button>
             <div class="plugin-table-viewport" tabindex="0" aria-label="Site plugin inventory"><table id="plugin-table" class="plugin-table"><thead><tr><th scope="col">Plugin</th><th scope="col">Version</th><th scope="col">API</th><th scope="col">Priority</th><th scope="col">Site status</th><th scope="col">Error</th><th scope="col">Actions</th></tr></thead><tbody id="plugin-table-body">{% for item in catalog %}{% include 'plugin_manager/_plugin_row.jinja2' with record=item.record selected=item.selected available=item.available is_workflow=item.is_workflow description=item.description %}{% empty %}<tr><td colspan="7">No matching plugins.</td></tr>{% endfor %}</tbody></table></div>
         </details>
     {% endif %}
