@@ -83,7 +83,7 @@ class SigningTests(TestCase):
 
     def register(self,private=None,change=None):
         private=private or Ed25519PrivateKey.generate()
-        response=self.client.get('/plugins/keys/')
+        response=self.client.get('/mycelium/settings',{'section':'security'})
         registration=response.context['registration']
         public=base64.b64encode(private.public_key().public_bytes_raw()).decode()
         payload={'label':'My signing key','public_key':public,'challenge':registration['challenge'],'proof':base64.b64encode(private.sign(registration_payload(registration['challenge'],self.staff.pk,public))).decode()}
@@ -115,6 +115,19 @@ class SigningTests(TestCase):
         self.client.logout()
         for path in ['/plugins/keys/','/plugins/keys/cli.py']:self.assertEqual(self.client.get(path).status_code,302)
 
+    def test_legacy_key_page_redirects_and_htmx_uses_security_settings(self):
+        canonical='/mycelium/settings?section=security'
+        response=self.client.get('/plugins/keys/')
+        self.assertEqual(response.status_code,302);self.assertEqual(response.url,canonical)
+        full=self.client.get('/mycelium/settings',{'section':'security'})
+        self.assertContains(full,'<html')
+        self.assertIsNotNone(full.context['registration']['challenge'])
+        fragment=self.client.get('/plugins/keys/',HTTP_HX_REQUEST='true')
+        self.assertNotContains(fragment,'<html')
+        self.assertContains(fragment,'id="content-container"',count=1)
+        self.assertEqual(fragment['HX-Replace-Url'],canonical)
+        self.assertIsNotNone(fragment.context['registration']['challenge'])
+
     def test_unsigned_tampered_and_unknown_signers_are_rejected(self):
         self.assertEqual(self.upload(fixtures.package()).status_code,400)
         private,result=self.register();signed=self.signed(private,result.json()['key_id'])
@@ -132,7 +145,7 @@ class SigningTests(TestCase):
 
     def test_regular_publisher_own_key_upload_review_and_revoke(self):
         private,result=self.register();key_id=result.json()['key_id'];content=self.signed(private,key_id)
-        self.client.logout();self.client.force_login(self.regular);self.client.get("/plugins/keys/")
+        self.client.logout();self.client.force_login(self.regular);self.client.get('/mycelium/settings',{'section':'security'})
         self.assertEqual(self.upload(content).status_code,403)
         key=PluginSigningKey.objects.get(fingerprint=key_id);key.owner=self.regular;key.save()
         response=self.upload(tar_package(content,'w:xz'),'signed.txz');self.assertEqual(response.status_code,201,response.content.decode()[:800])
@@ -140,8 +153,8 @@ class SigningTests(TestCase):
         record=PluginRecord.objects.get(plugin_id='zip.calculator');self.assertFalse(record.enabled);self.assertEqual(record.package_manifest['archive_format'],'tar.xz')
         self.assertEqual(self.client.post('/plugins/store/zip.calculator/enable/').status_code,409)
         self.assertEqual(self.client.post('/plugins/zip.calculator/enable/').status_code,403)
-        self.client.logout();self.client.force_login(self.staff);self.client.get("/plugins/keys/");self.assertEqual(self.client.post('/plugins/zip.calculator/enable/').status_code,200)
-        self.client.logout();self.client.force_login(self.regular);self.client.get("/plugins/keys/")
+        self.client.logout();self.client.force_login(self.staff);self.client.get('/mycelium/settings',{'section':'security'});self.assertEqual(self.client.post('/plugins/zip.calculator/enable/').status_code,200)
+        self.client.logout();self.client.force_login(self.regular);self.client.get('/mycelium/settings',{'section':'security'})
         self.assertEqual(self.client.get('/plugins/zip.calculator/assets/worker.js').status_code,404)
         self.assertEqual(self.client.post('/plugins/store/zip.calculator/enable/').status_code,302)
         self.assertEqual(self.client.get('/plugins/zip.calculator/assets/worker.js').status_code,200)
@@ -154,7 +167,7 @@ class SigningTests(TestCase):
     def test_other_user_cannot_revoke_and_admin_can_download_disabled_package(self):
         private,result=self.register();key_id=result.json()['key_id'];self.upload(self.signed(private,key_id))
         self.assertEqual(self.client.get('/plugins/zip.calculator/package.zip').status_code,200)
-        self.client.logout();self.client.force_login(self.regular);self.client.get("/plugins/keys/")
+        self.client.logout();self.client.force_login(self.regular);self.client.get('/mycelium/settings',{'section':'security'})
         self.assertEqual(self.client.post(f'/plugins/keys/{key_id}/revoke/').status_code,403)
         self.assertEqual(self.client.get('/plugins/zip.calculator/package.zip').status_code,403)
         self.assertIsNone(PluginSigningKey.objects.get().revoked_at)

@@ -1,0 +1,2 @@
+{% if notice %}<p class="journey-notice" role="status" aria-live="polite">{{ notice }}</p>{% endif %}
+{% for message in messages %}<p class="journey-notice" role="status" aria-live="polite">{{ message }}</p>{% endfor %}

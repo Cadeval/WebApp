@@ -1,0 +1,17 @@
+<section aria-labelledby="signing-keys-title" class="signing-keys-panel">
+    <h2 id="signing-keys-title">Plugin signing keys</h2><p>Create a key in your browser, download its encrypted private key, and sign packages locally before publishing. The server keeps your public key only.</p>
+    {{ registration|json_script:'key-registration' }}
+    <form method="post" data-signing-key-form hx-boost="false" action="{% url 'plugin_manager:plugin_key_register' %}" class="settings-form journey-card">
+        <fieldset disabled data-key-controls><noscript>Enable JavaScript to create and encrypt a key locally.</noscript>{% csrf_token %}<legend>Create a signing key</legend>
+            <label for="signing-key-label">Key name</label><input id="signing-key-label" name="label" required maxlength="120" autocomplete="off">
+            <label for="signing-key-passphrase">Encryption passphrase</label><input id="signing-key-passphrase" type="password" name="passphrase" required minlength="12" autocomplete="new-password">
+            <label for="signing-key-confirm">Confirm passphrase</label><input id="signing-key-confirm" type="password" name="confirm" required minlength="12" autocomplete="new-password">
+            <p class="settings-help">Use at least 12 characters. Keep your encrypted key file and passphrase; the server cannot recover them.</p><button type="submit">Create key and download</button><p role="status" aria-live="polite"></p><div data-key-download></div>
+        </fieldset>
+    </form>
+    <h3>Your public keys</h3>
+    <div class="settings-table-viewport" tabindex="0" aria-label="Your public signing keys"><table class="settings-table"><thead><tr><th scope="col">Key</th><th scope="col">Fingerprint</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>
+        {% for key in signing_keys %}<tr><th scope="row">{{ key.label }}</th><td><code>{{ key.fingerprint }}</code></td><td>{% if key.revoked_at %}Revoked{% else %}Active{% endif %}</td><td>{% if not key.revoked_at %}<form method="post" action="{% url 'plugin_manager:plugin_key_revoke' key.fingerprint %}" hx-post="{% url 'plugin_manager:plugin_key_revoke' key.fingerprint %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="section" value="security"><button type="submit" hx-disable="this">Revoke key</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="4">No public keys registered yet.</td></tr>{% endfor %}
+    </tbody></table></div><p class="settings-help">Revoking a key disables packages signed with it.</p><p><a href="/mycelium/settings?section=security" hx-get="/mycelium/settings?section=security" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Refresh your key list</a></p>
+    <details class="journey-card"><summary>Sign a package with the CLI</summary><p><a href="{% url 'plugin_manager:plugin_sign_cli' %}" hx-boost="false">Download the signing CLI</a> and <a href="{% url 'plugin_manager:plugin_sample' %}" hx-boost="false">an example package</a>.</p><pre>uv run --with cryptography cadevil_sign.py sign plugin.zip --key your-key.cadevil-key.json --output plugin.signed.zip</pre><p>The CLI asks for your passphrase locally. Publish the signed archive on the <a href="/plugins/manage/" hx-get="/plugins/manage/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Plugins page</a>.</p></details>
+</section>

@@ -17,11 +17,22 @@ from .models import PluginSigningKey
 from .signatures import decode, registration_payload
 
 
-@login_required(login_url='/mycelium/login')
-def signing_keys_page(request,notice='',status=200):
+def signing_key_context(request):
     challenge=secrets.token_urlsafe(32)
     request.session['plugin_key_challenge']={'value':challenge,'issued':time.time()}
-    return render_page(request,'plugin_manager/signing_keys.html',{'signing_keys':PluginSigningKey.objects.filter(owner=request.user), 'registration':{'challenge':challenge,'owner':str(request.user.pk)},'notice':notice},status=status)
+    return {'signing_keys':PluginSigningKey.objects.filter(owner=request.user),
+            'registration':{'challenge':challenge,'owner':str(request.user.pk)}}
+
+
+@login_required(login_url='/mycelium/login')
+def signing_keys_page(request,notice='',status=200):
+    url = '/mycelium/settings?section=security'
+    if request.headers.get('HX-Request') == 'true':
+        from apps.mycelium.settings_views import settings_response
+        response = settings_response(request, section='security', notice=notice, status=status)
+        response['HX-Replace-Url'] = url
+        return response
+    return redirect(url)
 
 
 @login_required(login_url='/mycelium/login')
@@ -55,8 +66,9 @@ def revoke_signing_key(request,key_id):
         if not key.revoked_at:
             key.revoked_at=timezone.now();key.save(update_fields=['revoked_at'])
             key.plugins.update(enabled=False,error='The package signing key was revoked. Re-sign and upload under an active key.')
-    if request.headers.get('HX-Request')!='true': return redirect('plugin_manager:plugin_keys')
-    response=signing_keys_page(request,notice='Key revoked. Packages signed with it are disabled.')
+    if request.headers.get('HX-Request')!='true': return redirect('/mycelium/settings?section=security')
+    from apps.mycelium.settings_views import settings_response
+    response=settings_response(request,section='security',notice='Key revoked. Packages signed with it are disabled.')
     response['HX-Push-Url']='false'
     return response
 

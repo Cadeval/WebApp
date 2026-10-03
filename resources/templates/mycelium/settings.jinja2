@@ -1,0 +1,24 @@
+<section {% if fragment %}id="content-container"{% endif %} data-user-theme="{{ user.theme }}" class="journey-page settings-page" aria-labelledby="user-settings-title">
+    <div class="journey-section-heading"><span class="viewer-eyebrow">{{ user.username }}</span><h1 id="user-settings-title">User settings</h1><p>Manage your account, security and workspace access.</p></div>
+    {% include 'mycelium/_settings_notices.html' %}
+    {% if request.method == 'POST' %}{% include 'plugin_manager/_plugin_nav_items.jinja2' with plugin_nav_oob=True %}{% endif %}
+    <nav class="settings-section-nav" aria-label="User settings sections">
+        <a href="/mycelium/settings?section=account" hx-get="/mycelium/settings?section=account" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if section == 'account' %} aria-current="page"{% endif %}>Account</a>
+        <a href="/mycelium/settings?section=security" hx-get="/mycelium/settings?section=security" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if section == 'security' %} aria-current="page"{% endif %}>Security</a>
+        <a href="/mycelium/settings?section=access" hx-get="/mycelium/settings?section=access" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if section == 'access' %} aria-current="page"{% endif %}>Access and capacity</a>
+    </nav>
+    {% if section == 'security' %}
+        <details class="journey-card"{% if password_form.is_bound or password_form.errors %} open{% endif %}><summary id="password-title">Change password</summary>
+            <form method="post" action="/mycelium/settings" hx-post="/mycelium/settings" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false" class="settings-form">{% csrf_token %}<input type="hidden" name="action" value="password"><input type="hidden" name="section" value="security">{% include 'mycelium/_settings_form_fields.html' with form=password_form %}<button type="submit" hx-disable="this">Update password</button></form>
+        </details>
+        {% include 'plugin_manager/signing_keys_panel.html' %}
+    {% elif section == 'access' %}
+        <div class="journey-grid">
+            <section class="journey-card" aria-labelledby="roles-title"><h2 id="roles-title">Your access</h2><dl class="settings-definition-list"><div><dt>Account</dt><dd>{% if user.is_superuser %}Site administrator{% elif user.is_staff %}Staff{% else %}Workspace user{% endif %}</dd></div><div><dt>Groups</dt><dd>{% for group in user_groups %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% empty %}No groups assigned{% endfor %}</dd></div></dl></section>
+            <section class="journey-card" aria-labelledby="capacity-title"><h2 id="capacity-title">Calculation capacity</h2><dl class="settings-definition-list"><div><dt>Active calculations</dt><dd>{{ capacity.active }}</dd></div><div><dt>Concurrent limit</dt><dd>{{ capacity.limit }}</dd></div></dl><p>Your workflow tools and saved inputs stay with your account.</p></section>
+        </div>
+        {% if can_view_users or can_view_groups %}<section class="journey-card" aria-labelledby="administration-title"><h2 id="administration-title">Administration</h2><p>Manage people and permissions within your authorized access.</p><div class="journey-actions">{% if can_view_users %}<a href="/mycelium/settings/users" hx-get="/mycelium/settings/users" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Manage users</a>{% endif %}{% if can_view_groups %}<a href="/mycelium/settings/groups" hx-get="/mycelium/settings/groups" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Manage groups</a>{% endif %}</div></section>{% endif %}
+    {% else %}
+        <section class="journey-card" aria-labelledby="profile-title"><h2 id="profile-title">Account profile</h2><p>Signed in as <strong>{{ user.username }}</strong>.</p><form method="post" action="/mycelium/settings" hx-post="/mycelium/settings" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false" class="settings-form">{% csrf_token %}<input type="hidden" name="action" value="profile"><input type="hidden" name="section" value="account">{% include 'mycelium/_settings_form_fields.html' with form=profile_form %}<button type="submit" hx-disable="this">Save profile</button></form></section>
+    {% endif %}
+</section>

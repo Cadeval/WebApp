@@ -83,10 +83,36 @@ async def logout(request: HttpRequest):
 
 @api.get('/mycelium/user', guards=[AllowAny()])
 @api.get('/mycelium/profile', guards=[AllowAny()])
+@api.get('/mycelium/user/profile', guards=[AllowAny()])
 @page_endpoint
 @login_required(login_url='/mycelium/login')
 def user_view(request):
-    return render_page(request, 'mycelium/user.jinja2', {'user_groups': request.user.groups.all()})
+    return HttpResponseRedirect('/mycelium/settings')
+
+
+from .settings_views import user_settings
+from .user_admin import admin_users, admin_groups
+
+
+@api.get('/mycelium/settings', name='user_settings', guards=[AllowAny()])
+@api.post('/mycelium/settings', name='user_settings_save', guards=[AllowAny()])
+@page_endpoint
+def account_settings(request):
+    return user_settings(request)
+
+
+@api.get('/mycelium/settings/users', name='admin_users', guards=[AllowAny()])
+@api.post('/mycelium/settings/users', name='admin_users_save', guards=[AllowAny()])
+@page_endpoint
+def user_management(request):
+    return admin_users(request)
+
+
+@api.get('/mycelium/settings/groups', name='admin_groups', guards=[AllowAny()])
+@api.post('/mycelium/settings/groups', name='admin_groups_save', guards=[AllowAny()])
+@page_endpoint
+def group_management(request):
+    return admin_groups(request)
 
 @api.get('/demo', guards=[AllowAny()])
 @page_endpoint
