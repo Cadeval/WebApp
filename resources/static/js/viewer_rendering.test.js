@@ -83,3 +83,18 @@ test('shared GLB resources are disposed once across repeated primitives', () => 
     disposeModelResources(scene);
     assert.deepEqual(counts, { geometry: 1, material: 1, texture: 1 });
 });
+
+test('retina output has a bounded pixel budget without changing model or canvas dimensions', () => {
+    const before = globalThis.devicePixelRatio;
+    globalThis.devicePixelRatio = 3;
+    try {
+        let ratio;
+        const scene = {}, rendererFactory = () => ({shadowMap:{},setPixelRatio(value){ratio=value;},dispose(){}});
+        const resources = createRenderResources({getContext:()=>null},scene,
+            {rendererFactory,environmentFactory:()=>({texture:{},dispose(){}})});
+        assert.equal(ratio,1.5);
+        assert.equal(resources.renderer.shadowMap.autoUpdate,false);
+    } finally {
+        if(before===undefined)delete globalThis.devicePixelRatio;else globalThis.devicePixelRatio=before;
+    }
+});

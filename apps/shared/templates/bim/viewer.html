@@ -1,4 +1,5 @@
 {% load static %}
+<link rel="stylesheet" href="{% static 'css/viewer_activity.css' %}?v=0.8.0">
 
 <div {% if fragment %}id="content-container"{% endif %}>
 <section id="viewer-app"
@@ -23,9 +24,11 @@
                     title="Show or hide the ground grid"> Grid</button>
             <a hx-boost="false" class="button fa fa-download"
                href="{% url 'bim:download_model' upload_id %}"
+               data-download-notice="Downloading the original IFC"
                download title="Download original IFC"> IFC</a>
             <a hx-boost="false" class="button fa fa-cube"
                href="{% url 'bim:model_geometry' upload_id %}"
+               data-download-notice="Preparing and downloading GLB geometry"
                download="{{ document.description }}.glb"
                title="Download GLB"> GLB</a>
             <a class="button" href="{% url 'bim:export_cityjson' upload_id %}">CityJSON</a>
@@ -33,7 +36,7 @@
     </div>
 
     <div class="viewer-workspace">
-        <div id="viewer-viewport" class="viewer-viewport">
+        <div id="viewer-viewport" class="viewer-viewport" aria-busy="false">
             <canvas id="viewer-canvas" tabindex="0"
                     aria-label="Interactive 3D model. Drag to orbit and select a building part for details."></canvas>
             <div class="viewer-hint" aria-hidden="true">
@@ -44,10 +47,11 @@
                 Scroll to zoom
             </div>
 
-            <div id="loading-overlay" class="viewer-state-overlay" role="status">
+            <div id="loading-overlay" class="viewer-state-overlay" role="status" aria-live="polite" aria-atomic="true">
                 <span class="viewer-loader" aria-hidden="true"></span>
-                <span id="loading-text">Loading 3D model…</span>
-                <progress id="loading-bar" max="100" value="0"></progress>
+                <span id="loading-text">Preparing 3D model…</span>
+                <span id="loading-detail" class="model-loading-detail" aria-hidden="true">Preparing geometry can take a little longer on the first load.</span>
+                <progress id="loading-bar" max="100" aria-label="Preparing 3D model"></progress>
             </div>
 
             <div id="error-overlay" class="viewer-state-overlay viewer-error" role="alert">
@@ -86,6 +90,7 @@
                     <summary>Assessment &amp; sources</summary>
                     {% if assessment_options %}
                     <form method="get" action="{% url 'bim:viewer' upload_id %}"
+                          data-task-label="Loading material assessment"
                           hx-get="{% url 'bim:viewer' upload_id %}" hx-target="#content-container"
                           hx-swap="outerHTML" hx-push-url="true">
                         <label for="viewer-assessment">Material assessment</label>
@@ -131,7 +136,9 @@
                 <details class="viewer-render-options">
                     <summary>Display options</summary>
                     <label><input type="checkbox" id="viewer-textures" checked> Material textures</label>
-                    <p id="surface-status" class="viewer-data-note">Loading IFC material data…</p>
+                    <label><input type="checkbox" id="viewer-landscape" checked> Preview landscaping</label>
+                    <p class="viewer-data-note">Greenery is a presentation backdrop, separate from the IFC model and its assessment.</p>
+                    <p id="surface-status" class="viewer-data-note" role="status">Loading IFC material data…</p>
                     <label><input type="checkbox" id="viewer-spaces" disabled> Spaces &amp; opening volumes</label>
                     <p id="space-count" class="viewer-data-note">IFC helper volumes are hidden initially.</p>
                 </details>
@@ -146,5 +153,5 @@
     </div>
 </section>
 
-<script type="module" src="{% static 'js/3d_view.js' %}?v=0.5.0-3"></script>
+<script type="module" src="{% static 'js/3d_view.js' %}?v=0.8.0"></script>
 </div>

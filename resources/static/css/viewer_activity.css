@@ -1,0 +1,7 @@
+.model-loading-detail { max-width:28rem; font-size:.9rem; line-height:1.5; color:var(--secondary-color, #666); }
+.demo-loading-overlay { position:absolute; inset:0; z-index:3; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:2rem; text-align:center; background:var(--demo-panel); color:var(--demo-ink); }
+.demo-loading-overlay[hidden] { display:none; }
+.demo-loading-overlay progress { flex:none; width:min(18rem, 85%); min-width:0; }
+.demo-loader { width:2.4rem; height:2.4rem; border:3px solid var(--demo-border); border-top-color:var(--demo-ink); border-radius:50%; animation:model-loading-spin .8s linear infinite; }
+@keyframes model-loading-spin { to { transform:rotate(1turn); } }
+@media (prefers-reduced-motion:reduce) { .viewer-loader, .demo-loader { animation:none; } }

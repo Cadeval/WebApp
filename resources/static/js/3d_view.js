@@ -3,7 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { prepareModelSurfaces } from './viewer_surfaces.js?v=0.5.0-3';
 import { renderMaterialInspector } from './viewer_inspector.js?v=0.5.0-3';
-import { fitShadowToBounds, recenterModel, updateCameraClipping, fitCameraToBounds, createRenderResources, disposeModelResources } from './viewer_rendering.js?v=0.5.0-3';
+import { fitShadowToBounds, recenterModel, updateCameraClipping, fitCameraToBounds, createRenderResources, disposeModelResources, createOutdoorLights } from './viewer_rendering.js?v=0.8.0';
+import { createGeometryActivity, loadGeometry } from './geometry_loading.js?v=0.8.0';
+import { createLandscape } from './viewer_landscape.js?v=0.8.0';
 
 const IDENTITY_KEYS = new Set([
     'name', 'type', 'ifctype', 'globalid', 'global_id', 'guid', 'id',
@@ -120,6 +122,7 @@ export function initializeViewer(root) {
     const element = id => root.querySelector(`#${id}`);
     const canvas = element('viewer-canvas'), viewport = element('viewer-viewport');
     const loadingEl = element('loading-overlay'), loadingText = element('loading-text'), loadingBar = element('loading-bar');
+    const loading = createGeometryActivity({ target: viewport, overlay: loadingEl, message: loadingText, detail: element('loading-detail'), progress: loadingBar });
     const errorOverlay = element('error-overlay'), errorMessage = element('error-message');
     const selectionStatus = element('selection-status'), selectionEmpty = element('selection-empty'), selectionDetails = element('selection-details');
     const metricsEl = element('part-metrics'), metricsEmpty = element('metrics-empty');
@@ -127,7 +130,7 @@ export function initializeViewer(root) {
     const clearButton = root.querySelector('[data-viewer-action="clear-selection"]');
     const fitButton = root.querySelector('[data-viewer-action="fit"]');
     const gridButton = root.querySelector('[data-viewer-action="toggle-grid"]');
-    const textureToggle = element('viewer-textures'), spaceToggle = element('viewer-spaces');
+    const textureToggle = element('viewer-textures'), spaceToggle = element('viewer-spaces'), landscapeToggle = element('viewer-landscape');
     const cleanupViewerHeader = mountViewerHeader(root);
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(getComputedStyle(viewport).backgroundColor);
@@ -136,7 +139,7 @@ export function initializeViewer(root) {
     catch (error) {
         cleanupViewerHeader();
         root.dataset.viewerInitialized = 'false';
-        loadingEl.hidden = true;
+        loading.finish();
         errorMessage.textContent = '3D rendering could not start. Check that WebGL 2 and hardware acceleration are available, then reload this page.';
         errorOverlay.classList.add('is-visible');
         console.error('Viewer initialization failed:', error);
@@ -145,35 +148,50 @@ export function initializeViewer(root) {
     const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 2000);
     camera.position.set(30, 30, 30);
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    controls.enableDamping = !matchMedia('(prefers-reduced-motion: reduce)').matches;
     controls.dampingFactor = 0.06;
     controls.screenSpacePanning = true;
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a8a, 1.25));
-    const sun = new THREE.DirectionalLight(0xffffff, 2.2);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    scene.add(sun, sun.target);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.6);
-    fill.position.set(-50, 20, -50);
-    scene.add(fill);
+    const outdoorLights = createOutdoorLights(scene), sun = outdoorLights.sun;
     const grid = new THREE.GridHelper(100, 40, 0x999999, 0xcccccc);
     grid.material.opacity = 0.3;
     grid.material.transparent = true;
     grid.material.depthWrite = false;
     scene.add(grid);
-    let model = null, modelBounds = null, selectionOutline = null, selectedMesh = null, surfaces = null;
-    let disposed = false, metadata = null, metadataError = '';
-    const spaces = [], listeners = [], abortMetadata = new AbortController();
+    let model = null, modelBounds = null, sceneBounds = null, selectionOutline = null, selectedMesh = null, surfaces = null, landscape = null;
+    let disposed = false, renderFailed = false, metadata = null, metadataError = '';
+    let renderFrame = null, renderCount = 0, geometryReady = false;
+    const spaces = [], listeners = [], abortMetadata = new AbortController(), abortGeometry = new AbortController();
     const detailsCache = new Map();
-    let abortDetails = null, selectionVersion = 0;
+    let abortDetails = null, selectionVersion = 0, detailsTask = null;
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
     let pointerStart = null;
     function listen(target, event, callback) { target.addEventListener(event, callback); listeners.push([target, event, callback]); }
+    function requestRender() {
+        if (disposed || renderFailed || renderFrame !== null) return;
+        renderFrame = requestAnimationFrame(() => {
+            renderFrame = null;
+            if (disposed) return;
+            // OrbitControls emits change while damping settles, requesting only
+            // the frames that have a visible camera change.
+            try {
+                controls.update(); updateCameraClipping(camera, controls, sceneBounds || modelBounds);
+                scene.background.set(getComputedStyle(viewport).backgroundColor);
+                renderer.render(scene, camera);
+                root.dataset.renderFrames = String(++renderCount);
+                if (geometryReady) { loading.finish(); geometryReady = false; root.dataset.viewerReady = 'true'; }
+            } catch (error) {
+                renderFailed = true; loading.finish();
+                errorMessage.textContent = 'The 3D view could not be rendered. Reload this page to try again.';
+                errorOverlay.classList.add('is-visible'); console.error('Viewer rendering failed:', error);
+            }
+        });
+    }
     function resize() {
         const width = Math.max(viewport.clientWidth, 1), height = Math.max(viewport.clientHeight, 1);
         camera.aspect = width / height;
         renderer.setSize(width, height, false);
         camera.updateProjectionMatrix();
+        requestRender();
     }
     function fitBounds(bounds) {
         if (!bounds || bounds.isEmpty()) return;
@@ -189,19 +207,24 @@ export function initializeViewer(root) {
             selectionOutline.geometry.dispose(); selectionOutline.material.dispose(); selectionOutline = null;
         }
         selectedMesh = null; selectionVersion++; abortDetails?.abort(); abortDetails = null;
+        if (detailsTask != null) globalThis.CadevilActivity?.finish(detailsTask);
+        detailsTask = null; materialEl.setAttribute('aria-busy', 'false');
         selectionStatus.textContent = 'Nothing selected';
         selectionEmpty.hidden = false; selectionDetails.hidden = true; clearButton.disabled = true;
+        requestRender();
     }
     function renderSelectedProperties() {
         if (!selectedMesh) return;
         const owner = metadataOwner(selectedMesh, model);
         const guid = String(getMetadataValue(owner.userData ?? {}, ['globalid', 'global_id', 'guid']) || '');
         const record = detailsCache.get(guid);
-        if (record) { renderMaterialInspector(materialEl, record); return; }
+        if (record) { materialEl.setAttribute('aria-busy', 'false'); renderMaterialInspector(materialEl, record); return; }
         renderMaterialInspector(materialEl, null, { loading: !metadataError, error: metadataError });
         if (abortDetails) return;
         const version = selectionVersion;
         abortDetails = new AbortController();
+        materialEl.setAttribute('aria-busy', 'true');
+        detailsTask = globalThis.CadevilActivity?.start({ label: 'Loading selected material properties', target: materialEl });
         const url = new URL(root.dataset.metadataUrl, location.href);
         url.searchParams.set('element', guid);
         fetch(url, { signal: abortDetails.signal, credentials: 'same-origin', headers: { Accept: 'application/json' } })
@@ -209,6 +232,8 @@ export function initializeViewer(root) {
             .then(data => {
                 if (disposed || version !== selectionVersion) return;
                 abortDetails = null;
+                if (detailsTask != null) globalThis.CadevilActivity?.finish(detailsTask);
+                detailsTask = null; materialEl.setAttribute('aria-busy', 'false');
                 const record = data.elements?.[guid];
                 if (record) {
                     if (detailsCache.size >= 32) detailsCache.delete(detailsCache.keys().next().value);
@@ -219,6 +244,8 @@ export function initializeViewer(root) {
             }).catch(error => {
                 if (disposed || version !== selectionVersion || error.name === 'AbortError') return;
                 abortDetails = null;
+                if (detailsTask != null) globalThis.CadevilActivity?.finish(detailsTask);
+                detailsTask = null; materialEl.setAttribute('aria-busy', 'false');
                 renderMaterialInspector(materialEl, null, { error: error.message });
             });
     }
@@ -242,6 +269,7 @@ export function initializeViewer(root) {
         selectionOutline.material.depthTest = false; selectionOutline.material.transparent = true;
         selectionOutline.material.opacity = 0.85; selectionOutline.renderOrder = 999;
         scene.add(selectionOutline);
+        requestRender();
     }
     function selectAt(clientX, clientY) {
         if (!model) return;
@@ -270,6 +298,7 @@ export function initializeViewer(root) {
             element('surface-status').textContent = textureToggle.checked ? `${formatMetricValue(count)} surfaces textured from declared material names. Original IFC colors and authored textures are retained.` : 'Original IFC appearance';
         } else element('surface-status').textContent = textureToggle.checked ? metadataError ? 'Original IFC appearance · material data unavailable' : 'Waiting for IFC material data…' : 'Original IFC appearance';
         configureShadows();
+        requestRender();
     }
     listen(canvas, 'pointerdown', event => { pointerStart = { x: event.clientX, y: event.clientY }; });
     listen(canvas, 'pointercancel', () => { pointerStart = null; });
@@ -280,14 +309,25 @@ export function initializeViewer(root) {
     });
     listen(canvas, 'keydown', event => { if (event.key === 'Escape') clearSelection(); if (event.key.toLowerCase() === 'f') fitModel(); });
     listen(fitButton, 'click', fitModel); listen(clearButton, 'click', clearSelection);
-    listen(gridButton, 'click', () => { grid.visible = !grid.visible; gridButton.setAttribute('aria-pressed', String(grid.visible)); });
+    listen(gridButton, 'click', () => { grid.visible = !grid.visible; gridButton.setAttribute('aria-pressed', String(grid.visible)); requestRender(); });
     listen(textureToggle, 'change', applySurfaces);
+    if (landscapeToggle) listen(landscapeToggle, 'change', () => { if (landscape) landscape.group.visible = landscapeToggle.checked; requestRender(); });
     listen(spaceToggle, 'change', () => {
         for (const space of spaces) space.visible = spaceToggle.checked;
         if (selectedMesh && !selectedMesh.visible) clearSelection();
+        requestRender();
     });
+    listen(controls, 'change', requestRender);
+    const themeObserver = new MutationObserver(requestRender);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+    themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] });
+    listen(matchMedia('(prefers-color-scheme: dark)'), 'change', requestRender);
     const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(viewport); resize();
     // Fetch independently of tessellation: unreadable properties never block geometry.
+    const materialTask = globalThis.CadevilActivity?.start({ label: 'Loading IFC material data', target: textureToggle.closest('details') });
+    const materialOptions = textureToggle.closest('details');
+    materialOptions?.setAttribute('aria-busy', 'true');
+    metadataStatus.textContent = `Loading IFC material data… ${metadataStatus.textContent.trim()}`;
     fetch(root.dataset.metadataUrl, { signal: abortMetadata.signal, credentials: 'same-origin', headers: { Accept: 'application/json' } })
         .then(async response => { if (!response.ok) throw new Error('IFC material properties could not be loaded. The 3D model remains available.'); return response.json(); })
         .then(data => {
@@ -302,9 +342,16 @@ export function initializeViewer(root) {
             metadataStatus.textContent = metadataError;
             element('surface-status').textContent = 'Original IFC appearance · material data unavailable';
             renderSelectedProperties();
+        }).finally(() => {
+            if (materialTask != null) globalThis.CadevilActivity?.finish(materialTask);
+            materialOptions?.setAttribute('aria-busy', 'false');
         });
-    new GLTFLoader().load(root.dataset.modelUrl, gltf => {
+    loadGeometry(new URL(root.dataset.modelUrl, location.href).href, {
+        loader: new GLTFLoader(), signal: abortGeometry.signal,
+        onStage: loading.stage, onProgress: loading.transfer,
+    }).then(gltf => {
         if (disposed) { disposeModelResources(gltf.scene); return; }
+        loading.stage('rendering');
         model = gltf.scene; let partCount = 0;
         model.traverse(child => {
             if (!child.isMesh) return;
@@ -312,6 +359,8 @@ export function initializeViewer(root) {
             if (String(getMetadataValue(metadataOwner(child, model).userData ?? {}, ['ifctype', 'type'])).toLowerCase().match(/^(ifcspace|ifcopeningelement)$/)) { spaces.push(child); child.visible = false; }
         });
         modelBounds = recenterModel(model); scene.add(model);
+        landscape = createLandscape(modelBounds); landscape.group.visible = landscapeToggle?.checked ?? true; scene.add(landscape.group);
+        sceneBounds = modelBounds.clone().union(new THREE.Box3().setFromObject(landscape.group));
         const size = modelBounds.getSize(new THREE.Vector3()), span = Math.max(size.x, size.y, size.z, 1);
         controls.maxDistance = span * 8; controls.minDistance = span * 0.001;
         grid.scale.setScalar(Math.max(size.x, size.z, 1) * 1.35 / 100);
@@ -321,7 +370,7 @@ export function initializeViewer(root) {
         element('model-size').textContent = [size.x, size.y, size.z].map(formatMetricValue).join(' × ') + ' m';
         spaceToggle.disabled = spaces.length === 0;
         element('space-count').textContent = `${formatMetricValue(spaces.length)} space and opening surfaces · hidden initially`;
-        applySurfaces(); fitModel(); loadingEl.hidden = true;
+        applySurfaces(); fitModel(); geometryReady = true; requestRender();
         const requested = root.dataset.selectedElement;
         if (requested) {
             const match = findIfcMesh(model, requested);
@@ -330,27 +379,21 @@ export function initializeViewer(root) {
                 showSelection(match); fitBounds(new THREE.Box3().setFromObject(metadataOwner(match, model)));
             } else selectionStatus.textContent = 'The requested IFC element has no renderable geometry in this model.';
         }
-    }, xhr => {
-        if (disposed) return;
-        if (xhr.lengthComputable) { const percent = Math.round((xhr.loaded / xhr.total) * 100); loadingBar.value = percent; loadingText.textContent = `Loading 3D model… ${percent}%`; }
-        else loadingText.textContent = `Loading 3D model… ${Math.round(xhr.loaded / 1024)} KB received`;
-    }, error => {
-        if (disposed) return;
-        console.error('GLB load error:', error); loadingEl.hidden = true;
+    }).catch(error => {
+        loading.finish();
+        if (disposed || error.name === 'AbortError') return;
+        console.error('GLB load error:', error);
         errorMessage.textContent = error?.message || 'The model could not be loaded.'; errorOverlay.classList.add('is-visible');
-    });
-    renderer.setAnimationLoop(() => {
-        if (disposed) return;
-        controls.update(); updateCameraClipping(camera, controls, modelBounds);
-        scene.background.set(getComputedStyle(viewport).backgroundColor);
-        renderer.render(scene, camera);
     });
     function dispose() {
         if (disposed) return;
-        disposed = true; abortMetadata.abort(); abortDetails?.abort(); renderer.setAnimationLoop(null);
-        resizeObserver.disconnect(); clearSelection(); surfaces?.dispose(); disposeModelResources(model);
+        disposed = true; abortMetadata.abort(); abortGeometry.abort(); abortDetails?.abort(); loading.finish();
+        if (materialTask != null) globalThis.CadevilActivity?.finish(materialTask);
+        materialOptions?.setAttribute('aria-busy', 'false');
+        cancelAnimationFrame(renderFrame); renderFrame = null;
+        resizeObserver.disconnect(); themeObserver.disconnect(); clearSelection(); surfaces?.dispose(); landscape?.dispose(); disposeModelResources(model);
         grid.geometry.dispose(); grid.material.dispose(); environment.dispose();
-        sun.shadow.map?.dispose(); controls.dispose(); renderer.dispose(); cleanupViewerHeader();
+        outdoorLights.dispose(); controls.dispose(); renderer.dispose(); cleanupViewerHeader();
         for (const [target, event, callback] of listeners) target.removeEventListener(event, callback);
         document.body.removeEventListener('htmx:before:cleanup', cleanupHandler);
     }

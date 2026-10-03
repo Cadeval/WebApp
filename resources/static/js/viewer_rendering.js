@@ -69,12 +69,12 @@ export function fitCameraToBounds(camera, bounds, direction = new THREE.Vector3(
 
 export function createStudioEnvironment(renderer) {
     const studio = new THREE.Scene();
-    studio.background = new THREE.Color(0xaaaaaa);
+    studio.background = new THREE.Color(0xc4cdd2);
     const resources = [];
     for (const [position, color, scale] of [
-        [[0, 5, 0], 0xffffff, [10, 1, 10]],
-        [[-5, 1, 0], 0xcccccc, [1, 8, 8]],
-        [[5, 1, 0], 0x777777, [1, 8, 8]],
+        [[0, 5, 0], 0xfff5df, [10, 1, 10]],
+        [[-5, 1, 0], 0xd8e4ed, [1, 8, 8]],
+        [[5, 1, 0], 0xa2acb1, [1, 8, 8]],
     ]) {
         const geometry = new THREE.BoxGeometry(...scale);
         const material = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
@@ -96,13 +96,14 @@ export function createRenderResources(canvas, scene, {
         const context = canvas.getContext('webgl2', { antialias: true });
         renderer = rendererFactory({ canvas, context, antialias: true,
             reversedDepthBuffer: Boolean(context?.getExtension('EXT_clip_control')) });
-        renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 2));
+        // Retina raster work grows quadratically. Keep edges antialiased at a bounded budget.
+        renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 1.5));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFShadowMap;
         renderer.shadowMap.autoUpdate = false;
         renderer.outputColorSpace = THREE.SRGBColorSpace;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.05;
+        renderer.toneMappingExposure = 1.12;
         environment = environmentFactory(renderer);
         scene.environment = environment.texture;
         return { renderer, environment };
@@ -110,6 +111,22 @@ export function createRenderResources(canvas, scene, {
         environment?.dispose(); renderer?.dispose();
         throw error;
     }
+}
+
+export function createOutdoorLights(scene) {
+    const sky = new THREE.HemisphereLight(0xe9f1ff,0x888471,1.55);
+    const sun = new THREE.DirectionalLight(0xfff4dd,2.65);
+    sun.castShadow = true; sun.shadow.mapSize.set(2048,2048);
+    const fill = new THREE.DirectionalLight(0xe6efff,0.85);
+    fill.position.set(-50,25,-30);
+    scene.add(sky,sun,sun.target,fill);
+    let disposed = false;
+    return { sun, dispose() {
+        if (disposed) return;
+        disposed = true;
+        for (const light of [sky,sun,fill]) scene.remove(light);
+        scene.remove(sun.target); sun.shadow.map?.dispose();
+    } };
 }
 
 export function disposeModelResources(model) {
