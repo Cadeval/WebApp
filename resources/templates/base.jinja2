@@ -52,7 +52,7 @@
 
     {# Reusable resources #}
     <link rel="stylesheet" href="{% static 'css/vendor/normalize.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?v=0.5.0">
     <link rel="stylesheet" href="{% static 'css/journey.css' %}?v=20261003-journey">
 
     {# TODO: Get rid of this #}
@@ -79,7 +79,7 @@
     <!-- <link rel="manifest" href="https://www.herzzentrum18.at/site.webmanifest"> -->
 
     {# Metadata #}
-    <title>Building Comparison Report</title>
+    <title>{{ title|default:'Building assessment' }} · Cadevil</title>
 
     <meta name="description" content="Cadevil - Computer Aided Design."/>
     <meta name="author" content="Iuliia Radynska"/>

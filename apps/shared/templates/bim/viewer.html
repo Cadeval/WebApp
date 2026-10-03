@@ -4,6 +4,7 @@
 <section id="viewer-app"
          class="viewer-shell"
          data-selected-element="{{ selected_element }}"
+         data-metadata-url="{{ metadata_url }}"
          data-model-url="{% url 'bim:model_geometry' upload_id %}"
          aria-label="3D model viewer">
     <div id="viewer-overlay" class="viewer-toolbar" data-viewer-header-content>
@@ -55,6 +56,8 @@
                 <a class="button fa fa-arrow-left" href="{% url 'bim:model_manager' %}"> Back to Model Manager</a>
             </div>
 
+        </div>
+
             <aside id="viewer-sidebar" class="viewer-sidebar" aria-labelledby="selection-heading">
                 <div class="viewer-sidebar-header">
                     <div>
@@ -70,10 +73,34 @@
                     Nothing selected
                 </p>
 
+                <details class="viewer-assessment">
+                    <summary>Assessment &amp; sources</summary>
+                    {% if assessment_options %}
+                    <form method="get" action="{% url 'bim:viewer' upload_id %}"
+                          hx-get="{% url 'bim:viewer' upload_id %}" hx-target="#content-container"
+                          hx-swap="outerHTML" hx-push-url="true">
+                        <label for="viewer-assessment">Material assessment</label>
+                        <select id="viewer-assessment" name="assessment">
+                            {% if not selected_assessment %}<option value="">Choose an assessment</option>{% endif %}
+                            {% for option in assessment_options %}
+                            <option value="{{ option.id }}" {% if option.id == selected_assessment %}selected{% endif %}>{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if selected_element %}<input type="hidden" name="element" value="{{ selected_element }}">{% endif %}
+                        <button type="submit" class="button">Load assessment</button>
+                    </form>
+                    {% endif %}
+                    {% if selected_assessment %}
+                    <a href="{% url 'material_passport:report' selected_assessment %}"
+                       hx-get="{% url 'material_passport:report' selected_assessment %}"
+                       hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open building overview</a>
+                    {% endif %}
+                </details>
+                    <p id="material-data-status" class="viewer-data-note" role="status">{{ assessment_notice }}</p>
                 <div id="selection-empty" class="selection-empty">
                     <span class="fa fa-mouse-pointer" aria-hidden="true"></span>
                     <strong>Explore the model</strong>
-                    <p>Select a building part to inspect its identity, IFC properties, and geometry.</p>
+                    <p>Select a building part to inspect its materials, physical properties, environmental impacts and Euro costs.</p>
                 </div>
 
                 <div id="selection-details" class="selection-details" hidden>
@@ -82,24 +109,33 @@
                         <div><dt>Type</dt><dd id="part-type">—</dd></div>
                         <div><dt>Global ID</dt><dd id="part-guid">—</dd></div>
                     </dl>
-                    <h3>Metrics</h3>
+                    <div id="part-materials" aria-label="Material properties"></div>
+                    <details class="viewer-geometry">
+                    <summary>Selected surface geometry</summary>
                     <dl id="part-metrics" class="part-metrics"></dl>
                     <p id="metrics-empty" class="metrics-empty" hidden>
                         No additional metrics are embedded in this part.
                     </p>
+                    </details>
                 </div>
 
+                <details class="viewer-render-options">
+                    <summary>Display options</summary>
+                    <label><input type="checkbox" id="viewer-textures" checked> Material textures</label>
+                    <p id="surface-status" class="viewer-data-note">Loading IFC material data…</p>
+                    <label><input type="checkbox" id="viewer-spaces" disabled> Spaces &amp; opening volumes</label>
+                    <p id="space-count" class="viewer-data-note">IFC helper volumes are hidden initially.</p>
+                </details>
                 <div class="viewer-summary" aria-label="Model summary">
                     <h3>Model summary</h3>
                     <dl>
-                        <div><dt>Parts</dt><dd id="model-part-count">—</dd></div>
+                        <div><dt>Rendered surfaces</dt><dd id="model-part-count">—</dd></div>
                         <div><dt>Size</dt><dd id="model-size">—</dd></div>
                     </dl>
                 </div>
             </aside>
-        </div>
     </div>
 </section>
 
-<script type="module" src="{% static 'js/3d_view.js' %}?v=20261003-journey"></script>
+<script type="module" src="{% static 'js/3d_view.js' %}?v=0.5.0-3"></script>
 </div>
