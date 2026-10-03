@@ -1,0 +1,17 @@
+{% if user.is_active and user.is_staff and perms.shared.view_application_logs %}
+<section id="admin-logs-popover" class="admin-logs-popover" popover="auto" role="dialog" aria-labelledby="admin-log-heading" aria-describedby="admin-log-description" data-admin-logs data-socket-path="/ws/logs">
+    <div class="admin-logs-heading">
+        <h2 id="admin-log-heading">Live application logs</h2>
+        <button type="button" class="admin-logs-close" popovertarget="admin-logs-popover" popovertargetaction="hide" aria-label="Close live logs" autofocus>Close</button>
+    </div>
+    <p id="admin-log-description">Recent application logs from all server workers. The connection closes when you dismiss this viewer.</p>
+    <p class="admin-logs-status" role="status" aria-live="polite"><span class="admin-logs-spinner" data-log-connecting aria-hidden="true" hidden></span><span data-log-status>Open the log viewer to connect.</span></p>
+    <div class="admin-logs-controls">
+        <button type="button" data-log-pause aria-pressed="false">Pause display</button>
+        <button type="button" data-log-clear>Clear display</button>
+        <label><input type="checkbox" data-log-follow checked> Follow latest entries</label>
+    </div>
+    <pre class="admin-logs-output" data-log-output aria-label="Application logs" tabindex="0"></pre>
+    <noscript><p>Enable JavaScript to connect to the log stream.</p></noscript>
+</section>
+{% endif %}

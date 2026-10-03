@@ -1,0 +1,70 @@
+.admin-logs-popover {
+    inset: auto 1rem auto auto;
+    top: calc(var(--header-extent, 3rem) + .75rem);
+    margin: 0;
+    width: min(58rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - var(--header-extent, 3rem) - 2rem);
+    overflow: auto;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--border-low-contrast);
+    border-radius: var(--border-radius);
+    background: var(--secondary-bg);
+    color: var(--primary-color);
+    box-shadow: 0 .7rem 2.5rem #0003;
+}
+.admin-logs-popover::backdrop { background: #0001; }
+.admin-logs-heading { display: flex; gap: 1rem; align-items: center; justify-content: space-between; }
+.admin-logs-heading h2 { margin: 0; font-size: 1.25rem; }
+.admin-logs-close { flex: 0 0 auto; }
+.admin-logs-popover p { max-width: 64ch; margin: .75rem 0; }
+.admin-logs-controls { display: flex; flex-wrap: wrap; gap: .6rem .85rem; align-items: center; }
+.admin-logs-controls label { display: inline-flex; gap: .45rem; align-items: center; }
+.admin-logs-popover button {
+    border: 1px solid var(--border-low-contrast);
+    border-radius: .4rem;
+    padding: .4rem .7rem;
+    background: var(--primary-bg);
+    color: var(--primary-color);
+    font: inherit;
+    cursor: pointer;
+}
+.admin-logs-popover button:hover { background: var(--secondary-color); }
+.admin-logs-popover button:focus-visible,
+.admin-logs-controls input:focus-visible,
+.admin-logs-output:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 3px; }
+.admin-logs-output {
+    min-height: 12rem;
+    max-height: min(55dvh, 36rem);
+    margin: 1rem 0 0;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: .8rem;
+    line-height: 1.6;
+    padding: 1rem;
+    border: 1px solid var(--border-low-contrast);
+    border-radius: .5rem;
+    background: var(--primary-bg);
+    color: var(--primary-color);
+    box-shadow: none;
+}
+.admin-logs-status { display: flex; align-items: center; gap: .6rem; min-height: 1.5rem; }
+.admin-logs-spinner {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 1rem;
+    border: 2px solid var(--border-low-contrast);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: admin-logs-spin .8s linear infinite;
+}
+.admin-logs-spinner[hidden] { display: none; }
+.admin-logs-page { max-width: 60rem; margin: 0 auto; padding: clamp(1rem, 3vw, 2rem); }
+@keyframes admin-logs-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .admin-logs-spinner { animation: none; } }
+@media (max-width: 36rem) {
+    .admin-logs-popover { right: .5rem; width: calc(100vw - 1rem); }
+    .admin-logs-heading { align-items: flex-start; }
+    .admin-logs-controls label { flex-basis: 100%; }
+}

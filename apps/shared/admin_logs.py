@@ -24,7 +24,7 @@ api = BoltAPI(django_middleware=True, trailing_slash='keep')
 def log_view(request):
     if not request.user.is_active or not request.user.is_staff:
         raise PermissionDenied('Staff access required.')
-    response = render_page(request, 'shared/admin_logs.html')
+    response = render_page(request, 'shared/admin_logs.html', {'title': 'Live application logs'})
     response['Cache-Control'] = 'no-store'
     return response
 

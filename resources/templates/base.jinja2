@@ -31,7 +31,7 @@
     <script type="module" src="{% static 'js/plugin_keys.js' %}?v=20261003-journey"></script>
     <script defer src="{% static 'js/htmx-override.js' %}?v=0.8.0"></script>
     <script type="module" src="{% static 'js/task_activity.js' %}?v=0.8.0"></script>
-    <script type="module" src="{% static 'js/admin_logs.js' %}?v=20261003-journey"></script>
+    <script type="module" src="{% static 'js/admin_logs.js' %}?v=0.8.0"></script>
 
     {% if user.is_authenticated %}
         <!-- Single page application -->
@@ -56,6 +56,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}?v=0.8.0">
     <link rel="stylesheet" href="{% static 'css/journey.css' %}?v=20261003-journey">
     <link rel="stylesheet" href="{% static 'css/task_activity.css' %}?v=0.8.0">
+    <link rel="stylesheet" href="{% static 'css/admin_logs.css' %}?v=0.8.0">
 
     {# TODO: Get rid of this #}
 
@@ -116,8 +117,10 @@
 
     <div id="viewer-header-slot" class="viewer-header-slot" aria-label="3D viewer controls"></div>
 
-    {% if user.is_staff and perms.shared.view_application_logs %}<a class="menu-button" href="/admin/logs/" hx-get="/admin/logs/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Live logs</a>{% endif %}
+    {% if user.is_active and user.is_staff and perms.shared.view_application_logs %}<button type="button" class="menu-button" popovertarget="admin-logs-popover" aria-controls="admin-logs-popover" aria-haspopup="dialog">Live logs</button>{% endif %}
 </header>
+
+{% include 'shared/admin_logs_popover.html' %}
 
 <nav popover class='popover-small left-anchor' id='menu-popover' aria-label="Main navigation" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
     {# <input type="checkbox" id="toggleMode">#}
