@@ -5,16 +5,17 @@ import tempfile
 from zipfile import BadZipFile
 from functools import wraps
 from pathlib import Path
+from uuid import UUID
 
 from django.core.files.base import ContentFile
 from django.db import transaction
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.vary import vary_on_headers
 from django.contrib.auth.decorators import login_required
 
-from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument
+from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics
 from apps.shared.ifc_extractor.material_assessment import load_reference, number
 from .forms import UploadForm, ConfigUploadForm, CalculationConfigForm
 from .passport_views import _enabled
@@ -223,8 +224,103 @@ def delete_model(request, pk):
 @require_http_methods(['GET'])
 def viewer(request, pk):
     upload = get_object_or_404(FileUpload, pk=pk, user=request.user)
+    assessment, report, options = viewer_assessment_selection(request, upload)
+    from django.urls import reverse
+    metadata_url = reverse('bim:viewer_materials', args=[upload.pk])
+    if assessment['id']:
+        metadata_url += '?assessment=' + assessment['id']
     return page(request, 'bim/viewer.html', {'title': '3D model viewer',
-                'document': upload, 'upload_id': str(upload.pk), 'selected_element':request.GET.get('element','')})
+                'document': upload, 'upload_id': str(upload.pk), 'selected_element':request.GET.get('element',''),
+                'metadata_url': metadata_url, 'assessment_options': options,
+                'selected_assessment': assessment['id'], 'assessment_status': assessment['status'],
+                'assessment_notice': assessment['notice']})
+
+
+def viewer_assessment_selection(request, upload):
+    """Choose only an explicit owned report or the sole unambiguous report.
+
+    Document and metrics IDs are UUIDs, so ordering them does not identify the
+    newest calculation. Multiple reports require the visitor's selection.
+    """
+    # Full reports can contain tens of megabytes of inventory. List IDs first,
+    # then load only the chosen report; UUID order is display order only.
+    metrics = list(BuildingMetrics.objects.filter(project__user=request.user,
+        project__upload=upload).exclude(assessment_report={})
+        .values('pk', 'project_id', 'project__description').order_by('project__description', 'project_id'))
+    reports = {}
+    duplicate_documents = set()
+    for metric in metrics:
+        identifier = str(metric['project_id'])
+        if identifier in reports:
+            duplicate_documents.add(identifier)
+        reports[identifier] = metric
+    for identifier in duplicate_documents:
+        reports.pop(identifier)
+    options = [{'id': identifier, 'label': f'{metric["project__description"] or "Assessment"} · {identifier[:8]}'}
+               for identifier, metric in reports.items()]
+    requested = request.GET.get('assessment', '')
+    if requested:
+        try:
+            requested = str(UUID(requested))
+        except (ValueError, TypeError, AttributeError):
+            raise Http404('Invalid assessment identifier.')
+        # Resolve ownership even if the report is unavailable or duplicated.
+        get_object_or_404(CadevilDocument, pk=requested, user=request.user, upload=upload)
+        metric = reports.get(requested)
+        if metric is None:
+            return {'status': 'unavailable', 'id': requested, 'label': 'Assessment',
+                    'notice': 'This assessment has no unambiguous saved material report.'}, None, options
+    elif len(reports) == 1 and not duplicate_documents:
+        requested, metric = next(iter(reports.items()))
+    else:
+        status = 'choose' if reports or duplicate_documents else 'none'
+        notice = ('Choose a saved assessment to inspect its material calculations.' if status == 'choose'
+                  else 'IFC properties are available. Calculate a material passport to add quantities, impacts and costs.')
+        return {'status': status, 'id': '', 'label': '', 'notice': notice}, None, options
+    metric = BuildingMetrics.objects.select_related('project').get(pk=metric['pk'],
+        project__user=request.user, project__upload=upload)
+    report = metric.assessment_report
+    if not isinstance(report, dict) or not report:
+        return {'status': 'unavailable', 'id': requested, 'label': metric.project.description or 'Assessment',
+                'notice': 'This assessment has no readable saved material report.'}, None, options
+    return {'status': 'selected', 'id': requested, 'label': metric.project.description or 'Assessment',
+            'complete': bool(report.get('complete')), 'options': report.get('options', {}),
+            'notice': 'Values come from the selected saved assessment; incomplete quantities remain unavailable.',
+            'provenance': {key: value for key, value in report.get('provenance', {}).items()
+                           if key in ('ifc_sha256', 'reference_filename', 'reference_file_sha256', 'configuration_sha256')}}, report, options
+
+
+@bim_page
+@require_http_methods(['GET'])
+def viewer_materials(request, pk):
+    from django.conf import settings
+    from apps.shared.viewer_materials import source_materials, attach_assessment, IFC_GUID
+    from ifcopenshell import Error as IfcError
+    upload = get_object_or_404(FileUpload, pk=pk, user=request.user)
+    assessment, report, options = viewer_assessment_selection(request, upload)
+    element_id = request.GET.get('element', '')
+    if element_id and not IFC_GUID.fullmatch(element_id):
+        raise Http404('Invalid IFC element identifier.')
+    try:
+        data = source_materials(upload.document.path, Path(settings.MEDIA_ROOT) / 'bim-viewer-cache',
+                                element_id=element_id or None)
+    except (ValueError, RuntimeError, OSError, IfcError):
+        return JsonResponse({'error': 'The IFC material properties could not be read.',
+                             'elements': {}, 'assessment': assessment, 'assessment_options': options}, status=422)
+    if element_id and element_id not in data['elements']:
+        raise Http404('The IFC element is not part of this model.')
+    if report:
+        recorded_hash = report.get('provenance', {}).get('ifc_sha256')
+        if not recorded_hash:
+            assessment.update(status='unverified', notice='This saved assessment has no source fingerprint. IFC properties remain available; calculate a new passport to verify material values.')
+        elif recorded_hash != data['source']['sha256']:
+            assessment.update(status='source_mismatch', notice='The IFC source differs from the selected assessment. Recalculate the passport to show matching material values.')
+        elif element_id:
+            data = attach_assessment(data, report)
+    data.update(assessment=assessment, assessment_options=options)
+    response = JsonResponse(data)
+    response['Cache-Control'] = 'private, no-store'
+    return response
 
 
 @bim_page

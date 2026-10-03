@@ -73,6 +73,12 @@ def model_geometry(request: Request):
     return pages.stream_model(request, object_id(request))
 
 
+@api.get('/plugins/bim/models/{pk}/materials/', name='viewer_materials', guards=[AllowAny()])
+@page_endpoint
+def viewer_materials(request: Request):
+    return pages.viewer_materials(request, object_id(request))
+
+
 @api.post('/plugins/bim/models/{pk}/delete/', name='delete_model', guards=[AllowAny()])
 @page_endpoint
 def delete_model(request: Request):
