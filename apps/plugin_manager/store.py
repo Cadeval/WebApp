@@ -38,21 +38,23 @@ def catalog_entry(record, selected=False):
             'selected': selected, 'available': selectable_plugin(record), 'is_workflow': is_workflow_plugin(record)}
 
 
-def catalog_response(request, *, manager=False, form=None, notice='', reload_summary='', status=200):
+def catalog_response(request, *, manager=True, form=None, notice='', reload_summary='', status=200):
     query=request.GET.get('q','').strip()[:200]
     selected = set(UserPluginSelection.objects.filter(user=request.user).values_list('plugin_id', flat=True))
     catalog=[]
+    selected_catalog=[]
+    available_catalog=[]
     records = PluginRecord.objects.select_related('signing_key__owner')
-    if not manager:
-        records = records.filter(pk__in=selected)
     for record in records:
         item = catalog_entry(record, record.pk in selected)
-        if not manager and not item['is_workflow']: continue
-        if manager and not request.user.is_staff and not item['available']: continue
+        if not request.user.is_staff and not item['available'] and not (item['selected'] and item['is_workflow']): continue
         if query and query.casefold() not in (' '.join([record.plugin_id, record.name, item['description']])).casefold(): continue
         catalog.append(item)
-    response=render_page(request,'plugin_manager/plugins.jinja2' if manager else 'plugin_manager/store.html',
+        if item['is_workflow'] and item['selected']: selected_catalog.append(item)
+        elif item['is_workflow'] and item['available']: available_catalog.append(item)
+    response=render_page(request,'plugin_manager/plugins.jinja2',
                          {'catalog':catalog, 'records':[item['record'] for item in catalog], 'query':query,
+                          'selected_catalog':selected_catalog, 'available_catalog':available_catalog,
                           'notice':notice, 'reload_summary':reload_summary, 'upload_form':form or PluginUploadForm()}, status=status)
     if request.method=='POST': response['HX-Push-Url']='false'
     return response
@@ -68,7 +70,12 @@ def plugin_catalog(request):
 
 
 @login_required(login_url='/mycelium/login')
-def plugin_store(request): return store_response(request)
+def plugin_store(request):
+    if request.headers.get('HX-Request') == 'true':
+        response = catalog_response(request)
+        response['HX-Replace-Url'] = reverse('plugin_manager:plugin_list')
+        return response
+    return redirect('plugin_manager:plugin_list')
 
 
 @login_required(login_url='/mycelium/login')
@@ -91,7 +98,7 @@ def store_upload(request):
 def store_action(request,plugin_id,action):
     if action not in {'enable','disable'}: raise Http404('Unknown plugin store action.')
     record = get_object_or_404(PluginRecord.objects.select_related('signing_key'),plugin_id=plugin_id)
-    manager = request.POST.get('return_to') == 'manager'
+    manager = True
     if action == 'enable':
         if not selectable_plugin(record):
             return catalog_response(request,manager=manager,notice='This plugin is unavailable for personal workflows. An administrator must approve it for this environment.',status=409)
@@ -99,7 +106,7 @@ def store_action(request,plugin_id,action):
     else:
         UserPluginSelection.objects.filter(user=request.user,plugin=record).delete()
     if request.headers.get('HX-Request')!='true':
-        return redirect('plugin_manager:plugin_list' if manager else 'plugin_manager:plugin_store')
+        return redirect('plugin_manager:plugin_list')
     return catalog_response(request,manager=manager,notice='Plugin enabled for your workflow.' if action=='enable' else 'Plugin removed from your workflow.')
 
 

@@ -29,11 +29,11 @@ def _toggle(request: HttpRequest, plugin_id: str, enabled: bool) -> HttpResponse
         manage_plugin(plugin_id, "load" if enabled else "unload")
     except PluginActivationError:
         record.refresh_from_db()
-        response = render(request, "plugin_manager/_plugin_row.jinja2", _row_context(request, record), status=409)
+        response = catalog_response(request, manager=True, notice='This plugin is unavailable. Review its status below before enabling it.', status=409)
         response["HX-Push-Url"] = "false"
         return response
     record.refresh_from_db()
-    response = render(request, "plugin_manager/_plugin_toggle.jinja2", _row_context(request, record))
+    response = catalog_response(request, manager=True, notice='Site availability updated. Personal selections were preserved.')
     response["HX-Push-Url"] = "false"
     return response
 

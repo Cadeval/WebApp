@@ -25,9 +25,12 @@ class PluginMenuTests(TestCase):
         self.assertContains(home,'hx-get="'+self.url+'"')
         full=self.client.get(self.url)
         self.assertContains(full,'<html')
+        self.assertContains(full,'<h1 id="plugins-title">Plugins</h1>')
         self.assertContains(full,'id="content-container"',count=1)
         fragment=self.client.get(self.url,HTTP_HX_REQUEST='true')
         self.assertContains(fragment,'Menu Test')
+        self.assertContains(fragment,'My workflow')
+        self.assertContains(fragment,'Available tools')
         self.assertNotContains(fragment,'<html')
         self.assertContains(fragment,'id="content-container"',count=1)
 

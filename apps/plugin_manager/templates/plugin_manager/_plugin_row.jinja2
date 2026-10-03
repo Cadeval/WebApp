@@ -10,14 +10,14 @@
     <td class="plugin-error-cell">{% if record.has_error %}<span>{{ record.error }}</span>{% else %}<span aria-hidden="true">—</span>{% endif %}</td>
     <td class="plugin-actions">
         <div class="plugin-global-actions">
-            {% if record.enabled %}<button type="button" class="button plugin-action-button fa fa-toggle-off" hx-post="{% url 'plugin_manager:plugin_disable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="closest tr" hx-swap="outerHTML" hx-disabled-elt="this">Disable globally</button>
-            {% elif not record.has_error and record.environment_compatible %}<button type="button" class="button plugin-action-button fa fa-toggle-on" hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="closest tr" hx-swap="outerHTML" hx-disabled-elt="this">Enable globally</button>
+            {% if record.enabled %}<button type="button" class="button plugin-action-button fa fa-toggle-off" hx-post="{% url 'plugin_manager:plugin_disable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Disable globally</button>
+            {% elif not record.has_error and record.environment_compatible %}<button type="button" class="button plugin-action-button fa fa-toggle-on" hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Enable globally</button>
             {% else %}<span class="plugin-action-unavailable">Unavailable</span>{% endif %}
             {% if record.artifact_type == 'zip' %}<a href="{% url 'plugin_manager:plugin_package_download' record.plugin_id %}" hx-boost="false">Review package</a>{% endif %}
         </div>
         {% if is_workflow %}
-            {% if selected %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disabled-elt="this">Remove from my store</button></form>
-            {% elif available %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disabled-elt="this">Add to my store</button></form>{% endif %}
+            {% if selected %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disable="this">Remove from workflow</button></form>
+            {% elif available %}<form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disable="this">Add to workflow</button></form>{% endif %}
         {% endif %}
     </td>
 </tr>

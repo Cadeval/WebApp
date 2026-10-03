@@ -4,7 +4,7 @@
     <div class="plugin-store-heading">
         <span class="viewer-eyebrow">Your workflow tool</span>
         <h1 id="plugin-workflow-title">{{ record.name|default:record.plugin_id }}</h1>
-        <p><a href="{% url 'plugin_manager:plugin_store' %}" hx-get="{% url 'plugin_manager:plugin_store' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to Plugin Store</a></p>
+        <p><a href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to Plugins</a></p>
     </div>
     {% include 'plugin_manager/editor_panels.html' %}
 </section>

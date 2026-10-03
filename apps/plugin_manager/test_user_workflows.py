@@ -15,6 +15,7 @@ from .registry import EditorPlugin, NavItem, PluginRegistry
 from .services import create_uploaded_plugin
 from . import tests as existing_tests
 from .workflows import selected_plugin_ids, selectable_plugin, workflow_plugin_enabled
+from .test_store import catalog_section
 
 
 @override_settings(STATIC_URL="/static/", DEBUG=True)
@@ -109,17 +110,23 @@ class UserPluginWorkflowTests(TestCase):
         self.login(self.regular)
         self.assertContains(self.client.get("/plugins/manage/"), self.available.name)
         self.assertContains(self.client.get("/plugins/manage/"), self.second.name)
-        store = self.client.get("/plugins/store/")
-        self.assertNotContains(store, self.available.name)
-        self.assertNotContains(store, self.second.name)
+        store = self.client.get("/plugins/manage/")
+        self.assertNotIn(self.available.name, catalog_section(store, 'my-workflow-title'))
+        self.assertNotIn(self.second.name, catalog_section(store, 'my-workflow-title'))
+        self.assertIn(self.available.name, catalog_section(store, 'available-tools-title'))
+        self.assertIn(self.second.name, catalog_section(store, 'available-tools-title'))
         self.assertEqual(self.action(self.available).status_code, 200)
-        store = self.client.get("/plugins/store/")
-        self.assertContains(store, self.available.name)
-        self.assertNotContains(store, self.second.name)
+        store = self.client.get("/plugins/manage/")
+        self.assertIn(self.available.name, catalog_section(store, 'my-workflow-title'))
+        self.assertNotIn(self.second.name, catalog_section(store, 'my-workflow-title'))
+        self.assertNotIn(self.available.name, catalog_section(store, 'available-tools-title'))
+        self.assertIn(self.second.name, catalog_section(store, 'available-tools-title'))
         self.login(self.other)
-        store = self.client.get("/plugins/store/")
-        self.assertContains(store, self.second.name)
-        self.assertNotContains(store, self.available.name)
+        store = self.client.get("/plugins/manage/")
+        self.assertIn(self.second.name, catalog_section(store, 'my-workflow-title'))
+        self.assertNotIn(self.available.name, catalog_section(store, 'my-workflow-title'))
+        self.assertNotIn(self.second.name, catalog_section(store, 'available-tools-title'))
+        self.assertIn(self.available.name, catalog_section(store, 'available-tools-title'))
 
     def test_regular_manager_has_only_available_tools_and_staff_sees_global_controls(self):
         unavailable = [
@@ -143,14 +150,20 @@ class UserPluginWorkflowTests(TestCase):
     def test_manager_and_store_keep_full_and_htmx_boundaries(self):
         self.login(self.regular)
         self.select(self.regular, self.available)
-        for route in ("/plugins/manage/", "/plugins/store/"):
+        full = self.client.get('/plugins/manage/')
+        self.assertContains(full, "<html")
+        self.assertContains(full, 'id="content-container"', count=1)
+        legacy = self.client.get('/plugins/store/')
+        self.assertEqual(legacy.status_code, 302)
+        self.assertEqual(legacy.url, '/plugins/manage/')
+        for route in ('/plugins/manage/', '/plugins/store/'):
             with self.subTest(route=route):
-                full = self.client.get(route)
-                self.assertContains(full, "<html")
-                self.assertContains(full, 'id="content-container"', count=1)
                 fragment = self.client.get(route, HTTP_HX_REQUEST="true")
                 self.assertNotContains(fragment, "<html")
                 self.assertContains(fragment, 'id="content-container"', count=1)
+                self.assertIn(self.available.name, catalog_section(fragment, 'my-workflow-title'))
+                if route == '/plugins/store/':
+                    self.assertEqual(fragment['HX-Replace-Url'], '/plugins/manage/')
 
     def test_regular_users_cannot_change_global_state(self):
         self.login(self.regular)

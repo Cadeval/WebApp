@@ -34,6 +34,15 @@ def package(manifest=None, extra=None, *, compression=0):
     return stream.getvalue()
 
 
+def catalog_section(response, heading_id):
+    """Inspect a collection independently of the rest of the shared catalog."""
+    marker = f'<section aria-labelledby="{heading_id}">'
+    html = response.content.decode()
+    if marker not in html:
+        raise AssertionError(f'The catalog section {heading_id} is missing.')
+    return html.split(marker, 1)[1].split('</section>', 1)[0]
+
+
 class PackageValidationTests(SimpleTestCase):
     def test_valid_worker_package_and_nested_modules(self):
         result=validate_package(package())
@@ -91,21 +100,29 @@ class PluginStoreTests(TestCase):
 
     def test_store_page_full_fragment_search_and_user_permissions(self):
         record=PluginRecord.objects.create(plugin_id='catalog.example',name='Searchable tool',enabled=True)
-        self.assertContains(self.client.get('/plugins/manage/'),'Searchable tool')
-        self.assertNotContains(self.client.get('/plugins/store/'),'Searchable tool')
+        catalog=self.client.get('/plugins/manage/')
+        self.assertContains(catalog,'<h1 id="plugins-title">Plugins</h1>')
+        self.assertIn(record.name,catalog_section(catalog,'available-tools-title'))
+        self.assertNotIn(record.name,catalog_section(catalog,'my-workflow-title'))
+        legacy=self.client.get('/plugins/store/')
+        self.assertEqual(legacy.status_code,302);self.assertEqual(legacy.url,'/plugins/manage/')
         UserPluginSelection.objects.create(user=self.staff,plugin=record)
-        self.assertContains(self.client.get('/plugins/store/'),'Plugin Store')
+        catalog=self.client.get('/plugins/manage/')
+        self.assertIn(record.name,catalog_section(catalog,'my-workflow-title'))
+        self.assertNotIn(record.name,catalog_section(catalog,'available-tools-title'))
         fragment=self.client.get('/plugins/store/',HTTP_HX_REQUEST='true')
         self.assertNotContains(fragment,'<html');self.assertContains(fragment,'id="content-container"',count=1)
-        self.assertContains(self.client.get('/plugins/store/',{'q':'Searchable'}),'Searchable tool')
-        self.assertNotContains(self.client.get('/plugins/store/',{'q':'Missing'}),'Searchable tool')
+        self.assertEqual(fragment['HX-Replace-Url'],'/plugins/manage/')
+        self.assertContains(self.client.get('/plugins/manage/',{'q':'Searchable'}),'Searchable tool')
+        self.assertNotContains(self.client.get('/plugins/manage/',{'q':'Missing'}),'Searchable tool')
         self.client.logout();self.client.force_login(self.regular)
-        self.assertContains(self.client.get('/plugins/manage/'),'Searchable tool')
-        self.assertNotContains(self.client.get('/plugins/store/'),'Searchable tool')
+        catalog=self.client.get('/plugins/manage/')
+        self.assertIn(record.name,catalog_section(catalog,'available-tools-title'))
+        self.assertNotIn(record.name,catalog_section(catalog,'my-workflow-title'))
         self.assertContains(self.client.get('/plugins/manage/'),'Signed plugin package')
         self.assertEqual(self.upload_zip().status_code,403)
         self.assertEqual(self.client.post('/plugins/store/catalog.example/enable/',HTTP_HX_REQUEST='true').status_code,200)
-        self.assertContains(self.client.get('/plugins/store/'),'Searchable tool')
+        self.assertIn(record.name,catalog_section(self.client.get('/plugins/manage/'),'my-workflow-title'))
         self.client.logout();self.assertEqual(self.client.get('/plugins/store/').status_code,302)
 
     def test_archive_only_form_and_raw_file_rejection_on_both_upload_routes(self):
@@ -115,7 +132,8 @@ class PluginStoreTests(TestCase):
         self.assertNotContains(response,'name="plugin_id"')
         self.assertNotContains(response,'name="name"')
         self.assertContains(response,'Signed plugin package')
-        self.assertNotContains(self.client.get('/plugins/store/'),'name="artifact"')
+        self.assertContains(response,'name="artifact"')
+        self.assertEqual(self.client.get('/plugins/store/').url,'/plugins/manage/')
         for route in ['/plugins/store/upload/','/plugins/upload/']:
             for filename,content,mime in [('worker.js',JS,'text/javascript'),('worker.mjs',JS,'text/javascript'),('calculator.wasm',b'\x00asm\x01\x00\x00\x00','application/wasm')]:
                 response=self.client.post(route,{'artifact':SimpleUploadedFile(filename,content,content_type=mime)},HTTP_HX_REQUEST='true')
