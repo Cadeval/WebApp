@@ -20,3 +20,10 @@ enabled = true
 enabled_tools = ["git_status", "git_diff_unstaged", "git_diff_staged", "git_diff", "git_log", "git_show", "git_branch"]
 startup_timeout_sec = 30
 
+
+[mcp_servers.cadevil_ui_ux]
+# Debug-only static UI/UX audits, managed by the Cadevil plugin supervisor.
+url = "http://127.0.0.1:8019/mcp/"
+enabled = true
+enabled_tools = ["uiux_audit_local", "uiux_guidance"]
+startup_timeout_sec = 30

@@ -242,6 +242,7 @@ PLUGIN_BUILTINS: dict[str, str] = {
     "cadevil.mcp.context7": "development_mcp:context7_manifest",
     "cadevil.mcp.git": "development_mcp:git_manifest",
     "cadevil.mcp.native": "development_mcp:native_manifest",
+    "cadevil.mcp.ui_ux": "development_mcp:ui_ux_manifest",
 }
 
 # =======================

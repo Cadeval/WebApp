@@ -5,7 +5,7 @@ they do not participate in personal browser workflows.
 """
 from .models import PluginRecord, UserPluginSelection
 
-DEVELOPMENT_TOOLS = {"cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.native"}
+DEVELOPMENT_TOOLS = {"cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.native", "cadevil.mcp.ui_ux"}
 
 
 def is_workflow_plugin(record):

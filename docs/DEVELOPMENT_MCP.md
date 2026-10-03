@@ -65,3 +65,15 @@ Set `CADEVIL_MCP_TOOL_ROOT` to relocate the downloaded tool directory. Developme
 Python manifests and signed browser `plugin.json` files can declare `compatibility` as `debug`, `production`, or `both`. The field defaults to `both` for existing packages. Labels are visible in Plugin Manager and Plugin Store, and are derived from manifests rather than editable form fields.
 
 All three MCP plugins are **Debug only**. The BIM workspace, Rust IFC editor, and Rust Snake plugins are **Debug and production**. Production-only plugins are supported through the same contract. Incompatible plugins cannot be enabled, their registration hooks/contributions are skipped, and protected plugin pages/assets reject access. Stored enabled preferences survive switching environments; effective availability also requires compatibility.
+
+## Local UI/UX audits
+
+`cadevil.mcp.ui_ux` uses [UI/UX Suite](https://github.com/Aboudjem/ui-ux-suite), pinned to `0.6.1`. It is a community MIT project. The supervisor starts a bounded wrapper on `http://127.0.0.1:8019/mcp/` during `make debug`. It exposes only `uiux_audit_local` and `uiux_guidance`; source paths, browser/deep modes, URLs and output locations are not accepted. The frontend snapshot excludes symlinks, server code, uploads and credentials. Static findings require verification against rendered pages.
+
+Install the locked development runtime (one package, no browser peers or install scripts):
+
+```sh
+npm ci --prefix /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/ui-ux-suite --ignore-scripts --omit=optional --legacy-peer-deps
+```
+
+The project Codex config includes the two read tools. Existing Codex sessions may need a reconnect to discover newly configured servers. The plugin remains excluded from user workflows and cannot start with `DEBUG=False`.
