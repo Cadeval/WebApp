@@ -18,7 +18,6 @@ Project `.codex/config.toml` enables:
 - `context7`: locally downloaded, pinned `@upstash/context7-mcp` 4.1.1, with public library documentation lookup tools. Runtime is stored at `/Users/mia/Documents/ChatGPT/CadEval/mcp_tools/context7`. No API key is configured. The debug plugin launches its stdio subprocess and exposes its allowlisted tools at `http://127.0.0.1:8017/mcp/`.
 - `gitolite_repository`: downloaded official `mcp-server-git` 2026.8.18 for the existing local checkout; only status, diffs, log, show and branch listing are enabled. Remote configuration and SSH credentials are unchanged. The debug plugin launches its stdio subprocess behind `http://127.0.0.1:8018/mcp/`. Write tools are filtered by the adapter itself, as well as by Codex configuration.
 - `cadevil_development`: native localhost endpoint, exposing only the two tools above. The development server must be running.
-- `cadevil_docker`: the plugin-managed Docker inspection adapter at `http://127.0.0.1:8022/mcp/`, with the four read tools described below.
 
 The configuration is also installed in the current CadEval workspace so chats started there can discover the same tools. Existing global servers are preserved. Codex loads project MCP configuration for trusted projects; restart/reload the MCP connection or begin a new session to discover newly configured tools. Configuration does not inject tools into an already-running turn.
 
@@ -112,4 +111,4 @@ uv venv /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/.venv --python 3.1
 uv pip sync --python /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/.venv/bin/python --require-hashes --only-binary :all: /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/requirements.lock
 ```
 
-The locked runtime contains 37 packages, including MCP SDK 2.3.0 and Docker SDK 7.2.0. The adapter invokes the provider's reviewed list handlers without starting its unrestricted upstream MCP application. The generic loopback bridge retains its own existing SDK runtime and passes the existing SSH-agent socket only to this Docker subprocess. Subprocess initialization/tool discovery and project-scoped reads were verified against both the local socket and the configured SSH Engine; the checks did not change Docker resources.
+The locked runtime contains 37 packages, including MCP SDK 2.3.0 and Docker SDK 7.2.0. The adapter invokes the provider's reviewed list handlers without starting its unrestricted upstream MCP application. The generic loopback bridge retains its own existing SDK runtime. Subprocess initialization/tool discovery and project-scoped reads were verified against both the local socket and the configured SSH Engine; the checks did not change Docker resources.

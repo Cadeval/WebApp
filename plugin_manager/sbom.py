@@ -37,6 +37,11 @@ RUST_PLUGINS = {
     "cadevil.example.editor": ("example_plugin", "example-plugin-builder"),
     "cadevil.rust-example.editor": ("rust_example_plugin", "rust_example_plugin"),
 }
+BROWSER_TRUST_ASSETS = (
+    "resources/static/js/vendor/browser_pki.js", "resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+    "resources/static/js/plugin_verification.js", "resources/static/js/verified_plugin_worker.js",
+    "resources/static/js/plugin_worker_bootstrap.js",
+)
 DEVELOPMENT_ENVIRONMENTS = {
     "cadevil.mcp.context7": "cadevil-context7-environment",
     "cadevil.mcp.git": "cadevil-git-mcp-environment",
@@ -237,7 +242,16 @@ def _builtin_inventory(record):
             raise InventoryUnavailable("The compiled plugin's inventory evidence is unavailable.") from error
         if expected != actual:
             raise InventoryUnavailable("The compiled plugin changed after its SBOM was generated. Regenerate the application SBOM.")
-        scope = "Bundled Cargo dependency closure and tracked WASM hash. Rust standard library, compiler and source-to-binary equivalence are not attested."
+        for filename in BROWSER_TRUST_ASSETS:
+            try:
+                component = next(value for value in document["components"] if value["name"] == filename)
+                expected = next(value["content"] for value in component["hashes"] if value["alg"] == "SHA-256")
+                if hashlib.sha256((ROOT / filename).read_bytes()).hexdigest() != expected:
+                    raise InventoryUnavailable("The shared browser trust assets changed after their SBOM was generated.")
+            except (OSError, KeyError, StopIteration) as error:
+                raise InventoryUnavailable("The shared browser trust inventory evidence is unavailable.") from error
+            roots.append(component["bom-ref"])
+        scope = "Bundled Cargo dependency closure, tracked WASM hash and shared browser certificate/parser dependencies. Rust standard library, compiler, source-to-binary equivalence and individually tree-shaken parser modules are not attested."
         return _project(record, document, roots, source_digest, scope), scope, "Audited Cargo and WASM inventory"
     if record.plugin_id == "cadevil.bim.model_manager":
         scope = "Shared application runtime used by the BIM workspace. Includes host components shared with other pages; not a plugin-exclusive dependency audit. OS packages, native libraries and CDN response bytes are outside this inventory."

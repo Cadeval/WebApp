@@ -2,9 +2,9 @@
 
 Cadevil is an open-source building assessment platform for architects and engineers, developed from a master's thesis project. It connects IFC geometry with material quantities, environmental impacts, material passports and recovery costs in EUR. Users choose signed workflow plugins for their own workspace.
 
-The landing page `/` explains the platform and links to the public `/demo`, which presents recorded results and provisional estimates for the A–D house geometry. Django sessions and Django-Bolt serve full pages, HTMX fragments, background job status and the admin log WebSocket.
+The unauthenticated landing page `/` starts with a link to the public `/demo`, followed by an expanded overview of the platform, Mycelium and its installed tools. Plugins own their overview templates and register them through the plugin manager. These public descriptions come from installed, production-compatible source plugins; catalog approval and personal workflow selection still determine which tools a user can open. Signed-in users see their personal workflow instead of the public overview. The demo presents recorded results and provisional estimates for the A–D house geometry. Django sessions and Django-Bolt serve full pages, HTMX fragments, background job status and the admin log WebSocket.
 
-Release 0.16.0 ships BIM Workspace 2.0.2 and IFC Editor 2.0.3. Mycelium ships with the application and has no separate distribution version.
+Release 0.16.0 ships BIM Workspace 2.0.3, IFC Editor 2.0.4 and Snake 2.0.1. Mycelium ships with the application and has no separate distribution version.
 
 ## Local setup
 
@@ -51,7 +51,7 @@ Independent OpenStudio/EnergyPlus helpers remain available under `plugins/bim_mo
 
 Mycelium connects Cadevil's workflow tools through plugin manifests, registration hooks and a shared catalog. Administrators control site availability; users choose which approved, compatible plugins appear in their personal workspace. It currently ships with Cadevil, with its implementation in `plugin_manager/` and its host pages in `mycelium/`.
 
-Trusted Python plugins are installed on the server and discovered through configured bundled manifests or `cadevil.plugins` entry points. They can own Django models, migrations, templates and assets. Uploaded packages contain signed JavaScript/WASM browser workers; users sign their archives locally before submitting them for administrator review.
+Trusted Python plugins are installed on the server and discovered through configured bundled manifests or `cadevil.plugins` entry points. They can own Django models, migrations, templates and assets, including registered descriptions for the guest landing page. Uploaded packages contain signed JavaScript/WASM browser workers; users sign their archives locally before submitting them for administrator review. Browser archives do not contribute server-rendered landing templates.
 
 Resource declarations use a framework-independent registry. A separate Django adapter connects installed plugins to Django's application loading mechanism. Broader framework independence remains a future goal: the current catalog and workflow implementation still use Django. See [plugin resource registration](docs/PLUGIN_RESOURCES.md) for the registration contract and adapter.
 
@@ -65,7 +65,11 @@ Each catalog entry links to its SBOM view and JSON download. The view identifies
 the inventory's origin and coverage, including signed publisher evidence or a
 file-only inventory when dependency evidence is unavailable.
 
-Generate and register an Ed25519 signing key in **User settings → Security**. Private keys are created in the browser. Download the signing CLI, sign your package locally, and upload a ZIP, TAR, tar.gz or tar.xz containing `plugin.json`, its declared assets and signature. Standalone JS/WASM uploads are unsupported. Approved JavaScript runs in a restricted module worker; WASM uses no host imports. Trusted installed Python plugins use the `cadevil.plugins` entry-point contract. See [external repository design](docs/external-plugin-repositories.md) for the proposed admin-managed remote catalog.
+Generate and register an Ed25519 signing key in **User settings → Security**. The browser encrypts the private key with your passphrase and downloads it; only the public key reaches the server. The server issues its X.509 code-signing certificate. Download the signing CLI, sign your package locally, and upload a ZIP, TAR, tar.gz or tar.xz containing `plugin.json`, its declared assets and signature. The CLI asks for the passphrase locally. Keep the encrypted key file and passphrase: the server cannot recover them. Standalone JS/WASM uploads are unsupported.
+
+Teams have member and manager roles, scoped management permissions and public signing keys available from **User settings → Teams**. Members can publish packages with a team key's valid certificate; the encrypted private key stays with its designated signer. Removing a member or archiving a team revokes affected keys and disables their packages. Security settings support certificate downloads, renewal and key revocation. Renewed certificate JSON can be passed to the CLI with `--certificate` while retaining the existing encrypted private key.
+
+Approved JavaScript runs in a restricted module worker; WASM uses no host imports. Before starting a worker, the browser verifies its signed bytes, certificate chain, publisher scope and fresh signed revocation evidence. Bundled browser workers use the server's code-signing certificate too. Operators initialize the private CA explicitly and set `PLUGIN_CA_PUBLIC_URL` to the deployment's HTTPS origin before issuing certificates; see [deployment and CA setup](docs/COMPOSE.md). Trusted installed Python plugins use the `cadevil.plugins` entry-point contract. See [external repository design](docs/external-plugin-repositories.md) for the proposed admin-managed remote catalog.
 
 The bundled IFC editor changes local IFC STEP properties and downloads a new file; upload that file again to generate geometry. The bundled Snake plugin is also a dedicated Rust worker. After editing Rust source, build a fresh wheel containing the compiled workers:
 

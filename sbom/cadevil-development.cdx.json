@@ -3,6 +3,20 @@
   "bomFormat": "CycloneDX",
   "components": [
     {
+      "bom-ref": "pkg:generic/cadevil-browser-pki-build-environment@snapshot",
+      "name": "cadevil-browser-pki-build-environment",
+      "scope": "optional",
+      "type": "application",
+      "version": "snapshot"
+    },
+    {
+      "bom-ref": "pkg:generic/cadevil-browser-test-environment@0.16.0",
+      "name": "cadevil-browser-test-environment",
+      "scope": "optional",
+      "type": "application",
+      "version": "0.16.0"
+    },
+    {
       "bom-ref": "pkg:generic/cadevil-code-audit-environment@snapshot",
       "name": "cadevil-code-audit-environment",
       "properties": [
@@ -131,6 +145,916 @@
       "scope": "optional",
       "type": "data",
       "version": "a84ff9cc2453ca91d581380de4b8b3f272f6f4be"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/aix-ppc64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "5c4c5c3be76f2cabd5b4d4e26d24c17a3d4d0806da1a15a7f56c3564fc7cd2ab1a8613c57bff238163f421c84d7b41771f0914ee7f1e8e11fc6e3a27aa1b7c99"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/aix-ppc64/-/aix-ppc64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/aix-ppc64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/aix-ppc64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/android-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "e587ca79e23ca967c16485febb6c590b76656f73acfe02d2dac6c428cf88e1939cb169874b658bcac09c4190c0151b250d45393a2ab8e207fa3d8375bc6c06e4"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/android-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/android-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/android-arm@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "9175e888f55519072721818e79aa2fc0e511a678830694aae00d37aa443e04c42ab461ba1d86a9df19def42d4ed72a384d1deac65097e48aaa997e9f168d8baa"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/android-arm",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/android-arm@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/android-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3b7f3b8ad7bb4b353209ccb72505f83f86cbb4403b6cb2e4c7e7acbdee491e7c987cd4f1715a57668f6385d07495328de38833b442d3754ee74bc36bd7a16cd5"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/android-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/android-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/darwin-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "9f82aa90e42badac4725c82333546fc1b8a07d028828956933bc69f8ab318b2512ad17485e7b7bdd586b3c0c747d5e388607e62152a3c4c37d275b798f249593"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/darwin-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/darwin-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/darwin-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "baaeacb885983f7eeacc675d04a3f0e501103e2e8788b1ac3bb5269297f2698350dc3fab37ac3a59fc07fa7baa7065d6bdac06c31384ae83b86069c587de5acf"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/darwin-x64/-/darwin-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/darwin-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/darwin-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/freebsd-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "9fe234053491228cbe77a44f2a7115c2a979530049a25cadbd8e2600e204268aca96a80f208f22c7ab25555adf6794e78fb825219be5a3295b07f1093cc5845f"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/freebsd-arm64/-/freebsd-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/freebsd-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/freebsd-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/freebsd-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "efc5c94c992f3ecd24cf6c3ad77d353c98d797883bab726a898319fccff2548ef710706b0914e0921bbda2a1bbbcfaaaf9aff269d116f1a0fe6a02a5939c6b9a"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/freebsd-x64/-/freebsd-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/freebsd-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/freebsd-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "a56e000b43f78adf1cedda3d315338a79d45cc7cdd33f4d9adeaeeae045c1c9d964dad55435088ab5f319dc7e9049c38a23922659aca5b6c8805604ff768fa52"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-arm64/-/linux-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-arm@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "5e50e7bb6ab9ca8a9e9acfb16b2eb0480720f430c3ecaf512ca64404e3199b7724369241bce5f6d2d49f6f2f0a7ebae120d0f2bfd57661564a63f4a9a06248f3"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-arm/-/linux-arm-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-arm",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-arm@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-ia32@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "0986e78fbf07b08780f8386050a80509fbcdb131c584c32b8a752b319a435c95ca37c4f75d589367ffb0b47795c44598f1ec12cd314dfa74664b03b6b5968b51"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-ia32/-/linux-ia32-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-ia32",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-ia32@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-loong64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "6eec2477c9eca61e11f9a8d1bf0d2a3391e36bf4d7428c37a6dcd63b611b1bf72a70890796846b76506d425b21c98193345bdf91f279b693cb5646380edb0f7d"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-loong64/-/linux-loong64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-loong64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-loong64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-mips64el@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "655ca46c3ca4ef9d7d57088d6fd2dc8fd9bc5cceafe55f6e28fbeb10c92411e7557b07fed22b6485a869e070e98044578702d1a56172a6c19b1bf27cb3442324"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-mips64el/-/linux-mips64el-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-mips64el",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-mips64el@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-ppc64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "0805e5f83b5df5452e25df2928a77087a30b9b7314322a8c3e6859ded4d25cfa9fc90def0e5e91e6165d67f918a232b8a1f5ed75f4afd6d16af17cd6c7785e35"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-ppc64/-/linux-ppc64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-ppc64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-ppc64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-riscv64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "19e5c27a3e0842d53507e4250d5f16fd146f6f32373bf4adb2cfbf6c25efe25665b3958646dbb66bedc9900de2e2a21494c5e970779b5a917c024261013a30b8"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-riscv64/-/linux-riscv64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-riscv64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-riscv64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-s390x@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "dc7d707936193f1b7f58e841caccd06726d2f70e652b3527d450ccb2010285b1d64301d841045f071802719bcf8631df2b22632227afbcc98451ac09add63d0e"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-s390x/-/linux-s390x-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-s390x",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-s390x@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/linux-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "e314d9af5154992a105b85c85a68addedcd0ad44d933e3773f45d5f3144e298179d177c8ef178ef74fb56d9bcdc3122e7d0f610d0551247e588603d517c03f1d"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/linux-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/linux-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/netbsd-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "b120134633de0c1837a5d807a107e8601a1bd752a4d4519af65ba2e51207642a029096bd40a96f977fef2b3daeb02998623b3bca6251ff6367b2a7be1e3b799f"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/netbsd-arm64/-/netbsd-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/netbsd-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/netbsd-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/netbsd-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "96a9f3095fa633480800368a8a188283a89f81f5362f7879137deb35004dd58e0c6951a7cebcb39afbdfed41f1a6ba50744f21a6a2e8949f5197e4a42110e9cb"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/netbsd-x64/-/netbsd-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/netbsd-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/netbsd-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/openbsd-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "00bdaa2482c7ee5363ac3982403bddc4c7c0508bfc28c3593afaf0010f22f3ffe7b4bf457e584ec8c27c39948c05bf3f0165dedffe6fe52db4cb7cc2a1958aa1"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/openbsd-arm64/-/openbsd-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/openbsd-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/openbsd-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/openbsd-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "42d8ae3f2b5c851c82e2bc142a17b125d40abc3b99ea15a5a22de282a3d03542424b5feff4488edd44ce5d1e80dc5a0ca387e700a6d625da9a23084ece1f2a13"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/openbsd-x64/-/openbsd-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/openbsd-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/openbsd-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/openharmony-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "5a48580e6a538cbbc6952700d6bc234549a197893ca174777086eda969842e053f7457871e51259710ef75670d255f6b6f309ec41e6fcfc82d35ec162e0093ed"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/openharmony-arm64/-/openharmony-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/openharmony-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/openharmony-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/sunos-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "18f3129133ad327bf653617c8317b8228eaa995b3e60aca9f37d84b6aab1af48459e0997437af3c32b5e966dc6227ed3e15be245495fdec3a004e89376f69fee"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/sunos-x64/-/sunos-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/sunos-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/sunos-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/win32-arm64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3c886112413db8f06579106b404269527ecc06789b6736c6cd858f998df1f98a1583ff79cdb8c1e02c4f3ce43c979b5860ce2631a0ad845f3fd4321f05043259"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/win32-arm64/-/win32-arm64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/win32-arm64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/win32-arm64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/win32-ia32@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "62625b7d396f53b49d9fd041fb83d1112e2807aa71812dfb30038d8fe841aff7295d2d5a04f297c4d9c36eef900963e3d28f5d832c5eabbf60e9ce4ff0a7ae60"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/win32-ia32/-/win32-ia32-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/win32-ia32",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/win32-ia32@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
+    },
+    {
+      "bom-ref": "pkg:npm/%40esbuild/win32-x64@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "e5e6e9c6bde758cceb2ffae7508ef9e4992e79ed1b1cbfc6ab459317d96f729bfbdf0029e5ebbc31f0548162bd6e15af6638fbc97f1eb5fffcb48f0d7b2ebde6"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@esbuild/win32-x64",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40esbuild/win32-x64@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
     },
     {
       "bom-ref": "pkg:npm/%40hono/node-server@1.19.17",
@@ -271,6 +1195,41 @@
       "scope": "optional",
       "type": "library",
       "version": "2.0.0"
+    },
+    {
+      "bom-ref": "pkg:npm/%40noble/hashes@1.8.0",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "8c2b3d95d77b370ce98170c87fa3f7f8dac787dfec0fa0907711f28d023e87feab0cda3cf32a41c71cf8e540ee647cfdaf7b4dcfb37f5489d256855db57108e0"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@noble/hashes",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/%40noble/hashes@1.8.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "1.8.0"
     },
     {
       "bom-ref": "pkg:npm/%40opentelemetry/api-logs@0.221.0",
@@ -1113,6 +2072,41 @@
       "version": "2.0.0"
     },
     {
+      "bom-ref": "pkg:npm/asn1js@3.0.10",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "4b6b3768ecad88a74545dba5c36a8f139d4cce3cd53a2b29a5c56fee354547e2b0d24c70bc5ac371803487b35da9b9a3d0790c2176166a88fb7e58bc920c757a"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/asn1js/-/asn1js-3.0.10.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "asn1js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/asn1js@3.0.10",
+      "scope": "optional",
+      "type": "library",
+      "version": "3.0.10"
+    },
+    {
       "bom-ref": "pkg:npm/body-parser@2.3.0",
       "externalReferences": [
         {
@@ -1181,6 +2175,41 @@
       "scope": "optional",
       "type": "library",
       "version": "3.1.2"
+    },
+    {
+      "bom-ref": "pkg:npm/bytestreamjs@2.0.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "53567fa1bef557f6d77d5001bcdaff2ae99fe55c9e4110449ba4f16f43d0e92ed5e46a41337c3809bab3ff13c389c479b4dd2ebc389f9e0f02fb9a8409e1b0c9"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/bytestreamjs/-/bytestreamjs-2.0.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "bytestreamjs",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/bytestreamjs@2.0.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.0.1"
     },
     {
       "bom-ref": "pkg:npm/call-bind-apply-helpers@1.0.2",
@@ -1768,6 +2797,14 @@
           "value": "sbom/inputs/context7.package-lock.json"
         },
         {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        },
+        {
           "name": "cadevil:inventory:usage",
           "value": "development tool"
         }
@@ -1811,6 +2848,41 @@
       "scope": "optional",
       "type": "library",
       "version": "1.1.2"
+    },
+    {
+      "bom-ref": "pkg:npm/esbuild@0.28.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "1ca54b4bc76f208fb1a0a5bd926ab16d12ab9d61177c926bfc56618499a2a880747b4e7740d605a8e068b9330efe4e6c203e0cbc28940afbfc6fd338877db020"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "esbuild",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/esbuild@0.28.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.28.2"
     },
     {
       "bom-ref": "pkg:npm/escape-html@1.0.3",
@@ -2968,6 +4040,41 @@
       "version": "8.4.2"
     },
     {
+      "bom-ref": "pkg:npm/pkijs@3.4.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3a8fcd65c49671cabc2b2a06ee02c4f5f9e5b601e7b3ea4d0a3080a7f5a68ec5324a2fac5fbcb8cf85eabb87d56f8d820c7cd13e5df77e3cd3d79575c2f73284"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pkijs/-/pkijs-3.4.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "pkijs",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/pkijs@3.4.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "3.4.1"
+    },
+    {
       "bom-ref": "pkg:npm/proxy-addr@2.0.8",
       "externalReferences": [
         {
@@ -3001,6 +4108,76 @@
       "scope": "optional",
       "type": "library",
       "version": "2.0.8"
+    },
+    {
+      "bom-ref": "pkg:npm/pvtsutils@1.3.6",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3cb8105d0e87d8558269e45a93cbef935196e3ada5331079b37266ebbdcdf36cc8e2faad5543ee65d7df7596cf0c546853c900848b5616d3c25a23e9a78fc40e"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pvtsutils/-/pvtsutils-1.3.6.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "pvtsutils",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/pvtsutils@1.3.6",
+      "scope": "optional",
+      "type": "library",
+      "version": "1.3.6"
+    },
+    {
+      "bom-ref": "pkg:npm/pvutils@1.2.0",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "05bb9b7821324ee42354c6a4bc943f4b16dcf77176a7099bb3138d4ff651af053b51adfc77cba7613c17a5354b00a278043b87f481b3b428d071dfcdff7f43be"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pvutils/-/pvutils-1.2.0.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "pvutils",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/pvutils@1.2.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "1.2.0"
     },
     {
       "bom-ref": "pkg:npm/qs@6.16.0",
@@ -3493,6 +4670,41 @@
       "version": "2.0.2"
     },
     {
+      "bom-ref": "pkg:npm/three@0.184.0",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "c2d4d18c6f76a4ce5e520fcab949c7b2a48094f336f7a6eb4ce70b80c46a11eca561387f09db6f294bc2cb20904f316e4ad89e5b1bd96fc9954ccbdd3f2529c6"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/three/-/three-0.184.0.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "three",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "development tool"
+        }
+      ],
+      "purl": "pkg:npm/three@0.184.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.184.0"
+    },
+    {
       "bom-ref": "pkg:npm/toidentifier@1.0.1",
       "externalReferences": [
         {
@@ -3526,6 +4738,41 @@
       "scope": "optional",
       "type": "library",
       "version": "1.0.1"
+    },
+    {
+      "bom-ref": "pkg:npm/tslib@2.8.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "a0916ef781d06fe29576e49440bef09e99aa9df98bb0e03f9c087a6fa107d30084a0ad3f98f79753a737c0a0d5f373243ae1cf447b525ca294f7d2016b34bfdb"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "0BSD"
+        }
+      ],
+      "name": "tslib",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser bundler and its complete locked platform alternatives"
+        }
+      ],
+      "purl": "pkg:npm/tslib@2.8.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.8.1"
     },
     {
       "bom-ref": "pkg:npm/type-is@2.1.0",
@@ -16300,6 +17547,20 @@
   "dependencies": [
     {
       "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/esbuild@0.28.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "pkg:generic/cadevil-browser-pki-build-environment@snapshot"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/three@0.184.0"
+      ],
+      "ref": "pkg:generic/cadevil-browser-test-environment@0.16.0"
+    },
+    {
+      "dependsOn": [
         "pkg:pypi/annotated-types@0.8.0",
         "pkg:pypi/anyio@4.15.1",
         "pkg:pypi/attrs@26.1.0",
@@ -16530,6 +17791,8 @@
     },
     {
       "dependsOn": [
+        "pkg:generic/cadevil-browser-pki-build-environment@snapshot",
+        "pkg:generic/cadevil-browser-test-environment@0.16.0",
         "pkg:generic/cadevil-code-audit-environment@snapshot",
         "pkg:generic/cadevil-context7-environment@snapshot",
         "pkg:generic/cadevil-dependency-audit-environment@snapshot",
@@ -16565,6 +17828,110 @@
       "ref": "pkg:generic/semgrep-rules@a84ff9cc2453ca91d581380de4b8b3f272f6f4be"
     },
     {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/aix-ppc64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/android-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/android-arm@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/android-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/darwin-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/darwin-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/freebsd-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/freebsd-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-arm@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-ia32@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-loong64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-mips64el@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-ppc64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-riscv64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-s390x@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/linux-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/netbsd-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/netbsd-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/openbsd-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/openbsd-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/openharmony-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/sunos-x64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/win32-arm64@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/win32-ia32@0.28.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40esbuild/win32-x64@0.28.2"
+    },
+    {
       "dependsOn": [
         "pkg:npm/hono@4.13.12"
       ],
@@ -16590,6 +17957,10 @@
         "pkg:npm/zod@4.6.5"
       ],
       "ref": "pkg:npm/%40modelcontextprotocol/server@2.0.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40noble/hashes@1.8.0"
     },
     {
       "dependsOn": [
@@ -16767,6 +18138,14 @@
     },
     {
       "dependsOn": [
+        "pkg:npm/pvtsutils@1.3.6",
+        "pkg:npm/pvutils@1.2.0",
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/asn1js@3.0.10"
+    },
+    {
+      "dependsOn": [
         "pkg:npm/bytes@3.1.2",
         "pkg:npm/content-type@2.1.0",
         "pkg:npm/debug@4.4.3",
@@ -16782,6 +18161,10 @@
     {
       "dependsOn": [],
       "ref": "pkg:npm/bytes@3.1.2"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/bytestreamjs@2.0.1"
     },
     {
       "dependsOn": [
@@ -16868,6 +18251,37 @@
         "pkg:npm/es-errors@1.3.0"
       ],
       "ref": "pkg:npm/es-object-atoms@1.1.2"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/%40esbuild/aix-ppc64@0.28.2",
+        "pkg:npm/%40esbuild/android-arm64@0.28.2",
+        "pkg:npm/%40esbuild/android-arm@0.28.2",
+        "pkg:npm/%40esbuild/android-x64@0.28.2",
+        "pkg:npm/%40esbuild/darwin-arm64@0.28.2",
+        "pkg:npm/%40esbuild/darwin-x64@0.28.2",
+        "pkg:npm/%40esbuild/freebsd-arm64@0.28.2",
+        "pkg:npm/%40esbuild/freebsd-x64@0.28.2",
+        "pkg:npm/%40esbuild/linux-arm64@0.28.2",
+        "pkg:npm/%40esbuild/linux-arm@0.28.2",
+        "pkg:npm/%40esbuild/linux-ia32@0.28.2",
+        "pkg:npm/%40esbuild/linux-loong64@0.28.2",
+        "pkg:npm/%40esbuild/linux-mips64el@0.28.2",
+        "pkg:npm/%40esbuild/linux-ppc64@0.28.2",
+        "pkg:npm/%40esbuild/linux-riscv64@0.28.2",
+        "pkg:npm/%40esbuild/linux-s390x@0.28.2",
+        "pkg:npm/%40esbuild/linux-x64@0.28.2",
+        "pkg:npm/%40esbuild/netbsd-arm64@0.28.2",
+        "pkg:npm/%40esbuild/netbsd-x64@0.28.2",
+        "pkg:npm/%40esbuild/openbsd-arm64@0.28.2",
+        "pkg:npm/%40esbuild/openbsd-x64@0.28.2",
+        "pkg:npm/%40esbuild/openharmony-arm64@0.28.2",
+        "pkg:npm/%40esbuild/sunos-x64@0.28.2",
+        "pkg:npm/%40esbuild/win32-arm64@0.28.2",
+        "pkg:npm/%40esbuild/win32-ia32@0.28.2",
+        "pkg:npm/%40esbuild/win32-x64@0.28.2"
+      ],
+      "ref": "pkg:npm/esbuild@0.28.2"
     },
     {
       "dependsOn": [],
@@ -17075,10 +18489,31 @@
     },
     {
       "dependsOn": [
+        "pkg:npm/%40noble/hashes@1.8.0",
+        "pkg:npm/asn1js@3.0.10",
+        "pkg:npm/bytestreamjs@2.0.1",
+        "pkg:npm/pvtsutils@1.3.6",
+        "pkg:npm/pvutils@1.2.0",
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/pkijs@3.4.1"
+    },
+    {
+      "dependsOn": [
         "pkg:npm/forwarded@0.2.0",
         "pkg:npm/ipaddr.js@1.9.1"
       ],
       "ref": "pkg:npm/proxy-addr@2.0.8"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/pvtsutils@1.3.6"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/pvutils@1.2.0"
     },
     {
       "dependsOn": [
@@ -17192,7 +18627,15 @@
     },
     {
       "dependsOn": [],
+      "ref": "pkg:npm/three@0.184.0"
+    },
+    {
+      "dependsOn": [],
       "ref": "pkg:npm/toidentifier@1.0.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/tslib@2.8.1"
     },
     {
       "dependsOn": [
@@ -18246,6 +19689,10 @@
         "value": "89a9a266e5a828494f9ba9f3d9dab6205334fbb50a9a16d606e9b77ce84f0ef7"
       },
       {
+        "name": "cadevil:input:sha256:package-lock.json",
+        "value": "4e202d0d61a89075e3a3e0aa0799ec3da0712362c5f4b9a7e460864c4bdc12fd"
+      },
+      {
         "name": "cadevil:input:sha256:pyproject.toml",
         "value": "ea4ba1e9b4aa8613268c0130f9a13ef1ad8f9daed4c97c70fbfd577b911b4632"
       },
@@ -18290,8 +19737,20 @@
         "value": "1571bcb5fa00a6e7e45dc752ca4af066f5c8c64eed95982b228c2e4b44a571a5"
       },
       {
+        "name": "cadevil:input:sha256:scripts/browser-pki/package-lock.json",
+        "value": "5cdb9dcdf49aab2266df1183d3e780b48cc3830515422efefc72cc2da893a022"
+      },
+      {
+        "name": "cadevil:input:sha256:scripts/browser-pki/package.json",
+        "value": "9eda87904819c1a76b4eca13a6a29f171dff4cd1d3f0f45d8dd9fc416309fbfd"
+      },
+      {
         "name": "cadevil:input:sha256:scripts/generate_sbom.py",
-        "value": "a73e0541e16f79f468952ee847f4255c0ecf5dffc4a89c524b895fe271939056"
+        "value": "62904bc67fa8bbcc72cb68af66fc2eb01eee3d33c8bbcb237b053e2275882727"
+      },
+      {
+        "name": "cadevil:input:sha256:scripts/vendor_browser_pki.mjs",
+        "value": "8214abb22e6113e862e6c6a21503448f5882963431884c15a41944ea2b2cdb20"
       },
       {
         "name": "cadevil:input:sha256:uv.lock",
@@ -18321,7 +19780,7 @@
         {
           "name": "cadevil-sbom-merger",
           "type": "application",
-          "version": "1.0.0"
+          "version": "1.1.0"
         }
       ]
     }

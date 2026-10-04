@@ -1,0 +1,2 @@
+# Preserve the pinned browser verifier's upstream license bytes verbatim.
+resources/static/js/vendor/browser_pki.js.LICENSE.txt -text

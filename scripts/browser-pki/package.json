@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "es-module-lexer": "3.0.2",
+    "esbuild": "0.28.2",
+    "pkijs": "3.4.1"
+  }
+}

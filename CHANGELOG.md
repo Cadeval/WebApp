@@ -2,13 +2,18 @@
 
 ## 0.16.0 — 2026-10-04
 
-- Add a pinned, isolated Docker MCP development provider with project-scoped sanitized inspection tools and no production runtime contribution.
 - Build reviewed Python distributions through `uv build`, with a pinned Hatch hook compiling both WebAssembly workers through Rustup.
 - Keep generated WebAssembly and its derived inventory in build outputs; preserve the source checkout.
 - Build the production image from the verified wheel payload; exclude compilers, Rust sources, tests and development MCP code from runtime layers.
-- Move `plugins`, `plugin_manager`, `shared` and `mycelium` to the repository root; update imports and resource registration without changing Django labels or the 0.15 database schema.
+- Move `plugins`, `plugin_manager`, `shared` and `mycelium` to the repository root; update imports and resource registration while preserving Django labels and existing 0.15 data.
 - Move Python, browser and Rust tests into the root `tests/` directory and update test discovery and CI.
-- Bump BIM Workspace to 2.0.2 and the IFC editor plugin to 2.0.3.
+- Register plugin-owned overview templates through the framework-neutral resource contract and Django adapter; show the expanded overview and top demo action only to guests.
+- Group plugin workflows, management and developer tools into tabs, with administrator catalog controls and verified observed version history.
+- Add team-scoped signing keys and browser-encrypted private-key downloads, with X.509 code-signing certificates and fresh signed revocation evidence for uploaded and bundled browser workers.
+- Read valid IFC entity headers containing exporter whitespace or comments; preserve source bytes when indexing and editing the model.
+- Add explicit private CA initialization, certificate backfill and renewal; retain existing accounts, selections, package approvals and files through the additive plugin-manager migrations.
+- Add a pinned, isolated Docker MCP development provider with project-scoped sanitized inspection tools and no production runtime contribution.
+- Bump BIM Workspace to 2.0.3, the IFC editor plugin to 2.0.4 and Snake to 2.0.1.
 
 ### Breaking changes
 

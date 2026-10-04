@@ -64,21 +64,39 @@ Version 0.15.0 introduced plugin-owned BIM persistence with a new `bim_model_man
 
 Version 0.16.0 moves the Python packages to `shared/`, `mycelium/`, `plugin_manager/` and `plugins/`, with all project tests under `tests/`. Django app labels, database table names and the existing 0.15 migration history remain unchanged. An upgrade from 0.15 preserves accounts, workflow selections, building records, uploads and package files; no database reset is part of this release.
 
-The application data volume contains uploads, signed plugin packages, generated caches and its admin log store. PostgreSQL holds application accounts/model records; Redis has its own cache volume and AOF persistence. Back up both PostgreSQL and the app volume; Redis can be rebuilt as a cache. Logs and database state are never build inputs.
+The release adds plugin-manager migrations `0009_plugin_version_history` and `0010_teams_certificate_authority`. They add observed version history, four empty team/certificate/revocation tables and nullable certificate/team metadata on existing signing keys. Migrations do not generate CA secrets or change existing package approvals or workflow selections. The release rollout initializes one authority explicitly and certifies eligible existing public signing keys after checking the exact migration plan.
+
+The application data volume contains uploads, signed plugin packages, generated caches, its admin log store and the private signing CA. PostgreSQL holds application accounts/model records and public certificates; Redis has its own cache volume and AOF persistence. Back up both PostgreSQL and the app volume; Redis can be rebuilt as a cache. Logs, database state and CA private keys are never build inputs.
 
 For [PostgreSQL 18's official image](https://github.com/docker-library/docs/tree/master/postgres#pgdata), the named volume is mounted at `/var/lib/postgresql` and `PGDATA` is `/var/lib/postgresql/18/docker`. Mounting only the old `/var/lib/postgresql/data` path would miss the new layout. Pin and review major database upgrades separately; changing the tag does not upgrade an existing database's data format. PostgreSQL's init variables apply only to a new, empty volume. Rotating its password file alone does not update an existing database role password; perform a coordinated database credential rotation before restarting dependent services. Redis loads its configured runtime password at restart, so rotate its file and application together.
 
-For the 0.15 → 0.16 application update, build and review the new image. Stop the application to drain its workers, take a consistent PostgreSQL and application-volume backup, and update only `CADEVIL_IMAGE=cadevil:0.16.0` in the external environment file. Check the new image's migration state without applying migrations, then replace only the application container:
+For the 0.15 → 0.16 application update, build and review the new image. Stop the application to drain its workers, take a consistent PostgreSQL and application-volume backup, and update only `CADEVIL_IMAGE=cadevil:0.16.0` in the external environment file. Review the pending migration plan, apply the two approved migrations, initialize the CA and backfill eligible signing keys before starting new web workers. The reviewed release helper performs these steps in one process and verifies the exact schema, permission, public-certificate and private-file additions against the backup. For a separately reviewed manual deployment, the corresponding commands are:
 
 ```sh
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py migrate --plan
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py migrate plugin_manager 0010_teams_certificate_authority --noinput
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py plugin_ca initialize
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py plugin_ca backfill
 docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py migrate --check --noinput
 docker compose --env-file /secure/cadevil/compose.env up --detach --no-deps --wait app
 ```
 
-Keep the existing frontend, PostgreSQL, Redis containers, named volumes, networks and runtime secrets. Verify application health and retained records/files before discarding any backup. For future compatible releases that require schema changes, run the migration service before starting new web workers. Stop the deployment while retaining data with:
+Keep the existing frontend, PostgreSQL, Redis containers, named volumes, networks and runtime secrets. Verify application health and retained records/files before discarding any backup. If this release fails, restore the previous image/configuration while retaining the compatible additive schema and any completed certificate bootstrap; do not restore the pre-upgrade database over retained user state. For future compatible releases that require schema changes, run the migration service before starting new web workers. Stop the deployment while retaining data with:
 
 ```sh
 docker compose --env-file /secure/cadevil/compose.env down
 ```
 
 Keep named volumes for ordinary restarts/upgrades. The external SWAG network is never removed by this deployment. Resource defaults are two application CPUs/two HTTP workers/two IFC geometry threads, a 2 GiB app limit, bounded backend resources and a 256 MiB Redis keyspace. Adjust CPU, worker/thread counts and memory together for the building sizes and workload you deploy.
+
+## Plugin signing CA
+
+`plugin_ca initialize` creates a P-256 root and intermediate authority plus an Ed25519 bundled publisher key. The three PKCS8 PEM private keys live only in `/app/data/plugin-ca`, with directory mode 0700 and file mode 0600. Include that directory in the private application-volume backup and retain matching public authority rows in PostgreSQL. User private keys stay encrypted in the browser download and are never stored in this directory.
+
+Code-signing leaf certificates expire after 90 days. Users renew their certificates in Security settings; operators renew the bundled publisher certificate explicitly:
+
+```sh
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py plugin_ca renew-publisher
+```
+
+Public root/intermediate certificates and signed CRLs are served under `/plugins/trust/`. Set the `PLUGIN_CA_PUBLIC_URL` environment variable to the deployment's actual HTTPS origin before issuance; production defaults to `https://cadevil.org`, and development defaults to `http://127.0.0.1:8000`. Private CA files remain under the persistent `data/plugin-ca` directory. Browser workers require current certificates and fresh revocation evidence. `plugin_ca rotate` explicitly creates a new authority; previous roots remain available until revoked. `plugin_ca revoke --root-id <fingerprint>` revokes a root and disables affected uploaded packages. These commands change trust and should be part of a reviewed certificate operation.

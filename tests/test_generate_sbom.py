@@ -12,7 +12,7 @@ if __package__ in {None, ""}:
 
 SBOM_TOOL_MISSING = None
 try:
-    from scripts.generate_sbom import Inventory, ROOT, npm_inventory, python_lock_coverage, validate_graph
+    from scripts.generate_sbom import Inventory, ROOT, npm_inventory, python_lock_coverage, validate_graph, browser_pki_inventory
 except ModuleNotFoundError as error:
     if error.name not in {"cyclonedx", "packageurl"}:
         raise
@@ -64,6 +64,37 @@ class InventoryTests(unittest.TestCase):
             path.write_text(json.dumps({"packages": {"": {"dependencies": {"missing": "1"}}}}))
             with self.assertRaisesRegex(ValueError, "Unresolved npm dependency"):
                 npm_inventory(Inventory("test", "1", "fixture"), path, True)
+
+    def test_runtime_npm_selection_follows_parser_closure_and_excludes_bundler(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / "sbom") as directory:
+            path=Path(directory)/"package-lock.json"
+            path.write_text(json.dumps({"packages":{
+                "":{"dependencies":{"parser":"1","bundler":"2"}},
+                "node_modules/parser":{"version":"1","dependencies":{"asn1":"3"}},
+                "node_modules/asn1":{"version":"3"},
+                "node_modules/bundler":{"version":"2","optionalDependencies":{"platform":"4"}},
+                "node_modules/platform":{"version":"4"},
+            }}))
+            runtime=Inventory("test","1","fixture")
+            npm_inventory(runtime,path,False,root_packages={"parser"})
+            self.assertEqual(set(runtime.components),{"pkg:npm/parser@1","pkg:npm/asn1@3"})
+            self.assertEqual(runtime.dependencies["pkg:npm/parser@1"],{"pkg:npm/asn1@3"})
+            development=Inventory("test-development","1","fixture")
+            npm_inventory(development,path,True)
+            self.assertEqual(set(development.components),{"pkg:npm/parser@1","pkg:npm/asn1@3","pkg:npm/bundler@2","pkg:npm/platform@4"})
+            with self.assertRaisesRegex(ValueError,"runtime roots"):
+                npm_inventory(Inventory("test","1","fixture"),path,False,root_packages={"unknown"})
+
+    def test_browser_parser_inventory_has_exact_runtime_libraries_and_verified_license_bytes(self):
+        runtime=Inventory("test","1","fixture")
+        browser_pki_inventory(runtime,development=False)
+        names={value["name"] for value in runtime.components.values()}
+        self.assertEqual({value["name"] for value in runtime.components.values() if value["type"]=="library"},
+                         {"pkijs","asn1js","pvtsutils","pvutils","bytestreamjs","tslib","@noble/hashes","es-module-lexer"})
+        self.assertNotIn("esbuild",names)
+        self.assertEqual(len(runtime.components),13)
+        value=runtime.output()
+        validate_graph(value)
 
 
 if __name__ == "__main__":

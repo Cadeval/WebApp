@@ -85,7 +85,7 @@ class PluginBuiltinInventoryTests(TestCase):
     def record(self, plugin_id, **kwargs):
         return PluginRecord.objects.create(plugin_id=plugin_id, name="Inventory tool", version="2.0.0", **kwargs)
 
-    def test_real_committed_rust_inventories_include_only_matching_wasm_and_crate(self):
+    def test_real_committed_rust_inventories_include_matching_worker_and_shared_browser_trust(self):
         for plugin_id, wasm, crate in [("cadevil.example.editor", "example_plugin", "example-plugin-builder"),
                                       ("cadevil.rust-example.editor", "rust_example_plugin", "rust_example_plugin")]:
             with self.subTest(plugin=plugin_id):
@@ -94,9 +94,11 @@ class PluginBuiltinInventoryTests(TestCase):
                 names = {component["name"] for component in document["components"]}
                 filename = (f"plugins/{wasm}/static/wasm/{wasm}.wasm"
                             if wasm == "example_plugin" else f"resources/static/wasm/{wasm}.wasm")
-                self.assertEqual(names, {crate, filename})
+                self.assertTrue({crate, filename} <= names)
                 self.assertIn("source-to-binary equivalence", inventory["scope"])
-                self.assertEqual(inventory["component_count"], 2)
+                self.assertEqual(inventory["component_count"], 15)
+                self.assertTrue({'pkijs','asn1js','es-module-lexer','resources/static/js/plugin_verification.js'} <= names)
+                self.assertNotIn('esbuild', names)
                 self.assertEqual(document["compositions"][0]["aggregate"], "incomplete")
                 self.assertNotIn("uploaded_by", inventory["content"].decode())
 
@@ -105,20 +107,23 @@ class PluginBuiltinInventoryTests(TestCase):
         with patch("plugin_manager.sbom.Path.read_bytes", return_value=b"changed wasm"), self.assertRaises(InventoryUnavailable):
             plugin_inventory(record)
 
+    def test_shared_browser_verifier_changed_since_audit_is_unavailable(self):
+        record=self.record("cadevil.example.editor")
+        original=Path.read_bytes
+        def read_bytes(path):
+            return b'changed verifier' if path.as_posix().endswith('/resources/static/js/plugin_verification.js') else original(path)
+        with patch.object(Path,'read_bytes',read_bytes),self.assertRaisesRegex(InventoryUnavailable,"shared browser trust assets"):
+            plugin_inventory(record)
+
     def test_real_shared_bim_runtime_and_development_graph_are_readable(self):
         inventory = plugin_inventory(self.record("cadevil.bim.model_manager"))
         self.assertIn("Shared application runtime", inventory["scope"])
         self.assertGreater(inventory["component_count"], 50)
-        for plugin_id in ["cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.ui_ux", "cadevil.mcp.code_audit", "cadevil.mcp.native", "cadevil.mcp.docker"]:
+        for plugin_id in ["cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.ui_ux", "cadevil.mcp.code_audit", "cadevil.mcp.native"]:
             with self.subTest(plugin=plugin_id):
                 development = plugin_inventory(self.record(plugin_id, compatibility="debug"))
                 self.assertGreater(development["component_count"], 1)
                 self.assertNotIn("/Users/", development["content"].decode())
-                if plugin_id == "cadevil.mcp.docker":
-                    components = {(component["name"], component.get("version"))
-                                  for component in json.loads(development["content"])["components"]}
-                    self.assertIn(("mcp-server-docker", "0.3.0"), components)
-                    self.assertIn(("mcp", "2.3.0"), components)
 
 
 class PluginSBOMPageTests(TestCase):

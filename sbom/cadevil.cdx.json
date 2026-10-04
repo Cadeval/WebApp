@@ -3,7 +3,7 @@
   "bomFormat": "CycloneDX",
   "components": [
     {
-      "bom-ref": "pkg:cargo/example-plugin-builder@0.1.1",
+      "bom-ref": "pkg:cargo/example-plugin-builder@0.1.2",
       "licenses": [
         {
           "license": {
@@ -26,10 +26,10 @@
           "value": "first-party source under repository LICENSE"
         }
       ],
-      "purl": "pkg:cargo/example-plugin-builder@0.1.1",
+      "purl": "pkg:cargo/example-plugin-builder@0.1.2",
       "scope": "required",
       "type": "library",
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     {
       "bom-ref": "pkg:cargo/rust_example_plugin@2.0.0",
@@ -59,6 +59,146 @@
       "scope": "required",
       "type": "library",
       "version": "2.0.0"
+    },
+    {
+      "bom-ref": "pkg:npm/%40noble/hashes@1.8.0",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "8c2b3d95d77b370ce98170c87fa3f7f8dac787dfec0fa0907711f28d023e87feab0cda3cf32a41c71cf8e540ee647cfdaf7b4dcfb37f5489d256855db57108e0"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "@noble/hashes",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/%40noble/hashes@1.8.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.8.0"
+    },
+    {
+      "bom-ref": "pkg:npm/asn1js@3.0.10",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "4b6b3768ecad88a74545dba5c36a8f139d4cce3cd53a2b29a5c56fee354547e2b0d24c70bc5ac371803487b35da9b9a3d0790c2176166a88fb7e58bc920c757a"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/asn1js/-/asn1js-3.0.10.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "asn1js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/asn1js@3.0.10",
+      "scope": "required",
+      "type": "library",
+      "version": "3.0.10"
+    },
+    {
+      "bom-ref": "pkg:npm/bytestreamjs@2.0.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "53567fa1bef557f6d77d5001bcdaff2ae99fe55c9e4110449ba4f16f43d0e92ed5e46a41337c3809bab3ff13c389c479b4dd2ebc389f9e0f02fb9a8409e1b0c9"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/bytestreamjs/-/bytestreamjs-2.0.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "bytestreamjs",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/bytestreamjs@2.0.1",
+      "scope": "required",
+      "type": "library",
+      "version": "2.0.1"
+    },
+    {
+      "bom-ref": "pkg:npm/es-module-lexer@3.0.2",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "06e201ebb1678034b243f76940d399c9bc1d1010d418942f3aac16af885afee7d88aacee1303e428edb32e144081acb6f2d4ad4481d47969accd9009a371823a"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/es-module-lexer/-/es-module-lexer-3.0.2.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "es-module-lexer",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/es-module-lexer@3.0.2",
+      "scope": "required",
+      "type": "library",
+      "version": "3.0.2"
     },
     {
       "bom-ref": "pkg:npm/font-awesome@4.7.0",
@@ -195,6 +335,41 @@
       "version": "8.0.1"
     },
     {
+      "bom-ref": "pkg:npm/pkijs@3.4.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3a8fcd65c49671cabc2b2a06ee02c4f5f9e5b601e7b3ea4d0a3080a7f5a68ec5324a2fac5fbcb8cf85eabb87d56f8d820c7cd13e5df77e3cd3d79575c2f73284"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pkijs/-/pkijs-3.4.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "pkijs",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/pkijs@3.4.1",
+      "scope": "required",
+      "type": "library",
+      "version": "3.4.1"
+    },
+    {
       "bom-ref": "pkg:npm/plotly.js@2.35.3",
       "externalReferences": [
         {
@@ -224,6 +399,76 @@
       "scope": "required",
       "type": "library",
       "version": "2.35.3"
+    },
+    {
+      "bom-ref": "pkg:npm/pvtsutils@1.3.6",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3cb8105d0e87d8558269e45a93cbef935196e3ada5331079b37266ebbdcdf36cc8e2faad5543ee65d7df7596cf0c546853c900848b5616d3c25a23e9a78fc40e"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pvtsutils/-/pvtsutils-1.3.6.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "pvtsutils",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/pvtsutils@1.3.6",
+      "scope": "required",
+      "type": "library",
+      "version": "1.3.6"
+    },
+    {
+      "bom-ref": "pkg:npm/pvutils@1.2.0",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "05bb9b7821324ee42354c6a4bc943f4b16dcf77176a7099bb3138d4ff651af053b51adfc77cba7613c17a5354b00a278043b87f481b3b428d071dfcdff7f43be"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/pvutils/-/pvutils-1.2.0.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "pvutils",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/pvutils@1.2.0",
+      "scope": "required",
+      "type": "library",
+      "version": "1.2.0"
     },
     {
       "bom-ref": "pkg:npm/svg-pan-zoom@3.6.2",
@@ -295,6 +540,41 @@
       "scope": "required",
       "type": "library",
       "version": "0.184.0"
+    },
+    {
+      "bom-ref": "pkg:npm/tslib@2.8.1",
+      "externalReferences": [
+        {
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "a0916ef781d06fe29576e49440bef09e99aa9df98bb0e03f9c087a6fa107d30084a0ad3f98f79753a737c0a0d5f373243ae1cf447b525ca294f7d2016b34bfdb"
+            }
+          ],
+          "type": "distribution",
+          "url": "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
+        }
+      ],
+      "licenses": [
+        {
+          "expression": "0BSD"
+        }
+      ],
+      "name": "tslib",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "scripts/browser-pki/package-lock.json"
+        },
+        {
+          "name": "cadevil:inventory:usage",
+          "value": "browser parser dependency closure; tree-shaken modules are not independently attested"
+        }
+      ],
+      "purl": "pkg:npm/tslib@2.8.1",
+      "scope": "required",
+      "type": "library",
+      "version": "2.8.1"
     },
     {
       "bom-ref": "pkg:pypi/anyio@4.14.2",
@@ -8470,7 +8750,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "3bc3052375837715d58ea05484a6887fc0734122bf9be85f54061bd3689a3320"
+          "content": "d73e9b9a79cb37231c18b9aab62751db993a1defab791dc629d10c6249ad1bb0"
         }
       ],
       "name": "plugins/example_plugin/static/wasm/example_plugin.wasm",
@@ -8592,6 +8872,42 @@
       "type": "file"
     },
     {
+      "bom-ref": "urn:cadevil:asset:resources/static/js/plugin_verification.js",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab2454e013b9f425e16580ff966573a640a7afe3ca2a9956c4a47edeaf7faf17"
+        }
+      ],
+      "name": "resources/static/js/plugin_verification.js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."
+        }
+      ],
+      "scope": "required",
+      "type": "file"
+    },
+    {
+      "bom-ref": "urn:cadevil:asset:resources/static/js/plugin_worker_bootstrap.js",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "781bbc6befc337d54f9d2f62b4f89174258111c6e5b63a4a723a8a0f234b907d"
+        }
+      ],
+      "name": "resources/static/js/plugin_worker_bootstrap.js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."
+        }
+      ],
+      "scope": "required",
+      "type": "file"
+    },
+    {
       "bom-ref": "urn:cadevil:asset:resources/static/js/svg-pan-zoom.min.js",
       "hashes": [
         {
@@ -8604,6 +8920,60 @@
         {
           "name": "cadevil:evidence:source",
           "value": "tracked asset bytes; no source/build equivalence claimed"
+        }
+      ],
+      "scope": "required",
+      "type": "file"
+    },
+    {
+      "bom-ref": "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6462ffe4400af1ed01991fe28c677dad108a4b39c591d710cb57fd86498a15f5"
+        }
+      ],
+      "name": "resources/static/js/vendor/browser_pki.js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."
+        }
+      ],
+      "scope": "required",
+      "type": "file"
+    },
+    {
+      "bom-ref": "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1ae7fbde41d5c5b421f723e053526800bd4f45ae493b773b13b64922be02b592"
+        }
+      ],
+      "name": "resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."
+        }
+      ],
+      "scope": "required",
+      "type": "file"
+    },
+    {
+      "bom-ref": "urn:cadevil:asset:resources/static/js/verified_plugin_worker.js",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3a6815a49d4f3d6af02d5a1d52b8e2ffa1711fd1b925d10a8775ad1ba4e6240c"
+        }
+      ],
+      "name": "resources/static/js/verified_plugin_worker.js",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."
         }
       ],
       "scope": "required",
@@ -8803,7 +9173,7 @@
       "dependsOn": [
         "urn:cadevil:asset:plugins/example_plugin/static/wasm/example_plugin.wasm"
       ],
-      "ref": "pkg:cargo/example-plugin-builder@0.1.1"
+      "ref": "pkg:cargo/example-plugin-builder@0.1.2"
     },
     {
       "dependsOn": [
@@ -8813,12 +9183,14 @@
     },
     {
       "dependsOn": [
-        "pkg:cargo/example-plugin-builder@0.1.1",
+        "pkg:cargo/example-plugin-builder@0.1.2",
         "pkg:cargo/rust_example_plugin@2.0.0",
+        "pkg:npm/es-module-lexer@3.0.2",
         "pkg:npm/font-awesome@4.7.0",
         "pkg:npm/htmx.org@4.0.0",
         "pkg:npm/leaflet@1.9.4",
         "pkg:npm/normalize.css@8.0.1",
+        "pkg:npm/pkijs@3.4.1",
         "pkg:npm/plotly.js@2.35.3",
         "pkg:npm/svg-pan-zoom@3.6.2",
         "pkg:npm/three@0.184.0",
@@ -8838,9 +9210,34 @@
         "pkg:pypi/pytest@9.1.1",
         "pkg:pypi/redis@7.4.1",
         "pkg:pypi/shapely@2.1.2",
-        "pkg:pypi/watchdog@6.0.0"
+        "pkg:pypi/watchdog@6.0.0",
+        "urn:cadevil:asset:resources/static/js/plugin_verification.js",
+        "urn:cadevil:asset:resources/static/js/plugin_worker_bootstrap.js",
+        "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js",
+        "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+        "urn:cadevil:asset:resources/static/js/verified_plugin_worker.js"
       ],
       "ref": "pkg:generic/cadevil-webapp@0.16.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/%40noble/hashes@1.8.0"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/pvtsutils@1.3.6",
+        "pkg:npm/pvutils@1.2.0",
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/asn1js@3.0.10"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/bytestreamjs@2.0.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/es-module-lexer@3.0.2"
     },
     {
       "dependsOn": [],
@@ -8877,9 +9274,30 @@
     },
     {
       "dependsOn": [
+        "pkg:npm/%40noble/hashes@1.8.0",
+        "pkg:npm/asn1js@3.0.10",
+        "pkg:npm/bytestreamjs@2.0.1",
+        "pkg:npm/pvtsutils@1.3.6",
+        "pkg:npm/pvutils@1.2.0",
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/pkijs@3.4.1"
+    },
+    {
+      "dependsOn": [
         "urn:cadevil:asset:resources/static/js/plotly-2.35.3.min.js"
       ],
       "ref": "pkg:npm/plotly.js@2.35.3"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/tslib@2.8.1"
+      ],
+      "ref": "pkg:npm/pvtsutils@1.3.6"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/pvutils@1.2.0"
     },
     {
       "dependsOn": [
@@ -8890,6 +9308,10 @@
     {
       "dependsOn": [],
       "ref": "pkg:npm/three@0.184.0"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:npm/tslib@2.8.1"
     },
     {
       "dependsOn": [
@@ -9209,8 +9631,43 @@
       "ref": "urn:cadevil:asset:resources/static/js/plotly-2.35.3.min.js"
     },
     {
+      "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "urn:cadevil:asset:resources/static/js/plugin_verification.js"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "urn:cadevil:asset:resources/static/js/plugin_worker_bootstrap.js"
+    },
+    {
       "dependsOn": [],
       "ref": "urn:cadevil:asset:resources/static/js/svg-pan-zoom.min.js"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "urn:cadevil:asset:resources/static/js/vendor/browser_pki.js.LICENSE.txt"
+    },
+    {
+      "dependsOn": [
+        "pkg:npm/es-module-lexer@3.0.2",
+        "pkg:npm/pkijs@3.4.1"
+      ],
+      "ref": "urn:cadevil:asset:resources/static/js/verified_plugin_worker.js"
     },
     {
       "dependsOn": [],
@@ -9279,19 +9736,19 @@
       },
       {
         "name": "cadevil:input:sha256:package-lock.json",
-        "value": "2fc32b38f1d11688f276f674907da2b05371e445c9fd4da699afa580c6acf66f"
+        "value": "4e202d0d61a89075e3a3e0aa0799ec3da0712362c5f4b9a7e460864c4bdc12fd"
       },
       {
         "name": "cadevil:input:sha256:plugins/example_plugin/Cargo.lock",
-        "value": "37a5abb205725d991a3c1b647ab1b062eb1943e0539bccb0632e635e190fe97c"
+        "value": "f644e3e87a016a6a25c50edba430b06863ae4eb361c305e9e9d530e8c21d38b1"
       },
       {
         "name": "cadevil:input:sha256:plugins/example_plugin/Cargo.toml",
-        "value": "a3b1c1a939cbcc261a8653c3dcf7fe9b43aa31832e6a7a61bbf8a69494cceca3"
+        "value": "f74ded4800ba5510af8d79fe438c93183cd07040b8ef49b3071348a0b5067b63"
       },
       {
         "name": "cadevil:input:sha256:plugins/example_plugin/static/wasm/example_plugin.wasm",
-        "value": "3bc3052375837715d58ea05484a6887fc0734122bf9be85f54061bd3689a3320"
+        "value": "d73e9b9a79cb37231c18b9aab62751db993a1defab791dc629d10c6249ad1bb0"
       },
       {
         "name": "cadevil:input:sha256:plugins/rust_example_plugin/Cargo.lock",
@@ -9330,8 +9787,28 @@
         "value": "fc84e3cfa55d23d3654c562ea5deb3c274eb6972a6adf66941d1a821e34825e4"
       },
       {
+        "name": "cadevil:input:sha256:resources/static/js/plugin_verification.js",
+        "value": "ab2454e013b9f425e16580ff966573a640a7afe3ca2a9956c4a47edeaf7faf17"
+      },
+      {
+        "name": "cadevil:input:sha256:resources/static/js/plugin_worker_bootstrap.js",
+        "value": "781bbc6befc337d54f9d2f62b4f89174258111c6e5b63a4a723a8a0f234b907d"
+      },
+      {
         "name": "cadevil:input:sha256:resources/static/js/svg-pan-zoom.min.js",
         "value": "9c8fc41b3359e699990766dd7a943595d234a80c880a90dfc14b920a273b99d8"
+      },
+      {
+        "name": "cadevil:input:sha256:resources/static/js/vendor/browser_pki.js",
+        "value": "6462ffe4400af1ed01991fe28c677dad108a4b39c591d710cb57fd86498a15f5"
+      },
+      {
+        "name": "cadevil:input:sha256:resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+        "value": "1ae7fbde41d5c5b421f723e053526800bd4f45ae493b773b13b64922be02b592"
+      },
+      {
+        "name": "cadevil:input:sha256:resources/static/js/verified_plugin_worker.js",
+        "value": "3a6815a49d4f3d6af02d5a1d52b8e2ffa1711fd1b925d10a8775ad1ba4e6240c"
       },
       {
         "name": "cadevil:input:sha256:resources/static/vendor/leaflet/LICENSE",
@@ -9378,8 +9855,20 @@
         "value": "7e241b61d8a66b267ec5b45df3f65b4b7c70acd66eac037c3b9de535a668169d"
       },
       {
+        "name": "cadevil:input:sha256:scripts/browser-pki/package-lock.json",
+        "value": "5cdb9dcdf49aab2266df1183d3e780b48cc3830515422efefc72cc2da893a022"
+      },
+      {
+        "name": "cadevil:input:sha256:scripts/browser-pki/package.json",
+        "value": "9eda87904819c1a76b4eca13a6a29f171dff4cd1d3f0f45d8dd9fc416309fbfd"
+      },
+      {
         "name": "cadevil:input:sha256:scripts/generate_sbom.py",
-        "value": "a73e0541e16f79f468952ee847f4255c0ecf5dffc4a89c524b895fe271939056"
+        "value": "62904bc67fa8bbcc72cb68af66fc2eb01eee3d33c8bbcb237b053e2275882727"
+      },
+      {
+        "name": "cadevil:input:sha256:scripts/vendor_browser_pki.mjs",
+        "value": "8214abb22e6113e862e6c6a21503448f5882963431884c15a41944ea2b2cdb20"
       },
       {
         "name": "cadevil:input:sha256:uv.lock",
@@ -9409,7 +9898,7 @@
         {
           "name": "cadevil-sbom-merger",
           "type": "application",
-          "version": "1.0.0"
+          "version": "1.1.0"
         }
       ]
     }

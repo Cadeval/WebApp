@@ -34,7 +34,7 @@ INPUTS = SBOM / "inputs"
 UV_VERSION = "0.12.22"
 VALIDATOR_VERSION = "11.12.0"
 JSONSCHEMA_VERSION = "4.26.0"
-GENERATOR_VERSION = "1.0.0"
+GENERATOR_VERSION = "1.1.0"
 
 
 def serialized(value: object) -> str:
@@ -300,9 +300,47 @@ def python_export(inventory: Inventory, uv: str, licenses: dict, development: bo
     inventory.evidence_file(ROOT / "uv.lock")
 
 
-def npm_inventory(inventory: Inventory, path: Path, development: bool, container_name: str | None = None) -> None:
+def npm_inventory(inventory: Inventory, path: Path, development: bool, container_name: str | None = None,
+                  *, root_packages: set[str] | None = None, usage: str | None = None) -> None:
     lock = json.loads(path.read_text())
     records = lock["packages"]
+
+    def declared(name):
+        record = records[name]
+        dependencies = {**record.get("dependencies", {}), **record.get("optionalDependencies", {}),
+                        **record.get("peerDependencies", {}), **(record.get("devDependencies", {}) if not name else {})}
+        if not name and root_packages is not None:
+            if not root_packages <= dependencies.keys():
+                raise ValueError("The selected npm runtime roots are absent from their lockfile.")
+            dependencies = {key:value for key,value in dependencies.items() if key in root_packages}
+        optional = set(record.get("optionalDependencies", {})) | {key for key,value in record.get("peerDependenciesMeta", {}).items() if value.get("optional")}
+        return dependencies, optional
+
+    def resolve(name, dependency_name, optional):
+        parts = name.split("/") if name else []
+        while True:
+            candidate = "/".join([*parts, "node_modules", dependency_name])
+            if candidate in records:
+                return candidate
+            if not parts:
+                if dependency_name in optional:
+                    return None
+                raise ValueError(f"Unresolved npm dependency {dependency_name} in {path.name}")
+            parts.pop()
+
+    # A runtime subset follows the parser roots, excluding the bundler and its
+    # optional platform binaries. The development inventory retains the full lock.
+    selected = set(records) if root_packages is None else {""}
+    if root_packages is not None:
+        pending = [""]
+        while pending:
+            name = pending.pop()
+            dependencies, optional = declared(name)
+            for dependency_name in dependencies:
+                candidate = resolve(name, dependency_name, optional)
+                if candidate is not None and candidate not in selected:
+                    selected.add(candidate)
+                    pending.append(candidate)
     mapping = {}
     root_ref = inventory.component["bom-ref"]
     if container_name:
@@ -311,7 +349,7 @@ def npm_inventory(inventory: Inventory, path: Path, development: bool, container
         inventory.dependencies[inventory.component["bom-ref"]].add(root_ref)
     mapping[""] = root_ref
     for name, record in records.items():
-        if not name:
+        if not name or name not in selected:
             continue
         package_name = record.get("name", name.rsplit("node_modules/", 1)[1])
         ref = purl("npm", package_name, record["version"])
@@ -322,7 +360,7 @@ def npm_inventory(inventory: Inventory, path: Path, development: bool, container
             "scope": "optional" if development else "required",
             "properties": properties({
                 "cadevil:evidence:source": path.relative_to(ROOT).as_posix(),
-                "cadevil:inventory:usage": "development tool" if development else "browser runtime CDN; npm devDependency is used by Node tests",
+                "cadevil:inventory:usage": usage or ("development tool" if development else "browser runtime CDN; npm devDependency is used by Node tests"),
             }),
         }
         if record.get("license"):
@@ -335,23 +373,58 @@ def npm_inventory(inventory: Inventory, path: Path, development: bool, container
             component["externalReferences"] = [reference]
         inventory.add(component)
     for name, record in records.items():
-        declared = {**record.get("dependencies", {}), **record.get("optionalDependencies", {}), **record.get("peerDependencies", {}), **(record.get("devDependencies", {}) if not name else {})}
-        optional = set(record.get("optionalDependencies", {})) | {key for key, value in record.get("peerDependenciesMeta", {}).items() if value.get("optional")}
-        for dependency_name in declared:
-            parts = name.split("/") if name else []
-            while True:
-                candidate = "/".join([*parts, "node_modules", dependency_name])
-                if candidate in mapping:
-                    inventory.dependencies[mapping[name]].add(mapping[candidate])
-                    break
-                if not parts:
-                    if dependency_name in optional:
-                        break
-                    raise ValueError(f"Unresolved npm dependency {dependency_name} in {path.name}")
-                parts.pop()
+        if name not in selected:
+            continue
+        dependencies, optional = declared(name)
+        for dependency_name in dependencies:
+            candidate = resolve(name, dependency_name, optional)
+            if candidate is not None:
+                inventory.dependencies[mapping[name]].add(mapping[candidate])
     # npm may retain orphaned platform/optional entries. Their exact package
     # presence is preserved; no fabricated dependency edge is added.
     inventory.evidence_file(path)
+
+
+def browser_pki_inventory(inventory: Inventory, *, development: bool) -> None:
+    path = ROOT / "scripts/browser-pki/package-lock.json"
+    manifest = ROOT / "scripts/browser-pki/package.json"
+    expected = {"pkijs":"3.4.1", "es-module-lexer":"3.0.2", "esbuild":"0.28.2"}
+    lock = json.loads(path.read_text())
+    if json.loads(manifest.read_text()) != {"dependencies":expected} or lock["packages"][""].get("dependencies") != expected:
+        raise ValueError("The browser PKI parser/bundler pins differ from their reviewed declarations.")
+    for name,version in expected.items():
+        if lock["packages"]["node_modules/" + name]["version"] != version:
+            raise ValueError("A browser PKI parser/bundler version differs from its exact pin.")
+    npm_inventory(inventory, path, development,
+                  "cadevil-browser-pki-build-environment" if development else None,
+                  root_packages=None if development else {"pkijs", "es-module-lexer"},
+                  usage="browser parser dependency closure; tree-shaken modules are not independently attested" if not development else "browser parser bundler and its complete locked platform alternatives")
+    inventory.evidence_file(manifest)
+    inventory.evidence_file(ROOT / "scripts/vendor_browser_pki.mjs")
+    if development:
+        return
+    license_path = ROOT / "resources/static/js/vendor/browser_pki.js.LICENSE.txt"
+    license_text = license_path.read_text()
+    packages = {"pkijs", "asn1js", "pvtsutils", "pvutils", "bytestreamjs", "tslib", "@noble/hashes", "es-module-lexer"}
+    selected = {component["name"] for component in inventory.components.values()
+                if component.get("purl", "").startswith("pkg:npm/") and
+                any(value.get("value") == path.relative_to(ROOT).as_posix() for value in component.get("properties", []))}
+    if selected != packages:
+        raise ValueError("Browser parser dependency closure differs from its eight retained license declarations.")
+    for name in packages:
+        record = lock["packages"]["node_modules/" + name]
+        if f"{name} {record['version']} ({record['license']})\n" not in license_text:
+            raise ValueError("A browser parser license/version declaration is missing from its retained license file.")
+    for filename in ("resources/static/js/vendor/browser_pki.js", "resources/static/js/vendor/browser_pki.js.LICENSE.txt",
+                     "resources/static/js/plugin_verification.js", "resources/static/js/verified_plugin_worker.js",
+                     "resources/static/js/plugin_worker_bootstrap.js"):
+        ref = "urn:cadevil:asset:" + quote(filename, safe="/")
+        inventory.add({"type":"file", "bom-ref":ref, "name":filename, "scope":"required",
+                       "hashes":[{"alg":"SHA-256", "content":digest(ROOT / filename)}],
+                       "properties":properties({"cadevil:evidence:source":"Tracked vendored parser bytes; package archive integrity does not independently attest the minified bundle."})})
+        inventory.dependencies[inventory.component["bom-ref"]].add(ref)
+        inventory.dependencies[ref].update(purl("npm", name, expected[name]) for name in ("pkijs","es-module-lexer"))
+        inventory.evidence_file(ROOT / filename)
 
 
 def asset_component(inventory: Inventory, name: str, version: str, files: list[str], source: str, license_entry: dict | None, kind: str = "npm", usage: str = "vendored browser runtime") -> str:
@@ -482,12 +555,15 @@ def generate(uv: str, validate: bool = True) -> dict[str, str]:
     runtime = Inventory(project["name"], project["version"], "Cadevil application dependency and declared browser/WASM inventory")
     python_export(runtime, uv, licenses, False)
     npm_inventory(runtime, ROOT / "package-lock.json", False)
+    browser_pki_inventory(runtime, development=False)
     browser_inventory(runtime)
     cargo_inventory(runtime)
     runtime.evidence_file(INPUTS / "python-license-evidence.json")
     development = Inventory(f"{project['name']}-development-tools", project["version"], "Application development groups and separately captured local MCP, audit and SBOM tool environments")
     python_export(development, uv, licenses, True)
     development_tools(development, licenses)
+    npm_inventory(development, ROOT / "package-lock.json", True, "cadevil-browser-test-environment")
+    browser_pki_inventory(development, development=True)
     return {"cadevil.cdx.json": serialized(runtime.output(validate)), "cadevil-development.cdx.json": serialized(development.output(validate))}
 
 

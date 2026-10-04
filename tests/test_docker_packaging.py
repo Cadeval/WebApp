@@ -40,12 +40,20 @@ class DockerContextPolicyTests(SimpleTestCase):
         self.assertNotIn("plugins/resources.py", manifest["runtime"])
         self.assertIn("shared/migrations/0001_initial.py", manifest["runtime"])
         self.assertIn("sbom/cadevil.cdx.json", manifest["runtime"])
+        for value in ("plugin_manager/certificate_authority.py", "plugin_manager/management/commands/plugin_ca.py",
+                      "plugin_manager/migrations/0010_teams_certificate_authority.py", "plugin_manager/templates/plugin_manager/teams.html",
+                      "resources/static/js/vendor/browser_pki.js", "resources/static/js/verified_plugin_worker.js"):
+            self.assertIn(value,manifest["runtime"])
+        self.assertNotIn("plugin_manager/templates/plugin_manager/_plugin_row.jinja2",manifest["runtime"])
+        for value in ("scripts/vendor_browser_pki.mjs","scripts/browser-pki/package.json","scripts/browser-pki/package-lock.json"):
+            self.assertIn(value,manifest["build_only"])
+            self.assertNotIn(value,manifest["runtime"])
 
     def test_archive_ignores_secret_state_and_new_files_at_any_depth(self):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as output:
             root = Path(source)
             manifest = self.fixture(root)
-            for path in (".env", ".git/config", "shared/credentials.py", "shared/nested/new.py", "resources/static/secret.txt", "plugins/bim_model_manager/static/bim-demo/private.ifc", "plugins/example_plugin/static/js/private.js", "data/user_uploads/private.ifc"):
+            for path in (".env", ".git/config", "shared/credentials.py", "shared/nested/new.py", "resources/static/secret.txt", "plugins/bim_model_manager/static/bim-demo/private.ifc", "plugins/example_plugin/static/js/private.js", "data/user_uploads/private.ifc", "data/plugin-ca/private.root.pem", "plugin_manager/private-team-keys.json", "resources/static/js/vendor/private.js"):
                 target = root / path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("PRIVATE_CANARY_DO_NOT_PACKAGE")
@@ -161,6 +169,8 @@ class ContainerSettingsTests(SimpleTestCase):
                         sys.modules["config.settings.prod"] = saved
             self.assertFalse(loaded["DEBUG"])
             self.assertFalse(loaded["DEVELOPMENT_MCP_ENABLED"])
+            self.assertEqual(loaded["PLUGIN_CA_DIRECTORY"], Path(loaded["BASE_DIR"]) / "data/plugin-ca")
+            self.assertEqual(loaded["PLUGIN_CA_PUBLIC_URL"], "https://cadevil.org")
             self.assertFalse(any(plugin.startswith("cadevil.mcp.") for plugin in loaded["PLUGIN_BUILTINS"]))
             self.assertEqual(loaded["SECURE_PROXY_SSL_HEADER"], ("HTTP_X_FORWARDED_PROTO", "https"))
             self.assertEqual(loaded["SECURE_REDIRECT_EXEMPT"], [r"^healthz$"])

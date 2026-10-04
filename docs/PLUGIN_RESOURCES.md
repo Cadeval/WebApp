@@ -23,6 +23,7 @@ plugins/bim_model_manager/
     resources/__init__.py
     templates/bim/...
     templates/shared/...
+    templates/bim_model_manager/overview.html
     static/css/...
     static/js/...
     static/bim-demo/...
@@ -44,13 +45,19 @@ Each source package declares one resource owner. BIM Workspace's `resources.json
 {
   "version": 1,
   "plugin_id": "cadevil.bim.model_manager",
-  "package": "plugins.bim_model_manager"
+  "package": "plugins.bim_model_manager",
+  "overview": {
+    "template": "bim_model_manager/overview.html",
+    "compatibility": "both"
+  }
 }
 ```
 
 The editor uses `cadevil.example.editor` and `plugins.example_plugin`. The descriptor version describes the resource format; the plugin's manifest carries its release version.
 
-`plugin_manager/resource_registry.py` defines `ResourceBundle` and `ResourceRegistry`. A bundle contains the owner ID, Python package name and resource root. `from_builtins()` reads only declarations in explicitly configured bundled source packages. It validates metadata, rejects duplicate owners/packages and escaping or symlinked resource paths, and requires the `resources/__init__.py` namespace. The registry reads metadata without importing Django, plugin factories, model modules or hooks. Uploaded packages and runtime storage are outside this discovery process.
+`plugin_manager/resource_registry.py` defines `ResourceBundle`, `OverviewTemplate` and `ResourceRegistry`. A bundle contains the owner ID, Python package name, resource root and optional overview declaration. `from_builtins()` reads only declarations in explicitly configured bundled source packages. It validates metadata, rejects duplicate owners/packages and escaping or symlinked resource paths, and requires the `resources/__init__.py` namespace. The registry reads metadata without importing Django, plugin factories, model modules or hooks. Uploaded packages and runtime storage are outside this discovery process.
+
+The optional `overview` declares an owned HTML/Jinja template and its environment compatibility (`debug`, `production` or `both`, default `both`). Its namespace follows the source package below `plugins`: BIM Workspace uses `bim_model_manager/`, the editor uses `example_plugin/`, and Snake uses `rust_example_plugin/`. Template paths must stay inside that namespace and the owner's `templates/` directory. Validation rejects links, traversal, absolute paths and oversized files.
 
 ## Django registry hook
 
@@ -71,13 +78,21 @@ Django's app-directory template loader finds `templates/` using each configurati
 
 Django's app static finder uses the same path. The common adapter also adds each plugin's `static/` root to `STATICFILES_DIRS` in `ready()`, because Bolt's native server reads those directories directly in development and production. The image retains files in their owning plugin directories rather than duplicating the large public geometry assets.
 
+## Registered page overviews
+
+The adapter's `register_landing_overview(AppConfig, declaration)` hook registers the owner's optional overview during normal application startup. The host's Mycelium and Plugin Manager configurations use the same hook for their own templates. Each application can register one overview. Django's normal template loader resolves it, and the adapter checks that the resulting template origin is the exact declared owner file; another application's same-named template cannot silently replace it.
+
+The guest landing view obtains `public_overview_templates()`, ordered by application name, and includes the production-compatible descriptions. Its sequence explains Cadevil and Mycelium, choosing trusted tools, BIM Workspace, the IFC Editor and the browser example. A single demo action appears at the top of the page body and uses the usual HTMX outer replacement of `#content-container`. Signed-in landing requests do not collect these templates; they show the user's workspace actions. Full and HTMX responses follow the same rule.
+
+Public descriptions are independent of catalog activation and personal selection. They describe installed source packages without granting route access or starting a workflow. The private plugin details view resolves the same owned declaration through `get_overview_for_plugin`; development-only descriptions remain unavailable with `DEBUG=False`. Uploaded browser archives cannot register server templates.
+
 ## Plugin-owned persistence
 
 Active BIM domain models and upload/validation helpers live under `plugins/bim_model_manager/django/`. All nine BIM models use the `bim_model_manager` app label and default `bim_model_manager_<modelname>` table names. Their content types, permissions and migration history belong to that plugin. Shared authentication remains the host's `shared.CadevilUser`; it has no plugin upload relation or BIM model re-exports.
 
 Version 0.15.0 of the application and 2.0.0 of BIM Workspace introduced fresh authentication and BIM migration histories. The shared BIM compatibility wrappers and historical shared/plugin-root migrations were removed. That was the breaking persistence boundary: an existing 0.14 database cannot be upgraded by running those initial migrations over it. Back up that deployment separately, initialize an empty Cadevil database, recreate login access, and import the models and packages needed in the new schema.
 
-Application 0.16.0 and BIM Workspace 2.0.2 move the Python packages out of the old `apps/` parent. The Django application names and migration module paths now use the root packages shown above. The `shared` and `bim_model_manager` app labels, table names and existing initial migration identities are unchanged. This package move retains an existing 0.15 database and application files; it does not repeat the 0.15.0 schema reset.
+Application 0.16.0 and BIM Workspace 2.0.3 move the Python packages out of the old `apps/` parent. The Django application names and migration module paths now use the root packages shown above. The `shared` and `bim_model_manager` app labels, table names and existing initial migration identities are unchanged. This package move retains an existing 0.15 database and application files; it does not repeat the 0.15.0 schema reset.
 
 ## Python implementation ownership
 
