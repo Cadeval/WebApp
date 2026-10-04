@@ -13,7 +13,13 @@ data/debug-mcp/
 **/target/
 /reference/
 .DS_Store
+.idea/
+.venv/
+node_modules/
+.ruff_cache/
+.pytest_cache/
 .idea/dataSources.local.xml
 .idea/dataSources/
 .idea/workspace.xml
 /tests/data/*.sqlite3*
+/tests/data/cityjson-cache/
