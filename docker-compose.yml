@@ -1,0 +1,201 @@
+name: ${COMPOSE_PROJECT_NAME:-cadevil}
+
+x-app: &app
+  image: ${CADEVIL_IMAGE:-cadevil:0.14.0}
+  pull_policy: never
+  init: true
+  read_only: true
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: ["ALL"]
+  networks: ["private"]
+  tmpfs: ["/tmp:rw,noexec,nosuid,size=256m,mode=1777"]
+  volumes:
+    - type: volume
+      source: app_data
+      target: /app/data
+  secrets: ["django_secret_key", "postgres_password", "redis_password"]
+  environment:
+    SECRET_KEY_FILE: /run/secrets/django_secret_key
+    DATABASE_URL: postgresql://${CADEVIL_DB_USER:-cadevil}@postgres:5432/${CADEVIL_DB_NAME:-cadevil}
+    DATABASE_PASSWORD_FILE: /run/secrets/postgres_password
+    REDIS_URL: redis://redis:6379/0
+    REDIS_PASSWORD_FILE: /run/secrets/redis_password
+    ALLOWED_HOSTS: ${CADEVIL_ALLOWED_HOSTS:?Set CADEVIL_ALLOWED_HOSTS to the public hostname}
+    CSRF_TRUSTED_ORIGINS: ${CADEVIL_CSRF_TRUSTED_ORIGINS:?Set CADEVIL_CSRF_TRUSTED_ORIGINS to the HTTPS origin}
+    CADEVIL_TRUST_PROXY_HTTPS: "true"
+    CADEVIL_HTTP_PROCESSES: ${CADEVIL_HTTP_PROCESSES:-2}
+    IFC_GEOMETRY_THREADS: ${IFC_GEOMETRY_THREADS:-2}
+  logging: &bounded_logs
+    driver: json-file
+    options: {max-size: "10m", max-file: "3"}
+
+services:
+  frontend:
+    image: nginx:1.30.5-alpine3.24@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    user: "101:101"
+    entrypoint: ["nginx"]
+    command: ["-g", "daemon off;"]
+    init: true
+    restart: unless-stopped
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m,mode=1777"]
+    volumes:
+      - type: bind
+        source: ./docker/frontend/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./docker/frontend/default.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+        bind: {create_host_path: false}
+    networks:
+      swagnet:
+        aliases: ["cadevil"]
+      private: {}
+    expose: ["8080"]
+    depends_on:
+      app: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/frontend-healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    mem_limit: 128m
+    cpus: 0.5
+    logging: *bounded_logs
+
+  app:
+    <<: *app
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+    mem_limit: ${CADEVIL_APP_MEMORY:-2g}
+    cpus: ${CADEVIL_APP_CPUS:-2}
+
+  migrate:
+    <<: *app
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    restart: "no"
+    healthcheck: {disable: true}
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    mem_limit: 1g
+    cpus: 1
+
+  postgres:
+    image: postgres:18.6-trixie@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
+    command:
+      - postgres
+      - -c
+      - log_statement=none
+      - -c
+      - log_min_error_statement=panic
+      - -c
+      - log_error_verbosity=terse
+      - -c
+      - log_parameter_max_length_on_error=0
+    user: "999:999"
+    init: true
+    restart: unless-stopped
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    networks: ["private"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+      - /var/run/postgresql:rw,noexec,nosuid,size=16m,uid=999,gid=999,mode=3775
+    shm_size: 128m
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql
+      - type: bind
+        source: ./docker/postgres/init-app.sh
+        target: /docker-entrypoint-initdb.d/10-cadevil-app.sh
+        read_only: true
+        bind: {create_host_path: false}
+    secrets: ["postgres_admin_password", "postgres_password"]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
+      CADEVIL_DB_USER: ${CADEVIL_DB_USER:-cadevil}
+      CADEVIL_DB_NAME: ${CADEVIL_DB_NAME:-cadevil}
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      PGDATA: /var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --host=127.0.0.1 --username=\"$$POSTGRES_USER\" --dbname=\"$$POSTGRES_DB\" --quiet"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    mem_limit: 768m
+    cpus: 1
+    logging: *bounded_logs
+
+  redis:
+    image: redis:8.4.7-alpine3.22@sha256:0514fa59e3d84e2f3be66731c5401fc2a85b8ea71b49c0116c850f6a558076f4
+    user: "999:1000"
+    entrypoint: ["/bin/sh", "/usr/local/bin/cadevil-redis-start.sh"]
+    init: true
+    restart: unless-stopped
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    networks: ["private"]
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
+    volumes:
+      - type: volume
+        source: redis_data
+        target: /data
+      - type: bind
+        source: ./docker/redis/start.sh
+        target: /usr/local/bin/cadevil-redis-start.sh
+        read_only: true
+        bind: {create_host_path: false}
+    secrets: ["redis_password"]
+    environment:
+      REDIS_MAXMEMORY: ${CADEVIL_REDIS_MAXMEMORY:-256mb}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          REDISCLI_AUTH="$$(sed 's/\r$//' /run/secrets/redis_password)"
+          redis-cli --no-auth-warning ping | grep -qx PONG
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 6
+    mem_limit: 512m
+    cpus: 0.5
+    logging: *bounded_logs
+
+networks:
+  swagnet:
+    external: true
+    name: ${CADEVIL_SWAG_NETWORK:-swagnet}
+  private:
+    internal: ${CADEVIL_PRIVATE_INTERNAL:-true}
+
+volumes:
+  app_data: {}
+  postgres_data: {}
+  redis_data: {}
+
+secrets:
+  django_secret_key:
+    file: ${CADEVIL_DJANGO_SECRET_FILE:?Set CADEVIL_DJANGO_SECRET_FILE to an external secret file}
+  postgres_password:
+    file: ${CADEVIL_POSTGRES_PASSWORD_FILE:?Set CADEVIL_POSTGRES_PASSWORD_FILE to an external secret file}
+  postgres_admin_password:
+    file: ${CADEVIL_POSTGRES_ADMIN_PASSWORD_FILE:?Set CADEVIL_POSTGRES_ADMIN_PASSWORD_FILE to an external secret file}
+  redis_password:
+    file: ${CADEVIL_REDIS_PASSWORD_FILE:?Set CADEVIL_REDIS_PASSWORD_FILE to an external secret file}
