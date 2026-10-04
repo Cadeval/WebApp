@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.0 — Unreleased
+
+- Consolidate BIM Workspace into one navigation entry with URL-backed tabs for its model, map, reference, calculation and comparison pages.
+- Load only the selected panel through HTMX, with keyboard navigation, stable focus and cleanup of outgoing viewers and workers.
+- Keep existing owned detail routes, uploads, downloads, validation responses and public demo access compatible.
+- Bump BIM Workspace to 1.7.0.
+
 ## 0.9.0 — Unreleased
 
 - Show actual-geometry thumbnails in Model Manager, building-map selections, calculation and assessment-comparison choices.
