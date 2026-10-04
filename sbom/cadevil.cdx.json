@@ -15,7 +15,7 @@
       "properties": [
         {
           "name": "cadevil:evidence:source",
-          "value": "apps/plugins/example_plugin/Cargo.lock"
+          "value": "plugins/example_plugin/Cargo.lock"
         },
         {
           "name": "cadevil:cargo:source",
@@ -44,7 +44,7 @@
       "properties": [
         {
           "name": "cadevil:evidence:source",
-          "value": "apps/plugins/rust_example_plugin/Cargo.lock"
+          "value": "plugins/rust_example_plugin/Cargo.lock"
         },
         {
           "name": "cadevil:cargo:source",
@@ -8466,14 +8466,14 @@
       "version": "6.0.0"
     },
     {
-      "bom-ref": "urn:cadevil:asset:apps/plugins/example_plugin/static/wasm/example_plugin.wasm",
+      "bom-ref": "urn:cadevil:asset:plugins/example_plugin/static/wasm/example_plugin.wasm",
       "hashes": [
         {
           "alg": "SHA-256",
           "content": "3bc3052375837715d58ea05484a6887fc0734122bf9be85f54061bd3689a3320"
         }
       ],
-      "name": "apps/plugins/example_plugin/static/wasm/example_plugin.wasm",
+      "name": "plugins/example_plugin/static/wasm/example_plugin.wasm",
       "properties": [
         {
           "name": "cadevil:evidence:source",
@@ -8794,14 +8794,14 @@
     {
       "aggregate": "incomplete",
       "assemblies": [
-        "pkg:generic/cadevil-webapp@0.15.1"
+        "pkg:generic/cadevil-webapp@0.16.0"
       ]
     }
   ],
   "dependencies": [
     {
       "dependsOn": [
-        "urn:cadevil:asset:apps/plugins/example_plugin/static/wasm/example_plugin.wasm"
+        "urn:cadevil:asset:plugins/example_plugin/static/wasm/example_plugin.wasm"
       ],
       "ref": "pkg:cargo/example-plugin-builder@0.1.1"
     },
@@ -8840,7 +8840,7 @@
         "pkg:pypi/shapely@2.1.2",
         "pkg:pypi/watchdog@6.0.0"
       ],
-      "ref": "pkg:generic/cadevil-webapp@0.15.1"
+      "ref": "pkg:generic/cadevil-webapp@0.16.0"
     },
     {
       "dependsOn": [],
@@ -9182,7 +9182,7 @@
     },
     {
       "dependsOn": [],
-      "ref": "urn:cadevil:asset:apps/plugins/example_plugin/static/wasm/example_plugin.wasm"
+      "ref": "urn:cadevil:asset:plugins/example_plugin/static/wasm/example_plugin.wasm"
     },
     {
       "dependsOn": [],
@@ -9255,7 +9255,7 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/cadevil-webapp@0.15.1",
+      "bom-ref": "pkg:generic/cadevil-webapp@0.16.0",
       "description": "Cadevil application dependency and declared browser/WASM inventory",
       "licenses": [
         {
@@ -9266,7 +9266,7 @@
       ],
       "name": "cadevil-webapp",
       "type": "application",
-      "version": "0.15.1"
+      "version": "0.16.0"
     },
     "properties": [
       {
@@ -9274,36 +9274,36 @@
         "value": "89a9a266e5a828494f9ba9f3d9dab6205334fbb50a9a16d606e9b77ce84f0ef7"
       },
       {
-        "name": "cadevil:input:sha256:apps/plugins/example_plugin/Cargo.lock",
-        "value": "37a5abb205725d991a3c1b647ab1b062eb1943e0539bccb0632e635e190fe97c"
-      },
-      {
-        "name": "cadevil:input:sha256:apps/plugins/example_plugin/Cargo.toml",
-        "value": "a3b1c1a939cbcc261a8653c3dcf7fe9b43aa31832e6a7a61bbf8a69494cceca3"
-      },
-      {
-        "name": "cadevil:input:sha256:apps/plugins/example_plugin/static/wasm/example_plugin.wasm",
-        "value": "3bc3052375837715d58ea05484a6887fc0734122bf9be85f54061bd3689a3320"
-      },
-      {
-        "name": "cadevil:input:sha256:apps/plugins/rust_example_plugin/Cargo.lock",
-        "value": "66aa31eb99d7d3afbac8be42008438a3b2de1387488af7f1a93b671418e85d1a"
-      },
-      {
-        "name": "cadevil:input:sha256:apps/plugins/rust_example_plugin/Cargo.toml",
-        "value": "a190d84085897735ec453723c275895893b22b0c83291819fc951a1cbc70edc7"
-      },
-      {
         "name": "cadevil:input:sha256:browser-runtime-declarations",
         "value": "8cda9ce0760090e00025ba5fd3ff92da9666e649a8e2c6dad5dadab375b08053"
       },
       {
         "name": "cadevil:input:sha256:package-lock.json",
-        "value": "985da0e5e88f6858a0fe7c952c97b811486768b9abdd3bf8469dd6c0dee56998"
+        "value": "2fc32b38f1d11688f276f674907da2b05371e445c9fd4da699afa580c6acf66f"
+      },
+      {
+        "name": "cadevil:input:sha256:plugins/example_plugin/Cargo.lock",
+        "value": "37a5abb205725d991a3c1b647ab1b062eb1943e0539bccb0632e635e190fe97c"
+      },
+      {
+        "name": "cadevil:input:sha256:plugins/example_plugin/Cargo.toml",
+        "value": "a3b1c1a939cbcc261a8653c3dcf7fe9b43aa31832e6a7a61bbf8a69494cceca3"
+      },
+      {
+        "name": "cadevil:input:sha256:plugins/example_plugin/static/wasm/example_plugin.wasm",
+        "value": "3bc3052375837715d58ea05484a6887fc0734122bf9be85f54061bd3689a3320"
+      },
+      {
+        "name": "cadevil:input:sha256:plugins/rust_example_plugin/Cargo.lock",
+        "value": "66aa31eb99d7d3afbac8be42008438a3b2de1387488af7f1a93b671418e85d1a"
+      },
+      {
+        "name": "cadevil:input:sha256:plugins/rust_example_plugin/Cargo.toml",
+        "value": "a190d84085897735ec453723c275895893b22b0c83291819fc951a1cbc70edc7"
       },
       {
         "name": "cadevil:input:sha256:pyproject.toml",
-        "value": "6dec092d56311b0520bb17650ae8f12c5f3be4116a51c7d405f7248a6e3e56d0"
+        "value": "ea4ba1e9b4aa8613268c0130f9a13ef1ad8f9daed4c97c70fbfd577b911b4632"
       },
       {
         "name": "cadevil:input:sha256:resources/static/css/vendor/normalize.LICENSE.md",
@@ -9379,11 +9379,11 @@
       },
       {
         "name": "cadevil:input:sha256:scripts/generate_sbom.py",
-        "value": "a2aea368e1eea307ee3dc2717616d850918389a170a14f868d16c9425a3f7b9e"
+        "value": "e4cfd7545d1029d9be7a1b834ed3c8d4994c9d737296e17d4b8c3144f363d5ef"
       },
       {
         "name": "cadevil:input:sha256:uv.lock",
-        "value": "ec450e5daceaa15c9ba7cfc985bf529aa9837cbf797299213924c3789d35e3de"
+        "value": "ef6f97a28e4b6e9d9bf067bdbcee98a68348bd62e330e0b39945b2e8277f11e2"
       },
       {
         "name": "cadevil:inventory:completeness",

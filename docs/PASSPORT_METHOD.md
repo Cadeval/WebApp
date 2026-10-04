@@ -6,7 +6,7 @@ semicolon-separated combination lists, service lives, and prices per m², m³, m
 The workbook is imported without changing it. Blank coefficients remain unavailable.
 
 Calculation code is migrated from `reference/_src/ifc_extractor` into
-`apps/plugins/bim_model_manager/ifc_extractor`. The original reference snapshot is retained. The
+`plugins/bim_model_manager/ifc_extractor`. The original reference snapshot is retained. The
 existing BIM plugin contributes a Material Passport menu item, and its enabled
 state gates the calculation, report and comparison routes at runtime. Existing Rust/Bolt API
 work is preserved. The assessment route uses normal Django request handling,

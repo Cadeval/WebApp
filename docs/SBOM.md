@@ -60,6 +60,16 @@ Review the input and BOM diffs before committing refreshed evidence. Keep `tools
 
 ## Plugin Manager inventories
 
+Version 0.16.0 builds wheels through `uv build`. The pinned Hatch hook compiles
+the two Rust workers using Rustup and derives a copy of the application inventory
+for that wheel. The WASM components describe the newly built bytes and record
+the compiler version and target. Source inventories continue to describe the
+checked-in artifacts; building a wheel does not overwrite them. Wheel metadata
+also records the reviewed manifest, Cargo source hashes and runtime file hashes.
+The package verifier checks those bindings before Docker extracts the runtime
+payload. This build evidence complements the image inventory; it does not claim
+complete compiler, standard-library or native dependency coverage.
+
 Each visible, environment-compatible plugin has a **View SBOM** link in `/plugins/manage/`. The detail page uses the existing HTMX content boundary and offers a private JSON download at `/plugins/<plugin_id>/sbom.json`. Anonymous visitors are redirected to login. Access follows the same catalog visibility as Plugins: regular users can inspect available tools and their saved workflow selections; administrators can inspect pending packages. Debug-only inventories are unavailable in production.
 
 The two bundled Rust tools project their Cargo dependency closure and compiled WASM component from the audited application BOM. The viewer verifies the deployed WASM hash before displaying it. BIM Workspace shows the shared application runtime with its scope stated explicitly, rather than claiming those dependencies belong exclusively to BIM. Development MCP plugins show only their captured tool-environment closure. An installed Python plugin without inventory evidence shows an unavailable state; no dependencies are inferred from its name.

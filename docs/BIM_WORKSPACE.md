@@ -3,7 +3,7 @@
 The enabled BIM plugin contributes five full-page links: model manager,
 reference configurations, configuration editor, material passport and comparison.
 All 17 GET/POST registrations now live in
-`apps/plugins/bim_model_manager/api.py`. `config/api.py` composes these native
+`plugins/bim_model_manager/api.py`. `config/api.py` composes these native
 Bolt APIs; `runbolt` discovers that project API alongside the installed apps.
 There is no BIM Django/ASGI mount or Django URL dispatch. The removed plugin
 `urls.py` and `passport_urls.py` have no remaining runtime references.
@@ -16,7 +16,7 @@ not a page dispatcher. Serve the application with Bolt; ordinary Django
 target starts `uv run python manage.py runbolt --dev` with four processes.
 
 The page handlers retain shared forms, models, storage and assessment code.
-`apps/shared/bolt_pages.py` adapts Bolt requests to standard Django form parsing,
+`shared/bolt_pages.py` adapts Bolt requests to standard Django form parsing,
 including multipart uploads, repeated checkbox values and upload limits.
 The adapter explicitly runs Django's CSRF token/cookie/origin/referer check
 after multipart parsing; the early Bolt middleware check is deferred rather
@@ -37,7 +37,7 @@ is enforced for selection, listing, downloads, comparisons and deletion.
 
 Safari revealed that the async homepage rendered ORM-dependent plugin context
 processors on its event loop, silently hiding navigation. The homepage render
-in `apps/mycelium/api.py` now runs in a thread; a native route regression test
+in `mycelium/api.py` now runs in a thread; a native route regression test
 checks that enabled BIM links appear and disabled links disappear.
 
 Validation completed:
@@ -59,11 +59,11 @@ Rust work and user data are preserved. No commit or deployment was performed.
 Reproduce the isolated checks:
 
 ```sh
-uv run --inexact python -m django test apps.plugins.bim_model_manager.test_bim_pages \
-  apps.plugins.bim_model_manager.ifc_extractor.test_material_assessment \
-  apps.plugins.bim_model_manager.test_material_passport_web \
-  apps.plugins.bim_model_manager.ifc_extractor.test_thesis_alignment \
-  apps.plugins.bim_model_manager.test_thesis_alignment_web \
+uv run --inexact python -m django test plugins.bim_model_manager.test_bim_pages \
+  plugins.bim_model_manager.ifc_extractor.test_material_assessment \
+  plugins.bim_model_manager.test_material_passport_web \
+  plugins.bim_model_manager.ifc_extractor.test_thesis_alignment \
+  plugins.bim_model_manager.test_thesis_alignment_web \
   --settings=tests.passport_test_settings
 uv run --inexact python tests/bolt_runtime_smoke.py
 uv run --inexact python -m django check --settings=config.settings.dev
@@ -85,7 +85,7 @@ Official Normalize.css 8.0.1 is vendored at
 `resources/static/css/vendor/normalize.css`, with its MIT license alongside it.
 The base and index templates load it before application styles; standalone
 passport pages also load it. No CDN request is needed.
-`apps/plugins/bim_model_manager/static/css/bim.css` provides the shared BIM presentation, including
+`plugins/bim_model_manager/static/css/bim.css` provides the shared BIM presentation, including
 light/dark colors, visible focus states, forms, model cards, scrollable tables,
 sticky configuration headings and bounded validation diagnostics. Safari visual
 review covers the model manager, actual MP reference editor, passport report

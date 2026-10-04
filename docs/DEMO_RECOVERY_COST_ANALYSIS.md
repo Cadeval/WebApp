@@ -10,7 +10,7 @@ Recovery grades alone do not define resale prices, deconstruction charges, recyc
 
 ## Regular material passport reports
 
-The same analysis is calculated by `apps/plugins/bim_model_manager/ifc_extractor/recovery_costs.py` for new assessments and saved with the report. Regular authenticated passport pages display the six categories, complete category costs, known subtotals, percentage shares and missing-price counts. JSON downloads include the analysis; `?download=recovery_csv` exports the category table. All downloads retain the existing report owner check.
+The same analysis is calculated by `plugins/bim_model_manager/ifc_extractor/recovery_costs.py` for new assessments and saved with the report. Regular authenticated passport pages display the six categories, complete category costs, known subtotals, percentage shares and missing-price counts. JSON downloads include the analysis; `?download=recovery_csv` exports the category table. All downloads retain the existing report owner check.
 
 Historical reports with saved material rows are enriched on read in memory without modifying stored assessments or recalculating IFC geometry. Reports without material rows request recalculation. Normal strict schema validation is unchanged.
 

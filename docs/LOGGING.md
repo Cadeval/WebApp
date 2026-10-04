@@ -41,7 +41,7 @@ reader also applies redaction to old rows. Pattern redaction cannot reliably
 identify arbitrary personal data already present in historical free-form logs;
 remove legacy log stores according to the deployment's retention policy if needed.
 New logging calls must use fixed messages and the small context allowlist in
-`apps/shared/logging_utils.py`. Do not log request objects, payloads, configuration,
+`shared/logging_utils.py`. Do not log request objects, payloads, configuration,
 IFC entities, signing material or exception messages.
 Django request/security diagnostics are rendered with fixed labels because their
 original messages can contain raw paths and origins. SQL logging is disabled even
@@ -67,5 +67,5 @@ Run the focused native transport, redaction, concurrency and existing log stream
 checks with:
 
 ```sh
-python manage.py test apps.shared.test_logging apps.shared.test_live_logs --settings=tests.passport_test_settings
+python manage.py test shared.test_logging shared.test_live_logs --settings=tests.passport_test_settings
 ```

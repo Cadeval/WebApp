@@ -4,7 +4,7 @@
 
 Container requests close Django database connections in the same thread that runs ORM work, including failed requests. WebSocket permission refreshes have their own connection boundaries. After PostgreSQL returns from a restart, subsequent requests open fresh connections; requests during the outage can still fail. Redis caches session reads while PostgreSQL keeps their durable records.
 
-The frontend, PostgreSQL and Redis images use verified official multi-platform digests: Nginx 1.30.5 Alpine, PostgreSQL 18.6 Trixie and Redis 8.4.7 Alpine. The application defaults to the locally built `cadevil:0.15.1` image. Compose does not rebuild or transmit a checkout. Its exact image input list still excludes deployment configuration and every secret file; runtime config files are narrowly bind-mounted read-only. The frontend runs as UID 101, Cadevil as UID 10001, PostgreSQL as UID 999 and Redis as UID 999. Services drop capabilities, use read-only root filesystems and bounded container logs; writable state lives in named volumes or tmpfs.
+The frontend, PostgreSQL and Redis images use verified official multi-platform digests: Nginx 1.30.5 Alpine, PostgreSQL 18.6 Trixie and Redis 8.4.7 Alpine. The application defaults to the locally built `cadevil:0.16.0` image. Compose does not rebuild or transmit a checkout. Its exact image input list still excludes deployment configuration and every secret file; runtime config files are narrowly bind-mounted read-only. The frontend runs as UID 101, Cadevil as UID 10001, PostgreSQL as UID 999 and Redis as UID 999. Services drop capabilities, use read-only root filesystems and bounded container logs; writable state lives in named volumes or tmpfs.
 
 ## Prepare configuration and runtime secrets
 
@@ -60,13 +60,22 @@ The external network name can be overridden with `CADEVIL_SWAG_NETWORK` for an i
 
 ## Persistence, upgrades and backups
 
-Version 0.15.0 introduces plugin-owned BIM persistence with a new `bim_model_manager` app label/table prefix and fresh authentication/BIM migration histories. It requires an empty Cadevil application database; it is not an in-place upgrade from 0.14. Retain a database dump and file backup separately, initialize the new schema, recreate administrator/login access, and import the models or packages to use in the new service. Scope this reset to the Cadevil application database and its associated application state; other databases, deployments, shared networks and runtime secrets are independent. Backups remain available for recovery outside the new schema.
+Version 0.15.0 introduced plugin-owned BIM persistence with a new `bim_model_manager` app label/table prefix and fresh authentication/BIM migration histories. Upgrading from 0.14 to that schema requires an empty Cadevil application database. Retain a database dump and file backup separately, initialize the new schema, recreate administrator/login access, and import the models or packages to use in the new service. Scope that reset to the Cadevil application database and its associated application state; other databases, deployments, shared networks and runtime secrets are independent. Backups remain available for recovery outside the new schema.
+
+Version 0.16.0 moves the Python packages to `shared/`, `mycelium/`, `plugin_manager/` and `plugins/`, with all project tests under `tests/`. Django app labels, database table names and the existing 0.15 migration history remain unchanged. An upgrade from 0.15 preserves accounts, workflow selections, building records, uploads and package files; no database reset is part of this release.
 
 The application data volume contains uploads, signed plugin packages, generated caches and its admin log store. PostgreSQL holds application accounts/model records; Redis has its own cache volume and AOF persistence. Back up both PostgreSQL and the app volume; Redis can be rebuilt as a cache. Logs and database state are never build inputs.
 
 For [PostgreSQL 18's official image](https://github.com/docker-library/docs/tree/master/postgres#pgdata), the named volume is mounted at `/var/lib/postgresql` and `PGDATA` is `/var/lib/postgresql/18/docker`. Mounting only the old `/var/lib/postgresql/data` path would miss the new layout. Pin and review major database upgrades separately; changing the tag does not upgrade an existing database's data format. PostgreSQL's init variables apply only to a new, empty volume. Rotating its password file alone does not update an existing database role password; perform a coordinated database credential rotation before restarting dependent services. Redis loads its configured runtime password at restart, so rotate its file and application together.
 
-For a compatible application release, build the reviewed new image, update `CADEVIL_IMAGE`, back up state, stop the frontend/app to drain existing workers, then run `docker compose up --detach`. The migration service applies schema changes before new web workers start. Stop the deployment while retaining data with:
+For the 0.15 → 0.16 application update, build and review the new image. Stop the application to drain its workers, take a consistent PostgreSQL and application-volume backup, and update only `CADEVIL_IMAGE=cadevil:0.16.0` in the external environment file. Check the new image's migration state without applying migrations, then replace only the application container:
+
+```sh
+docker compose --env-file /secure/cadevil/compose.env run --rm --no-deps --entrypoint python migrate manage.py migrate --check --noinput
+docker compose --env-file /secure/cadevil/compose.env up --detach --no-deps --wait app
+```
+
+Keep the existing frontend, PostgreSQL, Redis containers, named volumes, networks and runtime secrets. Verify application health and retained records/files before discarding any backup. For future compatible releases that require schema changes, run the migration service before starting new web workers. Stop the deployment while retaining data with:
 
 ```sh
 docker compose --env-file /secure/cadevil/compose.env down
