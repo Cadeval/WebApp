@@ -33,6 +33,16 @@ The map provides Austria/Vienna location lookup, utility pricing and planning co
 
 Independent OpenStudio/EnergyPlus helpers remain available under `apps/plugins/bim_model_manager/ifc_extractor`. They use documented residential assumptions and require a separately installed OpenStudio CLI and weather data. The current browser workflow does not provide an EPW upload or energy simulation action.
 
+## Mycelium plugin framework
+
+Mycelium connects Cadevil's workflow tools through plugin manifests, registration hooks and a shared catalog. Administrators control site availability; users choose which approved, compatible plugins appear in their personal workspace. It currently ships with Cadevil, with its implementation in `apps/plugin_manager/` and its host pages in `apps/mycelium/`.
+
+Trusted Python plugins are installed on the server and discovered through configured bundled manifests or `cadevil.plugins` entry points. They can own Django models, migrations, templates and assets. Uploaded packages contain signed JavaScript/WASM browser workers; users sign their archives locally before submitting them for administrator review.
+
+Resource declarations use a framework-independent registry. A separate Django adapter connects installed plugins to Django's application loading mechanism. Broader framework independence remains a future goal: the current catalog and workflow implementation still use Django. See [plugin resource registration](docs/PLUGIN_RESOURCES.md) for the registration contract and adapter.
+
+Development MCP plugins run through `make debug` as administrator development tools and are excluded from production. Plugin manifests declare whether they support development, production or both environments. The plugin API currently uses version 1.0; Mycelium does not have a separate release version.
+
 ## Plugins and signing
 
 `/plugins/manage/` combines the site catalog and each user's enabled workflows. Only selected, approved, compatible plugins appear in personal navigation. Administrators review packages and control site availability; development MCP tools are admin debug services rather than personal workflows. Disabling a tool preserves the user's selection and data.

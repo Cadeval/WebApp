@@ -1,6 +1,5 @@
 <div {% if fragment %}id="content-container"{% endif %} class="journey-page home-page">
     <section class="journey-hero" aria-labelledby="home-title">
-        <span class="viewer-eyebrow">Building assessment</span>
         <h1 id="home-title">Explore your building models</h1>
         <p>Cadevil connects IFC geometry with material quantities, environmental impacts and recovery costs.</p>
         <div class="journey-actions">
@@ -34,6 +33,12 @@
         </div>
     </section>
 
+    <section class="journey-card" aria-labelledby="home-mycelium-title">
+        <h2 id="home-mycelium-title">The Mycelium plugin framework</h2>
+        <p>Mycelium is the plugin framework behind Cadevil. Choose approved tools from the shared catalog to build your own workflow. Administrators manage which plugins are available, and your workspace shows the tools you have enabled.</p>
+        <p>The BIM Workspace connects models, maps and assessments. Signed plugin packages can add more tools as your workflow grows.</p>
+    </section>
+
     {% if user.is_authenticated %}
         <section aria-labelledby="home-workflow-title">
             <div class="journey-section-heading"><h2 id="home-workflow-title">Your workflow</h2><p>Open a chosen tool or add another from Plugins.</p></div>
@@ -48,7 +53,7 @@
     {% endif %}
 
     <section class="journey-card home-demo" aria-labelledby="home-demo-title">
-        <span class="viewer-eyebrow">Try a walkthrough</span><h2 id="home-demo-title">See the models and calculations</h2>
+        <h2 id="home-demo-title">See the models and calculations</h2>
         <p>Explore the A–D house geometry and a recorded calculation walkthrough. The demo includes provisional material, environmental and cost estimates.</p>
         <a class="journey-button" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
     </section>
