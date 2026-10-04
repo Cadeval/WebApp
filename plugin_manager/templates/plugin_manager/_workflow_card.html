@@ -1,15 +1,17 @@
 {% with record=item.record %}
-<article class="editor-plugin-card">
-    <h3>{{ record.name|default:record.plugin_id }}</h3><p>{{ item.description }}</p>
+<article class="editor-plugin-card plugin-catalog-tile" data-plugin-card>
+    <div class="plugin-card-identity"><span class="plugin-card-icon fa {{ item.icon }}" aria-hidden="true"></span><h3><a class="plugin-detail-link" href="{% url 'plugin_manager:plugin_details' record.plugin_id %}" data-plugin-details aria-haspopup="dialog" aria-controls="plugin-detail-body" hx-get="{% url 'plugin_manager:plugin_details' record.plugin_id %}" hx-target="#plugin-detail-body" hx-swap="innerHTML" hx-sync="#plugin-detail-body:replace" hx-push-url="false">{{ record.name|default:record.plugin_id }}</a></h3></div>
+    <p>{{ item.description }}</p><p class="plugin-card-meta">Version {{ record.version|default:'unavailable' }} · {{ item.category }}</p>
+    {% if management %}<p class="plugin-card-meta">{% if record.effective_enabled %}Installed on this site{% elif record.has_error %}Unavailable{% else %}Not installed{% endif %} · {{ record.get_compatibility_display }}</p>{% endif %}
     {% if item.selected and not item.available %}<p class="plugin-availability-message">Currently unavailable. Your selection is saved.</p>{% endif %}
-    <div class="plugin-collection-actions">
+    {% if not management %}<div class="plugin-collection-actions">
         {% if record.environment_compatible %}<a href="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-get="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">View SBOM</a>{% endif %}
         {% if item.selected %}
             {% if item.available and item.url %}<a class="plugin-open-tool" href="{{ item.url }}" hx-get="{{ item.url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open tool</a>{% endif %}
-            <form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disable="this">Remove from workflow</button></form>
+            <form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="tab" value="workflows"><button type="submit" hx-disable="this">Remove from workflow</button></form>
         {% elif item.available and item.is_workflow %}
-            <form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disable="this">Add to workflow</button></form>
+            <form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'enable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="tab" value="workflows"><button type="submit" hx-disable="this">Add to workflow</button></form>
         {% endif %}
-    </div>
+    </div>{% endif %}
 </article>
 {% endwith %}

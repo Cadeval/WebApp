@@ -1,13 +1,17 @@
 {% load static %}
-<section {% if fragment %}id="content-container"{% endif %} class="plugin-manager-shell journey-page" aria-labelledby="plugins-title">
-    <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261003-journey">
+<section {% if fragment %}id="content-container"{% endif %} class="plugin-manager-shell journey-page" data-plugin-workspace="catalog" data-active-tab-id="plugin-catalog-tab-{{ active_tab }}" aria-labelledby="plugins-title">
+    <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261004-details">
     <div class="journey-section-heading"><h1 id="plugins-title">Plugins</h1><p>Choose the tools you need. Selected tools appear in your navigation.</p></div>
     {% if notice %}<p class="journey-notice" role="status" aria-live="polite">{{ notice }}</p>{% endif %}
     {% if reload_summary %}<p class="journey-notice" role="status" aria-live="polite">{{ reload_summary }}</p>{% endif %}
     {% if request.method == 'POST' %}{% include 'plugin_manager/_plugin_nav_items.jinja2' with plugin_nav_oob=True %}{% endif %}
-
-    <form method="get" action="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" class="plugin-store-search"><label for="plugin-search">Find a tool</label><input id="plugin-search" type="search" name="q" value="{{ query }}"><button type="submit">Search</button></form>
-
+    <nav class="plugin-workspace-tabs" data-workspace-tablist aria-label="Plugin pages">
+        <a id="plugin-catalog-tab-workflows" data-workspace-tab="workflows" href="{% url 'plugin_manager:plugin_list' %}?tab=workflows" hx-get="{% url 'plugin_manager:plugin_list' %}?tab=workflows" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" hx-sync="#content-container:replace" aria-controls="plugin-catalog-panel-workflows"{% if active_tab == 'workflows' %} aria-current="page"{% endif %}>Workflows</a>
+        <a id="plugin-catalog-tab-management" data-workspace-tab="management" href="{% url 'plugin_manager:plugin_list' %}?tab=management" hx-get="{% url 'plugin_manager:plugin_list' %}?tab=management" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" hx-sync="#content-container:replace" aria-controls="plugin-catalog-panel-management"{% if active_tab == 'management' %} aria-current="page"{% endif %}>Plugin management</a>
+        <a id="plugin-catalog-tab-developer" data-workspace-tab="developer" href="{% url 'plugin_manager:plugin_list' %}?tab=developer" hx-get="{% url 'plugin_manager:plugin_list' %}?tab=developer" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" hx-sync="#content-container:replace" aria-controls="plugin-catalog-panel-developer"{% if active_tab == 'developer' %} aria-current="page"{% endif %}>Developer</a>
+    </nav>
+    <form method="get" action="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true" class="plugin-store-search"><input type="hidden" name="tab" value="{{ active_tab }}"><label for="plugin-search">Find a tool</label><input id="plugin-search" type="search" name="q" value="{{ query }}"><button type="submit">Search</button></form>
+    <div id="plugin-catalog-panel-workflows" role="tabpanel" aria-labelledby="plugin-catalog-tab-workflows" tabindex="0"{% if active_tab != 'workflows' %} hidden{% endif %}>
     <section aria-labelledby="my-workflow-title">
         <div class="journey-section-heading"><h2 id="my-workflow-title">My workflow</h2><p>Your selected tools. Removing a tool keeps your saved work.</p></div>
         <div class="plugin-store-grid">
@@ -23,22 +27,28 @@
         </div>
     </section>
 
-    <details class="journey-card plugin-publishing"{% if upload_form.errors %} open{% endif %}>
-        <summary>Publish a signed plugin</summary>
+    </div>
+    <div id="plugin-catalog-panel-management" role="tabpanel" aria-labelledby="plugin-catalog-tab-management" tabindex="0"{% if active_tab != 'management' %} hidden{% endif %}>
+        <div class="journey-section-heading"><h2>Plugin management</h2><p>Open a plugin to see its overview, version history and package details.{% if user.is_staff %} Install and uninstall controls set site availability; personal workflow selections stay saved.{% endif %}</p></div>
+        {% if user.is_staff %}<button type="button" class="button" data-task-label="Refreshing plugin discovery" hx-post="{% url 'plugin_manager:plugin_reload' %}" hx-vals='{"tab":"management"}' hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Refresh plugin discovery</button>{% endif %}
+        <div class="plugin-store-grid">{% for item in catalog %}{% include 'plugin_manager/_workflow_card.html' with management=True %}{% empty %}<div class="plugin-collection-empty"><p>No matching plugins.</p></div>{% endfor %}</div>
+    </div>
+    <div id="plugin-catalog-panel-developer" role="tabpanel" aria-labelledby="plugin-catalog-tab-developer" tabindex="0"{% if active_tab != 'developer' %} hidden{% endif %}>
+    <section class="journey-card plugin-publishing" aria-labelledby="plugin-publish-title">
+        <h2 id="plugin-publish-title">Publish a signed plugin</h2>
         <p>Contribute a browser tool to the site catalog. New packages are reviewed before becoming available.</p>
         <p class="plugin-publishing-links"><a href="/mycelium/settings?section=security" hx-get="/mycelium/settings?section=security" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Manage signing keys in User settings</a><a href="{% url 'plugin_manager:plugin_sample' %}" hx-boost="false">Download an example package</a></p>
         <form class="plugin-upload-form" data-task-label="Uploading and checking plugin package" method="post" action="{% url 'plugin_manager:plugin_upload' %}" enctype="multipart/form-data" hx-post="{% url 'plugin_manager:plugin_upload' %}" hx-encoding="multipart/form-data" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">
-            {% csrf_token %}<input type="hidden" name="return_to" value="manager">{{ upload_form.non_field_errors }}
+            {% csrf_token %}<input type="hidden" name="return_to" value="manager"><input type="hidden" name="tab" value="developer">{{ upload_form.non_field_errors }}
             <div class="plugin-upload-grid">{% for field in upload_form %}<div class="plugin-form-field{% if field.errors %} plugin-form-field--error{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<span class="plugin-field-error" role="alert">{{ error }}</span>{% endfor %}</div>{% endfor %}</div>
             <div class="plugin-upload-footer"><p class="plugin-help-text">Sign your archive locally with the CLI. Accepted: ZIP, TAR, tar.gz/tgz and tar.xz/txz. The manifest supplies the plugin name, ID and version. Include an optional CycloneDX 1.6 sbom.cdx.json (up to 256 KiB); the signing CLI signs it with the other package files.</p><button class="button" type="submit" hx-disable="this">Publish plugin</button></div>
         </form>
-    </details>
+    </section>
 
-    {% if user.is_staff %}
-        <details class="journey-card plugin-administration"{% if reload_summary %} open{% endif %}>
-            <summary>Site plugin administration</summary><p>Global controls determine which plugins are available to the site. These settings are separate from your personal workflow.</p>
-            <button type="button" class="button" data-task-label="Refreshing plugin discovery" hx-post="{% url 'plugin_manager:plugin_reload' %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Refresh plugin discovery</button>
-            <div class="plugin-table-viewport" tabindex="0" aria-label="Site plugin inventory"><table id="plugin-table" class="plugin-table"><thead><tr><th scope="col">Plugin</th><th scope="col">Version</th><th scope="col">API</th><th scope="col">Priority</th><th scope="col">Site status</th><th scope="col">Error</th><th scope="col">Actions</th></tr></thead><tbody id="plugin-table-body">{% for item in catalog %}{% include 'plugin_manager/_plugin_row.jinja2' with record=item.record selected=item.selected available=item.available is_workflow=item.is_workflow description=item.description %}{% empty %}<tr><td colspan="7">No matching plugins.</td></tr>{% endfor %}</tbody></table></div>
-        </details>
-    {% endif %}
+    </div>
+    <dialog class="plugin-detail-drawer" data-plugin-detail-dialog aria-label="Plugin details">
+        <button type="button" class="plugin-detail-close" data-plugin-detail-close aria-label="Close plugin details">Close <span aria-hidden="true">×</span></button>
+        <p id="plugin-detail-loading" data-plugin-detail-loading role="status" aria-live="polite" hidden>Loading plugin details…</p>
+        <div id="plugin-detail-body" aria-live="polite"></div>
+    </dialog>
 </section>

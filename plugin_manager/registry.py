@@ -28,7 +28,7 @@ from urllib.parse import urlsplit, unquote
 import re
 
 from django.conf import settings
-from django.db import DatabaseError
+from django.db import DatabaseError, transaction
 
 from plugin_manager.manifest import (
     PLUGIN_API_VERSION,
@@ -418,6 +418,10 @@ class PluginRegistry:
 
         results = list(results)
         try:
+            # New images also start for ``migrate`` against the previous schema.
+            # Read the additive column before any write, so the migration can
+            # preserve the stored version before discovery observes an update.
+            PluginRecord.objects.values_list("version_history", flat=True).first()
             PluginRecord.objects.filter(source=PluginRecord.Source.PACKAGE).exclude(
                 plugin_id__in=[result.plugin_id for result in results]
             ).update(enabled=False, error="Package is no longer discovered. Restart after installing or removing Python package code.")
@@ -430,11 +434,11 @@ class PluginRegistry:
                     "error": result.error,
                     "compatibility": result.compatibility,
                 }
-                record, created = PluginRecord.objects.get_or_create(
-                    plugin_id=result.plugin_id,
-                    defaults={**defaults, "enabled": result.ok},
-                )
-                if not created:
+                with transaction.atomic():
+                    record, created = PluginRecord.objects.select_for_update().get_or_create(
+                        plugin_id=result.plugin_id,
+                        defaults={**defaults, "enabled": result.ok},
+                    )
                     if record.source == PluginRecord.Source.UPLOAD:
                         result.error = "Installed package id collides with an uploaded plugin."
                         logger.error("Installed package id collides with an uploaded plugin: %s", result.plugin_id)
@@ -444,11 +448,9 @@ class PluginRegistry:
                     for field_name, value in defaults.items():
                         setattr(record, field_name, value)
                     if not result.ok:
-                        # A plugin that just failed discovery/validation can
-                        # never contribute active extensions, so force it
-                        # into a disabled state rather than leaving a
-                        # previously-enabled record silently inert.
                         record.enabled = False
+                    else:
+                        record.observe_version()
                     record.save()
         except DatabaseError:
             logger.warning(

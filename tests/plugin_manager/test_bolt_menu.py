@@ -49,7 +49,7 @@ class PluginMenuTests(TestCase):
         self.assertEqual(response.status_code,302)
         self.assertTrue(response.url.startswith('/mycelium/login'))
 
-    def test_staff_toggle_is_post_only_and_returns_refreshed_row(self):
+    def test_staff_toggle_is_post_only_and_returns_refreshed_catalog(self):
         self.client.force_login(self.staff)
         url=reverse('plugin_manager:plugin_enable',args=[self.record.plugin_id])
         self.assertIn(self.client.get(url).status_code,(404,405))
@@ -58,7 +58,8 @@ class PluginMenuTests(TestCase):
         with patch('plugin_manager.api.manage_plugin',side_effect=enable):
             response=self.client.post(url)
         self.assertEqual(response.status_code,200)
-        self.assertContains(response,'Enabled')
+        self.assertContains(response,'Installed on this site')
+        self.record.refresh_from_db(); self.assertTrue(self.record.enabled)
 
     def test_manager_actions_require_csrf(self):
         self.client.force_login(self.staff)

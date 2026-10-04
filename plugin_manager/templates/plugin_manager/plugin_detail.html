@@ -1,0 +1,7 @@
+{% load static %}
+<section {% if fragment %}id="content-container"{% endif %} class="plugin-manager-shell journey-page" aria-labelledby="plugin-detail-page-title">
+    <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261004-details">
+    <h1 id="plugin-detail-page-title">Plugin details</h1>
+    <p><a href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to plugins</a></p>
+    {% include 'plugin_manager/_plugin_detail.html' %}
+</section>

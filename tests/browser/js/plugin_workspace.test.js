@@ -1,3 +1,4 @@
+import {preverifiedWorker} from './fixtures/verified_worker.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createWorkspaceController, nextTabIndex, prepareWorkspaceSwap, validateWorkspaceResponse} from './plugin_workspace.js';
@@ -385,7 +386,7 @@ test('cleanup stops the actual plugin runtime worker but a rejected swap leaves 
         card.append(new Element(f.doc, 'button', {[`data-plugin-${kind}`]: name}));
     }
     f.initial.panel.append(card);
-    const runtime = new EditorPluginRuntime({WorkerClass: Worker, baseUrl: 'https://app.example/',
+    const runtime = new EditorPluginRuntime({WorkerClass: Worker, prepareWorker:preverifiedWorker, baseUrl: 'https://app.example/',
         setTimer: () => 1, clearTimer() {}, logger: {error: assert.fail}});
     bindRuntime(runtime, f.doc, f.window);
     assert.equal(instances.length, 1);

@@ -55,3 +55,26 @@
   .plugin-manager-shell .plugin-manager-hero {flex-direction:column;align-items:stretch;}
   .plugin-manager-shell .plugin-manager-summary {align-self:flex-start;border-radius:var(--border-radius);}
 }
+
+.plugin-catalog-tile {cursor:pointer;border:1px solid var(--border-low-contrast);border-radius:var(--border-radius);padding:1.25rem;background:var(--secondary-bg);}
+.plugin-catalog-tile:hover {border-color:var(--primary-color);}
+.plugin-card-identity,.plugin-detail-heading {display:flex;align-items:center;gap:.9rem;}
+.plugin-card-identity h3,.plugin-detail-heading h2 {margin:0;}
+.plugin-card-icon {display:inline-flex;align-items:center;justify-content:center;flex:0 0 2.8rem;width:2.8rem;height:2.8rem;border:1px solid var(--border-low-contrast);border-radius:.6rem;font-size:1.35rem;background:var(--primary-bg);color:var(--primary-color);}
+.plugin-detail-link {text-decoration:none;}
+.plugin-card-meta {font-size:.875rem;color:var(--muted-text,var(--primary-color));}
+.plugin-detail-drawer {position:fixed;inset:0 0 0 auto;width:min(100%,42rem);height:100dvh;max-width:100%;max-height:100dvh;margin:0;padding:clamp(1rem,3vw,2rem);box-sizing:border-box;overflow:auto;border:0;border-left:1px solid var(--border-low-contrast);border-radius:0;background:var(--secondary-bg);color:var(--primary-color);overscroll-behavior:contain;}
+.plugin-detail-drawer::backdrop {background:rgb(0 0 0 / .35);}
+.plugin-detail-close {display:flex;margin:0 0 1.5rem auto;}
+.plugin-detail-drawer [data-plugin-detail-panel] {display:grid;gap:1.5rem;}
+.plugin-detail-drawer [data-plugin-detail-panel] > * {min-width:0;}
+.plugin-detail-heading h2 {font-size:1.6rem;}
+.plugin-detail-metadata {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:1rem;margin:0;padding:1rem;border:1px solid var(--border-low-contrast);border-radius:.6rem;background:var(--primary-bg);}
+.plugin-detail-metadata dt {font-weight:600;font-size:.875rem;color:var(--muted-text,var(--primary-color));}
+.plugin-detail-metadata dd {margin:.3rem 0 0;overflow-wrap:anywhere;}
+.plugin-global-actions form {margin:0;}
+.plugin-global-actions p {flex-basis:100%;font-size:.875rem;margin:0;}
+.plugin-version-history {display:grid;gap:.75rem;padding-left:1.25rem;}
+.plugin-version-history time,.plugin-version-history span {display:block;font-size:.875rem;color:var(--muted-text,var(--primary-color));}
+.plugin-detail-overview .journey-card {padding:1rem;}
+.plugin-manager-shell [hidden] {display:none !important;}
