@@ -102,20 +102,74 @@ export function findIfcMesh(model, requested) {
     return match;
 }
 
+// A native select exposes the same IFC identities as pointer picking without
+// requiring sight or fine pointer movement. A product with several surfaces
+// appears once; hidden spaces and hidden ancestor groups stay out of the list.
+export function collectSelectableParts(model) {
+    const choices = [], identities = new Set();
+    model.traverse(mesh => {
+        if (!mesh.isMesh) return;
+        for (let current = mesh; current; current = current.parent) {
+            if (current.visible === false) return;
+            if (current === model) break;
+        }
+        const owner = metadataOwner(mesh, model);
+        const details = extractPartMetrics({name: owner.name, userData: owner.userData});
+        const guid = details.guid === 'Not available' ? '' : details.guid;
+        const identity = guid || owner;
+        if (identities.has(identity)) return;
+        identities.add(identity);
+        choices.push({mesh, owner, guid, label: `${details.name} · ${details.type}${guid ? ` · ${guid}` : ''}`});
+    });
+    return choices;
+}
+
+export function bindViewerKeyboard(canvas, controls, {fitModel, clearSelection}) {
+    controls.listenToKeyEvents(canvas);
+    const onKey = event => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const key = event.key.toLowerCase();
+        if (key === 'escape') { event.preventDefault(); clearSelection(); }
+        else if (key === 'f') { event.preventDefault(); fitModel(); }
+        else if (['+', '=', '-', '_'].includes(key)) {
+            event.preventDefault();
+            const offset = controls.object.position.clone().sub(controls.target), distance = offset.length();
+            if (!distance) return;
+            const nextDistance = THREE.MathUtils.clamp(distance * (key === '+' || key === '=' ? 0.8 : 1.25),
+                controls.minDistance, controls.maxDistance);
+            controls.object.position.copy(controls.target).add(offset.multiplyScalar(nextDistance / distance));
+            controls.update();
+        }
+    };
+    canvas.addEventListener('keydown', onKey);
+    return () => { canvas.removeEventListener('keydown', onKey); controls.stopListenToKeyEvents(); };
+}
+
 export function mountViewerHeader(root, documentRoot = globalThis.document) {
     const toolbar = root?.querySelector?.('[data-viewer-header-content]');
     const slot = documentRoot?.getElementById?.('viewer-header-slot');
     if (!toolbar || !slot) return () => {};
     const originalParent = toolbar.parentNode, originalNext = toolbar.nextSibling;
+    function movePreservingFocus(move) {
+        const active = documentRoot.activeElement;
+        const movingFocus = active && toolbar.contains?.(active);
+        move();
+        // Reparenting a focused heading/control can reset focus to body. Only
+        // restore that moved node, never override another control's focus.
+        if (movingFocus && active.isConnected
+            && (!documentRoot.activeElement || documentRoot.activeElement === documentRoot.body)) {
+            active.focus({preventScroll: true});
+        }
+    }
 
-    slot.replaceChildren(toolbar);
     documentRoot.body?.classList?.add('viewer-active');
+    movePreservingFocus(() => slot.replaceChildren(toolbar));
 
     return () => {
         if (slot.contains(toolbar)) {
             // BFCache keeps this page attached. Restore its controls so a
             // fresh renderer can mount them after persisted pageshow.
-            if (root.isConnected && originalParent) originalParent.insertBefore(toolbar, originalNext?.parentNode === originalParent ? originalNext : null);
+            if (root.isConnected && originalParent) movePreservingFocus(() => originalParent.insertBefore(toolbar, originalNext?.parentNode === originalParent ? originalNext : null));
             else toolbar.remove();
         }
         documentRoot.body?.classList?.remove('viewer-active');
@@ -135,6 +189,7 @@ export function initializeViewer(root) {
     const metricsEl = element('part-metrics'), metricsEmpty = element('metrics-empty');
     const materialEl = element('part-materials'), metadataStatus = element('material-data-status');
     const clearButton = root.querySelector('[data-viewer-action="clear-selection"]');
+    const partSelect = element('viewer-part-select');
     const fitButton = root.querySelector('[data-viewer-action="fit"]');
     const gridButton = root.querySelector('[data-viewer-action="toggle-grid"]');
     const textureToggle = element('viewer-textures'), spaceToggle = element('viewer-spaces'), landscapeToggle = element('viewer-landscape');
@@ -147,6 +202,7 @@ export function initializeViewer(root) {
         cleanupViewerHeader();
         root.dataset.viewerInitialized = 'false';
         loading.finish();
+        if (partSelect) partSelect.options[0].textContent = 'Building parts unavailable';
         errorMessage.textContent = '3D rendering could not start. Check that WebGL 2 and hardware acceleration are available, then reload this page.';
         errorOverlay.classList.add('is-visible');
         console.error('Viewer initialization failed:', error);
@@ -172,6 +228,7 @@ export function initializeViewer(root) {
     let abortDetails = null, selectionVersion = 0, detailsTask = null;
     const raycaster = new THREE.Raycaster(), pointer = new THREE.Vector2();
     let pointerStart = null;
+    let partChoices = [];
     function listen(target, event, callback) { target.addEventListener(event, callback); listeners.push([target, event, callback]); }
     function requestRender() {
         if (disposed || renderFailed || renderFrame !== null) return;
@@ -217,6 +274,7 @@ export function initializeViewer(root) {
         if (detailsTask != null) globalThis.CadevilActivity?.finish(detailsTask);
         detailsTask = null; materialEl.setAttribute('aria-busy', 'false');
         selectionStatus.textContent = 'Nothing selected';
+        if (partSelect) partSelect.value = '';
         selectionEmpty.hidden = false; selectionDetails.hidden = true; clearButton.disabled = true;
         requestRender();
     }
@@ -260,6 +318,7 @@ export function initializeViewer(root) {
         clearSelection(); selectedMesh = mesh;
         const source = metadataOwner(mesh, model);
         const details = extractPartMetrics(source === mesh ? mesh : { name: source.name, userData: source.userData, geometry: mesh.geometry });
+        if (partSelect) partSelect.value = String(partChoices.findIndex(choice => choice.owner === source || (choice.guid && choice.guid === details.guid)));
         element('part-name').textContent = details.name;
         element('part-type').textContent = details.type;
         element('part-guid').textContent = details.guid;
@@ -286,6 +345,22 @@ export function initializeViewer(root) {
         raycaster.setFromCamera(pointer, camera);
         const hit = raycaster.intersectObject(model, true).find(({ object }) => object.isMesh && object.visible);
         if (hit) showSelection(hit.object); else clearSelection();
+    }
+    function refreshPartChoices() {
+        if (!partSelect || !model) return;
+        partChoices = collectSelectableParts(model);
+        const placeholder = document.createElement('option');
+        placeholder.value = ''; placeholder.textContent = partChoices.length ? 'Choose a building part' : 'No visible building parts';
+        const options = partChoices.map((choice, index) => {
+            const option = document.createElement('option');
+            option.value = String(index); option.textContent = choice.label;
+            return option;
+        });
+        partSelect.replaceChildren(placeholder, ...options);
+        partSelect.disabled = partChoices.length === 0;
+        const owner = selectedMesh && metadataOwner(selectedMesh, model);
+        const index = partChoices.findIndex(choice => choice.owner === owner);
+        partSelect.value = index >= 0 ? String(index) : '';
     }
     function configureShadows() {
         model?.traverse(child => {
@@ -314,7 +389,12 @@ export function initializeViewer(root) {
         const travel = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y); pointerStart = null;
         if (travel < 5) selectAt(event.clientX, event.clientY);
     });
-    listen(canvas, 'keydown', event => { if (event.key === 'Escape') clearSelection(); if (event.key.toLowerCase() === 'f') fitModel(); });
+    const cleanupKeyboard = bindViewerKeyboard(canvas, controls, {fitModel, clearSelection});
+    if (partSelect) listen(partSelect, 'change', () => {
+        const choice = partSelect.value === '' ? null : partChoices[Number(partSelect.value)];
+        if (choice) { showSelection(choice.mesh); fitBounds(new THREE.Box3().setFromObject(choice.owner)); }
+        else clearSelection();
+    });
     listen(fitButton, 'click', fitModel); listen(clearButton, 'click', clearSelection);
     listen(gridButton, 'click', () => { grid.visible = !grid.visible; gridButton.setAttribute('aria-pressed', String(grid.visible)); requestRender(); });
     listen(textureToggle, 'change', applySurfaces);
@@ -322,6 +402,7 @@ export function initializeViewer(root) {
     listen(spaceToggle, 'change', () => {
         for (const space of spaces) space.visible = spaceToggle.checked;
         if (selectedMesh && !selectedMesh.visible) clearSelection();
+        refreshPartChoices();
         requestRender();
     });
     listen(controls, 'change', requestRender);
@@ -365,6 +446,7 @@ export function initializeViewer(root) {
             partCount++;
             if (String(getMetadataValue(metadataOwner(child, model).userData ?? {}, ['ifctype', 'type'])).toLowerCase().match(/^(ifcspace|ifcopeningelement)$/)) { spaces.push(child); child.visible = false; }
         });
+        refreshPartChoices();
         modelBounds = recenterModel(model); scene.add(model);
         landscape = createLandscape(modelBounds); landscape.group.visible = landscapeToggle?.checked ?? true; scene.add(landscape.group);
         sceneBounds = modelBounds.clone().union(new THREE.Box3().setFromObject(landscape.group));
@@ -383,6 +465,7 @@ export function initializeViewer(root) {
             const match = findIfcMesh(model, requested);
             if (match) {
                 if (spaces.includes(match)) { spaceToggle.checked = true; for (const space of spaces) space.visible = true; }
+                refreshPartChoices();
                 showSelection(match); fitBounds(new THREE.Box3().setFromObject(metadataOwner(match, model)));
             } else selectionStatus.textContent = 'The requested IFC element has no renderable geometry in this model.';
         }
@@ -390,6 +473,7 @@ export function initializeViewer(root) {
         loading.finish();
         if (disposed || error.name === 'AbortError') return;
         console.error('GLB load error:', error);
+        if (partSelect) partSelect.options[0].textContent = 'Building parts unavailable';
         errorMessage.textContent = error?.message || 'The model could not be loaded.'; errorOverlay.classList.add('is-visible');
     });
     function dispose() {
@@ -400,7 +484,7 @@ export function initializeViewer(root) {
         cancelAnimationFrame(renderFrame); renderFrame = null;
         resizeObserver.disconnect(); themeObserver.disconnect(); clearSelection(); surfaces?.dispose(); landscape?.dispose(); disposeModelResources(model);
         grid.geometry.dispose(); grid.material.dispose(); environment.dispose();
-        outdoorLights.dispose(); controls.dispose(); renderer.dispose(); cleanupViewerHeader();
+        outdoorLights.dispose(); cleanupKeyboard(); controls.dispose(); renderer.dispose(); cleanupViewerHeader();
         for (const [target, event, callback] of listeners) target.removeEventListener(event, callback);
         releaseLifecycle();
         delete root.dataset.viewerInitialized;

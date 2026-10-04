@@ -21,6 +21,7 @@
 
     <!-- Main Container -->
     <div class="login-container" id="login-container">
+        <h1>Log in</h1>
         <form
                 id="login-form"
                 hx-post="/mycelium/login"
@@ -30,7 +31,7 @@
             {% csrf_token %}
 
             {% if error %}
-                <p class="login-error">{{ error }}</p>
+                <p class="login-error form-error-summary" role="alert" tabindex="-1" data-form-errors>{{ error }}</p>
             {% endif %}
 
             <label for="id_username">Username</label>

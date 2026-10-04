@@ -7,6 +7,7 @@
          data-selected-element="{{ selected_element }}"
          data-metadata-url="{{ metadata_url }}"
          data-model-url="{% url 'bim:model_geometry' upload_id %}"
+         data-page-title="{{ document.description|default:'3D model viewer' }}"
          aria-label="3D model viewer">
     <div id="viewer-overlay" class="viewer-toolbar" data-viewer-header-content>
         <a class="button fa fa-arrow-left" href="{% if from_map %}{% url 'bim:building_map' %}{% else %}{% url 'bim:model_manager' %}{% endif %}" hx-get="{% if from_map %}{% url 'bim:building_map' %}{% else %}{% url 'bim:model_manager' %}{% endif %}"
@@ -14,7 +15,7 @@
            title="Back to {% if from_map %}Building Map{% else %}Model Manager{% endif %}"> Back</a>
         <div class="viewer-heading">
             <span class="viewer-eyebrow">3D model</span>
-            <strong id="viewer-title">{{ document.description }}</strong>
+            <h1 id="viewer-title">{{ document.description|default:'3D model viewer' }}</h1>
         </div>
         <div class="viewer-tools" role="toolbar" aria-label="Viewer controls">
             <button class="button fa fa-crosshairs" type="button"
@@ -38,7 +39,7 @@
     <div class="viewer-workspace">
         <div id="viewer-viewport" class="viewer-viewport" aria-busy="false">
             <canvas id="viewer-canvas" tabindex="0"
-                    aria-label="Interactive 3D model. Drag to orbit and select a building part for details."></canvas>
+                    aria-label="Interactive 3D model" aria-describedby="viewer-keyboard-help"></canvas>
             <div class="viewer-hint" aria-hidden="true">
                 <span class="fa fa-mouse-pointer"></span> Select a part
                 <span class="viewer-hint-separator">·</span>
@@ -77,6 +78,15 @@
                 <p id="selection-status" class="selection-status" aria-live="polite">
                     Nothing selected
                 </p>
+
+                <div class="viewer-part-picker">
+                    <label for="viewer-part-select">Choose a building part</label>
+                    <select id="viewer-part-select" aria-describedby="viewer-part-help" aria-controls="selection-details" disabled>
+                        <option value="">Loading building parts…</option>
+                    </select>
+                    <p id="viewer-part-help" class="viewer-data-note">Choose a part to read its materials and properties in the inspector.</p>
+                    <p id="viewer-keyboard-help" class="viewer-data-note">With the 3D view focused: arrow keys pan, Shift + arrow keys orbit, + / − zoom, F fits the model, and Escape clears selection.</p>
+                </div>
 
                 {% if conversion %}
                 <details class="viewer-assessment">
@@ -154,5 +164,5 @@
     </div>
 </section>
 
-<script type="module" src="{% static 'js/3d_view.js' %}?v=0.8.0"></script>
+<script type="module" src="{% static 'js/3d_view.js' %}?v=20261004-accessibility"></script>
 </div>

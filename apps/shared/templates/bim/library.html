@@ -4,9 +4,9 @@
 <p>Upload a headed semicolon CSV or XLSX material reference. The uploaded file becomes your active configuration.</p>
 <form hx-boost="false" method="post" enctype="multipart/form-data" action="{% url 'bim:configuration_library' %}"
       hx-post="{% url 'bim:configuration_library' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
-      data-task-label="Uploading and checking reference data">{% csrf_token %}{{ form.as_p }}<button type="submit">Upload reference</button></form>
+      data-task-label="Uploading and checking reference data">{% csrf_token %}{% include 'shared/form_errors.html' %}{{ form.as_p }}<button type="submit">Upload reference</button></form>
 <h2>Select an existing reference</h2>
-<form hx-boost="false" method="post" action="{% url 'bim:save_config' %}" data-task-label="Loading reference data">{% csrf_token %}{{ selection_form.as_p }}<button type="submit">Use reference</button></form>
+<form hx-boost="false" method="post" action="{% url 'bim:save_config' %}" data-task-label="Loading reference data">{% csrf_token %}{% include 'shared/form_errors.html' with form=selection_form %}{{ selection_form.as_p }}<button type="submit">Use reference</button></form>
 {% if active %}<p>Active: <strong>{{ active.upload.description|default:active.upload.document.name }}</strong>. <a href="{% url 'bim:config_editor' %}">Edit configuration</a></p>{% endif %}
 <h2>Your reference files</h2>
 <ul>{% for upload in uploads %}<li>{{ upload.description|default:upload.document.name }} — {{ upload.uploaded_at }}</li>{% empty %}<li>No reference files uploaded yet.</li>{% endfor %}</ul>

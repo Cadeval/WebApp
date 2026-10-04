@@ -3,11 +3,11 @@
 <h1>Configuration editor</h1>
 {% if active %}
 <p>Editing {{ active.upload.description|default:active.upload.document.name }}. Saving creates a new reference version and preserves the original file. Select the saved version when calculating a passport.</p>
-{% for error in errors %}<p role="alert">{{ error }}</p>{% endfor %}
+{% if errors %}<div class="form-error-summary" role="alert" tabindex="-1" data-form-errors><h2>Configuration could not be saved</h2><ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul></div>{% endif %}
 <form hx-boost="false" method="post" id="config_form" action="{% url 'bim:config_editor' %}" data-task-label="Saving reference version">
 {% csrf_token %}<input type="hidden" name="source" value="{{ active.upload_id }}">
-<div class="config-editor-viewport"><div class="config-editor-pan"><table class="config-editor-table"><thead><tr><th>Material</th>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead>
-<tbody>{% for row in rows %}<tr><th scope="row">{{ row.material }}</th>{% for cell in row.cells %}<td><input type="text" name="{{ cell.field }}" value="{{ cell.value }}" aria-label="{{ row.material }} column {{ forloop.counter }}"></td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
+<div class="config-editor-viewport"><div class="config-editor-pan" tabindex="0" role="region" aria-label="Material reference table, scroll to see all columns"><table class="config-editor-table"><thead><tr><th scope="col">Material</th>{% for header in headers %}<th scope="col" id="config-column-{{ forloop.counter }}">{{ header }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in rows %}<tr><th scope="row" id="config-material-{{ forloop.counter }}">{{ row.material }}</th>{% for cell in row.cells %}<td><input type="text" name="{{ cell.field }}" value="{{ cell.value }}" aria-labelledby="config-material-{{ forloop.parentloop.counter }} config-column-{{ forloop.counter }}"></td>{% endfor %}</tr>{% endfor %}</tbody></table></div></div>
 <button type="submit">Save new reference version</button>
 </form>
 <p><a hx-boost="false" data-download-notice href="{% url 'bim:download_csv' %}">Download active configuration CSV</a></p>

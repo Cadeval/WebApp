@@ -17,7 +17,7 @@
     --padding-small: 0.25em;
     --padding-medium: 1em;
     --header-height: 3em;
-    --footer-height: 1em;
+    --footer-height: 2.75em;
     --safe-area-top: env(safe-area-inset-top, 0px);
     --safe-area-right: env(safe-area-inset-right, 0px);
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -832,7 +832,8 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 select:focus,
 textarea:focus {
-    outline: none;
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
     background-color: var(--primary-bg);
     border-color: var(--accent-color);
 }
@@ -1414,6 +1415,7 @@ tbody tr:hover {
 }
 
 #viewer-title {
+    margin: 0;
     overflow: hidden;
     color: var(--primary-color);
     font-size: 1rem;

@@ -1,12 +1,12 @@
 // HTMX 4 swaps validation responses by default. Keep actionable form errors,
 // but preserve the current page for unexpected server/permission failures.
-document.body.addEventListener('htmx:before:swap', event => {
+document.addEventListener('htmx:before:swap', event => {
     const status = event.detail.ctx?.response?.status;
     if (status >= 400 && ![400, 409, 422].includes(status)) event.preventDefault();
 });
 
 // Reject failures before history changes and offer readable recovery guidance.
-document.body.addEventListener('htmx:before:response', event => {
+document.addEventListener('htmx:before:response', event => {
     const status = event.detail.ctx?.response?.status;
     if (status >= 400 && ![400, 409, 422].includes(status)) {
         event.preventDefault();
@@ -22,7 +22,7 @@ document.body.addEventListener('htmx:before:response', event => {
 
 // New work supersedes previous request feedback. Task activity is managed in
 // task_activity.js, which keeps each overlapping request's lifecycle separate.
-document.body.addEventListener('htmx:before:request', function () {
+document.addEventListener('htmx:before:request', function () {
     const notice = document.getElementById('request-notice');
     if (notice) notice.hidden = true;
 });
@@ -87,7 +87,7 @@ function initConfigEditorPanning() {
     });
 }
 
-document.body.addEventListener('htmx:after:settle', initConfigEditorPanning);
+document.addEventListener('htmx:after:settle', initConfigEditorPanning);
 document.addEventListener('DOMContentLoaded', initConfigEditorPanning);
 
 
@@ -101,7 +101,8 @@ document.addEventListener('DOMContentLoaded', initConfigEditorPanning);
 function updateContextualChrome() {
     const theme = document.querySelector('[data-user-theme]')?.dataset.userTheme;
     if (theme) document.body.dataset.theme = theme;
-    const title = document.querySelector('#content-container h1')?.textContent.trim();
+    const title = document.querySelector('#viewer-app')?.dataset.pageTitle
+        || document.querySelector('#content-container h1')?.textContent.trim();
     if (title) document.title = `${title} · Cadevil`;
     const isConfigEditor = !!document.getElementById('config_form');
     document.body.classList.toggle('config-editor-active', isConfigEditor);
@@ -113,12 +114,17 @@ function updateContextualChrome() {
     document.body.classList.toggle('viewer-active', isViewer);
 }
 
-document.body.addEventListener('htmx:after:settle', updateContextualChrome);
+document.addEventListener('htmx:after:settle', updateContextualChrome);
 document.addEventListener('DOMContentLoaded', updateContextualChrome);
 
-document.body.addEventListener('htmx:before:request', event => {
+const pageFocusOrigins = new WeakMap();
+document.addEventListener('htmx:before:request', event => {
     const menu = document.getElementById('menu-popover');
     if (menu?.contains(event.detail.ctx?.sourceElement) && menu.matches(':popover-open')) menu.hidePopover();
+    const ctx = event.detail.ctx;
+    if (ctx?.request?.method === 'GET' && ['content-container', 'main-content'].includes(ctx.target?.id)) {
+        pageFocusOrigins.set(ctx, document.activeElement);
+    }
 });
 
 function updateNavigationState() {
@@ -132,18 +138,56 @@ function updateNavigationState() {
         else link.removeAttribute('aria-current');
     });
 }
-document.body.addEventListener('htmx:after:settle', updateNavigationState);
+document.addEventListener('htmx:after:settle', updateNavigationState);
 document.addEventListener('DOMContentLoaded', updateNavigationState);
 
-// Give validation feedback a predictable keyboard/screen-reader starting point.
-document.body.addEventListener('htmx:after:settle', () => {
-    document.querySelector('[data-form-errors]')?.focus();
+function availableForPageFocus(element) {
+    if (!element || element.closest?.('[hidden], [inert], [aria-hidden="true"]')) return false;
+    // A heading inside a display:none responsive toolbar has no rendered
+    // rectangles. Calling focus on it silently leaves focus on the body.
+    if (element.getClientRects && element.getClientRects().length === 0) return false;
+    const visibility = window.getComputedStyle?.(element)?.visibility;
+    return visibility !== 'hidden' && visibility !== 'collapse';
+}
+
+// Only new validation feedback receives focus; an unrelated panel refresh must
+// not move the user back to an older form error elsewhere on the page.
+document.addEventListener('htmx:after:settle', event => {
+    const errors = event.detail?.task?.target?.querySelector?.('[data-form-errors]');
+    if (availableForPageFocus(errors)) errors.focus();
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const errors = document.querySelector('[data-form-errors]');
+    if (availableForPageFocus(errors)) errors.focus();
 });
 
-// A new content page starts at its heading; POST updates retain reading position.
-document.body.addEventListener('htmx:after:swap', event => {
+// HTMX 4 settles before after:swap. At this point the final page (including a
+// history-restored main landmark) exists and keyboard focus can follow it.
+// Successful POST updates keep the current reading position.
+document.addEventListener('htmx:after:swap', event => {
     const ctx = event.detail.ctx;
-    if (ctx?.request?.method === 'GET' && ctx.target?.id === 'content-container') {
+    if (ctx?.request?.method === 'GET' && ['content-container', 'main-content'].includes(ctx.target?.id)) {
+        updateContextualChrome();
+        updateNavigationState();
+        const content = document.getElementById('content-container');
+        const summary = content?.querySelector('[data-form-errors]');
+        const errors = availableForPageFocus(summary) ? summary : null;
+        // The workspace controller deliberately restores tab focus while
+        // settling. Preserve that manual tab-navigation contract.
+        const activeTab = document.activeElement?.closest?.('[data-workspace-tab]');
+        if (!errors && activeTab && content?.contains(activeTab)) return;
+        const active = document.activeElement;
+        // A user can move to persistent navigation or another tool while a
+        // request runs. Do not pull focus away from that newer interaction.
+        if (!errors && pageFocusOrigins.has(ctx) && active && active !== document.body
+            && active !== pageFocusOrigins.get(ctx) && !content?.contains(active)) return;
+        const heading = Array.from(content?.querySelectorAll?.('h1') || []).find(availableForPageFocus);
+        const target = errors || heading
+            || document.getElementById('main-content');
+        if (target) {
+            target.setAttribute('tabindex', '-1');
+            target.focus({preventScroll: true});
+        }
         window.scrollTo({top: 0, left: 0, behavior: 'instant'});
     }
 });
