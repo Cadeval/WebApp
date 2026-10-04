@@ -57,9 +57,21 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
         uploaded_by=user if isinstance(user, get_user_model()) else None,
         uploaded_at=timezone.now(),
     )
-    record.artifact.save(storage_name, artifact, save=False)
+    record.observe_version(observed_at=record.uploaded_at)
     try:
         with transaction.atomic():
+            # Serialize membership/key changes with publication. Revocation uses
+            # the same key lock; team mutations lock the same team first.
+            from .models import PluginSigningKey, Team
+            from .teams import can_publish_key
+            from .certificate_authority import validate_signing_key
+            from django.core.exceptions import PermissionDenied
+            if artifact.signing_key.team_id:
+                Team.objects.select_for_update().get(pk=artifact.signing_key.team_id)
+            key=PluginSigningKey.objects.select_for_update().get(pk=artifact.signing_key.pk)
+            if not can_publish_key(user,key): raise PermissionDenied('This signing key is not available to your account or team.')
+            validate_signing_key(key)
+            record.artifact.save(storage_name, artifact, save=False)
             record.save()
     except Exception:
         logger.exception('Signed plugin could not be saved', extra={'event': 'plugin_upload_failed'})

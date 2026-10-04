@@ -13,10 +13,17 @@ from plugin_manager.services import (
     reload_plugins,
 )
 from shared.services import staff_required
-from .store import catalog_response, plugin_catalog
+from .store import catalog_response, plugin_catalog, plugin_details
 
 api = BoltAPI(namespace="plugin_manager",trailing_slash="keep",django_middleware=True)
 configure_api_logging(api)
+
+
+@api.get('/plugins/worker-bootstrap.js',name='plugin_worker_bootstrap',guards=[AllowAny()])
+@page_endpoint
+def verified_worker_bootstrap(request: Request):
+    from .browser_artifacts import worker_bootstrap
+    return worker_bootstrap(request)
 
 
 def _toggle(request: HttpRequest, plugin_id: str, enabled: bool) -> HttpResponse:
@@ -64,6 +71,12 @@ def plugin_reload(request: HttpRequest) -> HttpResponse:
 @page_endpoint
 def manager_page(request: Request):
     return plugin_catalog(request)
+
+
+@api.get('/plugins/{plugin_id}/details/',name='plugin_details',guards=[AllowAny()])
+@page_endpoint
+def plugin_detail_page(request: Request):
+    return plugin_details(request, request.params['plugin_id'])
 
 @api.post('/plugins/{plugin_id}/enable/',name='plugin_enable',guards=[AllowAny()])
 @page_endpoint
@@ -115,7 +128,7 @@ def uploaded_package_asset(request: Request): return package_asset(request,reque
 @page_endpoint
 def download_package_example(request: Request): return sample_package(request)
 
-from .keys import signing_keys_page, register_signing_key, revoke_signing_key, signing_cli
+from .keys import signing_keys_page, register_signing_key, revoke_signing_key, renew_signing_key, signing_cli
 
 @api.get('/plugins/keys/',name='plugin_keys',guards=[AllowAny()])
 @page_endpoint
@@ -128,6 +141,10 @@ def create_public_signing_key(request: Request): return register_signing_key(req
 @api.post('/plugins/keys/{key_id}/revoke/',name='plugin_key_revoke',guards=[AllowAny()])
 @page_endpoint
 def revoke_public_signing_key(request: Request): return revoke_signing_key(request,request.params['key_id'])
+
+@api.post('/plugins/keys/{key_id}/renew/',name='plugin_key_renew',guards=[AllowAny()])
+@page_endpoint
+def renew_public_signing_key(request: Request): return renew_signing_key(request,request.params['key_id'])
 
 @api.get('/plugins/keys/cli.py',name='plugin_sign_cli',guards=[AllowAny()])
 @page_endpoint
@@ -151,3 +168,39 @@ def view_plugin_sbom(request: Request):
 @page_endpoint
 def download_plugin_sbom(request: Request):
     return plugin_sbom_download(request, request.params['plugin_id'])
+
+
+from . import key_trust
+from .teams import team_public_keys
+
+@api.get('/plugins/trust/roots.json',name='plugin_trust_roots',guards=[AllowAny()])
+@page_endpoint
+def trusted_certificate_roots(request: Request): return key_trust.roots(request)
+
+@api.get('/plugins/trust/{root_id}/{document}',name='plugin_trust_document',guards=[AllowAny()])
+@page_endpoint
+def certificate_document(request: Request): return key_trust.authority_document(request,request.params['root_id'],request.params['document'])
+
+@api.post('/plugins/trust/{root_id}/revoke/',name='plugin_trust_revoke',guards=[AllowAny()])
+@page_endpoint
+def revoke_certificate_root(request: Request): return key_trust.revoke_root(request,request.params['root_id'])
+
+@api.get('/plugins/{plugin_id}/trust.json',name='plugin_trust',guards=[AllowAny()])
+@page_endpoint
+def plugin_certificate_trust(request: Request): return key_trust.package_trust(request,request.params['plugin_id'])
+
+@api.get('/plugins/keys/{key_id}/public.json',name='plugin_key_public',guards=[AllowAny()])
+@page_endpoint
+def public_signing_key(request: Request): return key_trust.public_key(request,request.params['key_id'])
+
+@api.get('/plugins/keys/{key_id}/certificate.{encoding}',name='plugin_key_certificate',guards=[AllowAny()])
+@page_endpoint
+def public_signing_certificate(request: Request): return key_trust.public_certificate(request,request.params['key_id'],request.params['encoding'])
+
+@api.get('/plugins/teams/{team_id}/keys.json',name='plugin_team_keys',guards=[AllowAny()])
+@page_endpoint
+def public_team_signing_keys(request: Request): return team_public_keys(request,request.params['team_id'])
+
+@api.get('/plugins/teams/{team_id}/keys/{key_id}.json',name='plugin_team_key',guards=[AllowAny()])
+@page_endpoint
+def public_team_signing_key(request: Request): return team_public_keys(request,request.params['team_id'],request.params['key_id'])

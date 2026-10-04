@@ -305,7 +305,7 @@ class HardenedRegistryTests(TestCase):
             form=PluginUploadForm({}, {"artifact":SimpleUploadedFile("package.zip", signed_package(plugin_id="storage-failure"), content_type="application/zip")})
             self.assertTrue(form.is_valid())
             with patch.object(PluginRecord, "save", side_effect=IntegrityError("duplicate")), self.assertRaises(IntegrityError):
-                create_uploaded_plugin(form, None)
+                create_uploaded_plugin(form, form.cleaned_data['artifact'].signing_key.owner)
             self.assertEqual([p for p in Path(folder).rglob("*") if p.is_file()], [])
 
 

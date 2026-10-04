@@ -3,6 +3,7 @@ import os
 from .base import *  # noqa: F401, F403
 
 DEBUG = True
+PLUGIN_CA_PUBLIC_URL = os.environ.get("PLUGIN_CA_PUBLIC_URL", "http://127.0.0.1:8000")
 
 # Permissive in dev — DEBUG=True already excludes this settings module from
 # production. Lets you hit the server via 0.0.0.0, ngrok tunnels, LAN IP, etc.

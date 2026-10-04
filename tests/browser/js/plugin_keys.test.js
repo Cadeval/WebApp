@@ -21,3 +21,13 @@ test('browser key encryption and registration proof interoperate with WebCrypto'
  const modified=decode(file.encrypted_private_key);modified[0]^=1;
  await assert.rejects(webcrypto.subtle.decrypt({name:'AES-GCM',iv:decode(file.encryption.iv)},wrapping,modified));
 });
+
+test('team registration proof binds the selected team and uses the v2 context', async () => {
+ const team_id='a040f3b8-3aa9-437f-9b42-66c33020621e';
+ const result=await createEncryptedKey({crypto:webcrypto,passphrase:'disposable-team-passphrase',challenge:'team-challenge',owner:'17',team_id});
+ const publicKey=await webcrypto.subtle.importKey('raw',Buffer.from(result.publicKey,'base64'),'Ed25519',false,['verify']);
+ const proof=Buffer.from(result.proof,'base64');
+ const payload=(team)=>new TextEncoder().encode(JSON.stringify({challenge:'team-challenge',context:'cadevil-key-registration-v2',owner:'17',public_key:result.publicKey,team_id:team}));
+ assert.equal(await webcrypto.subtle.verify('Ed25519',publicKey,proof,payload(team_id)),true);
+ assert.equal(await webcrypto.subtle.verify('Ed25519',publicKey,proof,payload('another-team')),false);
+});

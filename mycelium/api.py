@@ -20,7 +20,12 @@ from shared.page_views import render_page
 @api.get('/', guards=[AllowAny()])
 @page_endpoint
 def index(request):
-    return render_page(request, 'index.jinja2')
+    context = {}
+    if not request.user.is_authenticated:
+        from plugin_manager.django_resources import public_overview_templates
+
+        context['landing_overview_templates'] = public_overview_templates()
+    return render_page(request, 'index.jinja2', context)
 
 @api.get('/mycelium/login', guards=[AllowAny()])
 @page_endpoint
@@ -90,6 +95,14 @@ def user_management(request):
 @page_endpoint
 def group_management(request):
     return admin_groups(request)
+
+
+@api.get('/mycelium/settings/teams',name='user_teams',guards=[AllowAny()])
+@api.post('/mycelium/settings/teams',name='user_teams_save',guards=[AllowAny()])
+@page_endpoint
+def team_settings(request):
+    from plugin_manager.teams import teams_page
+    return teams_page(request)
 
 @api.get('/demo', guards=[AllowAny()])
 @page_endpoint

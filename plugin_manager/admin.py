@@ -15,6 +15,10 @@ class PluginRecordAdminForm(forms.ModelForm):
             raise forms.ValidationError("This plugin is unavailable in the current environment.")
         if enabled and self.instance.has_error:
             raise forms.ValidationError("Resolve the discovery error before enabling this plugin.")
+        if enabled and self.instance.source == PluginRecord.Source.UPLOAD:
+            from .certificate_authority import trusted_key
+            if not trusted_key(self.instance.signing_key):
+                raise forms.ValidationError("A valid, unrevoked code-signing certificate is required.")
         return enabled
 
 
@@ -39,6 +43,7 @@ class PluginRecordAdmin(admin.ModelAdmin):
         "plugin_id",
         "name",
         "version",
+        "version_history",
         "api_version",
         "priority",
         "source",

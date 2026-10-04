@@ -17,8 +17,8 @@ MAX_MEMBER_BYTES=2*1024*1024
 
 
 def safe_path(name):
-    if not isinstance(name,str) or not name or len(name)>200 or any(ord(c)<32 for c in name) or any(c in name for c in '\\%:'):
-        raise ValidationError('Package filenames must use ordinary relative paths without encoded characters or backslashes.')
+    if not isinstance(name,str) or not name or len(name)>200 or not re.fullmatch(r'[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*',name):
+        raise ValidationError('Package filenames must use ASCII letters, numbers, dots, dashes or underscores in relative paths.')
     path=PurePosixPath(name)
     if path.is_absolute() or any(part in {'','.', '..'} for part in name.split('/')):
         raise ValidationError('Package files may not use absolute paths or parent traversal.')

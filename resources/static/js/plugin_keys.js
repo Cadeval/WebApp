@@ -1,5 +1,5 @@
 function base64(bytes) { return btoa(String.fromCharCode(...new Uint8Array(bytes))); }
-export async function createEncryptedKey({crypto,passphrase,challenge,owner}) {
+export async function createEncryptedKey({crypto,passphrase,challenge,owner,team_id=null}) {
     const keys=await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
     const publicBytes=await crypto.subtle.exportKey('raw',keys.publicKey);
     const publicKey=base64(publicBytes);
@@ -10,7 +10,9 @@ export async function createEncryptedKey({crypto,passphrase,challenge,owner}) {
     const wrappingKey=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt,iterations:600000},password,{name:'AES-GCM',length:256},false,['encrypt']);
     const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},wrappingKey,privateBytes);
     new Uint8Array(privateBytes).fill(0);
-    const proofPayload=JSON.stringify({challenge,context:'cadevil-key-registration-v1',owner,public_key:publicKey});
+    const proofFields={challenge,context:team_id?'cadevil-key-registration-v2':'cadevil-key-registration-v1',owner,public_key:publicKey};
+    if(team_id)proofFields.team_id=team_id;
+    const proofPayload=JSON.stringify(proofFields);
     const proof=base64(await crypto.subtle.sign('Ed25519',keys.privateKey,new TextEncoder().encode(proofPayload)));
     return {publicKey,proof,file:{format:'cadevil-signing-key-v1',algorithm:'Ed25519',key_id:fingerprint,public_key:publicKey,encryption:{algorithm:'AES-256-GCM',kdf:'PBKDF2-SHA256',iterations:600000,salt:base64(salt),iv:base64(iv)},encrypted_private_key:base64(encrypted)}};
 }
@@ -27,11 +29,13 @@ function mount(root=document) {
         button.disabled=true;status.textContent='Creating and encrypting your key locally…';
         try {
             const registration=JSON.parse(document.getElementById('key-registration').textContent);
-            const key=await createEncryptedKey({crypto:globalThis.crypto,passphrase:password.value,...registration});
+            const teamId=form.querySelector('[name="team_id"]')?.value || null;
+            const key=await createEncryptedKey({crypto:globalThis.crypto,passphrase:password.value,...registration,team_id:teamId});
             password.value='';confirm.value='';
-            const response=await fetch(form.action,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':form.querySelector('[name="csrfmiddlewaretoken"]').value},body:JSON.stringify({label:form.querySelector('[name="label"]').value,public_key:key.publicKey,proof:key.proof,challenge:registration.challenge})});
+            const response=await fetch(form.action,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-CSRFToken':form.querySelector('[name="csrfmiddlewaretoken"]').value},body:JSON.stringify({label:form.querySelector('[name="label"]').value,public_key:key.publicKey,proof:key.proof,challenge:registration.challenge,team_id:teamId})});
             const result=await response.json();if(!response.ok)throw new Error(result.error || 'Key registration failed.');
             if(result.key_id!==key.file.key_id)throw new Error('The registered key id did not match.');
+            key.file.certificate_chain=result.certificate_chain;key.file.team_id=result.team_id;
             const blob=new Blob([JSON.stringify(key.file,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);
             const link=document.createElement('a');link.href=url;link.download=`${result.key_id.slice(0,16)}.cadevil-key.json`;link.textContent='Download encrypted private key again';
             const output=form.querySelector('[data-key-download]');output.replaceChildren(link);link.click();

@@ -1,11 +1,14 @@
 """Isolated calculation and web tests; never touch the user's runtime database."""
 from pathlib import Path
+from tempfile import TemporaryDirectory
+_ca_test_directory = TemporaryDirectory(prefix='cadevil-test-ca-')
+PLUGIN_CA_DIRECTORY = Path(_ca_test_directory.name)
 BASE_DIR=Path(__file__).resolve().parent
 SECRET_KEY='passport-tests-only'
 DEBUG=False
 ALLOWED_HOSTS=['testserver']
 INSTALLED_APPS=['django.contrib.auth','django.contrib.contenttypes','django.contrib.sessions',
-                'django.contrib.messages','django.contrib.admin','shared','plugin_manager']
+                'django.contrib.messages','django.contrib.admin','shared','mycelium','plugin_manager']
 AUTH_USER_MODEL='shared.CadevilUser'
 DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}}
 ROOT_URLCONF='tests.passport_test_urls'
@@ -24,4 +27,5 @@ ADMIN_LOG_ENABLED=False
 from plugin_manager.django_resources import resource_app_configs
 INSTALLED_APPS += resource_app_configs(BASE_DIR.parent, {
     **PLUGIN_BUILTINS, "example_plugin": "example_plugin:plugin_manifest",
+    "rust_example_plugin": "rust_example_plugin:plugin_manifest",
 })

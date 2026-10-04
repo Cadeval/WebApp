@@ -69,6 +69,10 @@ STATIC_ROOT: str = os.path.join(BASE_DIR, "resources/collected_static/")
 MEDIA_URL: str = "/"
 MEDIA_ROOT: Path = BASE_DIR / "data/user_uploads/"
 
+# Durable CA secrets are initialized explicitly by an operator, outside builds.
+PLUGIN_CA_DIRECTORY = BASE_DIR / "data/plugin-ca"
+PLUGIN_CA_PUBLIC_URL = os.environ.get("PLUGIN_CA_PUBLIC_URL", "https://cadevil.org")
+
 # OpenStudio energy simulations. Leave the CLI path empty to let the
 # installed Python package or PATH provide it.
 OPENSTUDIO_CLI_PATH: str | None = os.environ.get("OPENSTUDIO_CLI_PATH") or None

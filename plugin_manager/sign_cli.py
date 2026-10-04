@@ -11,13 +11,14 @@ import hashlib
 import io
 import json
 import lzma
+import re
 from pathlib import Path, PurePosixPath
 import stat
 import tarfile
 import zlib
 from zipfile import ZipFile, ZIP_DEFLATED, is_zipfile, BadZipFile
 
-from cryptography.exceptions import InvalidTag
+from cryptography.exceptions import InvalidTag, InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -51,7 +52,7 @@ def load_private_key(path,passphrase):
 
 
 def safe_name(name):
-    if not name or len(name)>200 or name.startswith('/') or any(c in name for c in '\\%:') or any(ord(c)<32 for c in name) or any(part in {'','.', '..'} for part in name.split('/')): raise ValueError(f'Unsafe archive filename: {name!r}')
+    if not name or len(name)>200 or not re.fullmatch(r'[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*',name) or any(part in {'','.', '..'} for part in name.split('/')): raise ValueError('Package filenames must use ASCII letters, numbers, dots, dashes or underscores in relative paths.')
 
 
 def read_package(path):
@@ -97,13 +98,31 @@ def read_package(path):
     return files
 
 
-def sign_package(package_path,key_path,output,passphrase):
+def sign_package(package_path,key_path,output,passphrase,certificate_path=None):
     source=Path(package_path);destination=Path(output)
     if source.resolve()==destination.resolve() or destination.exists(): raise ValueError('Choose a new output path. The CLI never overwrites an input or an existing file.')
     private,key_id=load_private_key(key_path,passphrase)
     files=read_package(source)
     payload=json.dumps({'context':'cadevil-plugin-package-v1','files':{name:hashlib.sha256(data).hexdigest() for name,data in files.items()}},sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('ascii')
     signature={'format':'cadevil-plugin-signature-v1','algorithm':'Ed25519','key_id':key_id,'signature':base64.b64encode(private.sign(payload)).decode('ascii')}
+    certificate_source=Path(certificate_path) if certificate_path else Path(key_path)
+    if certificate_source.stat().st_size>65536: raise ValueError('Certificate bundle is too large.')
+    certificate_chain=json.loads(certificate_source.read_text()).get('certificate_chain')
+    if certificate_path and not certificate_chain: raise ValueError('The public certificate file must include certificate_chain.')
+    if certificate_chain:
+        if not isinstance(certificate_chain,list) or len(certificate_chain)!=3 or any(not isinstance(value,str) or len(value)>32768 for value in certificate_chain): raise ValueError('Invalid X.509 certificate chain in the key bundle.')
+        from cryptography import x509
+        from cryptography.x509.oid import ExtendedKeyUsageOID
+        from datetime import datetime, timezone
+        leaf,issuer,root=[x509.load_der_x509_certificate(base64.b64decode(value,validate=True)) for value in certificate_chain]
+        now=datetime.now(timezone.utc)
+        if any(not cert.not_valid_before_utc<=now<cert.not_valid_after_utc for cert in [leaf,issuer,root]): raise ValueError('The signing certificate has expired or is not yet valid. Renew it in user settings.')
+        try:
+            root.verify_directly_issued_by(root);issuer.verify_directly_issued_by(root);leaf.verify_directly_issued_by(issuer)
+            if leaf.extensions.get_extension_for_class(x509.BasicConstraints).value.ca or list(leaf.extensions.get_extension_for_class(x509.ExtendedKeyUsage).value)!=[ExtendedKeyUsageOID.CODE_SIGNING]: raise ValueError('The certificate is not for plugin code signing.')
+        except (x509.ExtensionNotFound,ValueError,TypeError,InvalidSignature) as error: raise ValueError('Invalid code-signing certificate chain.') from error
+        if leaf.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw)!=private.public_key().public_bytes_raw(): raise ValueError('The certificate public key differs from the signing key.')
+        signature['certificate_chain']=certificate_chain
     files['signature.json']=json.dumps(signature,sort_keys=True,indent=2).encode('ascii')
     memory=io.BytesIO();name=destination.name.lower()
     if name.endswith('.zip'):
@@ -127,9 +146,10 @@ def main():
     sub=parser.add_subparsers(dest='command',required=True)
     sign=sub.add_parser('sign',help='Sign every file in a browser plugin package')
     sign.add_argument('package');sign.add_argument('--key',required=True);sign.add_argument('--output',required=True)
+    sign.add_argument('--certificate',help='Optional renewed public certificate JSON downloaded from settings')
     args=parser.parse_args()
     try:
-        fingerprint=sign_package(args.package,args.key,args.output,getpass.getpass('Key encryption passphrase: '))
+        fingerprint=sign_package(args.package,args.key,args.output,getpass.getpass('Key encryption passphrase: '),args.certificate)
         print(f'Signed {args.output}\nKey id: {fingerprint}')
     except (ValueError,KeyError,OSError,EOFError,TypeError,tarfile.TarError,BadZipFile,lzma.LZMAError,zlib.error) as error:
         parser.exit(1,f'Cannot sign package: {error}\n')

@@ -10,13 +10,26 @@ from plugin_manager.models import PluginSigningKey
 from plugin_manager.signatures import canonical_payload
 
 
+def ensure_test_ca():
+    """Explicit isolated fixture bootstrap, never an application startup hook."""
+    from plugin_manager.certificate_authority import initialize_ca
+    from plugin_manager.models import PluginCertificateAuthority
+    return PluginCertificateAuthority.objects.filter(active=True,revoked_at__isnull=True).first() or initialize_ca()
+
+
+def certify_key(key):
+    ensure_test_ca()
+    from plugin_manager.certificate_authority import issue_key_certificate
+    return issue_key_certificate(key)
+
+
 def signed_package(owner=None, plugin_id='uploaded-test', *, wasm=False):
     private = Ed25519PrivateKey.generate()
     public = private.public_key().public_bytes_raw()
     fingerprint = hashlib.sha256(public).hexdigest()
     if owner is None:
         owner = get_user_model().objects.create_user(username='signer-'+fingerprint[:16])
-    PluginSigningKey.objects.create(owner=owner, label='Fixture key', fingerprint=fingerprint, public_key=base64.b64encode(public).decode())
+    certify_key(PluginSigningKey.objects.create(owner=owner, label='Fixture key', fingerprint=fingerprint, public_key=base64.b64encode(public).decode()))
     entry = 'calculator.wasm' if wasm else 'worker.js'
     files = {
         'plugin.json': json.dumps({'id':plugin_id,'name':'Uploaded test','version':'1.0.0','api_version':'1.0','type':'wasm' if wasm else 'javascript','entrypoint':entry}).encode(),

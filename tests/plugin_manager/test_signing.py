@@ -78,7 +78,10 @@ class ArchiveTests(SimpleTestCase):
 
 @override_settings(STATIC_URL='/static/')
 class SigningTests(TestCase):
-    def setUp(self):existing_tests.NativePluginTests.setUp(self)
+    def setUp(self):
+        existing_tests.NativePluginTests.setUp(self)
+        from .package_fixtures import ensure_test_ca
+        ensure_test_ca()
 
     def register(self,private=None,change=None):
         private=private or Ed25519PrivateKey.generate()
@@ -147,6 +150,8 @@ class SigningTests(TestCase):
         self.client.logout();self.client.force_login(self.regular);self.client.get('/mycelium/settings',{'section':'security'})
         self.assertEqual(self.upload(content).status_code,403)
         key=PluginSigningKey.objects.get(fingerprint=key_id);key.owner=self.regular;key.save()
+        from .package_fixtures import certify_key
+        certify_key(key)
         response=self.upload(tar_package(content,'w:xz'),'signed.txz');self.assertEqual(response.status_code,201,response.content.decode()[:800])
         self.assertContains(response,'administrator must review',status_code=201)
         record=PluginRecord.objects.get(plugin_id='zip.calculator');self.assertFalse(record.enabled);self.assertEqual(record.package_manifest['archive_format'],'tar.xz')

@@ -16,9 +16,10 @@ def selectable_plugin(record):
     if not is_workflow_plugin(record) or not record.effective_enabled:
         return False
     if record.source == PluginRecord.Source.UPLOAD:
+        from .certificate_authority import trusted_key
         key = record.signing_key
         return bool(record.artifact_type == PluginRecord.ArtifactType.ZIP and record.artifact
-                    and key and key.owner_id is not None and key.revoked_at is None)
+                    and trusted_key(key))
     return True
 
 

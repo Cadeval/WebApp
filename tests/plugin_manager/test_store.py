@@ -51,7 +51,7 @@ class PackageValidationTests(SimpleTestCase):
         self.assertEqual(validate_package(package(manifest,{'calculator.wasm':b'\x00asm\x01\x00\x00\x00'}))['type'],'wasm')
 
     def test_unsafe_paths_and_server_code_are_rejected(self):
-        for name in ['../escape.js','/absolute.js','C:/escape.js','lib\\escape.js','%2e%2e/escape.js','server.py','page.html']:
+        for name in ['../escape.js','/absolute.js','C:/escape.js','lib\\escape.js','%2e%2e/escape.js','server.py','page.html','white space.js','fragment#file.js','query?file.js','unicode-é.js']:
             with self.subTest(name=name),self.assertRaises(ValidationError): validate_package(package(extra={name:b'content'}))
 
     def test_symlink_rejected(self):
@@ -84,6 +84,8 @@ class PluginStoreTests(TestCase):
         self.private=Ed25519PrivateKey.generate()
         public=self.private.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw)
         self.key=PluginSigningKey.objects.create(owner=self.staff,label='Test key',fingerprint=hashlib.sha256(public).hexdigest(),public_key=base64.b64encode(public).decode())
+        from .package_fixtures import certify_key
+        certify_key(self.key)
 
     def upload_zip(self, manifest=None, *, endpoint='/plugins/store/upload/', extra=None, data=None):
         content=package(manifest,extra)
@@ -166,7 +168,10 @@ class PluginStoreTests(TestCase):
         self.assertIn('script-src',response['Content-Security-Policy']);self.assertIn("connect-src 'none'",response['Content-Security-Policy'])
         self.assertEqual(response['Cache-Control'],'private, no-store')
         self.assertEqual(_uploaded_editor_items(self.staff)[0].worker_url,'/plugins/zip.calculator/assets/worker.js')
-        self.assertEqual(self.client.get('/plugins/zip.calculator/assets/plugin.json').status_code,404)
+        metadata=self.client.get('/plugins/zip.calculator/assets/plugin.json')
+        self.assertEqual(metadata.status_code,200)
+        self.assertEqual(metadata['Content-Type'],'application/json')
+        self.assertEqual(metadata['X-Content-Type-Options'],'nosniff')
         self.assertEqual(self.client.get('/plugins/zip.calculator/assets/missing.js').status_code,404)
         self.client.post('/plugins/store/zip.calculator/disable/',HTTP_HX_REQUEST='true')
         self.assertEqual(self.client.get(path).status_code,404)

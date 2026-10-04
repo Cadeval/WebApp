@@ -1,6 +1,7 @@
 """Ed25519 signatures bind every package file to a registered public key."""
 import base64
 import json
+import re
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from django.core.exceptions import ValidationError
@@ -22,17 +23,22 @@ def decode(value,length):
 def verify_package_signature(manifest):
     from .models import PluginSigningKey
     signature=manifest.get('signature')
-    if not isinstance(signature,dict) or set(signature)!={'format','algorithm','key_id','signature'} or signature.get('format')!='cadevil-plugin-signature-v1' or signature.get('algorithm')!='Ed25519':
+    if not isinstance(signature,dict) or set(signature) not in ({'format','algorithm','key_id','signature'},{'format','algorithm','key_id','signature','certificate_chain'}) or signature.get('format')!='cadevil-plugin-signature-v1' or signature.get('algorithm')!='Ed25519':
         raise ValidationError('ZIP packages must be signed with the local signing CLI before uploading.')
     identifier=signature.get('key_id')
-    if not isinstance(identifier,str) or len(identifier)!=64: raise ValidationError('Invalid signing key id.')
+    if not isinstance(identifier,str) or not re.fullmatch('[0-9a-f]{64}',identifier): raise ValidationError('Invalid signing key id.')
     key=PluginSigningKey.objects.filter(fingerprint=identifier,revoked_at__isnull=True,owner__isnull=False).first()
     if not key: raise ValidationError('The signing key is unknown or revoked. Register a key in the web interface first.')
+    from .certificate_authority import validate_signing_key, certificate_chain
+    validate_signing_key(key)
+    if 'certificate_chain' in signature and signature['certificate_chain']!=certificate_chain(key): raise ValidationError('The package certificate chain differs from its current registered signing certificate.')
     try:
         Ed25519PublicKey.from_public_bytes(decode(key.public_key,32)).verify(decode(signature['signature'],64),canonical_payload(manifest['files']))
     except (InvalidSignature,ValueError) as error: raise ValidationError('The package signature is invalid. Package contents changed or the wrong key was used.') from error
     return key
 
 
-def registration_payload(challenge,owner,public_key):
-    return json.dumps({'challenge':challenge,'context':'cadevil-key-registration-v1','owner':str(owner),'public_key':public_key},sort_keys=True,separators=(',',':')).encode('ascii')
+def registration_payload(challenge,owner,public_key,*,team_id=None):
+    payload={'challenge':challenge,'context':'cadevil-key-registration-v2' if team_id else 'cadevil-key-registration-v1','owner':str(owner),'public_key':public_key}
+    if team_id: payload['team_id']=str(team_id)
+    return json.dumps(payload,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('ascii')

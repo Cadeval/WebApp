@@ -66,7 +66,8 @@ def _uploaded_editor_items(user=None) -> list[Any]:
     for record in records:
         if not record.environment_compatible:
             continue
-        if not record.signing_key or record.signing_key.revoked_at or record.signing_key.owner_id is None:
+        from .certificate_authority import trusted_key
+        if not trusted_key(record.signing_key):
             continue
         manifest = record.package_manifest
         entry = manifest.get("entrypoint")

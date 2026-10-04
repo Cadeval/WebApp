@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+import uuid
 from .storage import PrivatePluginStorage
 
 
@@ -35,6 +36,7 @@ class PluginRecord(models.Model):
     plugin_id = models.CharField(max_length=255, unique=True, db_index=True)
     name = models.CharField(max_length=255, blank=True, default="")
     version = models.CharField(max_length=50, blank=True, default="")
+    version_history = models.JSONField(default=list, db_default=[], blank=True)
     api_version = models.CharField(max_length=20, blank=True, default="")
     priority = models.IntegerField(default=100)
     enabled = models.BooleanField(default=True)
@@ -69,6 +71,25 @@ class PluginRecord(models.Model):
     def __str__(self) -> str:
         return f"{self.name or self.plugin_id} ({self.plugin_id})"
 
+    def observe_version(self, *, observed_at=None, basis="verified") -> bool:
+        """Append a successfully observed version without inventing prior releases."""
+        from django.utils import timezone
+
+        if not self.version:
+            return False
+        history = list(self.version_history or [])
+        identity = (self.version, self.api_version, self.source, self.content_hash)
+        if any((entry.get("version"), entry.get("api_version", ""),
+                entry.get("source"), entry.get("content_hash", "")) == identity
+               for entry in history if isinstance(entry, dict)):
+            return False
+        history.append({"version": self.version, "api_version": self.api_version,
+                        "source": self.source, "content_hash": self.content_hash,
+                        "observed_at": (observed_at or timezone.now()).isoformat(),
+                        "basis": basis})
+        self.version_history = history
+        return True
+
     @property
     def has_error(self) -> bool:
         return bool(self.error)
@@ -87,8 +108,10 @@ class PluginRecord(models.Model):
             raise PluginActivationError(f"This plugin is {self.get_compatibility_display().lower()} and unavailable in the current environment.")
         if enabled and self.source == self.Source.UPLOAD and self.artifact_type != self.ArtifactType.ZIP:
             raise PluginActivationError("Repackage this legacy upload as a signed archive before enabling it.")
-        if enabled and self.artifact_type == self.ArtifactType.ZIP and (not self.signing_key or self.signing_key.revoked_at or self.signing_key.owner_id is None):
-            raise PluginActivationError("A package requires an active registered signing key before it can be enabled.")
+        if enabled and self.artifact_type == self.ArtifactType.ZIP:
+            from .certificate_authority import trusted_key
+            if not trusted_key(self.signing_key):
+                raise PluginActivationError("A package requires a valid, unrevoked code-signing certificate before it can be enabled.")
         if enabled and self.has_error:
             raise PluginActivationError(
                 f"Plugin '{self.plugin_id}' cannot be enabled until its discovery error is resolved."
@@ -110,11 +133,65 @@ class PluginSigningKey(models.Model):
     public_key=models.CharField(max_length=44)
     created_at=models.DateTimeField(auto_now_add=True)
     revoked_at=models.DateTimeField(null=True,blank=True)
+    team=models.ForeignKey("Team",null=True,blank=True,on_delete=models.PROTECT,related_name="signing_keys")
+    certificate_authority=models.ForeignKey("PluginCertificateAuthority",null=True,blank=True,on_delete=models.PROTECT,related_name="signing_keys")
+    certificate=models.TextField(blank=True,default="",db_default="")
+    certificate_serial=models.CharField(max_length=40,blank=True,default="",db_default="")
 
     class Meta:
         ordering=["-created_at"]
 
     def __str__(self): return f"{self.label} ({self.fingerprint[:16]})"
+
+
+class Team(models.Model):
+    id=models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    name=models.CharField(max_length=120)
+    created_by=models.ForeignKey(settings.AUTH_USER_MODEL,null=True,on_delete=models.SET_NULL,related_name="created_plugin_teams")
+    active=models.BooleanField(default=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering=["name","id"]
+
+    def __str__(self): return self.name
+
+
+class TeamMembership(models.Model):
+    class Role(models.TextChoices):
+        MEMBER="member","Member"
+        MANAGER="manager","Manager"
+
+    team=models.ForeignKey(Team,on_delete=models.CASCADE,related_name="memberships")
+    user=models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="plugin_team_memberships")
+    role=models.CharField(max_length=12,choices=Role.choices,default=Role.MEMBER)
+    created_at=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=["team","user"],name="unique_plugin_team_member")]
+
+
+class PluginCertificateAuthority(models.Model):
+    fingerprint=models.CharField(max_length=64,unique=True)
+    certificate=models.TextField()
+    intermediate_certificate=models.TextField()
+    publisher_certificate=models.TextField(blank=True,default="")
+    active=models.BooleanField(default=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    revoked_at=models.DateTimeField(null=True,blank=True)
+
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=["active"],condition=models.Q(active=True),name="one_active_plugin_ca")]
+
+
+class SigningCertificateRevocation(models.Model):
+    authority=models.ForeignKey(PluginCertificateAuthority,on_delete=models.PROTECT,related_name="revocations")
+    serial=models.CharField(max_length=40)
+    revoked_at=models.DateTimeField(auto_now_add=True)
+    reason=models.CharField(max_length=120,default="Revoked")
+
+    class Meta:
+        constraints=[models.UniqueConstraint(fields=["authority","serial"],name="unique_plugin_revoked_serial")]
 
 
 class UserPluginSelection(models.Model):
