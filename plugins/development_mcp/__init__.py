@@ -33,11 +33,23 @@ def register_code_audit(registry):
                                   '--project', str(settings.BASE_DIR)),
                    ('code_audit_local', 'code_audit_info'), settings.DEVELOPMENT_MCP_CODE_AUDIT_PORT))
 
+def register_docker(registry):
+    if not getattr(settings, 'DEVELOPMENT_MCP_DOCKER_ENABLED', False):
+        return
+    root = Path(settings.DEVELOPMENT_MCP_TOOL_ROOT) / 'docker'
+    bridge = Path(settings.BASE_DIR) / 'plugins/development_mcp/docker_mcp_bridge.py'
+    registry.register_extension(MCP_PROCESS_EXTENSION_POINT, DOCKER_ID,
+        MCPProcess(DOCKER_ID, (str(root / '.venv/bin/python'), str(bridge), '--runtime', str(root),
+                              '--host', settings.DEVELOPMENT_MCP_DOCKER_HOST),
+                   ('docker_provider_info', 'docker_list_containers', 'docker_list_images',
+                    'docker_list_networks'), settings.DEVELOPMENT_MCP_DOCKER_PORT))
+
 CONTEXT7_ID = "cadevil.mcp.context7"
 GIT_ID = "cadevil.mcp.git"
 NATIVE_ID = "cadevil.mcp.native"
 UI_UX_ID = "cadevil.mcp.ui_ux"
 CODE_AUDIT_ID = "cadevil.mcp.code_audit"
+DOCKER_ID = "cadevil.mcp.docker"
 
 def context7_manifest():
     return PluginManifest(id=CONTEXT7_ID, name="Context7 documentation MCP", type="MCP subprocess", version="4.1.1", compatibility="debug", priority=200, register=register_context7)
@@ -55,3 +67,7 @@ def ui_ux_manifest():
 def code_audit_manifest():
     return PluginManifest(id=CODE_AUDIT_ID, name="Local code audit MCP", type="MCP subprocess",
         version="1.0.0", compatibility="debug", priority=204, register=register_code_audit)
+
+def docker_manifest():
+    return PluginManifest(id=DOCKER_ID, name="Cadevil Docker inspection MCP", type="MCP subprocess",
+        version="0.3.0", compatibility="debug", priority=205, register=register_docker)

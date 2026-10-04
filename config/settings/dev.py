@@ -23,6 +23,12 @@ DEVELOPMENT_MCP_GIT_PORT = 8018
 DEVELOPMENT_MCP_UI_UX_PORT = 8019
 DEVELOPMENT_MCP_CODE_AUDIT_PORT = 8020
 
+# Installed read-only provider; site administrators can disable its debug plugin.
+# All calls are constrained to the reviewed Cadevil Compose project.
+DEVELOPMENT_MCP_DOCKER_ENABLED = os.environ.get("CADEVIL_MCP_DOCKER_ENABLED", "1") == "1"
+DEVELOPMENT_MCP_DOCKER_PORT = 8022
+DEVELOPMENT_MCP_DOCKER_HOST = os.environ.get("CADEVIL_MCP_DOCKER_HOST", "ssh://codex@meanderingmind.me:25519")
+
 # Register resource bundles after choosing the environment's installed plugins.
 from plugin_manager.django_resources import resource_app_configs
 INSTALLED_APPS = [*INSTALLED_APPS, *resource_app_configs(BASE_DIR, PLUGIN_BUILTINS)]

@@ -2,6 +2,7 @@
 
 ## 0.16.0 — 2026-10-04
 
+- Add a pinned, isolated Docker MCP development provider with project-scoped sanitized inspection tools and no production runtime contribution.
 - Build reviewed Python distributions through `uv build`, with a pinned Hatch hook compiling both WebAssembly workers through Rustup.
 - Keep generated WebAssembly and its derived inventory in build outputs; preserve the source checkout.
 - Build the production image from the verified wheel payload; exclude compilers, Rust sources, tests and development MCP code from runtime layers.

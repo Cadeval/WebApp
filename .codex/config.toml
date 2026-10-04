@@ -35,3 +35,11 @@ enabled = true
 enabled_tools = ["code_audit_local", "code_audit_info"]
 startup_timeout_sec = 30
 tool_timeout_sec = 120
+
+[mcp_servers.cadevil_docker]
+# Debug-only Docker inspections; Cadevil Plugin Manager owns this subprocess.
+url = "http://127.0.0.1:8022/mcp/"
+enabled = true
+enabled_tools = ["docker_provider_info", "docker_list_containers", "docker_list_images", "docker_list_networks"]
+startup_timeout_sec = 30
+tool_timeout_sec = 30

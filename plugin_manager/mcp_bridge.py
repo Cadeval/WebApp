@@ -9,6 +9,14 @@ import os
 import sys
 
 
+def upstream_environment(plugin_id):
+    """Forward the existing agent reference only to the reviewed Docker adapter."""
+    environment = {'CADEVIL_DEBUG_MCP': '1'}
+    if plugin_id == 'cadevil.mcp.docker' and os.environ.get('SSH_AUTH_SOCK'):
+        environment['SSH_AUTH_SOCK'] = os.environ['SSH_AUTH_SOCK']
+    return environment
+
+
 def main():
     if os.environ.get('CADEVIL_DEBUG_MCP') != '1':
         raise SystemExit('MCP subprocesses must be started by the debug launcher.')
@@ -46,10 +54,10 @@ def main():
     async def lifespan(app):
         nonlocal upstream, tools
         command, *args = spec['command']
-        # The SDK filters inherited variables; pass only the launch marker
-        # already checked above so guarded local adapters can initialize.
+        # The SDK filters inherited variables. The Docker adapter also needs
+        # the already configured agent reference for its fixed SSH transport.
         params = StdioServerParameters(command=command, args=args, cwd=spec['cwd'],
-                                       env={'CADEVIL_DEBUG_MCP': '1'})
+                                       env=upstream_environment(spec['plugin_id']))
         # SDK owns/reaps the upstream process group, including on SIGTERM shutdown.
         async with stdio_client(params) as (read, write):
             async with ClientSession(read, write) as session:

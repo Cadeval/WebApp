@@ -134,6 +134,7 @@ class UserPluginWorkflowTests(TestCase):
             PluginRecord.objects.create(plugin_id="workflow.failed", name="Failed workflow tool", enabled=True, error="Discovery failed"),
             PluginRecord.objects.create(plugin_id="workflow.production", name="Production workflow tool", enabled=True, compatibility="production"),
             PluginRecord.objects.create(plugin_id="cadevil.mcp.context7", name="Debug MCP workflow tool", enabled=True, compatibility="debug"),
+            PluginRecord.objects.create(plugin_id="cadevil.mcp.docker", name="Docker inspection service", enabled=True, compatibility="debug"),
         ]
         self.login(self.regular)
         response = self.client.get("/plugins/manage/")
@@ -146,6 +147,23 @@ class UserPluginWorkflowTests(TestCase):
         for record in unavailable:
             self.assertContains(response, record.name)
         self.assertContains(response, f'/plugins/{self.available.plugin_id}/disable/')
+
+    def test_docker_service_rejects_personal_selection_for_regular_and_staff_users(self):
+        docker = PluginRecord.objects.create(plugin_id="cadevil.mcp.docker",
+            name="Docker inspection service", enabled=True, compatibility="debug")
+        for user in (self.regular, self.staff):
+            with self.subTest(staff=user.is_staff):
+                self.login(user)
+                self.assertEqual(self.action(docker).status_code, 409)
+                self.assertFalse(UserPluginSelection.objects.filter(user=user, plugin=docker).exists())
+        # An old or forged stored choice cannot bypass the administrator-only
+        # service boundary or add this provider to a personal workflow.
+        self.select(self.regular, docker)
+        self.assertFalse(selectable_plugin(docker))
+        self.assertNotIn(docker.plugin_id, selected_plugin_ids(self.regular))
+        self.assertFalse(workflow_plugin_enabled(self.regular, docker.plugin_id))
+        self.login(self.regular)
+        self.assertNotContains(self.client.get('/plugins/manage/'), docker.name)
 
     def test_manager_and_store_keep_full_and_htmx_boundaries(self):
         self.login(self.regular)

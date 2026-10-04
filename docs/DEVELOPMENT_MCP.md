@@ -4,7 +4,7 @@ Cadevil has a native Django-Bolt MCP endpoint at `http://127.0.0.1:8000/dev/mcp`
 
 Both `DEBUG=True` and `DEVELOPMENT_MCP_ENABLED=True` are required. Production settings use `DEBUG=False`, so no MCP route is registered, even if the development opt-in is accidentally set. MCP is not a production feature.
 
-Only two explicit read-only tools are exposed:
+The native endpoint exposes two explicit read-only tools:
 
 - `project_info`: framework, demo model identifiers, package formats and signing contract.
 - `demo_report`: precomputed public demo building statistics, GWP/LCA values, recovery cost analysis and provisional/complete status. Allowed identifiers are house-a through house-d and example-a/example-b. House estimates remain provisional; currency is EUR.
@@ -18,6 +18,7 @@ Project `.codex/config.toml` enables:
 - `context7`: locally downloaded, pinned `@upstash/context7-mcp` 4.1.1, with public library documentation lookup tools. Runtime is stored at `/Users/mia/Documents/ChatGPT/CadEval/mcp_tools/context7`. No API key is configured. The debug plugin launches its stdio subprocess and exposes its allowlisted tools at `http://127.0.0.1:8017/mcp/`.
 - `gitolite_repository`: downloaded official `mcp-server-git` 2026.8.18 for the existing local checkout; only status, diffs, log, show and branch listing are enabled. Remote configuration and SSH credentials are unchanged. The debug plugin launches its stdio subprocess behind `http://127.0.0.1:8018/mcp/`. Write tools are filtered by the adapter itself, as well as by Codex configuration.
 - `cadevil_development`: native localhost endpoint, exposing only the two tools above. The development server must be running.
+- `cadevil_docker`: the plugin-managed Docker inspection adapter at `http://127.0.0.1:8022/mcp/`, with the four read tools described below.
 
 The configuration is also installed in the current CadEval workspace so chats started there can discover the same tools. Existing global servers are preserved. Codex loads project MCP configuration for trusted projects; restart/reload the MCP connection or begin a new session to discover newly configured tools. Configuration does not inject tools into an already-running turn.
 
@@ -50,7 +51,7 @@ The official Django forum discussion still describes a documentation MCP server 
 
 ## Debug launch and plugin lifecycle
 
-`make debug` invokes the `debugserver` management command with explicit development settings. A single supervisor starts Bolt in a child process and starts the enabled Context7, Git, UI/UX and code-audit subprocess plugins. Each adapter initializes its upstream stdio server, serves Streamable HTTP on loopback, preserves tool schemas/results, and exposes only its read-only allowlist. Host and Origin protection reject outside origins.
+`make debug` invokes the `debugserver` management command with explicit development settings. A single supervisor starts Bolt in a child process and starts the enabled Context7, Git, UI/UX, code-audit and Docker subprocess plugins. The generic bridge initializes each stdio adapter and serves its allowlisted tools through Streamable HTTP on loopback. The audit and Docker adapters further constrain and sanitize their upstream operations. Host and Origin protection reject outside origins.
 
 Disable an MCP plugin in Plugin Manager to stop its adapter and upstream process; enable it to start again. Changes are polled once per second. Native `cadevil.mcp.native` uses the supervised Bolt child and rejects tool calls immediately when disabled. Native route registration changes require a restart; no native route is registered under production settings. Stopping the launcher shuts down its adapters, their SDK-owned stdio process groups, and Bolt. Failed adapters retry with bounded exponential backoff; failures are logged without taking down the web server. Adapter logs are in `data/debug-mcp/`.
 
@@ -64,7 +65,7 @@ Set `CADEVIL_MCP_TOOL_ROOT` to relocate the downloaded tool directory. Developme
 
 Python manifests and signed browser `plugin.json` files can declare `compatibility` as `debug`, `production`, or `both`. The field defaults to `both` for existing packages. Labels are visible in Plugin Manager and Plugin Store, and are derived from manifests rather than editable form fields.
 
-All five developer MCP plugins are **Debug only**. They appear in the administrator catalog and cannot be selected as personal browser workflows. The BIM workspace, Rust IFC editor, and Rust Snake plugins are **Debug and production**. Production-only plugins are supported through the same contract. Incompatible plugins cannot be enabled, their registration hooks/contributions are skipped, and protected plugin pages/assets reject access. Stored enabled preferences survive switching environments; effective availability also requires compatibility.
+All six developer MCP plugins are **Debug only**. They appear in the administrator catalog and cannot be selected as personal browser workflows. The BIM workspace, Rust IFC editor, and Rust Snake plugins are **Debug and production**. Production-only plugins are supported through the same contract. Incompatible plugins cannot be enabled, their registration hooks/contributions are skipped, and protected plugin pages/assets reject access. Stored enabled preferences survive switching environments; effective availability also requires compatibility.
 
 ## Local UI/UX audits
 
@@ -95,3 +96,20 @@ Semgrep runs with explicit local rules, metrics/version checks/tracing disabled,
 Analyzer subprocesses additionally run through a fixed macOS `sandbox-exec` profile denying **all network access**. They receive no inherited project tokens, proxies or Semgrep user configuration. Audit calls therefore have no egress and transmit no source. The current isolated runtime requires this reviewed macOS sandbox; hosts without it fail closed until an equivalent OS isolation implementation is added. Codex itself uses another sandbox, so testing this nested profile from Codex can require a scoped local execution approval even though the analyzers deny network access.
 
 These static findings require review against imports, routes, templates, tests and runtime behavior before removing code. Community Semgrep rules lack the proprietary cross-file engine, and this adapter does not consult a vulnerability feed or execute project code. Existing Codex chats may need an MCP reconnect/reload to discover `cadevil_code_audit`; the standard MCP SDK can verify the local endpoint immediately.
+
+## Docker Engine inspection
+
+`cadevil.mcp.docker` uses [mcp-server-docker 0.3.0](https://pypi.org/project/mcp-server-docker/0.3.0/) from the [upstream repository](https://github.com/ckreiling/mcp-server-docker), installed separately under `/Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/.venv`. The provider is GPL-3.0-only; its license, package provenance and standalone development-tool inventory are retained beside the runtime. It is absent from the application dependency lock and production package/image.
+
+The debug supervisor exposes its bounded adapter at `http://127.0.0.1:8022/mcp/`. Its entire tool allowlist is `docker_provider_info`, `docker_list_containers`, `docker_list_images` and `docker_list_networks`. List calls accept only a limit from 1 to 100. They force the Compose project label `com.docker.compose.project=cadevil-v014`; images are limited to identities referenced by those containers. Responses contain container identity/service/status/health, image identity/tags/size, or network identity/driver/scope. They omit environment variables, arbitrary labels, commands, mount paths, health log messages and raw inspection responses. Upstream prompts, resources, log access and mutation tools are never exposed.
+
+Development settings enable the installed provider by default. `CADEVIL_MCP_DOCKER_ENABLED=0` opts out, and disabling its administrator catalog entry stops the supervised process. The default Engine is the explicitly reviewed `ssh://codex@meanderingmind.me:25519`; `CADEVIL_MCP_DOCKER_HOST` can instead select an explicit local Unix Docker socket. Other SSH targets and TCP Engines are rejected. The SSH transport requires an existing verified host key and noninteractive authentication. Tool arguments cannot change that target or scope. Initialization and tool discovery do not contact Docker; each inspection owns a child process group with a 20-second deadline and an eight-second connection timeout. Only the needed SSH-agent reference is inherited; application secrets and proxy variables are omitted.
+
+Recreate the provider with the committed workspace lock and the matching reviewed `bin/ssh` transport helper:
+
+```sh
+uv venv /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/.venv --python 3.14
+uv pip sync --python /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/.venv/bin/python --require-hashes --only-binary :all: /Users/mia/Documents/ChatGPT/CadEval/mcp_tools/docker/requirements.lock
+```
+
+The locked runtime contains 37 packages, including MCP SDK 2.3.0 and Docker SDK 7.2.0. The adapter invokes the provider's reviewed list handlers without starting its unrestricted upstream MCP application. The generic loopback bridge retains its own existing SDK runtime and passes the existing SSH-agent socket only to this Docker subprocess. Subprocess initialization/tool discovery and project-scoped reads were verified against both the local socket and the configured SSH Engine; the checks did not change Docker resources.

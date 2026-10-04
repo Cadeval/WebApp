@@ -224,6 +224,7 @@ PLUGIN_BUILTINS: dict[str, str] = {
     "cadevil.mcp.native": "development_mcp:native_manifest",
     "cadevil.mcp.ui_ux": "development_mcp:ui_ux_manifest",
     "cadevil.mcp.code_audit": "development_mcp:code_audit_manifest",
+    "cadevil.mcp.docker": "development_mcp:docker_manifest",
 }
 
 # Native geometry workers per assessment; bounded to avoid oversubscribing HTTP workers.

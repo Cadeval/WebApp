@@ -115,7 +115,7 @@ response's `X-Request-ID` to relate a reported failure to its server events.
 - `plugins/`: plugin implementations, trusted MCP manifests and the Rust browser plugins.
 - `plugins/bim_model_manager/`: IFC/BIM routes, assessment/geometry/CityJSON/location services, `ifc_extractor/`, domain models and upload helpers under `django/`, plus `templates/`, `static/` and its resource declaration.
 - `plugins/example_plugin/`: IFC editor Rust source, `templates/`, `static/`, and its resource declaration.
-- `plugins/development_mcp/`: debug-only native tools and UI/UX/code-audit MCP bridges.
+- `plugins/development_mcp/`: debug-only native tools and UI/UX, code-audit and Docker inspection MCP bridges.
 - `resources/`: shared application templates and static assets, including the page shell and landing page.
 - `tests/`: Python suites and integration helpers, browser tests, and Rust unit test modules.
 
