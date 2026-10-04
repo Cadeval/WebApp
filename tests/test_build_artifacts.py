@@ -10,7 +10,7 @@ import tarfile
 import unittest
 import zipfile
 
-from scripts.check_build_artifacts import HOOK_INPUTS, MANIFEST, WASM, audit, derived_sbom, reviewed_manifest
+from scripts.check_build_artifacts import HOOK_INPUTS, MANIFEST, WASM, audit, audit_sdist, derived_sbom, reviewed_manifest
 
 
 class BuildArtifactTests(unittest.TestCase):
@@ -36,6 +36,9 @@ class BuildArtifactTests(unittest.TestCase):
         self.write("hatch_build.py", b"Fixture hook\n")
         self.write("scripts/check_build_artifacts.py", b"Fixture validator\n")
         self.write("rust-toolchain.toml", b'[toolchain]\nchannel="1.98.1"\ntargets=["wasm32-unknown-unknown"]\n')
+        for name in HOOK_INPUTS:
+            if not (self.root / name).exists():
+                self.write(name, b"Fixture build dependency\n")
         for folder in ("example_plugin", "rust_example_plugin"):
             for name in ("Cargo.toml", "Cargo.lock", "src/lib.rs", "build.rs"):
                 self.write(f"plugins/{folder}/{name}", name.encode())
@@ -88,6 +91,51 @@ class BuildArtifactTests(unittest.TestCase):
         self.assertEqual(report["runtime_file_count"], len(self.runtime))
         self.assertEqual({path.relative_to(destination).as_posix() for path in destination.rglob("*") if path.is_file()}, set(self.runtime))
 
+    def test_report_cannot_overwrite_source_or_input_wheel(self):
+        self.package()
+        for destination, message in ((self.root / "README.md", "outside the source"),
+                                     (self.wheel, "aliases an input artifact")):
+            with self.subTest(destination=destination):
+                original = destination.read_bytes()
+                with self.assertRaisesRegex(ValueError, message):
+                    audit(self.wheel, self.root, output=destination)
+                self.assertEqual(destination.read_bytes(), original)
+
+    def test_export_symlink_ancestor_cannot_reach_source(self):
+        self.package()
+        alias = Path(self.temporary.name) / "source-alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        for keyword in ("output", "extract"):
+            with self.subTest(keyword=keyword):
+                with self.assertRaisesRegex(ValueError, "outside the source"):
+                    audit(self.wheel, self.root, **{keyword: alias / "unwritten"})
+                self.assertFalse((self.root / "unwritten").exists())
+
+    def test_report_and_runtime_destinations_cannot_overlap(self):
+        self.package()
+        destination = Path(self.temporary.name) / "new-output"
+        for report, runtime in ((destination, destination), (destination / "report.json", destination),
+                                (destination, destination / "runtime")):
+            with self.subTest(report=report, runtime=runtime):
+                with self.assertRaisesRegex(ValueError, "must be separate"):
+                    audit(self.wheel, self.root, output=report, extract=runtime)
+                self.assertFalse(destination.exists())
+
+    def test_existing_unrelated_report_and_runtime_are_preserved(self):
+        self.package()
+        report = Path(self.temporary.name) / "existing-report.json"
+        report.write_bytes(b"previous operator report")
+        runtime = Path(self.temporary.name) / "existing-runtime"
+        runtime.mkdir()
+        retained = runtime / "operator-file"
+        retained.write_bytes(b"retained operator output")
+        for keyword, destination in (("output", report), ("extract", runtime)):
+            with self.subTest(keyword=keyword):
+                with self.assertRaisesRegex(ValueError, "must be new"):
+                    audit(self.wheel, self.root, **{keyword: destination})
+        self.assertEqual(report.read_bytes(), b"previous operator report")
+        self.assertEqual(retained.read_bytes(), b"retained operator output")
+
     def test_unknown_private_file_is_rejected_even_with_valid_record(self):
         self.files[".env"] = b"private-canary"
         self.reject("Unreviewed wheel payload")
@@ -134,6 +182,33 @@ class BuildArtifactTests(unittest.TestCase):
         bom["components"].append({"type": "library", "name": "injected", "version": "1"})
         self.files[name] = json.dumps(bom).encode()
         self.reject("unreviewed inventory")
+
+    def test_duplicate_derived_sbom_metadata_is_rejected_with_valid_record(self):
+        name = "sbom/cadevil.cdx.json"
+        self.files[name] = b'{"metadata":"unreviewed duplicate",' + self.files[name][1:]
+        evidence_name = self.metadata + "extra_metadata/cadevil-build.json"
+        evidence = json.loads(self.files[evidence_name])
+        evidence["runtime_sha256"][name] = sha256(self.files[name]).hexdigest()
+        self.files[evidence_name] = json.dumps(evidence).encode()
+        self.reject("Duplicate JSON key: metadata")
+
+    def test_duplicate_build_evidence_is_rejected_with_valid_record(self):
+        name = self.metadata + "extra_metadata/cadevil-build.json"
+        self.files[name] = b'{"rustc":"unreviewed duplicate",' + self.files[name][1:]
+        self.reject("Duplicate JSON key: rustc")
+
+    def test_nonfinite_build_evidence_is_rejected(self):
+        name = self.metadata + "extra_metadata/cadevil-build.json"
+        self.files[name] = self.files[name].replace(b'"1.98.1"', b'NaN', 1)
+        self.reject("Nonfinite JSON number: NaN")
+
+    def test_duplicate_manifest_and_source_sbom_are_rejected(self):
+        for name, key in ((MANIFEST, "version"), ("sbom/cadevil.cdx.json", "metadata")):
+            with self.subTest(name=name):
+                original = (self.root / name).read_bytes()
+                self.write(name, ('{"' + key + '":"unreviewed duplicate",').encode() + original[1:])
+                self.reject("Duplicate JSON key: " + key)
+                self.write(name, original)
 
     def test_symlink_source_is_rejected(self):
         path = self.root / "shared/__init__.py"

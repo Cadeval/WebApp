@@ -3,7 +3,6 @@ import importlib.util
 import json
 from pathlib import Path
 import runpy
-import shlex
 import tarfile
 import tempfile
 from unittest.mock import patch
@@ -12,6 +11,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import DatabaseError
 from django.test import SimpleTestCase, TestCase, override_settings
 from django_bolt.testing import TestClient
+
+from scripts.check_source import validate_compiler_copy_layout
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("container_context_policy", ROOT / "docker/context.py")
@@ -70,43 +71,9 @@ class DockerContextPolicyTests(SimpleTestCase):
 
     def test_compiler_copies_every_reviewed_input_to_its_received_location(self):
         manifest = context.validate()
-        inputs = set(manifest["runtime"] + manifest["build_only"])
-        # Reproduce the finite, explicit source COPY instructions before the
-        # compiler's received-context guard, rather than checking a few names.
-        instructions = (ROOT / "Dockerfile").read_text().replace("\\\n", " ").splitlines()
-        builder = False
-        with tempfile.TemporaryDirectory() as directory:
-            received = Path(directory)
-            for instruction in instructions:
-                words = shlex.split(instruction, comments=True)
-                if not words:
-                    continue
-                if words[0].upper() == "FROM":
-                    builder = words[-1] == "builder"
-                if not builder:
-                    continue
-                if words[0].upper() == "RUN" and "--received-context" in words:
-                    break
-                if words[0].upper() != "COPY" or any(word.startswith("--from=") for word in words):
-                    continue
-                self.assertFalse(any(word.startswith("--") for word in words[1:]))
-                destination = words[-1].removeprefix("./")
-                self.assertFalse(destination.startswith("/"))
-                for source in words[1:-1]:
-                    if source.endswith("/"):
-                        matches = {name for name in inputs if name.startswith(source)}
-                        self.assertTrue(matches, source)
-                        mappings = {name: destination + name[len(source):] for name in matches}
-                    else:
-                        self.assertIn(source, inputs)
-                        target = destination + Path(source).name if destination.endswith("/") or not destination else destination
-                        mappings = {source: target}
-                    for source, target in mappings.items():
-                        self.assertEqual(target, source)
-                        output = received / target
-                        output.parent.mkdir(parents=True, exist_ok=True)
-                        output.write_bytes((ROOT / source).read_bytes())
-            context.validate(received, received=True)
+        report = validate_compiler_copy_layout(ROOT, manifest)
+        self.assertEqual(report["compiler_copy_layout"], "passed")
+        self.assertEqual(report["compiler_copy_input_count"], len(manifest["runtime"]) + len(manifest["build_only"]) - 2)
 
     def test_symlink_files_and_ancestors_are_rejected(self):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as outside:

@@ -403,6 +403,7 @@ scripts/browser-pki/**
 !scripts/browser-pki/package-lock.json
 !scripts/browser-pki/package.json
 !scripts/check_build_artifacts.py
+!scripts/check_source.py
 !scripts/vendor_browser_pki.mjs
 !shared/
 shared/**

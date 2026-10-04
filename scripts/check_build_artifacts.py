@@ -19,8 +19,24 @@ GENERATED = {
     "resources/static/wasm/rust_example_plugin.wasm", "sbom/cadevil.cdx.json",
 }
 WASM = GENERATED - {"sbom/cadevil.cdx.json"}
-HOOK_INPUTS = ("hatch_build.py", "rust-toolchain.toml", "scripts/check_build_artifacts.py")
+HOOK_INPUTS = ("hatch_build.py", "rust-toolchain.toml", "scripts/check_build_artifacts.py",
+               "scripts/check_source.py", "docker/context.py")
 PRIVATE_PARTS = {".git", ".env", ".venv", "node_modules", "__pycache__", "data", "media", "reference", "target", "tests", ".ssh", ".aws", ".codex", ".agents", "backups", "development_mcp"}
+
+
+def strict_json(content):
+    def pairs(values):
+        result = {}
+        for name, value in values:
+            if name in result:
+                raise ValueError("Duplicate JSON key: " + name)
+            result[name] = value
+        return result
+
+    def constant(value):
+        raise ValueError("Nonfinite JSON number: " + value)
+
+    return json.loads(content, object_pairs_hook=pairs, parse_constant=constant)
 
 
 def canonical(value):
@@ -44,7 +60,7 @@ def regular_file(root, value):
 
 
 def reviewed_manifest(root):
-    document = json.loads(regular_file(root, MANIFEST).read_text())
+    document = strict_json(regular_file(root, MANIFEST).read_text())
     if set(document) != {"version", "runtime", "build_only"} or type(document["version"]) is not int or document["version"] != 1:
         raise ValueError("Unsupported distribution manifest")
     seen = set()
@@ -67,7 +83,7 @@ def reviewed_manifest(root):
 
 def derived_sbom(original, hashes, toolchain):
     """Preserve the inventory/graph; change only the two rebuilt asset records."""
-    document = json.loads(json.dumps(original))
+    document = strict_json(json.dumps(original, allow_nan=False))
     described = set()
     for component in document.get("components", []):
         name = component.get("name")
@@ -114,6 +130,54 @@ def dependency_key(value):
     return match[1].lower().replace("_", "-"), tuple(sorted(match[2].split(",")))
 
 
+def core_metadata(content, source):
+    project = tomllib.loads(regular_file(source, "pyproject.toml").read_text())["project"]
+    metadata = BytesParser().parsebytes(content)
+    allowed = {"Metadata-Version", "Name", "Version", "Summary", "License-File", "Requires-Python", "Requires-Dist", "Description-Content-Type"}
+    if set(metadata.keys()) != allowed or any(len(metadata.get_all(name, [])) != 1 for name in allowed - {"Requires-Dist"}):
+        raise ValueError("Distribution metadata has unexpected or duplicate identity headers")
+    if metadata["Metadata-Version"] != "2.4":
+        raise ValueError("Unreviewed core metadata version")
+    if (metadata["Name"], metadata["Version"], metadata["Requires-Python"]) != (project["name"], project["version"], project["requires-python"]):
+        raise ValueError("Distribution project identity differs from pyproject.toml")
+    if metadata["Summary"] != project["description"] or metadata["Description-Content-Type"] != "text/markdown" or metadata.get_payload(decode=True).strip() != regular_file(source, project["readme"]).read_bytes().strip():
+        raise ValueError("Distribution description/readme differs from reviewed project metadata")
+    if metadata["License-File"] != "LICENSE":
+        raise ValueError("Distribution license differs from reviewed source LICENSE")
+    if {dependency_key(value) for value in metadata.get_all("Requires-Dist", [])} != {dependency_key(value) for value in project["dependencies"]}:
+        raise ValueError("Distribution dependencies differ from pyproject.toml")
+    return metadata
+
+
+def audit_sdist(sdist, source, *, wheel_metadata=None):
+    """Validate a source-only build without requiring a wheel to exist."""
+    expected = set(sum((reviewed_manifest(source)[group] for group in ("runtime", "build_only")), [])) | {"PKG-INFO"}
+    project = tomllib.loads(regular_file(source, "pyproject.toml").read_text())["project"]
+    expected_root = project["name"].replace("-", "_") + "-" + project["version"]
+    with tarfile.open(sdist, "r:*") as archive:
+        observed = {}
+        for member in archive.getmembers():
+            path = canonical(member.name)
+            if path.parts[0] != expected_root:
+                raise ValueError("Source archive root differs from project identity")
+            if len(path.parts) < 2 or not member.isfile():
+                raise ValueError("Unsafe source archive member")
+            relative = path.relative_to(expected_root).as_posix()
+            if relative not in expected or relative in observed:
+                raise ValueError("Unreviewed/duplicate source archive input: " + relative)
+            observed[relative] = archive.extractfile(member).read()
+        if set(observed) != expected:
+            raise ValueError("Source archive differs from reviewed inputs")
+        for name, content in observed.items():
+            if name != "PKG-INFO" and content != regular_file(source, name).read_bytes():
+                raise ValueError("Source archive hash differs: " + name)
+        if wheel_metadata is not None and observed["PKG-INFO"] != wheel_metadata:
+            raise ValueError("Source archive metadata differs from verified wheel metadata")
+        core_metadata(observed["PKG-INFO"], source)
+    return {"status": "passed", "sdist_sha256": sha256(Path(sdist).read_bytes()).hexdigest(),
+            "sdist_reviewed_file_count": len(expected) - 1}
+
+
 def wheel_payload(wheel, source):
     manifest = reviewed_manifest(source)
     expected = set(manifest["runtime"])
@@ -152,21 +216,10 @@ def wheel_payload(wheel, source):
         project = tomllib.loads(regular_file(source, "pyproject.toml").read_text())["project"]
         if metadata_root != project["name"].replace("-", "_") + "-" + project["version"] + ".dist-info":
             raise ValueError("Wheel metadata root differs from the project identity")
-        metadata = BytesParser().parsebytes(archive.read(metadata_root + "/METADATA"))
+        core_metadata(archive.read(metadata_root + "/METADATA"), source)
         wheel_metadata = BytesParser().parsebytes(archive.read(metadata_root + "/WHEEL"))
-        allowed_headers = {"Metadata-Version", "Name", "Version", "Summary", "License-File", "Requires-Python", "Requires-Dist", "Description-Content-Type"}
-        if set(metadata.keys()) != allowed_headers or any(len(metadata.get_all(name, [])) != 1 for name in allowed_headers - {"Requires-Dist"}):
-            raise ValueError("Wheel metadata has unexpected or duplicate identity headers")
-        if metadata["Metadata-Version"] != "2.4":
-            raise ValueError("Unreviewed core metadata version")
-        if (metadata["Name"], metadata["Version"], metadata["Requires-Python"]) != (project["name"], project["version"], project["requires-python"]):
-            raise ValueError("Wheel project identity differs from pyproject.toml")
-        if metadata["Summary"] != project["description"] or metadata["Description-Content-Type"] != "text/markdown" or metadata.get_payload(decode=True).strip() != regular_file(source, project["readme"]).read_bytes().strip():
-            raise ValueError("Wheel description/readme differs from reviewed project metadata")
-        if metadata["License-File"] != "LICENSE" or archive.read(metadata_root + "/licenses/LICENSE") != regular_file(source, "LICENSE").read_bytes():
+        if archive.read(metadata_root + "/licenses/LICENSE") != regular_file(source, "LICENSE").read_bytes():
             raise ValueError("Wheel license differs from reviewed source LICENSE")
-        if {dependency_key(value) for value in metadata.get_all("Requires-Dist", [])} != {dependency_key(value) for value in project["dependencies"]}:
-            raise ValueError("Wheel dependencies differ from pyproject.toml")
         if set(wheel_metadata.keys()) != {"Wheel-Version", "Generator", "Root-Is-Purelib", "Tag"} or any(len(wheel_metadata.get_all(name, [])) != 1 for name in wheel_metadata.keys()) or wheel_metadata["Wheel-Version"] != "1.0" or wheel_metadata["Generator"] != "hatchling 1.32.4" or wheel_metadata.get_payload(decode=True).strip():
             raise ValueError("Unexpected/duplicate wheel generator metadata")
         if wheel_metadata["Root-Is-Purelib"] != "true" or wheel_metadata.get_all("Tag") != ["py3-none-any"]:
@@ -184,18 +237,18 @@ def wheel_payload(wheel, source):
         for name in WASM:
             if name not in payload or not payload[name].startswith(b"\x00asm\x01\x00\x00\x00"):
                 raise ValueError("Compiled WASM asset missing or invalid")
-        bom = json.loads(payload["sbom/cadevil.cdx.json"])
+        bom = strict_json(payload["sbom/cadevil.cdx.json"])
         toolchain = tomllib.loads(regular_file(source, "rust-toolchain.toml").read_text())["toolchain"]
         if toolchain["channel"] != "1.98.1" or toolchain["targets"] != ["wasm32-unknown-unknown"]:
             raise ValueError("Unreviewed Rust toolchain/target")
-        source_bom = json.loads(regular_file(source, "sbom/cadevil.cdx.json").read_text())
+        source_bom = strict_json(regular_file(source, "sbom/cadevil.cdx.json").read_text())
         validate_source_sbom(source_bom, source, project)
         expected_bom = derived_sbom(source_bom,
                                     {name: sha256(payload[name]).hexdigest() for name in WASM}, toolchain["channel"])
         if bom != expected_bom:
             raise ValueError("Derived SBOM changed unreviewed inventory/graph content")
         evidence_name = metadata_root + "/extra_metadata/cadevil-build.json"
-        evidence = json.loads(archive.read(evidence_name))
+        evidence = strict_json(archive.read(evidence_name))
         if set(evidence) != {"rust_toolchain", "rustc", "wasm_target", "cargo_source_sha256", "build_hook_sha256", "reviewed_manifest_sha256", "runtime_sha256"}:
             raise ValueError("Unexpected wheel build evidence fields")
         if evidence["runtime_sha256"] != {name: sha256(content).hexdigest() for name, content in payload.items()}:
@@ -211,45 +264,44 @@ def wheel_payload(wheel, source):
     return payload, evidence
 
 
+def audit_destinations(wheel, source, *, sdist=None, output=None, extract=None):
+    roots = {Path(source).absolute(), Path(source).resolve()}
+    inputs = {Path(wheel).resolve()}
+    if sdist is not None:
+        inputs.add(Path(sdist).resolve())
+    destinations = {}
+    for kind, value in (("report", output), ("runtime", extract)):
+        if value is None:
+            continue
+        path = Path(value)
+        resolved = path.resolve()
+        if any(candidate == root or root in candidate.parents for root in roots for candidate in (path.absolute(), resolved)):
+            raise ValueError("Audit " + kind + " destination must be outside the source tree")
+        if resolved in inputs:
+            raise ValueError("Audit destination aliases an input artifact")
+        if path.exists() or path.is_symlink():
+            raise ValueError("Audit " + kind + " destination must be new")
+        destinations[kind] = resolved
+    if set(destinations) == {"report", "runtime"}:
+        report, runtime = destinations["report"], destinations["runtime"]
+        if report == runtime or runtime in report.parents or report in runtime.parents:
+            raise ValueError("Audit report and runtime destinations must be separate")
+
+
 def audit(wheel, source, sdist=None, output=None, extract=None, sbom_schema=None):
+    audit_destinations(wheel, source, sdist=sdist, output=output, extract=extract)
     payload, evidence = wheel_payload(wheel, source)
     report = {"status": "passed", "wheel_sha256": sha256(Path(wheel).read_bytes()).hexdigest(),
               "runtime_file_count": len(payload), "runtime_sha256": {name: sha256(content).hexdigest() for name, content in sorted(payload.items())}, "build_evidence": evidence}
     if sdist is not None:
-        expected = set(sum((reviewed_manifest(source)[group] for group in ("runtime", "build_only")), [])) | {"PKG-INFO"}
-        project = tomllib.loads(regular_file(source, "pyproject.toml").read_text())["project"]
-        expected_root = project["name"].replace("-", "_") + "-" + project["version"]
-        with tarfile.open(sdist, "r:*") as archive:
-            observed = {}
-            root = None
-            for member in archive.getmembers():
-                path = canonical(member.name)
-                if root is None:
-                    root = path.parts[0]
-                    if root != expected_root:
-                        raise ValueError("Source archive root differs from project identity")
-                if path.parts[0] != root or len(path.parts) < 2 or not member.isfile():
-                    raise ValueError("Unsafe source archive member")
-                relative = path.relative_to(root).as_posix()
-                if relative not in expected or relative in observed:
-                    raise ValueError("Unreviewed/duplicate source archive input: " + relative)
-                observed[relative] = archive.extractfile(member).read()
-            if set(observed) != expected:
-                raise ValueError("Source archive differs from reviewed inputs")
-            for name, content in observed.items():
-                if name != "PKG-INFO" and content != regular_file(source, name).read_bytes():
-                    raise ValueError("Source archive hash differs: " + name)
-            with zipfile.ZipFile(wheel) as built:
-                metadata = next(name for name in built.namelist() if name.endswith(".dist-info/METADATA"))
-                if observed["PKG-INFO"] != built.read(metadata):
-                    raise ValueError("Source archive metadata differs from verified wheel metadata")
-        report["sdist_sha256"] = sha256(Path(sdist).read_bytes()).hexdigest()
-        report["sdist_reviewed_file_count"] = len(expected) - 1
+        with zipfile.ZipFile(wheel) as built:
+            metadata = next(name for name in built.namelist() if name.endswith(".dist-info/METADATA"))
+            report.update(audit_sdist(sdist, source, wheel_metadata=built.read(metadata)))
     if sbom_schema:
         from jsonschema import Draft7Validator
-        schema = json.loads(Path(sbom_schema).read_text())
+        schema = strict_json(Path(sbom_schema).read_text())
         Draft7Validator.check_schema(schema)
-        Draft7Validator(schema).validate(json.loads(payload["sbom/cadevil.cdx.json"]))
+        Draft7Validator(schema).validate(strict_json(payload["sbom/cadevil.cdx.json"]))
         report["derived_sbom_schema_validation"] = "passed"
     if extract:
         destination = Path(extract)
@@ -262,7 +314,8 @@ def audit(wheel, source, sdist=None, output=None, extract=None, sbom_schema=None
             target.write_bytes(content)
             target.chmod(0o644)
     if output:
-        Path(output).write_text(json.dumps(report, sort_keys=True, indent=2) + "\n")
+        with Path(output).open("x", encoding="utf-8") as stream:
+            stream.write(json.dumps(report, sort_keys=True, indent=2) + "\n")
     return report
 
 

@@ -8,13 +8,9 @@ The 0.16.0 image runs the native Bolt production server on port 8000 as UID/GID 
 
 The compiler stage uses [uv's build frontend](https://docs.astral.sh/uv/concepts/projects/build/) and the pinned Hatchling backend. Its [custom build hook](https://hatch.pypa.io/latest/plugins/build-hook/custom/) builds both Rust libraries with `cargo build --locked --release` for `wasm32-unknown-unknown`, using Rust 1.98.1 selected through [rustup](https://rust-lang.github.io/rustup/overrides.html). Compilation uses temporary target directories. The builder verifies the resulting wheel against the reviewed payload manifest and extracts only its runtime files before collecting static assets. The source distribution contains the reviewed runtime and build inputs without compiling Rust; `uv build` produces both distributions locally, and `make rebuild` builds the wheel only.
 
-Validate both local distributions before using them:
+`uv build` runs the checks automatically through the Hatch lifecycle. Before packaging, the shared source validator checks the declared inputs, Docker exclusions and compiler COPY layout, source SBOM evidence and plugin isolation. After packaging, the hook checks exact archive members, metadata, WASM and its derived inventory, and source immutability. A failed target removes its invalid output. Source-only builds are checked without requiring a wheel. Editable dependency installs keep their existing lightweight behavior.
 
-```sh
-python scripts/check_build_artifacts.py --source . --wheel dist/cadevil_webapp-0.16.0-py3-none-any.whl --sdist dist/cadevil_webapp-0.16.0.tar.gz
-```
-
-The validator checks the exact archive members, metadata and the generated WASM inventory. To run the source browser suites against assets extracted from a verified wheel, use `python scripts/test_browser_assets.py --asset-root /path/to/extracted-wheel`. Test files and Node dependencies still come from the checkout; the selected payload supplies the browser assets and compiled workers. The default `npm test` continues to use the checkout's registered static roots.
+The Docker builder passes its received-context and runtime-export settings to that same hook. Successful wheel validation produces the runtime payload and a matching artifact report before static collection; separate manual validation commands are unnecessary. The standalone validator remains available for inspecting third-party or previously built artifacts. To run the source browser suites against assets extracted from a verified wheel, use `python scripts/test_browser_assets.py --asset-root /path/to/extracted-wheel`. Test files and Node dependencies still come from the checkout; the selected payload supplies the browser assets and compiled workers. The default `npm test` continues to use the checkout's registered static roots.
 
 Build using a context archive outside the checkout so no directory walk is sent to Docker:
 
