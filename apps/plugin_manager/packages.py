@@ -64,13 +64,20 @@ def validate_package(content):
                 suffix=PurePosixPath(name).suffix.lower()
                 if name in {'plugin.json','signature.json'}:
                     if member.file_size>16384: raise ValidationError('plugin.json must be at most 16 KiB.')
+                elif name == 'sbom.cdx.json':
+                    from .sbom import MAX_SBOM_BYTES
+                    if member.file_size > MAX_SBOM_BYTES:
+                        raise ValidationError('The plugin SBOM must be at most 256 KiB.')
                 elif suffix not in {'.js','.mjs','.wasm','.md','.txt'}:
-                    raise ValidationError('Packages may contain only plugin.json, JavaScript, WASM and text documentation. Server Python code is not installed from uploads.')
+                    raise ValidationError('Packages may contain only plugin.json, sbom.cdx.json, JavaScript, WASM and text documentation. Server Python code is not installed from uploads.')
                 data=archive.read(member)
                 if suffix in {'.js','.mjs'}: javascript(data)
                 elif suffix=='.wasm' and not data.startswith(b'\x00asm\x01\x00\x00\x00'):
                     raise ValidationError(f'{name} is not a WebAssembly version 1 module.')
                 files[name]=data
+            if 'sbom.cdx.json' in files:
+                from .sbom import parse_inventory
+                parse_inventory(files['sbom.cdx.json'])
             if 'plugin.json' not in files: raise ValidationError('The ZIP must contain plugin.json at its root.')
             try: manifest=json.loads(files['plugin.json'].decode('utf-8'))
             except (ValueError,UnicodeDecodeError) as error: raise ValidationError('plugin.json must contain valid UTF-8 JSON.') from error

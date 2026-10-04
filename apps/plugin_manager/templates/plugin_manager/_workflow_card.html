@@ -3,6 +3,7 @@
     <span class="viewer-eyebrow">{{ item.category }}</span><h3>{{ record.name|default:record.plugin_id }}</h3><p>{{ item.description }}</p>
     {% if item.selected and not item.available %}<p class="plugin-availability-message">Currently unavailable. Your selection is saved.</p>{% endif %}
     <div class="plugin-collection-actions">
+        {% if record.environment_compatible %}<a href="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-get="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">View SBOM</a>{% endif %}
         {% if item.selected %}
             {% if item.available and item.url %}<a class="plugin-open-tool" href="{{ item.url }}" hx-get="{{ item.url }}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open tool</a>{% endif %}
             <form method="post" action="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-post="{% url 'plugin_manager:plugin_store_action' record.plugin_id 'disable' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">{% csrf_token %}<input type="hidden" name="return_to" value="manager"><button type="submit" hx-disable="this">Remove from workflow</button></form>

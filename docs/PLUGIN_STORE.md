@@ -52,3 +52,9 @@ Owners and administrators may revoke a public key. Linked packages are disabled,
 OpenZL compresses typed data or byte streams; a multi-file package would need a container such as TAR inside the compressed stream. No OpenZL decoder is installed or integrated here. `.zl` uploads receive a clear unsupported-format message. Repack the file contents into ZIP/TAR/gzip/xz and sign them. The signature protocol is independent of the container, leaving room for a bounded, tested OpenZL decoder later. Primary documentation: https://openzl.org/getting-started/quick-start/ and https://openzl.org/api/py/decompress/.
 
 The optional signed manifest field `compatibility` accepts `debug`, `production`, or `both` (default). It controls environment availability; commands and MCP subprocess declarations cannot be uploaded in browser archives.
+
+## Include a plugin SBOM
+
+Optionally place a CycloneDX 1.6 JSON inventory named `sbom.cdx.json` at the archive root before signing. It is covered by the package signature. The file may be at most 256 KiB; other JSON filenames remain unsupported. Declare unique component references and ensure every dependency refers to a declared component. The reader applies local format, hierarchy and graph bounds without fetching external schemas or URLs.
+
+Plugin Manager provides **View SBOM** and a JSON download for each catalog-visible compatible plugin. It distinguishes an audited bundled inventory, a signed publisher declaration, and a signed package file list when the publisher has supplied no dependency SBOM. A valid signature authenticates the declared bytes; it does not verify the publisher's dependency/license claims. See [SBOM scope and reader limits](SBOM.md#plugin-manager-inventories).

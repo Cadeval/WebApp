@@ -10,6 +10,7 @@
     <td class="plugin-error-cell">{% if record.has_error %}<span>{{ record.error }}</span>{% else %}<span aria-hidden="true">—</span>{% endif %}</td>
     <td class="plugin-actions">
         <div class="plugin-global-actions">
+            {% if record.environment_compatible %}<a href="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-get="{% url 'plugin_manager:plugin_sbom' record.plugin_id %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">View SBOM</a>{% endif %}
             {% if record.enabled %}<button type="button" class="button plugin-action-button fa fa-toggle-off" hx-post="{% url 'plugin_manager:plugin_disable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Disable globally</button>
             {% elif not record.has_error and record.environment_compatible %}<button type="button" class="button plugin-action-button fa fa-toggle-on" hx-post="{% url 'plugin_manager:plugin_enable' record.plugin_id %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-target="#content-container" hx-swap="outerHTML" hx-disable="this">Enable globally</button>
             {% else %}<span class="plugin-action-unavailable">Unavailable</span>{% endif %}

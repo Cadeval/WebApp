@@ -138,3 +138,16 @@ from .store import package_download
 @api.get('/plugins/{plugin_id}/package.zip',name='plugin_package_download',guards=[AllowAny()])
 @page_endpoint
 def review_package_download(request: Request): return package_download(request,request.params['plugin_id'])
+
+
+from .sbom import plugin_sbom, plugin_sbom_download
+
+@api.get('/plugins/{plugin_id}/sbom/', name='plugin_sbom', guards=[AllowAny()])
+@page_endpoint
+def view_plugin_sbom(request: Request):
+    return plugin_sbom(request, request.params['plugin_id'])
+
+@api.get('/plugins/{plugin_id}/sbom.json', name='plugin_sbom_download', guards=[AllowAny()])
+@page_endpoint
+def download_plugin_sbom(request: Request):
+    return plugin_sbom_download(request, request.params['plugin_id'])

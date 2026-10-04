@@ -64,7 +64,7 @@ def read_package(path):
         if count>32 or name.casefold() in seen: raise ValueError('Too many files or duplicate filenames in package.')
         seen.add(name.casefold());total+=len(data)
         if len(data)>MAX_UPLOAD or total>8*1024*1024: raise ValueError('Package exceeds expanded size limits.')
-        if name!='signature.json' and name!='plugin.json' and PurePosixPath(name).suffix.lower() not in {'.js','.mjs','.wasm','.txt','.md'}: raise ValueError('Only browser plugin files and text documentation are allowed.')
+        if name not in {'signature.json','plugin.json','sbom.cdx.json'} and PurePosixPath(name).suffix.lower() not in {'.js','.mjs','.wasm','.txt','.md'}: raise ValueError('Only browser plugin files, sbom.cdx.json and text documentation are allowed.')
         files[name]=data
     if is_zipfile(io.BytesIO(content)):
         with ZipFile(io.BytesIO(content)) as archive:

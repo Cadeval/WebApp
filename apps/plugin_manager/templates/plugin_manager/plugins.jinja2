@@ -30,7 +30,7 @@
         <form class="plugin-upload-form" data-task-label="Uploading and checking plugin package" method="post" action="{% url 'plugin_manager:plugin_upload' %}" enctype="multipart/form-data" hx-post="{% url 'plugin_manager:plugin_upload' %}" hx-encoding="multipart/form-data" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="false">
             {% csrf_token %}<input type="hidden" name="return_to" value="manager">{{ upload_form.non_field_errors }}
             <div class="plugin-upload-grid">{% for field in upload_form %}<div class="plugin-form-field{% if field.errors %} plugin-form-field--error{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<span class="plugin-field-error" role="alert">{{ error }}</span>{% endfor %}</div>{% endfor %}</div>
-            <div class="plugin-upload-footer"><p class="plugin-help-text">Sign your archive locally with the CLI. Accepted: ZIP, TAR, tar.gz/tgz and tar.xz/txz. The manifest supplies the plugin name, ID and version.</p><button class="button" type="submit" hx-disable="this">Publish plugin</button></div>
+            <div class="plugin-upload-footer"><p class="plugin-help-text">Sign your archive locally with the CLI. Accepted: ZIP, TAR, tar.gz/tgz and tar.xz/txz. The manifest supplies the plugin name, ID and version. Include an optional CycloneDX 1.6 sbom.cdx.json (up to 256 KiB); the signing CLI signs it with the other package files.</p><button class="button" type="submit" hx-disable="this">Publish plugin</button></div>
         </form>
     </details>
 
