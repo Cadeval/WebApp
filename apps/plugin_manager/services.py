@@ -18,16 +18,21 @@ def manage_plugin(plugin_id: str, action: str) -> bool:
     normalized_action = action.lower()
     if normalized_action in {"load", "enable"}:
         enabled = True
-        verb = "Loading"
     elif normalized_action in {"unload", "disable"}:
         enabled = False
-        verb = "Unloading"
     else:
         raise ValueError(f"Unsupported plugin management action '{action}'.")
 
     record = PluginRecord.objects.get(plugin_id=plugin_id)
-    logger.info("%s plugin '%s'", verb, plugin_id)
-    record.set_enabled(enabled)
+    try:
+        record.set_enabled(enabled)
+    except Exception as error:
+        logger.warning('Plugin availability change failed', extra={
+            'event': 'plugin_state_change_failed', 'operation': 'enable' if enabled else 'disable',
+            'outcome': 'failed', 'error_type': type(error).__name__})
+        raise
+    logger.info('Plugin availability changed', extra={'event': 'plugin_state_changed',
+                'operation': 'enable' if enabled else 'disable', 'outcome': 'completed'})
     return record.enabled
 
 
@@ -57,12 +62,11 @@ def create_uploaded_plugin(form: PluginUploadForm, user) -> PluginRecord:
         with transaction.atomic():
             record.save()
     except Exception:
+        logger.exception('Signed plugin could not be saved', extra={'event': 'plugin_upload_failed'})
         # Storage is outside the DB transaction; remove only this newly stored file.
         record.artifact.delete(save=False)
         raise
-    logger.info(
-        "Uploaded signed %s plugin '%s'", record.artifact_type, record.plugin_id
-    )
+    logger.info('Signed plugin uploaded', extra={'event': 'plugin_uploaded', 'outcome': 'completed'})
     return record
 
 
@@ -72,5 +76,6 @@ def reload_plugins() -> list[DiscoveryResult]:
     results = registry.reload()
     loaded = sum(1 for result in results if result.ok)
     failed = len(results) - loaded
-    logger.info("Reloaded plugins summary: %d loaded, %d failed", loaded, failed)
+    logger.info("Plugin discovery completed", extra={'event': 'plugins_reloaded',
+                'loaded_count': loaded, 'failed_count': failed})
     return results

@@ -1,6 +1,8 @@
 """IFC adapter sharing the existing quantity resolution with the passport core."""
 import hashlib
 import json
+import logging
+import time
 from pathlib import Path
 
 import ifcopenshell
@@ -146,9 +148,29 @@ def _assess_ifc(path, config, options=None, *, validate_schema=True, geometry_wo
 
 def assess_ifc(path, config, options=None, *, validate_schema=True, geometry_workers=None, parallel_validation=None):
     from .assessment_futures import should_parallelize, parallel_assessment
-    if validate_schema and should_parallelize(path,parallel_validation):
-        return parallel_assessment(_assess_ifc,path,config,options,geometry_workers)
-    return _assess_ifc(path,config,options,validate_schema=validate_schema,geometry_workers=geometry_workers)
+    logger = logging.getLogger('cadevil.assessment')
+    started = time.perf_counter()
+    logger.info('Assessment started', extra={'event': 'assessment_started', 'operation': 'assess_ifc'})
+    try:
+        if validate_schema and should_parallelize(path,parallel_validation):
+            report = parallel_assessment(_assess_ifc,path,config,options,geometry_workers)
+        else:
+            report = _assess_ifc(path,config,options,validate_schema=validate_schema,geometry_workers=geometry_workers)
+    except Exception as error:
+        extra = {'event': 'assessment_failed', 'operation': 'assess_ifc',
+                 'error_type': type(error).__name__, 'outcome': 'failed',
+                 'duration_ms': round((time.perf_counter() - started) * 1000, 2)}
+        logger.log(logging.WARNING if isinstance(error, (ValueError, OSError)) else logging.ERROR,
+                   'Assessment failed; details remain in the assessment response', extra=extra,
+                   exc_info=not isinstance(error, (ValueError, OSError)))
+        raise
+    logger.info('Assessment completed', extra={
+        'event': 'assessment_completed', 'operation': 'assess_ifc', 'outcome': 'completed',
+        'duration_ms': round((time.perf_counter() - started) * 1000, 2),
+        'complete': bool(report.get('complete')), 'issue_count': len(report.get('issues', [])),
+        'material_count': len(report.get('materials', {})),
+    })
+    return report
 
 
 def main():

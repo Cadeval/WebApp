@@ -232,3 +232,36 @@ IFC_GEOMETRY_THREADS = int(os.environ.get('IFC_GEOMETRY_THREADS', '4'))
 # Overlap CPU-heavy schema validation with geometry/calculation for large IFCs.
 IFC_PARALLEL_VALIDATION = os.environ.get('IFC_PARALLEL_VALIDATION', 'true').lower() in {'1', 'true', 'yes', 'on'}
 IFC_PARALLEL_VALIDATION_MIN_BYTES = int(os.environ.get('IFC_PARALLEL_VALIDATION_MIN_BYTES', '2000000'))
+
+# Diagnostic logs are structured for collection and bounded for the admin UI.
+# Never include request payloads, credentials or uploaded model attributes.
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+ADMIN_LOG_ENABLED = os.environ.get('ADMIN_LOG_ENABLED', 'true').lower() in {'1', 'true', 'yes', 'on'}
+ADMIN_LOG_PATH = Path(os.environ.get('ADMIN_LOG_PATH', str(BASE_DIR / 'data/live-logs.sqlite3')))
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {'correlation': {'()': 'apps.shared.logging_utils.CorrelationFilter'}},
+    'formatters': {
+        'json': {'()': 'apps.shared.logging_utils.SafeJSONFormatter'},
+        'live': {'()': 'apps.shared.logging_utils.SafeTextFormatter'},
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'json', 'filters': ['correlation']},
+        'live': {'class': 'apps.shared.live_logs.SharedLogHandler', 'formatter': 'live', 'level': 'INFO'},
+        'null': {'class': 'logging.NullHandler'},
+    },
+    'root': {'handlers': ['console', 'live'], 'level': LOG_LEVEL},
+    'loggers': {
+        # Override Django's default console/mail handlers so raw exception
+        # messages cannot bypass the safe formatter or duplicate each entry.
+        'django': {'handlers': [], 'propagate': True, 'level': LOG_LEVEL},
+        # Bolt gates native raw-path access logs on isEnabledFor(WARNING).
+        # Our middleware supplies route templates, durations and request IDs.
+        'django.server': {'handlers': ['null'], 'propagate': False, 'level': 'CRITICAL'},
+        # SQL diagnostics contain parameter values; keep them out even when
+        # development or a deployment enables DEBUG-level application logs.
+        'django.db.backends': {'handlers': ['null'], 'propagate': False, 'level': 'CRITICAL'},
+        'django_bolt': {'handlers': [], 'propagate': True, 'level': LOG_LEVEL},
+    },
+}

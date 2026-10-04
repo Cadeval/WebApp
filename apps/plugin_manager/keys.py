@@ -1,6 +1,7 @@
 """Register public signing keys; private keys are created and encrypted in the browser."""
 import hashlib
 import json
+import logging
 import secrets
 import time
 from pathlib import Path
@@ -14,6 +15,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from .models import PluginSigningKey
 from .signatures import decode, registration_payload
+
+logger = logging.getLogger('cadevil.security')
 
 
 def signing_key_context(request):
@@ -49,11 +52,16 @@ def register_signing_key(request):
         Ed25519PublicKey.from_public_bytes(public).verify(decode(payload['proof'],64),registration_payload(payload['challenge'],request.user.pk,payload['public_key']))
         key=PluginSigningKey.objects.create(owner=request.user,label=label.strip(),fingerprint=hashlib.sha256(public).hexdigest(),public_key=payload['public_key'])
         request.session.pop('plugin_key_challenge',None)
+        logger.info('Public signing key registered', extra={'event': 'signing_key_registered', 'outcome': 'completed'})
         return JsonResponse({'key_id':key.fingerprint,'label':key.label},status=201)
     except (ValidationError,InvalidSignature,ValueError,TypeError,KeyError) as error:
+        logger.warning('Signing key registration rejected', extra={
+            'event': 'signing_key_registration_rejected', 'outcome': 'rejected', 'error_type': type(error).__name__})
         message='Proof of key ownership is invalid.' if isinstance(error,InvalidSignature) else (' '.join(error.messages) if isinstance(error,ValidationError) else 'Invalid key registration request.')
         return JsonResponse({'error':message},status=400)
     except IntegrityError:
+        logger.warning('Signing key registration conflicts with an existing key', extra={
+            'event': 'signing_key_registration_rejected', 'outcome': 'conflict'})
         return JsonResponse({'error':'This public key is already registered.'},status=409)
 
 
@@ -65,6 +73,8 @@ def revoke_signing_key(request,key_id):
         if not key.revoked_at:
             key.revoked_at=timezone.now();key.save(update_fields=['revoked_at'])
             key.plugins.update(enabled=False,error='The package signing key was revoked. Re-sign and upload under an active key.')
+            transaction.on_commit(lambda: logger.info('Public signing key revoked', extra={
+                'event': 'signing_key_revoked', 'outcome': 'completed'}))
     if request.headers.get('HX-Request')!='true': return redirect('/mycelium/settings?section=security')
     from apps.mycelium.settings_views import settings_response
     response=settings_response(request,section='security',notice='Key revoked. Packages signed with it are disabled.')

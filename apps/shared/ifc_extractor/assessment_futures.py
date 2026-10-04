@@ -61,7 +61,8 @@ def _parallel_assessment(calculate, path, config, options, geometry_workers):
             report=calculate(path,config,options,validate_schema=False,geometry_workers=geometry_workers)
             result=validation.result()
     except (BrokenProcessPool,OSError,RuntimeError) as error:
-        logging.getLogger(__name__).warning('Parallel validation unavailable; completing serial validation: %s',error)
+        logging.getLogger(__name__).warning('Parallel validation unavailable; completing serial validation',
+                                            extra={'event': 'assessment_validation_fallback', 'error_type': type(error).__name__})
         if report is None:return calculate(path,config,options,validate_schema=True,geometry_workers=geometry_workers)
         result=validation_source(str(Path(path).resolve()))
     return apply_validation(report,result)

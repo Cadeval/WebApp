@@ -10,12 +10,14 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django_bolt import AllowAny, BoltAPI
+from .request_logging import configure_api_logging
 from django_bolt.websocket import WebSocket, WebSocketDisconnect
 from .bolt_pages import page_endpoint
 from .page_views import render_page
 from .live_logs import read_logs
 
 api = BoltAPI(django_middleware=True, trailing_slash='keep')
+configure_api_logging(api)
 
 @api.get('/admin/logs/', guards=[AllowAny()])
 @page_endpoint

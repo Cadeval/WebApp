@@ -93,6 +93,9 @@ def group_response(request, *, selected=None, form=None, notice="", status=200):
 
 
 def administration_saved(request, kind, target, notice, *, created=False):
+    import logging
+    logging.getLogger('cadevil.security').info('Account administration completed', extra={
+        'event': 'account_administration', 'operation': kind, 'outcome': 'completed'})
     if request.headers.get("HX-Request") == "true":
         render = user_response if kind == "users" else group_response
         return render(request, selected=target, notice=notice, status=201 if created else 200)

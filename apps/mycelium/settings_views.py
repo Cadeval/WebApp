@@ -1,4 +1,5 @@
 """Session-authenticated personal account settings."""
+import logging
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from apps.shared.page_views import render_page
 from .settings_forms import ProfileSettingsForm
 
 SECTIONS = {"account", "security", "access"}
+logger = logging.getLogger('cadevil.security')
 
 
 def settings_context(request, *, profile_form=None, password_form=None, section=None, notice=""):
@@ -65,5 +67,6 @@ def user_settings(request):
             return settings_response(request, password_form=form, section="security", status=400)
         user = form.save()
         update_session_auth_hash(request, user)
+        logger.info('Account password changed', extra={'event': 'password_changed', 'outcome': 'completed'})
         return saved_response(request, "security", "Password changed. This session remains signed in.")
     raise Http404("Unknown account settings action.")

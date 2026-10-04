@@ -2,6 +2,7 @@
 from uuid import UUID
 
 from django_bolt import AllowAny, BoltAPI
+from apps.shared.request_logging import configure_api_logging
 from django_bolt.exceptions import HTTPException
 from django_bolt.request import Request
 
@@ -12,7 +13,9 @@ from . import pages, passport_views, exchange_pages, location_pages, thumbnail_p
 # page handlers. AllowAny prevents unrelated global JWT defaults overriding
 # their browser login redirects. Django middleware still supplies sessions.
 api = BoltAPI(namespace='bim', trailing_slash='keep', django_middleware=True)
+configure_api_logging(api)
 passport_api = BoltAPI(namespace='material_passport', trailing_slash='keep', django_middleware=True)
+configure_api_logging(passport_api)
 
 
 def object_id(request):

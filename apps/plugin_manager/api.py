@@ -2,7 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.vary import vary_on_headers
-from django_bolt import BoltAPI, AllowAny
+from django_bolt import AllowAny, BoltAPI
+from apps.shared.request_logging import configure_api_logging
 from apps.shared.bolt_pages import page_endpoint
 from django_bolt.request import Request
 
@@ -15,6 +16,7 @@ from apps.shared.services import staff_required
 from .store import catalog_response, plugin_catalog
 
 api = BoltAPI(namespace="plugin_manager",trailing_slash="keep",django_middleware=True)
+configure_api_logging(api)
 
 
 def _toggle(request: HttpRequest, plugin_id: str, enabled: bool) -> HttpResponse:

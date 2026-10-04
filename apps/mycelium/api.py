@@ -1,12 +1,16 @@
 from typing import Annotated
+import logging
 
 from django.contrib.auth import aauthenticate, alogin, alogout
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django_bolt import AllowAny, BoltAPI
+from apps.shared.request_logging import configure_api_logging
 from django_bolt.params import Form
 
 # Authentication uses Django sessions; browser handlers apply their access guards.
 api = BoltAPI(django_middleware=True)
+configure_api_logging(api)
+logger = logging.getLogger('cadevil.security')
 
 # Session-authenticated browser pages share the same full/fragment renderer.
 from django.contrib.auth.decorators import login_required
@@ -31,13 +35,16 @@ async def login(
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
 ):
+    request.META['CADEVIL_LOG_ROUTE'] = 'apps.mycelium.api.login'
     user = await aauthenticate(request=request, username=username, password=password)
     if user:
         await alogin(request=request, user=user)
+        logger.info('Session login succeeded', extra={'event': 'session_login', 'outcome': 'accepted'})
         response = HttpResponse(status=200)
         response["HX-Redirect"] = "/"
         return response
     else:
+        logger.warning('Session login rejected', extra={'event': 'session_login', 'outcome': 'rejected'})
         response = HttpResponse(status=401)
         response["HX-Redirect"] = "/mycelium/login"
         return response
@@ -45,7 +52,9 @@ async def login(
 
 @api.post("/mycelium/logout")
 async def logout(request: HttpRequest):
+    request.META['CADEVIL_LOG_ROUTE'] = 'apps.mycelium.api.logout'
     await alogout(request)
+    logger.info('Session logout completed', extra={'event': 'session_logout', 'outcome': 'completed'})
     return HttpResponseRedirect(redirect_to="/")
 
 

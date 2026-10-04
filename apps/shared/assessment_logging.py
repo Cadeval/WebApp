@@ -7,4 +7,4 @@ class InMemoryLogHandler:
     The persistent assessment report, not this diagnostic log, carries omissions.
     """
     def sync_emit(self,record,user_id=None):
-        logging.getLogger('material_assessment').info('%s',record,extra={'user_id':user_id})
+        logging.getLogger('material_assessment').info('%s', record, extra={'event': 'assessment_progress'})

@@ -1,7 +1,9 @@
 """Compose native plugin routes for the Bolt runtime."""
 from django_bolt import BoltAPI
+from apps.shared.request_logging import configure_api_logging
 
 api = BoltAPI(trailing_slash='keep', django_middleware=True)
+configure_api_logging(api)
 
 from apps.plugins.bim_model_manager.api import api as bim_api
 

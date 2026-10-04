@@ -5,7 +5,6 @@ import io
 import math
 import multiprocessing
 import os
-import pprint
 import time
 from collections import defaultdict
 
@@ -47,7 +46,6 @@ from .ifc_assessment import assess_ifc
 
 
 DEBUG = True
-DEBUG_VERBOSE = False
 
 """
     "IfcWall",
@@ -102,8 +100,7 @@ def create_plan_svg_bboxes(ifc_path, svg_size: int = 1000, margin: int = 20) -> 
 
         try:
             shape = ifcopenshell.geom.create_shape(settings, product)
-        except RuntimeError as e:
-            pprint.pprint(e)
+        except RuntimeError:
             continue
 
         if not shape or not shape.geometry:
@@ -876,8 +873,6 @@ def ifc_product_walk(
 
     # settings.set(settings.USE_PYTHON_OPENCASCADE, False)
 
-    logger.sync_emit(record=f">>>> {settings}", user_id=user_id)
-
     logger.sync_emit(record=">>>> Loading ifc file.", user_id=user_id)
 
     ifc_model: ifcopenshell.file.file = ifcopenshell.open(
@@ -893,7 +888,6 @@ def ifc_product_walk(
         record=f">>>> Preparations done within {time.time() - start}s", user_id=user_id
     )
     logger.sync_emit(record=f">>>> Schema used: {ifc_model.schema}", user_id=user_id)
-    logger.sync_emit(record=f">>>> Opened file: {ifc_file_path}", user_id=user_id)
 
     storeys = ifc_model.by_type("IfcBuildingStorey")
     metrics.stockwerke = len(storeys)
@@ -944,12 +938,7 @@ def ifc_product_walk(
                     geometry=element_geometry,
                     axis="Z",
                 )
-            except Exception as e:
-                if DEBUG_VERBOSE:
-                    pprint.pprint(
-                        f">>>?? No Geometry: {element.get_info(recursive=True)}?"
-                    )
-                    pprint.pprint(e)
+            except Exception:
                 continue
             # Facade extraction logic (Core Envelope)
             if is_external(element):
@@ -996,26 +985,7 @@ def ifc_product_walk(
             metrics.brutto_rauminhalt, metrics.brutto_grundfläche
         )
 
-        logger.sync_emit(record=f">>>?? {metrics.netto_raumfläche}?", user_id=user_id)
-        logger.sync_emit(
-            record=f">>>?? {metrics.konstruktions_grundfläche}?", user_id=user_id
-        )
-        logger.sync_emit(record=f">>>?? {metrics.brutto_grundfläche}?", user_id=user_id)
-        logger.sync_emit(record=f">>>?? {metrics.bebaute_fläche}?", user_id=user_id)
-
-        logger.sync_emit(
-            record="Materials not yet in material passport file", user_id=user_id
-        )
-        logger.sync_emit(record=passport_unknown_ifc_name_set, user_id=user_id)
-
-        logger.sync_emit(record="Materials not yet in prices file", user_id=user_id)
-        logger.sync_emit(record=prices_unknown_ifc_name_set, user_id=user_id)
-
-        logger.sync_emit(record="Materials Found!", user_id=user_id)
-        logger.sync_emit(record=elements_by_material, user_id=user_id)
-
-        logger.sync_emit(record="Properties:", user_id=user_id)
-        logger.sync_emit(record=metrics, user_id=user_id)
+        logger.sync_emit(record='Building geometry processing completed.', user_id=user_id)
 
     metrics.assessment_report = report
     for name, totals in report["materials"].items():
@@ -1027,8 +997,7 @@ def ifc_product_walk(
             for period in ("a1_a3", "a1_a3_b4"):
                 setattr(material, f"{indicator}_ml_{period}", totals.get(f"{indicator}_{period}"))
         elements_by_material[name] = material
-    logger.sync_emit(record={"assessment_complete": report["complete"], "issues": report["issues"],
-                             "material_issues": [row for row in report["rows"] if row["issues"]]}, user_id=user_id)
+    logger.sync_emit(record='Assessment results prepared for storage.', user_id=user_id)
     return elements_by_material, metrics
 
 

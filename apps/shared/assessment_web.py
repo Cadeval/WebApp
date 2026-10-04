@@ -1,6 +1,7 @@
 """Material-passport entry point alongside the in-progress Rust/Bolt rewrite."""
 import csv
 import io
+import logging
 import tempfile
 from pathlib import Path
 
@@ -21,6 +22,8 @@ from .models import (BuildingMetrics, CadevilDocument, CalculationConfig, Config
 from .page_views import render_page as render
 from .assessment_presentation import charts, comparison as comparison_data
 from .model_choice_widgets import ModelThumbnailRadioSelect, ModelThumbnailCheckboxSelect
+
+logger = logging.getLogger('cadevil.assessment')
 
 
 class PassportForm(forms.Form):
@@ -101,6 +104,8 @@ def calculate(request):
             except InvalidIfc as exc:
                 diagnostics = exc.diagnostics
             except (ValueError, RuntimeError, OSError) as exc:
+                logger.warning('Assessment input could not be processed', extra={
+                    'event': 'assessment_input_rejected', 'error_type': type(exc).__name__})
                 diagnostics = [str(exc)]
             else:
                 stored = []
@@ -121,8 +126,10 @@ def calculate(request):
                             'assessment':{'include_endpoint':options.include_endpoint,'grade_weighting':options.grade_weighting,'lca_averaging':options.lca_averaging}}})
                         document = _save_results(request.user,upload,report)
                 except Exception:
+                    logger.exception('Assessment results could not be saved', extra={'event': 'assessment_storage_failed'})
                     for file in stored: file.delete(save=False)
                     raise
+                logger.info('Assessment results saved', extra={'event': 'assessment_saved', 'outcome': 'completed'})
                 return redirect('material_passport:report',pk=document.pk)
     return render(request,'shared/material_passport_form.html',{'form':form,'diagnostics':diagnostics},status=422 if diagnostics else 200)
 
