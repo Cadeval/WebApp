@@ -1,6 +1,5 @@
 """Ed25519 signatures bind every package file to a registered public key."""
 import base64
-import hashlib
 import json
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey

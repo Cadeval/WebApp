@@ -3,7 +3,6 @@ import hashlib
 import io
 import json
 import tarfile
-import time
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile

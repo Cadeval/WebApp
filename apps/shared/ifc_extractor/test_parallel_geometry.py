@@ -1,9 +1,8 @@
-import copy
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-from .ifc_assessment import assess_ifc, InvalidIfc
+from .ifc_assessment import assess_ifc
 from .parallel_geometry import geometry_measurements, geometry_threads
 from .material_assessment import AssessmentOptions, file_hash
 from .test_material_assessment import IfcPassportTests, reference

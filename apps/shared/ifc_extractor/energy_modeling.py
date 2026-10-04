@@ -21,7 +21,7 @@ def main() -> None:
 
     # Set weather file
     epw_file = openstudio.openstudioenergyplus.EpwFile(openstudio.path(weather_file_path))
-    weather_file = openstudio.model.WeatherFile.setWeatherFile(model, epw_file).get()
+    openstudio.model.WeatherFile.setWeatherFile(model, epw_file).get()
 
     # Set simulation parameters
     simulation_control = model.getSimulationControl()

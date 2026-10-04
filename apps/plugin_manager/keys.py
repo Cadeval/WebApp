@@ -12,7 +12,6 @@ from django.db import IntegrityError, transaction
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
-from apps.shared.page_views import render_page
 from .models import PluginSigningKey
 from .signatures import decode, registration_payload
 

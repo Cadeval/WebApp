@@ -3,7 +3,7 @@ import io
 import lzma
 import tarfile
 import zlib
-from zipfile import ZipFile, is_zipfile, BadZipFile
+from zipfile import ZipFile, is_zipfile
 from django.core.exceptions import ValidationError
 
 MAX_RAW_TAR=12*1024*1024

@@ -1,3 +1,1 @@
-from django.contrib import admin
-
-# Register your models here.
+"""Shared models use the application administration pages."""

@@ -6,8 +6,6 @@ from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 from unittest import TestCase
 from unittest.mock import Mock, patch
-import copy
-import json
 import tempfile
 
 from .location_lookup import (LookupUnavailable, cached_lookup, country_routing,

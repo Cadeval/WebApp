@@ -1,19 +1,13 @@
-import re
-import unittest.mock
-from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.contrib.auth import get_user_model
-from django.contrib.staticfiles import finders
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.management import call_command
 from django.template.loader import render_to_string
-from django.test import Client, RequestFactory, TestCase, override_settings
-from django.urls import reverse
+from django.test import RequestFactory, TestCase, override_settings
 
-from apps.plugins.example_plugin import EXAMPLE_PLUGIN_ID, plugin_manifest
-from apps.plugin_manager.context_processors import plugin_editor_items, plugin_nav_items
+from apps.plugins.example_plugin import EXAMPLE_PLUGIN_ID
+from apps.plugin_manager.context_processors import plugin_editor_items
 from apps.plugin_manager.manifest import (
     PluginError,
     PLUGIN_API_VERSION,
@@ -24,14 +18,11 @@ from apps.plugin_manager.models import PluginRecord, UserPluginSelection
 from apps.plugin_manager.registry import (
     EDITOR_PLUGIN_EXTENSION_POINT,
     NAV_ITEM_EXTENSION_POINT,
-    DiscoveryResult,
     EditorPlugin,
     NavItem,
     registry,
 )
-from apps.plugin_manager.services import manage_plugin, reload_plugins
 from apps.plugins.rust_example_plugin import RUST_EXAMPLE_PLUGIN_ID
-from apps.plugins.rust_example_plugin import plugin_manifest as rust_plugin_manifest
 
 
 class _FakeEntryPoint:
@@ -215,7 +206,6 @@ from apps.plugin_manager.services import create_uploaded_plugin
 from apps.plugin_manager.registry import PluginRegistry
 from django.db import IntegrityError
 from unittest.mock import patch
-import json
 
 
 class HardenedRegistryTests(TestCase):
@@ -264,7 +254,7 @@ class HardenedRegistryTests(TestCase):
         self.assertEqual(self.registry.manifests(), {})
 
     def test_collision_cannot_reactivate_after_other_worker_refresh(self):
-        record=PluginRecord.objects.create(plugin_id="collision",source="upload",enabled=True)
+        PluginRecord.objects.create(plugin_id="collision",source="upload",enabled=True)
         def contribute(reg): reg.register_nav_item("collision",NavItem("Forged package", "/forged"))
         point=_FakeEntryPoint("collision",lambda:_make_manifest("collision",contribute))
         self.registry.discover_and_sync([point])

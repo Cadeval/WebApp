@@ -31,7 +31,7 @@ BOLT_MAX_UPLOAD_SIZE = 256 * 1024 * 1024
     from django.test import Client
     from apps.plugin_manager.models import PluginRecord
     from apps.plugins.bim_model_manager import PLUGIN_ID
-    from apps.shared.models import CalculationConfig, FileUpload, CadevilDocument, BuildingMetrics
+    from apps.shared.models import CalculationConfig, FileUpload, CadevilDocument
     from apps.shared.ifc_extractor.test_material_assessment import IfcPassportTests, reference
     call_command('migrate', verbosity=0)
     user = get_user_model().objects.create_user(username='runtime-qa', password='temporary-runtime-password')
@@ -137,7 +137,6 @@ BOLT_MAX_UPLOAD_SIZE = 256 * 1024 * 1024
                 assert client.post(pages[2], data={}).status_code == 403
                 print('HTTP upload, selection, edited version, assessment, comparison, exports and CSRF: PASS', flush=True)
                 if '--real-models' in sys.argv:
-                    import hashlib
                     from html.parser import HTMLParser
                     class Diagnostics(HTMLParser):
                         def __init__(self):

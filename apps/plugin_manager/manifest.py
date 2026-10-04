@@ -9,7 +9,7 @@ zero-argument callable returning one).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 # The API version implemented by this host application. Plugins declare the
 # API version they were built against on their manifest, and are only

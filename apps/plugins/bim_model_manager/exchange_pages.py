@@ -77,7 +77,8 @@ def _locations(upload, data):
 @require_http_methods(["GET", "POST"])
 def import_cityjson(request):
     from apps.shared.cityjson_import import inspect_cityjson, convert_cityjson, CityJSONImportError
-    form = CityJSONImportForm(request.POST or None, request.FILES or None)
+    form = CityJSONImportForm(request.POST if request.method == "POST" else None,
+                              request.FILES if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():
         stored_files = []
         try:
@@ -208,7 +209,8 @@ def building_location(request, pk, guid):
     if current is None:
         raise Http404("This building is not in your uploaded model.")
     existing = BuildingLocation.objects.filter(upload=upload, guid=guid).first()
-    form = BuildingLocationForm(request.POST or None, instance=existing, initial={"latitude": current["latitude"], "longitude": current["longitude"]})
+    form = BuildingLocationForm(request.POST if request.method == "POST" else None,
+                                instance=existing, initial={"latitude": current["latitude"], "longitude": current["longitude"]})
     if request.method == "POST":
         if request.POST.get("action") == "reset":
             BuildingLocation.objects.filter(upload=upload, guid=guid, source="manual").delete()

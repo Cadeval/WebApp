@@ -8,7 +8,7 @@ import uuid
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import AbstractUser, Group, GroupManager, Permission
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from django.db import models

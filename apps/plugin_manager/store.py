@@ -21,7 +21,7 @@ from .packages import safe_path, MAX_MEMBER_BYTES
 from .workflows import is_workflow_plugin, selectable_plugin, workflow_plugin_enabled
 
 BUILTINS={
-    'cadevil.bim.model_manager':('BIM Workspace','Manage IFC models, reference configurations, material passports and comparisons.','/plugins/bim/model_manager/'),
+    'cadevil.bim.model_manager':('BIM Workspace','Manage IFC models, reference configurations, material passports and comparisons.','/plugins/bim/'),
     'cadevil.example.editor':('Rust IFC Editor','Inspect and edit a local IFC file in a Rust/WebAssembly worker.','/plugins/ifc-editor/'),
     'cadevil.rust-example.editor':('Rust Snake','Play the bundled game powered by a Rust/WebAssembly worker.','/plugins/rust-snake/'),
 }
@@ -58,10 +58,6 @@ def catalog_response(request, *, manager=True, form=None, notice='', reload_summ
                           'notice':notice, 'reload_summary':reload_summary, 'upload_form':form or PluginUploadForm()}, status=status)
     if request.method=='POST': response['HX-Push-Url']='false'
     return response
-
-
-def store_response(request, **kwargs):
-    return catalog_response(request, **kwargs)
 
 
 @login_required(login_url='/mycelium/login')

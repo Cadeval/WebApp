@@ -25,6 +25,8 @@ class ThesisAlignmentWebTests(TestCase):
         self.assertContains(response,'Element summaries')
         self.assertContains(response,'Geometric and storey inventory')
         self.assertContains(response,'Global gross material cost')
+        cost_charts = [chart for chart in response.context['charts'] if chart['key'].endswith('_price')]
+        self.assertEqual([chart['unit'] for chart in cost_charts], ['EUR'] * 3)
         self.assertContains(response,'<svg xmlns="http://www.w3.org/2000/svg" width="700"',count=16)
         self.assertContains(response,'aria-label=')
         csv=self.client.get(url+'?download=csv')
@@ -53,6 +55,8 @@ class ThesisAlignmentWebTests(TestCase):
         self.assertContains(response,'Graphical model comparison')
         self.assertContains(response,'AP A1–A3 plus B4')
         self.assertContains(response,'Local net material cost')
+        cost_charts = [chart for chart in response.context['charts'] if chart['key'].endswith('_price')]
+        self.assertEqual([chart['unit'] for chart in cost_charts], ['EUR'] * 3)
         metric=BuildingMetrics.objects.get(project=b)
         report=copy.deepcopy(metric.assessment_report)
         report['options']['include_endpoint']=True

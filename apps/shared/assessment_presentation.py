@@ -8,9 +8,9 @@ METRICS = [
     ('gwp_a1_a3','GWP A1–A3','kg CO₂e'), ('gwp_a1_a3_b4','GWP A1–A3 plus B4','kg CO₂e'),
     ('ap_a1_a3','AP A1–A3','kg SO₂e'), ('ap_a1_a3_b4','AP A1–A3 plus B4','kg SO₂e'),
     ('penrt_a1_a3','PENRT A1–A3','MJ'), ('penrt_a1_a3_b4','PENRT A1–A3 plus B4','MJ'),
-    ('global_brutto_price','Global gross material cost','reference currency'),
-    ('local_brutto_price','Local gross material cost','reference currency'),
-    ('local_netto_price','Local net material cost','reference currency'),
+    ('global_brutto_price','Global gross material cost','EUR'),
+    ('local_brutto_price','Local gross material cost','EUR'),
+    ('local_netto_price','Local net material cost','EUR'),
     ('recycling_grade','Descriptive recovery grade','grade 1–5'),
 ]
 

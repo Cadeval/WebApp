@@ -12,7 +12,7 @@ from django.urls import reverse
 from apps.plugin_manager.models import PluginRecord, UserPluginSelection
 from apps.plugin_manager.registry import PluginRegistry
 from apps.plugins.bim_model_manager import PLUGIN_ID, plugin_manifest
-from .models import BuildingMetrics, CadevilDocument, ConfigUpload, FileUpload
+from .models import BuildingMetrics, CadevilDocument, FileUpload
 from .ifc_extractor.test_material_assessment import IfcPassportTests, reference
 
 

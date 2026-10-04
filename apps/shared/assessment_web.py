@@ -1,5 +1,4 @@
 """Material-passport entry point alongside the in-progress Rust/Bolt rewrite."""
-import json
 import csv
 import io
 import tempfile
@@ -10,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.validators import FileExtensionValidator
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
 
 from .ifc_extractor.diagnostics import grouped_diagnostics
@@ -78,7 +77,8 @@ def calculate(request):
         active = CalculationConfig.objects.filter(user=request.user).first()
         if active:
             initial['reference'] = active.upload_id
-    form = PassportForm(request.POST or None, request.FILES or None, user=request.user, initial=initial)
+    form = PassportForm(request.POST if request.method == 'POST' else None,
+                        request.FILES if request.method == 'POST' else None, user=request.user, initial=initial)
     diagnostics = []
     if request.method == 'POST' and form.is_valid():
         c = form.cleaned_data
@@ -196,7 +196,7 @@ class ComparisonForm(forms.Form):
 @login_required(login_url='/mycelium/login')
 @require_http_methods(['GET','POST'])
 def compare(request):
-    form=ComparisonForm(request.POST or None,user=request.user)
+    form=ComparisonForm(request.POST if request.method == 'POST' else None,user=request.user)
     context={'form':form}
     if request.method=='POST' and form.is_valid():
         documents=[]

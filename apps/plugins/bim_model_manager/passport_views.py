@@ -1,7 +1,6 @@
 """Load the assessment module only while the BIM plugin is enabled."""
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
-from apps.plugin_manager.models import PluginRecord
 from apps.plugin_manager.workflows import workflow_plugin_enabled
 from . import PLUGIN_ID
 

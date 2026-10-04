@@ -1,6 +1,6 @@
 import unittest
-from .material_neighbors import material_classification,coverage
-from .test_material_assessment import reference,IfcPassportTests
+from .material_neighbors import material_classification
+from .test_material_assessment import reference
 from .material_assessment import MaterialAssessment
 
 class MaterialNeighbourTests(unittest.TestCase):

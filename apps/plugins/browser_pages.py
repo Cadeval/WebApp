@@ -4,7 +4,6 @@ from django.http import Http404
 from django_bolt import BoltAPI, AllowAny
 from apps.shared.bolt_pages import page_endpoint
 from apps.shared.page_views import render_page
-from apps.plugin_manager.models import PluginRecord
 from apps.plugin_manager.workflows import workflow_plugin_enabled
 
 api = BoltAPI(trailing_slash="keep", django_middleware=True)

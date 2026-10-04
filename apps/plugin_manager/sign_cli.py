@@ -13,7 +13,6 @@ import json
 import lzma
 from pathlib import Path, PurePosixPath
 import stat
-import sys
 import tarfile
 import zlib
 from zipfile import ZipFile, ZIP_DEFLATED, is_zipfile, BadZipFile

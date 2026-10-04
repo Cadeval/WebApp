@@ -1,7 +1,6 @@
 import io
 import json
 import stat
-from tempfile import TemporaryDirectory
 from pathlib import Path
 from unittest.mock import patch
 from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
@@ -9,7 +8,6 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.urls import reverse
 from .packages import validate_package
 from .models import PluginRecord, PluginSigningKey, UserPluginSelection
 from .context_processors import _uploaded_editor_items
