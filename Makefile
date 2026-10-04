@@ -3,6 +3,10 @@
 
 .PHONY: sbom-setup sbom sbom-check sbom-capture-tools
 .PHONY: build docker-build docker-check
+.PHONY: install-checkout-hook
+
+# Use an already-prepared interpreter; installing hooks does not sync dependencies.
+CHECKOUT_PYTHON ?= .venv/bin/python
 
 # Keep export/validation tooling separate from application dependencies.
 SBOM_TOOL_DIR ?= sbom
@@ -40,6 +44,7 @@ docker-check:
 install:
 	uv sync --locked
 	npm ci --ignore-scripts
+	$(MAKE) install-checkout-hook
 
 debug:
 	uv run python manage.py debugserver --settings=config.settings.dev --processes 4 --max-rss 512
@@ -71,3 +76,6 @@ flush:
 
 superuser:
 	uv run python manage.py createsuperuser
+
+install-checkout-hook:
+	"$(CHECKOUT_PYTHON)" -I -B scripts/install_checkout_hook.py --source .

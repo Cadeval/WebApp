@@ -39,6 +39,10 @@ uv build
 
 [uv builds](https://docs.astral.sh/uv/concepts/projects/build/) the wheel and source distribution through the pinned Hatchling backend. A [custom Hatch build hook](https://hatch.pypa.io/latest/plugins/build-hook/custom/) compiles the two bundled Rust workers when building the wheel, using the pinned [rustup toolchain](https://rust-lang.github.io/rustup/overrides.html) and [WASM target](https://rust-lang.github.io/rustup/cross-compilation.html). The source distribution carries the reviewed runtime and build inputs without compiling Rust. Builds use temporary outputs and explicit file manifests; they do not replace the checked-in browser binaries. The wheel's derived inventory records the hashes of its newly built WASM files. See [Docker packaging](docs/DOCKER.md) for how the image consumes the reviewed wheel payload.
 
+Checks run automatically within that lifecycle: the hook validates source inputs, Docker exclusions and compiler copies, SBOM evidence and plugin isolation before building, then validates the completed archive and verifies that source inputs stayed unchanged. Failed artifacts are removed. Docker obtains its validated runtime payload directly from the build hook.
+
+`make install` also activates the [Git checkout hook](docs/CHECKOUT_HOOKS.md). Subsequent branch and file checkouts run the same source validator using the existing Python environment. Existing custom hooks are preserved; the documentation explains how to chain the checker when needed.
+
 ## Building workflows
 
 Sign in and add **BIM Workspace** to your workflow on `/plugins/manage/`. Its tabs group Models, Map, References, Reference editor, Material passport and Comparison. Upload IFC or CityJSON data, start assessments, inspect geometry and select grouped validation warnings to focus their IFC elements. Validation warnings remain nonfatal; material/LCA estimates identify their assumptions. CityJSON import uses ifccityjson; IFC export uses the separate documented converter.
