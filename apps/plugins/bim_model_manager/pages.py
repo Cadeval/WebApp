@@ -15,8 +15,8 @@ from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.vary import vary_on_headers
 from django.contrib.auth.decorators import login_required
 
-from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics, ModelConversion
-from apps.shared.ifc_extractor.material_assessment import load_reference, number
+from apps.plugins.bim_model_manager.django.models import CalculationConfig, ConfigUpload, FileUpload, CadevilDocument, BuildingMetrics, ModelConversion
+from apps.plugins.bim_model_manager.ifc_extractor.material_assessment import load_reference, number
 from .forms import UploadForm, ConfigUploadForm, CalculationConfigForm
 from .passport_views import _enabled
 
@@ -297,7 +297,7 @@ def viewer_assessment_selection(request, upload):
 @require_http_methods(['GET'])
 def viewer_materials(request, pk):
     from django.conf import settings
-    from apps.shared.viewer_materials import source_materials, attach_assessment, IFC_GUID
+    from apps.plugins.bim_model_manager.viewer_materials import source_materials, attach_assessment, IFC_GUID
     from ifcopenshell import Error as IfcError
     upload = get_object_or_404(FileUpload, pk=pk, user=request.user)
     assessment, report, options = viewer_assessment_selection(request, upload)
@@ -330,7 +330,7 @@ def viewer_materials(request, pk):
 @require_http_methods(['GET'])
 def stream_model(request, pk):
     from django.conf import settings
-    from apps.shared.ifc_viewer import model_glb
+    from apps.plugins.bim_model_manager.ifc_viewer import model_glb
     from ifcopenshell import Error as IfcError
     upload = get_object_or_404(FileUpload, pk=pk, user=request.user)
     try:

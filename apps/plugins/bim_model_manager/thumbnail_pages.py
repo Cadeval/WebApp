@@ -14,7 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django_bolt.exceptions import HTTPException
 
 from apps.shared.bolt_pages import form_request
-from apps.shared.models import FileUpload
+from apps.plugins.bim_model_manager.django.models import FileUpload
 from .exchange_pages import local_source
 from .passport_views import _enabled
 
@@ -35,7 +35,7 @@ def _resolve_thumbnail(request, pk):
 def _render_thumbnail(upload, building):
     # This phase has no ORM queries or session work and can leave Django's
     # shared synchronous lane free while native geometry is being prepared.
-    from apps.shared.building_thumbnails import model_thumbnail as create_thumbnail, ThumbnailError
+    from apps.plugins.bim_model_manager.building_thumbnails import model_thumbnail as create_thumbnail, ThumbnailError
     cache = Path(getattr(settings, 'BUILDING_THUMBNAIL_CACHE_ROOT',
                          Path(settings.BASE_DIR) / 'data' / 'building-thumbnail-cache'))
     try:

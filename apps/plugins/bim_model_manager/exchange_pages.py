@@ -15,10 +15,10 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
-from apps.shared.models import FileUpload, ModelConversion, BuildingLocation, CadevilDocument
-from apps.shared.building_locations import source_building_locations
-from apps.shared.ifc_extractor.material_assessment import file_hash
-from apps.shared.cityjson_export import model_cityjson, CityJSONExportError, EXPORT_VERSION
+from apps.plugins.bim_model_manager.django.models import FileUpload, ModelConversion, BuildingLocation, CadevilDocument
+from apps.plugins.bim_model_manager.building_locations import source_building_locations
+from apps.plugins.bim_model_manager.ifc_extractor.material_assessment import file_hash
+from apps.plugins.bim_model_manager.cityjson_export import model_cityjson, CityJSONExportError, EXPORT_VERSION
 from .exchange_forms import CityJSONImportForm, BuildingLocationForm
 from .pages import bim_page, page
 
@@ -76,7 +76,7 @@ def _locations(upload, data):
 @never_cache
 @require_http_methods(["GET", "POST"])
 def import_cityjson(request):
-    from apps.shared.cityjson_import import inspect_cityjson, convert_cityjson, CityJSONImportError
+    from apps.plugins.bim_model_manager.cityjson_import import inspect_cityjson, convert_cityjson, CityJSONImportError
     form = CityJSONImportForm(request.POST if request.method == "POST" else None,
                               request.FILES if request.method == "POST" else None)
     if request.method == "POST" and form.is_valid():

@@ -1,7 +1,7 @@
 """Forms used by the active native BIM pages."""
 from django import forms
 
-from apps.shared.models import CalculationConfig, ConfigUpload, FileUpload
+from apps.plugins.bim_model_manager.django.models import CalculationConfig, ConfigUpload, FileUpload
 
 
 class ConfigUploadForm(forms.ModelForm):

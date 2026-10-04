@@ -1,4 +1,4 @@
-"""Plugin resources use Django's loaders without registering historical models."""
+"""Plugin-owned Django apps and resources use the normal registry/loaders."""
 import json
 from pathlib import Path
 import subprocess
@@ -16,7 +16,7 @@ from django.template.loader import get_template
 from django.templatetags.static import static
 from django.test import SimpleTestCase, TestCase, override_settings
 
-from apps.shared.model_choice_widgets import (
+from apps.plugins.bim_model_manager.model_choice_widgets import (
     ModelThumbnailCheckboxSelect,
     ModelThumbnailRadioSelect,
 )
@@ -62,32 +62,26 @@ class DjangoPluginResourceTests(SimpleTestCase):
                 self.assertIn("checked", markup)
                 self.assertIn("Owned model", markup)
 
-    def test_only_model_free_resource_namespaces_enter_the_django_registry(self):
-        configs = [config for config in apps.get_app_configs()
-                   if config.name.startswith("apps.plugins.")]
-        self.assertEqual({config.name for config in configs}, {
-            "apps.plugins.bim_model_manager.resources",
+    def test_plugin_persistence_and_resource_only_adapter_enter_the_registry(self):
+        configs = {config.name: config for config in apps.get_app_configs()
+                   if config.name.startswith("apps.plugins.")}
+        self.assertEqual(set(configs), {
+            "apps.plugins.bim_model_manager.django",
             "apps.plugins.example_plugin.resources",
         })
-        for config in configs:
-            self.assertIsNone(config.models_module)
-            self.assertEqual(list(config.get_models()), [])
+        bim = configs["apps.plugins.bim_model_manager.django"]
+        editor = configs["apps.plugins.example_plugin.resources"]
+        self.assertEqual(bim.label, "bim_model_manager")
+        self.assertEqual(Path(bim.path), BIM_ROOT)
+        self.assertEqual(len(list(bim.get_models())), 9)
+        self.assertEqual(apps.get_model("bim_model_manager", "FileUpload").__module__,
+                         "apps.plugins.bim_model_manager.django.models")
+        self.assertIsNone(editor.models_module)
+        self.assertEqual(list(editor.get_models()), [])
         loader = MigrationLoader(None, ignore_no_migrations=True)
-        self.assertFalse({config.label for config in configs} & loader.migrated_apps)
-        self.assertEqual(apps.get_model("shared", "FileUpload").__module__, "apps.shared.models")
-        # Other tests deliberately inspect historical migration modules. A
-        # fresh interpreter isolates what Django startup itself imports.
-        script = """import json, os, sys
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.passport_test_settings'
-import django
-django.setup()
-historical = ('apps.plugins.bim_model_manager.models',
- 'apps.plugins.bim_model_manager.migrations', 'apps.plugins.example_plugin.models')
-print(json.dumps([name for name in historical if name in sys.modules]))
-"""
-        result = subprocess.run([sys.executable, "-c", script], cwd=ROOT,
-                                check=True, capture_output=True, text=True, timeout=10)
-        self.assertEqual(json.loads(result.stdout), [])
+        self.assertIn(bim.label, loader.migrated_apps)
+        self.assertNotIn(editor.label, loader.migrated_apps)
+        self.assertNotIn("FileUpload", {model.__name__ for model in apps.get_app_config("shared").get_models()})
 
     def test_static_finders_preserve_public_urls_and_resolve_only_plugin_roots(self):
         for root, relative in (
@@ -185,7 +179,7 @@ print(json.dumps({'base_unchanged': tuple(base.INSTALLED_APPS) == baseline,
         result = subprocess.run([sys.executable, "-c", script], cwd=ROOT,
                                 check=True, capture_output=True, text=True, timeout=10)
         observed = json.loads(result.stdout)
-        expected = {"apps.plugins.bim_model_manager.resources", "apps.plugins.example_plugin.resources"}
+        expected = {"apps.plugins.bim_model_manager.django", "apps.plugins.example_plugin.resources"}
         self.assertTrue(observed["base_unchanged"])
         for key in ("dev_names", "prod_names", "repeated_names"):
             self.assertEqual(set(observed[key]), expected)

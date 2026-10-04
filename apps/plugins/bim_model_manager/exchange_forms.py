@@ -4,7 +4,8 @@ import re
 
 from django import forms
 from django.core.validators import FileExtensionValidator
-from apps.shared.models import BuildingLocation, validate_model_upload_size
+from apps.plugins.bim_model_manager.django.models import BuildingLocation
+from apps.plugins.bim_model_manager.django.uploads import validate_model_upload_size
 
 
 class CityJSONImportForm(forms.Form):

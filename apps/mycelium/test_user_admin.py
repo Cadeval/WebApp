@@ -23,7 +23,7 @@ class UserAndGroupAdministrationTests(TestCase):
         self.staff = User.objects.create_user(username="account-staff", is_staff=True)
         self.target = User.objects.create_user(username="account-target", max_calculations=2, active_calculations=1)
         self.owned_permission = self.permission("shared", "view_application_logs")
-        self.foreign_permission = self.permission("shared", "change_buildingmetrics")
+        self.foreign_permission = self.permission("bim_model_manager", "change_buildingmetrics")
         for app, code in (("shared", "view_cadeviluser"), ("shared", "add_cadeviluser"), ("shared", "change_cadeviluser"),
                           ("auth", "view_group"), ("auth", "add_group"), ("auth", "change_group")):
             self.delegated.user_permissions.add(self.permission(app, code))

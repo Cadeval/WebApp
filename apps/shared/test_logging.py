@@ -268,7 +268,7 @@ class NativeRequestLoggingTests(SimpleTestCase):
 
 class AssessmentLoggingTests(SimpleTestCase):
     def test_failure_keeps_context_without_uploaded_file_or_config_data(self):
-        from .ifc_extractor.ifc_assessment import assess_ifc
+        from apps.plugins.bim_model_manager.ifc_extractor.ifc_assessment import assess_ifc
         capture = JSONCapture()
         logger = logging.getLogger('cadevil.assessment')
         old_level = logger.level
@@ -276,7 +276,7 @@ class AssessmentLoggingTests(SimpleTestCase):
         logger.addHandler(capture)
         self.addCleanup(logger.removeHandler, capture)
         self.addCleanup(logger.setLevel, old_level)
-        with patch('apps.shared.ifc_extractor.ifc_assessment._assess_ifc',
+        with patch('apps.plugins.bim_model_manager.ifc_extractor.ifc_assessment._assess_ifc',
                    side_effect=ValueError('private-model-material')):
             with self.assertRaises(ValueError):
                 assess_ifc('/tmp/private-owner.ifc', {'private-material': {'token': 'private-config'}},

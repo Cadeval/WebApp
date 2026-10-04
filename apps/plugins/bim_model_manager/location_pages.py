@@ -10,8 +10,8 @@ from django.utils.cache import patch_vary_headers
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 
-from apps.shared.location_lookup import lookup_location, valid_coordinates
-from apps.shared.models import FileUpload
+from apps.plugins.bim_model_manager.location_lookup import lookup_location, valid_coordinates
+from apps.plugins.bim_model_manager.django.models import FileUpload
 from .exchange_pages import _source_locations, _locations
 from .pages import bim_page, page
 

@@ -15,19 +15,19 @@ def _enabled(request):
 @login_required(login_url='/mycelium/login')
 def calculate(request):
     _enabled(request)
-    from apps.shared.assessment_web import calculate as handler
+    from apps.plugins.bim_model_manager.assessment_web import calculate as handler
     return handler(request)
 
 
 @login_required(login_url='/mycelium/login')
 def report(request,pk):
     _enabled(request)
-    from apps.shared.assessment_web import report as handler
+    from apps.plugins.bim_model_manager.assessment_web import report as handler
     return handler(request,pk)
 
 
 @login_required(login_url='/mycelium/login')
 def compare(request):
     _enabled(request)
-    from apps.shared.assessment_web import compare as handler
+    from apps.plugins.bim_model_manager.assessment_web import compare as handler
     return handler(request)

@@ -9,7 +9,7 @@ MANIFEST = "docker/image-files.json"
 PUBLIC_IFC = {"apps/plugins/bim_model_manager/static/bim-demo/example-a.ifc", "apps/plugins/bim_model_manager/static/bim-demo/example-b.ifc"}
 FORBIDDEN_PARTS = {
     ".git", ".env", ".venv", "node_modules", "__pycache__", "data", "media", "reference",
-    "target", "tests", "test", "src", ".ssh", ".aws", ".codex", ".agents", "backups",
+    "target", "tests", "test", "src", ".ssh", ".aws", ".codex", ".agents", "backups", "development_mcp",
 }
 FORBIDDEN_FILES = {
     "debugserver.py", "debug_processes.py", "mcp_bridge.py", "ux_mcp_bridge.py", "code_audit_bridge.py",
