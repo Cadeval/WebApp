@@ -6,7 +6,7 @@ import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = "docker/image-files.json"
-PUBLIC_IFC = {"apps/plugins/bim_model_manager/static/bim-demo/example-a.ifc", "apps/plugins/bim_model_manager/static/bim-demo/example-b.ifc"}
+PUBLIC_IFC = {"plugins/bim_model_manager/static/bim-demo/example-a.ifc", "plugins/bim_model_manager/static/bim-demo/example-b.ifc"}
 FORBIDDEN_PARTS = {
     ".git", ".env", ".venv", "node_modules", "__pycache__", "data", "media", "reference",
     "target", "tests", "test", "src", ".ssh", ".aws", ".codex", ".agents", "backups", "development_mcp",
@@ -14,6 +14,11 @@ FORBIDDEN_PARTS = {
 FORBIDDEN_FILES = {
     "debugserver.py", "debug_processes.py", "mcp_bridge.py", "ux_mcp_bridge.py", "code_audit_bridge.py",
     "dev.py", "cadevil-development.cdx.json", "package_fixtures.py",
+}
+RUST_BUILD_INPUTS = {
+    f"plugins/{plugin}/{filename}"
+    for plugin in ("example_plugin", "rust_example_plugin")
+    for filename in ("Cargo.toml", "Cargo.lock", "build.rs", "src/lib.rs")
 }
 
 
@@ -31,12 +36,17 @@ def read_manifest(root=ROOT):
             path = PurePosixPath(value)
             if path.is_absolute() or path.as_posix() != value or any(part in {".", ".."} for part in path.parts):
                 raise ValueError("Docker input path is not canonical.")
-            if any(part in FORBIDDEN_PARTS or (part.startswith(".") and part != ".well-known") for part in path.parts):
+            if value in RUST_BUILD_INPUTS and group != "build_only":
+                raise ValueError("Rust compiler inputs must be build-only.")
+            forbidden = FORBIDDEN_PARTS - {"src"} if value in RUST_BUILD_INPUTS and group == "build_only" else FORBIDDEN_PARTS
+            if any(part in forbidden or (part.startswith(".") and part != ".well-known") for part in path.parts):
                 if value != ".dockerignore":
                     raise ValueError("Private or development files cannot be Docker inputs.")
             if path.name in FORBIDDEN_FILES or path.name.startswith("test") or ".test." in path.name:
                 raise ValueError("Test and debug-only files cannot be Docker inputs.")
-            if path.suffix.lower() in {".pem", ".key", ".sqlite", ".sqlite3", ".db", ".log", ".zip", ".tar", ".gz", ".xlsx", ".csv", ".rs"}:
+            if path.suffix.lower() == ".rs" and value not in RUST_BUILD_INPUTS:
+                raise ValueError("Only the declared build-only Rust sources may be included.")
+            if path.suffix.lower() in {".pem", ".key", ".sqlite", ".sqlite3", ".db", ".log", ".zip", ".tar", ".gz", ".xlsx", ".csv"}:
                 raise ValueError("Credentials, state, source archives, and source toolchains cannot be Docker inputs.")
             if path.suffix.lower() == ".ifc" and value not in PUBLIC_IFC:
                 raise ValueError("Only the two public controlled demo IFC fixtures may be included.")
@@ -48,7 +58,7 @@ def read_manifest(root=ROOT):
 
 def dockerignore(document):
     # Re-exclude the contents of every reopened directory. Merely adding
-    # !apps/ after ** can also reopen descendants under Docker's parent rules.
+    # Reopening a parent after ** can also reopen its descendants.
     paths = set(document["runtime"] + document["build_only"])
     directories = {str(parent) for value in paths for parent in PurePosixPath(value).parents if str(parent) != "."}
     lines = ["# Generated from docker/image-files.json; edit that reviewed list, then run", "# python docker/context.py --write-ignore. Unknown files are never included.", "**"]

@@ -58,8 +58,8 @@ wheels = [
 
 [[package]]
 name = "cadevil-webapp"
-version = "0.15.1"
-source = { virtual = "." }
+version = "0.16.0"
+source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
     { name = "django-bolt", extra = ["mcp"] },

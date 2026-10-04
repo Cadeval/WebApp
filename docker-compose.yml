@@ -1,7 +1,7 @@
 name: ${COMPOSE_PROJECT_NAME:-cadevil}
 
 x-app: &app
-  image: ${CADEVIL_IMAGE:-cadevil:0.15.1}
+  image: ${CADEVIL_IMAGE:-cadevil:0.16.0}
   pull_policy: never
   init: true
   read_only: true

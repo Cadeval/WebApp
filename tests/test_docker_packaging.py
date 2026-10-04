@@ -20,7 +20,7 @@ spec.loader.exec_module(context)
 
 class DockerContextPolicyTests(SimpleTestCase):
     def fixture(self, root):
-        manifest = {"version": 1, "runtime": ["apps/public.py"], "build_only": ["Dockerfile", ".dockerignore", "docker/image-files.json"]}
+        manifest = {"version": 1, "runtime": ["shared/public.py"], "build_only": ["Dockerfile", ".dockerignore", "docker/image-files.json"]}
         for path in manifest["runtime"] + manifest["build_only"]:
             target = root / path
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -32,20 +32,20 @@ class DockerContextPolicyTests(SimpleTestCase):
     def test_current_checkout_has_an_exact_allowlist(self):
         manifest = context.validate()
         self.assertNotIn("config/settings/dev.py", manifest["runtime"])
-        self.assertNotIn("apps/plugin_manager/debug_processes.py", manifest["runtime"])
-        self.assertIn("apps/plugins/bim_model_manager/static/bim-demo/house-a.glb", manifest["runtime"])
-        self.assertIn("apps/plugins/example_plugin/static/css/ifc_editor.css", manifest["runtime"])
-        self.assertIn("apps/plugin_manager/resource_registry.py", manifest["runtime"])
-        self.assertIn("apps/plugin_manager/django_resources.py", manifest["runtime"])
-        self.assertNotIn("apps/plugins/resources.py", manifest["runtime"])
-        self.assertIn("apps/shared/migrations/0001_initial.py", manifest["runtime"])
+        self.assertNotIn("plugin_manager/debug_processes.py", manifest["runtime"])
+        self.assertIn("plugins/bim_model_manager/static/bim-demo/house-a.glb", manifest["runtime"])
+        self.assertIn("plugins/example_plugin/static/css/ifc_editor.css", manifest["runtime"])
+        self.assertIn("plugin_manager/resource_registry.py", manifest["runtime"])
+        self.assertIn("plugin_manager/django_resources.py", manifest["runtime"])
+        self.assertNotIn("plugins/resources.py", manifest["runtime"])
+        self.assertIn("shared/migrations/0001_initial.py", manifest["runtime"])
         self.assertIn("sbom/cadevil.cdx.json", manifest["runtime"])
 
     def test_archive_ignores_secret_state_and_new_files_at_any_depth(self):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as output:
             root = Path(source)
             manifest = self.fixture(root)
-            for path in (".env", ".git/config", "apps/credentials.py", "apps/nested/new.py", "resources/static/secret.txt", "apps/plugins/bim_model_manager/static/bim-demo/private.ifc", "apps/plugins/example_plugin/static/js/private.js", "data/user_uploads/private.ifc"):
+            for path in (".env", ".git/config", "shared/credentials.py", "shared/nested/new.py", "resources/static/secret.txt", "plugins/bim_model_manager/static/bim-demo/private.ifc", "plugins/example_plugin/static/js/private.js", "data/user_uploads/private.ifc"):
                 target = root / path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("PRIVATE_CANARY_DO_NOT_PACKAGE")
@@ -63,7 +63,7 @@ class DockerContextPolicyTests(SimpleTestCase):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as outside:
             root = Path(source)
             self.fixture(root)
-            target = root / "apps/public.py"
+            target = root / "shared/public.py"
             target.unlink()
             private = Path(outside) / "private.py"
             private.write_text("private source")
@@ -71,8 +71,8 @@ class DockerContextPolicyTests(SimpleTestCase):
             with self.assertRaisesRegex(ValueError, "Symlinks"):
                 context.validate(root)
             target.unlink()
-            (root / "apps").rmdir()
-            (root / "apps").symlink_to(outside, target_is_directory=True)
+            (root / "shared").rmdir()
+            (root / "shared").symlink_to(outside, target_is_directory=True)
             with self.assertRaisesRegex(ValueError, "Symlinks"):
                 context.validate(root)
 
@@ -80,7 +80,7 @@ class DockerContextPolicyTests(SimpleTestCase):
         with tempfile.TemporaryDirectory() as source:
             root = Path(source)
             manifest = self.fixture(root)
-            for value in ("apps/**/*.py", "../private.py", "apps//public.py", "apps/.env", "apps/tests.py", "data/db.sqlite3", "models/private.ifc", "apps/key.pem", "apps/plugin_manager/mcp_bridge.py"):
+            for value in ("shared/**/*.py", "../private.py", "shared//public.py", "shared/.env", "shared/tests.py", "data/db.sqlite3", "models/private.ifc", "shared/key.pem", "plugin_manager/mcp_bridge.py"):
                 with self.subTest(value=value):
                     manifest["runtime"] = [value]
                     (root / "docker/image-files.json").write_text(json.dumps(manifest))
@@ -92,9 +92,44 @@ class DockerContextPolicyTests(SimpleTestCase):
             root = Path(source)
             self.fixture(root)
             with (root / ".dockerignore").open("a") as handle:
-                handle.write("!apps/credentials.py\n")
+                handle.write("!shared/credentials.py\n")
             with self.assertRaisesRegex(ValueError, "differs"):
                 context.validate(root)
+
+    def test_only_declared_rust_compiler_inputs_are_allowed_as_build_only(self):
+        with tempfile.TemporaryDirectory() as source:
+            root = Path(source)
+            manifest = self.fixture(root)
+            allowed = sorted(
+                f"plugins/{plugin}/{filename}"
+                for plugin in ("example_plugin", "rust_example_plugin")
+                for filename in ("Cargo.toml", "Cargo.lock", "build.rs", "src/lib.rs")
+            )
+            self.assertEqual(context.RUST_BUILD_INPUTS, set(allowed))
+            for value in allowed:
+                target = root / value
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("public compiler input\n")
+            manifest["build_only"].extend(allowed)
+            (root / "docker/image-files.json").write_text(json.dumps(manifest))
+            (root / ".dockerignore").write_text(context.dockerignore(manifest))
+            self.assertEqual(context.validate(root)["build_only"], manifest["build_only"])
+
+            # The narrow src exception must not permit Rust in the final
+            # runtime or reopen arbitrary sources and test modules.
+            for group, value in (
+                ("runtime", "plugins/example_plugin/src/lib.rs"),
+                ("build_only", "plugins/example_plugin/src/private.rs"),
+                ("build_only", "plugins/unreviewed/src/lib.rs"),
+                ("build_only", "plugins/example_plugin/src/test_signing.rs"),
+                ("build_only", "tests/rust/example_plugin/lib.rs"),
+            ):
+                with self.subTest(group=group, value=value):
+                    changed = self.fixture(root)
+                    changed[group].append(value)
+                    (root / "docker/image-files.json").write_text(json.dumps(changed))
+                    with self.assertRaises(ValueError):
+                        context.read_manifest(root)
 
     def test_received_build_context_rejects_unlisted_files(self):
         with tempfile.TemporaryDirectory() as source:
@@ -103,7 +138,7 @@ class DockerContextPolicyTests(SimpleTestCase):
             (root / "Dockerfile").unlink()
             (root / ".dockerignore").unlink()
             context.validate(root, received=True)
-            (root / "apps/private.py").write_text("private")
+            (root / "shared/private.py").write_text("private")
             with self.assertRaisesRegex(ValueError, "does not match"):
                 context.validate(root, received=True)
 
@@ -143,12 +178,12 @@ class ContainerSettingsTests(SimpleTestCase):
 @override_settings(ALLOWED_HOSTS=["testserver.local"])
 class ContainerHealthTests(TestCase):
     def test_probe_requires_database_connection_without_returning_details(self):
-        from apps.shared.container_health import api
+        from shared.container_health import api
         response = TestClient(api).get("/healthz")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ready"})
         self.assertEqual(response.headers["cache-control"], "no-store")
-        with patch("apps.shared.container_health.connection") as failed_database:
+        with patch("shared.container_health.connection") as failed_database:
             failed_database.cursor.side_effect = DatabaseError("PRIVATE_DATABASE_PASSWORD")
             response = TestClient(api).get("/healthz")
         self.assertEqual(response.status_code, 503)

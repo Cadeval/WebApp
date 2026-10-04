@@ -229,7 +229,11 @@ def python_lock_coverage(lock: dict, development: bool) -> set[tuple[str, str]]:
     Markers are retained as evidence, not evaluated: a source inventory covers
     every locked platform alternative, unlike an installed-environment BOM.
     """
-    root = next(package for package in lock["package"] if package.get("source", {}).get("virtual") == ".")
+    roots = [package for package in lock["package"]
+             if any(package.get("source", {}).get(kind) == "." for kind in ("virtual", "editable"))]
+    if len(roots) != 1:
+        raise ValueError("The lock must contain exactly one local project root.")
+    root = roots[0]
     packages: dict[str, list[dict]] = {}
     for package in lock["package"]:
         packages.setdefault(package["name"], []).append(package)
@@ -391,7 +395,7 @@ def browser_inventory(inventory: Inventory) -> None:
 
 def cargo_inventory(inventory: Inventory) -> None:
     for folder, wasm in [("example_plugin", "example_plugin"), ("rust_example_plugin", "rust_example_plugin")]:
-        directory = ROOT / "apps/plugins" / folder
+        directory = ROOT / "plugins" / folder
         manifest = tomllib.loads((directory / "Cargo.toml").read_text())
         lock = tomllib.loads((directory / "Cargo.lock").read_text())
         package = manifest["package"]
@@ -418,7 +422,7 @@ def cargo_inventory(inventory: Inventory) -> None:
         inventory.dependencies[inventory.component["bom-ref"]].add(root_ref)
         for path in [directory / "Cargo.lock", directory / "Cargo.toml"]:
             inventory.evidence_file(path)
-        filename = (f"apps/plugins/{wasm}/static/wasm/{wasm}.wasm"
+        filename = (f"plugins/{wasm}/static/wasm/{wasm}.wasm"
                     if wasm == "example_plugin" else f"resources/static/wasm/{wasm}.wasm")
         asset_ref = f"urn:cadevil:asset:{filename}"
         inventory.add({"type": "file", "bom-ref": asset_ref, "name": filename, "hashes": [{"alg": "SHA-256", "content": digest(ROOT / filename)}], "scope": "required", "properties": properties({"cadevil:evidence:source": "tracked compiled WASM bytes; source/build equivalence unverified"})})

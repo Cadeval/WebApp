@@ -8,30 +8,51 @@ RUN apt-get update \
 
 FROM ghcr.io/astral-sh/uv:0.12.22@sha256:f513a91fc62fe7c17567eee97230dd198e43edb8a9fbecca843714a4358fe1bc AS uv
 
+# Toolchains exist only in the build stage; official multi-platform Rust digest.
+FROM rust:1.98.1-slim-trixie@sha256:4cd829461bd5c4d511c32e269da9cb8929223b666519d8004e35fc8d1d771ab7 AS rust
+
 FROM base AS builder
 COPY --from=uv /uv /usr/local/bin/uv
+COPY --from=rust /usr/local/cargo /usr/local/cargo
+COPY --from=rust /usr/local/rustup /usr/local/rustup
 WORKDIR /build
-ENV UV_PROJECT_ENVIRONMENT=/opt/venv UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy \
+    CARGO_HOME=/usr/local/cargo RUSTUP_HOME=/usr/local/rustup \
+    PATH="/usr/local/cargo/bin:$PATH"
 COPY pyproject.toml uv.lock README.md ./
 # Only locked binary wheels; no local environment, compiler, or dev group.
 RUN uv sync --locked --no-dev --no-install-project --no-cache --no-build
 COPY docker/ ./docker/
-COPY apps/ ./apps/
+COPY plugins/ ./plugins/
+COPY plugin_manager/ ./plugin_manager/
+COPY shared/ ./shared/
+COPY mycelium/ ./mycelium/
 COPY config/ ./config/
 COPY resources/ ./resources/
 COPY .well-known/ ./.well-known/
 COPY sbom/ ./sbom/
 COPY manage.py LICENSE SECURITY.md ./
+COPY hatch_build.py rust-toolchain.toml ./
+COPY scripts/check_build_artifacts.py ./scripts/check_build_artifacts.py
 # BuildKit also applies the exact .dockerignore allowlist before transmitting
 # context. Recheck the received source and produce public static files only.
 RUN python docker/context.py --received-context /build \
+    && uv build --wheel --out-dir /dist \
+    && python scripts/check_build_artifacts.py --wheel /dist/*.whl --source /build \
+       --extract-runtime /payload --output /build-artifact-report.json \
     && /opt/venv/bin/python docker/collect_static.py \
-    && find /build -type d -exec chmod 0755 {} + \
-    && find /build -type f -exec chmod 0644 {} +
+    && cp -a /build/resources/collected_static /payload/resources/collected_static \
+    && find /payload -type d -exec chmod 0755 {} + \
+    && find /payload -type f -exec chmod 0644 {} +
+
+# Export the exact wheel consumed by the runtime for independent image auditing.
+FROM scratch AS artifacts
+COPY --from=builder /dist/ /
+COPY --from=builder /build-artifact-report.json /build-artifact-report.json
 
 FROM base AS runtime
 LABEL org.opencontainers.image.title="Cadevil" \
-      org.opencontainers.image.version="0.15.1" \
+      org.opencontainers.image.version="0.16.0" \
       org.opencontainers.image.description="IFC building assessment and signed workflow plugins" \
       org.opencontainers.image.licenses="MIT"
 WORKDIR /app
@@ -45,13 +66,7 @@ RUN groupadd --gid 10001 cadevil \
     && mkdir -p /app/data \
     && chown 10001:10001 /app/data
 COPY --from=builder /opt/venv /opt/venv
-COPY --from=builder /build/apps /app/apps
-COPY --from=builder /build/config /app/config
-COPY --from=builder /build/resources /app/resources
-COPY --from=builder /build/.well-known /app/.well-known
-COPY --from=builder /build/sbom /app/sbom
-COPY --from=builder /build/manage.py /build/LICENSE /build/SECURITY.md /app/
-COPY --from=builder /build/docker/entrypoint.py /build/docker/healthcheck.py /app/docker/
+COPY --from=builder /payload/ /app/
 USER 10001:10001
 VOLUME ["/app/data"]
 EXPOSE 8000
