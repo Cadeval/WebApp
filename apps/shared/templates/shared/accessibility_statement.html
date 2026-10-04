@@ -1,0 +1,11 @@
+<section {% if fragment %}id="content-container"{% endif %} class="settings-card" aria-labelledby="accessibility-heading">
+    <h1 id="accessibility-heading">Accessibility</h1>
+    <p>Cadevil aims to support keyboard navigation, screen readers and reduced motion. These improvements are tested in the main application journeys; they are not a claim of complete WCAG conformance.</p>
+    <h2>Keyboard and page navigation</h2>
+    <p>Use the first “Skip to content” link to reach the main page. Tab and Shift+Tab move between controls. Workspace tabs support arrow keys, Home and End; Enter or Space opens the selected page. Page changes move focus to the new heading or main landmark; workspace tab changes retain focus on the selected tab.</p>
+    <h2>Models, results and motion</h2>
+    <p>The 3D viewer includes a labelled building-part selector and readable material details. You can inspect these without choosing a part with the pointer. The viewer displays its supported keyboard controls. Calculation results, validation issues and map building lists are also available as text.</p>
+    <p>Visible focus indicators and operating-system reduced-motion preferences are respected. Canvas rendering, maps, third-party visualizations and administrator-only Django pages may still have accessibility limitations.</p>
+    <h2>Report a barrier</h2>
+    <p>Contact the site operator with the page, task, browser and assistive technology involved. Use synthetic examples and omit private models or credentials. The <a href="/security" hx-get="/security" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">security contact page</a> provides the current contact channel.</p>
+</section>

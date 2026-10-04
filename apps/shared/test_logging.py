@@ -104,7 +104,7 @@ class LoggingPrivacyTests(SimpleTestCase):
         from django_bolt.management.commands.runbolt import Command, find_bolt_api_names
         modules = {'config.api': ['api'], 'apps.mycelium.api': ['api'],
                    'apps.plugin_manager.api': ['api'], 'apps.shared.admin_logs': ['api'],
-                   'apps.plugins.browser_pages': ['api'],
+                   'apps.plugins.browser_pages': ['api'], 'apps.shared.security_metadata': ['api'],
                    'apps.plugins.bim_model_manager.api': ['api', 'passport_api']}
         command = Command()
         for module, names in modules.items():

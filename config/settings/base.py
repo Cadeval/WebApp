@@ -233,6 +233,13 @@ IFC_GEOMETRY_THREADS = int(os.environ.get('IFC_GEOMETRY_THREADS', '4'))
 IFC_PARALLEL_VALIDATION = os.environ.get('IFC_PARALLEL_VALIDATION', 'true').lower() in {'1', 'true', 'yes', 'on'}
 IFC_PARALLEL_VALIDATION_MIN_BYTES = int(os.environ.get('IFC_PARALLEL_VALIDATION_MIN_BYTES', '2000000'))
 
+# Fixed disclosure defaults live in .well-known/security.txt. Override these
+# per deployment; empty Canonical/Policy fields avoid guessing a public host.
+SECURITY_TXT_CONTACT = os.environ.get('SECURITY_TXT_CONTACT', '')
+SECURITY_TXT_EXPIRES = os.environ.get('SECURITY_TXT_EXPIRES', '')
+SECURITY_TXT_CANONICAL = os.environ.get('SECURITY_TXT_CANONICAL', '')
+SECURITY_TXT_POLICY = os.environ.get('SECURITY_TXT_POLICY', '')
+
 # Diagnostic logs are structured for collection and bounded for the admin UI.
 # Never include request payloads, credentials or uploaded model attributes.
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

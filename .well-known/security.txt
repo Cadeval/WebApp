@@ -1,0 +1,4 @@
+# Cadevil vulnerability disclosure contact; see the /security page for policy.
+Contact: mailto:mia@meanderingmind.me
+Expires: 2027-01-04T00:00:00Z
+Preferred-Languages: en, de

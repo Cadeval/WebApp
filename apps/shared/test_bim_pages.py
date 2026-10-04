@@ -171,7 +171,9 @@ class BimPageIntegrationTests(TestCase):
         from config.api import api
         from django_bolt.urls import build_urlpatterns
         self.assertFalse(api._asgi_mounts)
-        self.assertEqual(len(api._routes), 34)
+        from apps.plugins.bim_model_manager.api import api as bim_api
+        # Public policy routes may grow independently of the BIM workspace.
+        self.assertTrue(set(bim_api._routes).issubset(set(api._routes)))
         self.assertTrue(build_urlpatterns(api))
         self.assertEqual(reverse('bim:model_manager'), '/plugins/bim/model_manager/')
         self.assertEqual(reverse('bim:workspace'), '/plugins/bim/')
