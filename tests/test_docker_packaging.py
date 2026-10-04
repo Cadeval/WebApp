@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import runpy
+import shlex
 import tarfile
 import tempfile
 from unittest.mock import patch
@@ -66,6 +67,46 @@ class DockerContextPolicyTests(SimpleTestCase):
                     self.assertEqual(member.uid, 0)
                     self.assertEqual(member.mtime, 0)
                     self.assertNotIn(b"PRIVATE_CANARY_DO_NOT_PACKAGE", archive.extractfile(member).read())
+
+    def test_compiler_copies_every_reviewed_input_to_its_received_location(self):
+        manifest = context.validate()
+        inputs = set(manifest["runtime"] + manifest["build_only"])
+        # Reproduce the finite, explicit source COPY instructions before the
+        # compiler's received-context guard, rather than checking a few names.
+        instructions = (ROOT / "Dockerfile").read_text().replace("\\\n", " ").splitlines()
+        builder = False
+        with tempfile.TemporaryDirectory() as directory:
+            received = Path(directory)
+            for instruction in instructions:
+                words = shlex.split(instruction, comments=True)
+                if not words:
+                    continue
+                if words[0].upper() == "FROM":
+                    builder = words[-1] == "builder"
+                if not builder:
+                    continue
+                if words[0].upper() == "RUN" and "--received-context" in words:
+                    break
+                if words[0].upper() != "COPY" or any(word.startswith("--from=") for word in words):
+                    continue
+                self.assertFalse(any(word.startswith("--") for word in words[1:]))
+                destination = words[-1].removeprefix("./")
+                self.assertFalse(destination.startswith("/"))
+                for source in words[1:-1]:
+                    if source.endswith("/"):
+                        matches = {name for name in inputs if name.startswith(source)}
+                        self.assertTrue(matches, source)
+                        mappings = {name: destination + name[len(source):] for name in matches}
+                    else:
+                        self.assertIn(source, inputs)
+                        target = destination + Path(source).name if destination.endswith("/") or not destination else destination
+                        mappings = {source: target}
+                    for source, target in mappings.items():
+                        self.assertEqual(target, source)
+                        output = received / target
+                        output.parent.mkdir(parents=True, exist_ok=True)
+                        output.write_bytes((ROOT / source).read_bytes())
+            context.validate(received, received=True)
 
     def test_symlink_files_and_ancestors_are_rejected(self):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as outside:

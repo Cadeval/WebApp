@@ -33,7 +33,8 @@ COPY .well-known/ ./.well-known/
 COPY sbom/ ./sbom/
 COPY manage.py LICENSE SECURITY.md ./
 COPY hatch_build.py rust-toolchain.toml ./
-COPY scripts/check_build_artifacts.py ./scripts/check_build_artifacts.py
+COPY scripts/check_build_artifacts.py scripts/vendor_browser_pki.mjs ./scripts/
+COPY scripts/browser-pki/package.json scripts/browser-pki/package-lock.json ./scripts/browser-pki/
 # BuildKit also applies the exact .dockerignore allowlist before transmitting
 # context. Recheck the received source and produce public static files only.
 RUN python docker/context.py --received-context /build \
