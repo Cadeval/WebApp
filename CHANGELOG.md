@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.13.0 — Unreleased
+
+- Package the production application in a digest-pinned Docker image with an exact build-context allowlist, runtime secrets, an unprivileged user and separate persistent storage.
+- Exclude local settings, environments, private uploads, databases, tests and development MCP tooling from container builds while retaining the public demo.
+- Add permission-checked per-plugin SBOM views and JSON downloads with clear evidence and dependency-coverage limits.
+
 ## 0.12.0 — Unreleased
 
 - Publish a security policy, RFC 9116 disclosure metadata and the release SBOM through public routes.

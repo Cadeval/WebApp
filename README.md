@@ -17,6 +17,12 @@ Open http://127.0.0.1:8000/. SQLite is the default; persistent data is in `data/
 
 Settings read environment variables directly. [.env.example](.env.example) documents them; copying it to `.env` does not load it automatically. `make run` selects production settings and requires a strong `SECRET_KEY`, explicit hosts and trusted HTTPS origins. Development MCP processes and endpoints are disabled in production. The locked install uses SQLite and the local cache. PostgreSQL requires a separately installed Psycopg driver, and Redis requires the `redis` Python package; provision these before selecting those backends. Use a shared cache when deploying multiple workers. Uploads have no public media mount: keep `MEDIA_URL="/"` and do not configure a reverse-proxy alias exposing `MEDIA_ROOT`; use the owner-checked download endpoints. Gitolite is the primary remote; the GitHub workflow is prepared for future use.
 
+## Production container
+
+For a production container, see [Docker packaging](docs/DOCKER.md). The image
+uses a reviewed file allowlist and runtime secrets, with persistent data stored
+separately. Development MCP tools are excluded from the image.
+
 ## Building workflows
 
 Sign in and add **BIM Workspace** to your workflow on `/plugins/manage/`. Its tabs group Models, Map, References, Reference editor, Material passport and Comparison. Upload IFC or CityJSON data, start assessments, inspect geometry and select grouped validation warnings to focus their IFC elements. Validation warnings remain nonfatal; material/LCA estimates identify their assumptions. CityJSON import uses ifccityjson; IFC export uses the separate documented converter.
@@ -28,6 +34,10 @@ Independent OpenStudio/EnergyPlus helpers remain available under `apps/shared/if
 ## Plugins and signing
 
 `/plugins/manage/` combines the site catalog and each user's enabled workflows. Only selected, approved, compatible plugins appear in personal navigation. Administrators review packages and control site availability; development MCP tools are admin debug services rather than personal workflows. Disabling a tool preserves the user's selection and data.
+
+Each catalog entry links to its SBOM view and JSON download. The view identifies
+the inventory's origin and coverage, including signed publisher evidence or a
+file-only inventory when dependency evidence is unavailable.
 
 Generate and register an Ed25519 signing key in **User settings → Security**. Private keys are created in the browser. Download the signing CLI, sign your package locally, and upload a ZIP, TAR, tar.gz or tar.xz containing `plugin.json`, its declared assets and signature. Standalone JS/WASM uploads are unsupported. Approved JavaScript runs in a restricted module worker; WASM uses no host imports. Trusted installed Python plugins use the `cadevil.plugins` entry-point contract. See [external repository design](docs/external-plugin-repositories.md) for the proposed admin-managed remote catalog.
 
