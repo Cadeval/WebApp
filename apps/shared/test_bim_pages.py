@@ -50,7 +50,8 @@ class BimPageIntegrationTests(TestCase):
     def test_all_contributed_routes_resolve_and_disabled_plugin_hides_pages(self):
         registry = PluginRegistry(); plugin_manifest().register(registry)
         items = registry.get_active(NAV_ITEM_EXTENSION_POINT, enabled_ids={PLUGIN_ID})
-        self.assertEqual(len(items), 6)
+        self.assertEqual(len(items), 1)
+        self.assertEqual((items[0].label, items[0].url), ('BIM Workspace', reverse('bim:workspace')))
         for item in items:
             self.assertFalse(item.full_page)
             resolve(item.url)
@@ -72,7 +73,7 @@ class BimPageIntegrationTests(TestCase):
 
     def test_anonymous_routes_redirect_to_current_login(self):
         self.client.logout()
-        for name in ['model_manager', 'configuration_library', 'config_editor', 'download_csv']:
+        for name in ['workspace', 'model_manager', 'configuration_library', 'config_editor', 'download_csv']:
             response = self.client.get(reverse('bim:' + name))
             self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.startswith('/mycelium/login?next='))
@@ -170,9 +171,10 @@ class BimPageIntegrationTests(TestCase):
         from config.api import api
         from django_bolt.urls import build_urlpatterns
         self.assertFalse(api._asgi_mounts)
-        self.assertEqual(len(api._routes), 33)
+        self.assertEqual(len(api._routes), 34)
         self.assertTrue(build_urlpatterns(api))
         self.assertEqual(reverse('bim:model_manager'), '/plugins/bim/model_manager/')
+        self.assertEqual(reverse('bim:workspace'), '/plugins/bim/')
         self.assertEqual(reverse('material_passport:calculate'), '/plugins/bim/material-passport/')
 
     def test_plain_multipart_csrf_token_and_origin_checks(self):
@@ -209,7 +211,7 @@ class BimPageIntegrationTests(TestCase):
         self.assertTrue(FileUpload.objects.filter(pk=own.pk).exists())
         self.assertEqual(ConfigUpload.objects.count(), 1)
 
-    def test_home_menu_renders_enabled_bim_links_on_native_async_route(self):
+    def test_home_menu_renders_one_enabled_bim_workspace_on_native_async_route(self):
         from copy import deepcopy
         from django.conf import settings
         from django_bolt import BoltAPI
@@ -225,10 +227,11 @@ class BimPageIntegrationTests(TestCase):
             client.cookies.set('sessionid', self.client.transport.cookies['sessionid'])
             response = client.get('/')
             self.assertEqual(response.status_code, 200)
-            self.assertIn('BIM Model Manager', response.text)
-            self.assertIn('href="/plugins/bim/config_editor/"', response.text)
+            self.assertIn('BIM Workspace', response.text)
+            self.assertIn('href="/plugins/bim/"', response.text)
+            self.assertNotIn('href="/plugins/bim/config_editor/"', response.text)
             PluginRecord.objects.filter(plugin_id=PLUGIN_ID).update(enabled=False)
-            self.assertNotIn('BIM Model Manager', client.get('/').text)
+            self.assertNotIn('href="/plugins/bim/"', client.get('/').text)
 
 
     def test_native_viewer_geometry_is_owned_and_does_not_modify_source(self):

@@ -6,7 +6,7 @@ from django_bolt.exceptions import HTTPException
 from django_bolt.request import Request
 
 from apps.shared.bolt_pages import page_endpoint
-from . import pages, passport_views, exchange_pages, location_pages, thumbnail_pages
+from . import pages, passport_views, exchange_pages, location_pages, thumbnail_pages, workspace as workspace_pages
 
 # Session authentication, ownership and the runtime plugin gate live in the
 # page handlers. AllowAny prevents unrelated global JWT defaults overriding
@@ -20,6 +20,12 @@ def object_id(request):
         return UUID(request.params['pk'])
     except (ValueError, KeyError) as error:
         raise HTTPException(404, 'Invalid object identifier.') from error
+
+
+@api.get('/plugins/bim/', name='workspace', guards=[AllowAny()])
+@page_endpoint
+def workspace(request: Request):
+    return workspace_pages.workspace(request)
 
 
 @api.get('/plugins/bim/model_manager/', name='model_manager', guards=[AllowAny()])

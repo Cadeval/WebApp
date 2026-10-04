@@ -5,16 +5,9 @@ from apps.plugin_manager.registry import NavItem, PluginRegistry
 PLUGIN_ID = "cadevil.bim.model_manager"
 
 def register(registry: PluginRegistry) -> None:
-    for priority, label, url, icon in [
-        (80, "BIM Model Manager", "/plugins/bim/model_manager/", "fa-cube"),
-        (85, "Building Map", "/plugins/bim/map/", "fa-map"),
-        (81, "Reference Configurations", "/plugins/bim/configuration_library/", "fa-table"),
-        (82, "Configuration Editor", "/plugins/bim/config_editor/", "fa-pencil"),
-        (83, "Material Passport", "/plugins/bim/material-passport/", "fa-recycle"),
-        (84, "Model Comparison", "/plugins/bim/material-passport/compare/", "fa-balance-scale"),
-    ]:
-        registry.register_nav_item(PLUGIN_ID, NavItem(label=label, url=url, icon=icon, priority=priority))
+    registry.register_nav_item(PLUGIN_ID,
+        NavItem(label="BIM Workspace", url="/plugins/bim/", icon="fa-cube", priority=80))
 
 def plugin_manifest() -> PluginManifest:
-    return PluginManifest(id=PLUGIN_ID, name="BIM Workspace", compatibility="both", version="1.6.0",
+    return PluginManifest(id=PLUGIN_ID, name="BIM Workspace", compatibility="both", version="1.7.0",
         uploader="", api_version="1.0", priority=10, register=register)

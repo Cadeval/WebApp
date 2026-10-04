@@ -93,6 +93,7 @@
                           data-task-label="Loading material assessment"
                           hx-get="{% url 'bim:viewer' upload_id %}" hx-target="#content-container"
                           hx-swap="outerHTML" hx-push-url="true">
+                        {% if from_map %}<input type="hidden" name="from" value="map">{% endif %}
                         <label for="viewer-assessment">Material assessment</label>
                         <select id="viewer-assessment" name="assessment">
                             {% if not selected_assessment %}<option value="">Choose an assessment</option>{% endif %}

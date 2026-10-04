@@ -1,0 +1,23 @@
+<section {% if fragment %}id="content-container"{% endif %}
+         class="plugin-workspace"
+         data-plugin-workspace="{{ plugin_workspace.slug }}"
+         data-plugin-workspace-url="{{ plugin_workspace.url }}"
+         data-active-tab-id="{{ plugin_workspace.active_tab_id }}"
+         aria-labelledby="plugin-{{ plugin_workspace.slug }}-workspace-title">
+    <div class="plugin-workspace-heading">
+        <p id="plugin-{{ plugin_workspace.slug }}-workspace-title">{{ plugin_workspace.name }}</p>
+    </div>
+    <nav class="plugin-workspace-tabs" data-workspace-tablist aria-label="{{ plugin_workspace.name }} pages">
+        {% for tab in plugin_workspace.tabs %}
+            <a id="{{ tab.tab_id }}" data-workspace-tab="{{ tab.key }}"
+               href="{{ tab.url }}" hx-get="{{ tab.url }}"
+               hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
+               hx-sync="#content-container:replace" data-task-label="Loading {{ tab.label }}"
+               aria-controls="plugin-{{ plugin_workspace.slug }}-panel"{% if tab.selected %} aria-current="page"{% endif %}>{{ tab.label }}</a>
+        {% endfor %}
+    </nav>
+    <div id="plugin-{{ plugin_workspace.slug }}-panel" class="plugin-workspace-panel"
+         role="tabpanel" aria-labelledby="{{ plugin_workspace.active_tab_id }}" tabindex="0">
+        {% include plugin_panel_template with fragment=False %}
+    </div>
+</section>

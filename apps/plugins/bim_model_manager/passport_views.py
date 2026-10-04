@@ -9,6 +9,8 @@ from . import PLUGIN_ID
 def _enabled(request):
     if not workflow_plugin_enabled(request.user, PLUGIN_ID):
         raise Http404('Add BIM Workspace to your Plugin Store to use this workflow.')
+    from .workspace import workspace_context
+    request.plugin_workspace = workspace_context(request)
 
 
 @login_required(login_url='/mycelium/login')

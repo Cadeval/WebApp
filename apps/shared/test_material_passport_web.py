@@ -101,7 +101,13 @@ class MaterialPassportWebTests(TestCase):
     def test_plugin_registers_assessment_navigation(self):
         registry=PluginRegistry();plugin_manifest().register(registry)
         items=registry.get_active('nav_item',enabled_ids=[PLUGIN_ID])
-        self.assertTrue(any(i.url==self.url for i in items))
+        workspace=reverse('bim:workspace')
+        self.assertEqual([(item.label,item.url) for item in items],[('BIM Workspace',workspace)])
+        page=self.client.get(workspace+'?tab=calculate',HTTP_HX_REQUEST='true')
+        self.assertContains(page,'Material passport calculation')
+        self.assertContains(page,'href="'+workspace+'?tab=calculate"')
+        self.assertContains(page,'action="'+self.url+'"')
+        self.assertEqual([tab['key'] for tab in page.context['plugin_workspace']['tabs'] if tab['selected']],['calculate'])
 
     def test_foreign_upload_not_selectable(self):
         other=get_user_model().objects.create_user(username='foreign',password='test-pass')
