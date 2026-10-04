@@ -1,4 +1,5 @@
 import { createThumbnailElement, safeThumbnailUrl, mountBuildingThumbnailsWithin, disposeBuildingThumbnailsWithin } from './building_thumbnails.js?v=0.9.0';
+import { bindPageResourceLifecycle } from './worker_page_lifecycle.js';
 
 const controllers = new Map();
 let leafletImport;
@@ -90,6 +91,7 @@ export function initializeBuildingMap(root, dependencies = {}) {
     let tiles = null;
     let L = null;
     let disposed = false;
+    let releaseLifecycle = () => {};
     let resizeObserver = null;
     let layoutFrame = null;
     let initialFitPending = true;
@@ -287,6 +289,7 @@ export function initializeBuildingMap(root, dependencies = {}) {
         dispose() {
             if (disposed) return;
             disposed = true;
+            releaseLifecycle();
             root.removeEventListener('click', onRootClick);
             search.removeEventListener('input', refreshList);
             fitButton.removeEventListener('click', fitBuildings);
@@ -307,6 +310,7 @@ export function initializeBuildingMap(root, dependencies = {}) {
         },
     };
     controllers.set(root, controller);
+    releaseLifecycle = bindPageResourceLifecycle(root, () => controller.dispose());
     root.dataset.mapInitialized = 'loading';
     const load = dependencies.loadLeaflet ?? (() => {
         leafletImport ??= import('../vendor/leaflet/leaflet-src.esm.js').catch((error) => { leafletImport = null; throw error; });
@@ -374,6 +378,6 @@ export function disposeBuildingMapsWithin(element) {
 
 if (typeof document !== 'undefined') {
     mountBuildingMaps();
-    document.body.addEventListener('htmx:after:settle', () => mountBuildingMaps());
-    document.body.addEventListener('htmx:before:cleanup', (event) => disposeBuildingMapsWithin(event.target));
+    document.addEventListener('htmx:after:settle', () => mountBuildingMaps());
+    window.addEventListener('pageshow', event => { if (event.persisted) mountBuildingMaps(); });
 }

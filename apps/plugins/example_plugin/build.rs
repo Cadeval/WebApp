@@ -80,7 +80,7 @@ fn built_module_path(target_dir: &Path) -> PathBuf {
 
 fn output_path(crate_root: &Path) -> Result<PathBuf, BuildError> {
     let source_root = crate_root
-        .parent()
+        .ancestors().nth(3)
         .ok_or_else(|| BuildError::InvalidCrateRoot(crate_root.to_path_buf()))?;
     Ok(source_root
         .join("resources/static/wasm")
@@ -152,7 +152,7 @@ mod tests {
 
     #[test]
     fn nested_build_uses_an_isolated_target_directory() {
-        let crate_root = Path::new("src/example_plugin");
+        let crate_root = Path::new("apps/plugins/example_plugin");
         let target_dir = child_target_dir(crate_root);
 
         assert_eq!(target_dir, crate_root.join("target/wasm-build"));
@@ -165,8 +165,8 @@ mod tests {
     #[test]
     fn output_is_copied_to_static_resources() {
         assert_eq!(
-            output_path(Path::new("src/example_plugin")).unwrap(),
-            PathBuf::from("src/resources/static/wasm/example_plugin.wasm")
+            output_path(Path::new("apps/plugins/example_plugin")).unwrap(),
+            PathBuf::from("resources/static/wasm/example_plugin.wasm")
         );
     }
 }

@@ -564,10 +564,16 @@ fn fail(state: &mut State, code: ErrorCode) -> i32 {
 /// this same function is safe to call from native tests (where pointers are
 /// 64-bit); on the `wasm32-unknown-unknown` target `usize` is exactly the
 /// 32-bit address the exported ABI requires.
+/// Requests above the document limit return `usize::MAX` (`-1` in the WASM
+/// ABI) and preserve the previous input buffer and loaded document.
 #[no_mangle]
 pub extern "C" fn ifc_input_reserve(len: u32) -> usize {
     STATE.with(|state| {
         let mut state = state.borrow_mut();
+        if len as usize > MAX_DOCUMENT_BYTES {
+            fail(&mut state, ErrorCode::TooLarge);
+            return usize::MAX;
+        }
         state.input = vec![0u8; len as usize];
         state.input.as_mut_ptr() as usize
     })
@@ -806,6 +812,9 @@ mod tests {
 
     fn load(doc: &[u8]) -> i32 {
         let ptr = ifc_input_reserve(doc.len() as u32);
+        if ptr == usize::MAX {
+            return STATE.with(|state| -state.borrow().last_error);
+        }
         unsafe {
             std::ptr::copy_nonoverlapping(doc.as_ptr(), ptr as *mut u8, doc.len());
         }
@@ -835,6 +844,20 @@ mod tests {
         let doc = minimal_document();
         assert_eq!(load(&doc), 0);
         assert_eq!(ifc_entity_count(), 0);
+    }
+
+    #[test]
+    fn oversized_reservation_is_rejected_before_allocation_and_preserves_state() {
+        let doc = minimal_document();
+        assert_eq!(load(&doc), 0);
+        assert_eq!(ifc_input_reserve(u32::MAX), usize::MAX);
+        STATE.with(|state| {
+            let state = state.borrow();
+            assert_eq!(state.input, doc);
+            assert_eq!(state.last_error, ErrorCode::TooLarge.code());
+        });
+        let len = ifc_serialize();
+        assert_eq!(read_output(len as usize), doc);
     }
 
     #[test]

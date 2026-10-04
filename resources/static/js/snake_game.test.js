@@ -54,6 +54,7 @@ class FakeCanvas extends FakeEventTarget {
 class FakeGame extends FakeEventTarget {
     constructor() {
         super();
+        this.isConnected = true;
         this.dataset = {
             snakeGame: '',
             workerUrl: '/static/js/plugins/snake_game_worker.js',
@@ -250,6 +251,22 @@ test('snake runtime restarts with a cache-busted worker and cleans only its subt
     runtime.unmountWithin({ contains(element) { return element === game; } });
     assert.equal(FakeWorker.instances[1].terminated, true);
     assert.equal(game.listeners.get('keydown')?.size ?? 0, 0);
+});
+
+test('a passive ancestor replacement prunes the disconnected Snake worker and tick timer', () => {
+    const { runtime, game, intervalCallbacks } = mountRuntime();
+    const worker = FakeWorker.instances[0];
+    worker.onmessage({ data: { type: 'ready', state: runningSnapshot } });
+    runtime.mount({ querySelectorAll() { return []; } });
+    assert.equal(worker.terminated, false, 'An unrelated inline scope retains a connected game');
+    game.isConnected = false;
+    runtime.mount({ querySelectorAll() { return []; } });
+    assert.equal(worker.terminated, true);
+    assert.equal(intervalCallbacks.size, 0);
+    assert.equal(runtime.controllers.size, 0);
+    assert.equal(game.listeners.get('keydown')?.size ?? 0, 0);
+    runtime.mount({ querySelectorAll() { return []; } });
+    assert.equal(FakeWorker.instances.length, 1);
 });
 
 test('Rust snake WebAssembly owns movement, growth, reset, and collision rules', async () => {

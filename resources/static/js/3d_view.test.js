@@ -96,6 +96,22 @@ test('mountViewerHeader is a safe no-op without an application header slot', () 
     assert.doesNotThrow(cleanup);
 });
 
+test('a still-attached viewer keeps its toolbar available after resource cleanup and remount', () => {
+    const next = {}, toolbar = { remove() { assert.fail('Attached BFCache toolbar must be restored'); } };
+    const parent = { insertBefore(child, sibling) { assert.equal(child, toolbar); assert.equal(sibling, next); toolbar.parentNode = this; slot.child = null; } };
+    toolbar.parentNode = parent; toolbar.nextSibling = next; next.parentNode = parent;
+    const slot = { child: null, replaceChildren(child) { this.child = child; toolbar.parentNode = this; }, contains(child) { return this.child === child; } };
+    const root = { isConnected: true, querySelector() { return toolbar; } };
+    const documentRoot = { getElementById() { return slot; }, body: { classList: { add() {}, remove() {} } } };
+    const cleanup = mountViewerHeader(root, documentRoot);
+    cleanup();
+    assert.equal(toolbar.parentNode, parent);
+    const restoredCleanup = mountViewerHeader(root, documentRoot);
+    assert.equal(slot.child, toolbar);
+    restoredCleanup();
+    assert.equal(toolbar.parentNode, parent);
+});
+
 test('indexed triangle counts use indices rather than unique vertices', () => {
     const metrics = extractPartMetrics({geometry: {
         index: {count: 36}, attributes: {position: {count: 8}},

@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { prepareModelSurfaces } from './viewer_surfaces.js?v=0.5.0-3';
 import { renderMaterialInspector } from './viewer_inspector.js?v=0.5.0-3';
 import { fitShadowToBounds, recenterModel, updateCameraClipping, fitCameraToBounds, createRenderResources, disposeModelResources, createOutdoorLights } from './viewer_rendering.js?v=0.8.0';
+import { bindPageResourceLifecycle } from './worker_page_lifecycle.js';
 import { createGeometryActivity, loadGeometry } from './geometry_loading.js?v=0.8.0';
 import { createLandscape } from './viewer_landscape.js?v=0.8.0';
 
@@ -105,12 +106,18 @@ export function mountViewerHeader(root, documentRoot = globalThis.document) {
     const toolbar = root?.querySelector?.('[data-viewer-header-content]');
     const slot = documentRoot?.getElementById?.('viewer-header-slot');
     if (!toolbar || !slot) return () => {};
+    const originalParent = toolbar.parentNode, originalNext = toolbar.nextSibling;
 
     slot.replaceChildren(toolbar);
     documentRoot.body?.classList?.add('viewer-active');
 
     return () => {
-        if (slot.contains(toolbar)) toolbar.remove();
+        if (slot.contains(toolbar)) {
+            // BFCache keeps this page attached. Restore its controls so a
+            // fresh renderer can mount them after persisted pageshow.
+            if (root.isConnected && originalParent) originalParent.insertBefore(toolbar, originalNext?.parentNode === originalParent ? originalNext : null);
+            else toolbar.remove();
+        }
         documentRoot.body?.classList?.remove('viewer-active');
     };
 }
@@ -395,14 +402,15 @@ export function initializeViewer(root) {
         grid.geometry.dispose(); grid.material.dispose(); environment.dispose();
         outdoorLights.dispose(); controls.dispose(); renderer.dispose(); cleanupViewerHeader();
         for (const [target, event, callback] of listeners) target.removeEventListener(event, callback);
-        document.body.removeEventListener('htmx:before:cleanup', cleanupHandler);
+        releaseLifecycle();
+        delete root.dataset.viewerInitialized;
     }
-    function cleanupHandler(event) { if (event.target === root || event.target?.contains?.(root)) dispose(); }
-    document.body.addEventListener('htmx:before:cleanup', cleanupHandler);
+    const releaseLifecycle = bindPageResourceLifecycle(root, dispose);
     return { clearSelection, dispose, fitModel };
 }
 
 if (typeof document !== 'undefined') {
     initializeViewer(document.getElementById('viewer-app'));
-    document.body.addEventListener('htmx:after:settle', () => initializeViewer(document.getElementById('viewer-app')));
+    document.addEventListener('htmx:after:settle', () => initializeViewer(document.getElementById('viewer-app')));
+    window.addEventListener('pageshow', event => { if (event.persisted) initializeViewer(document.getElementById('viewer-app')); });
 }

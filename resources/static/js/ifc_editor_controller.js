@@ -1,3 +1,5 @@
+import { bindWorkerPageLifecycle } from './worker_page_lifecycle.js';
+
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_LIST_LIMIT = 100;
 const MAX_CLIENT_IFC_BYTES = 32 * 1024 * 1024;
@@ -127,6 +129,9 @@ export class IfcEditorRuntime {
     }
 
     mount(scope) {
+        for (const [root, controller] of this.controllers) {
+            if (root.isConnected === false) this.dispose(controller);
+        }
         const roots = [];
         if (scope?.matches?.('[data-ifc-editor]')) roots.push(scope);
         for (const root of scope?.querySelectorAll?.('[data-ifc-editor]') ?? []) roots.push(root);
@@ -177,6 +182,7 @@ export class IfcEditorRuntime {
             pending: new Map(),
             selectedBytes: null,
             selectedFilename: '',
+            selectionGeneration: 0,
             entityCount: 0,
             pageOffset: 0,
             pageSize: DEFAULT_PAGE_SIZE,
@@ -304,6 +310,7 @@ export class IfcEditorRuntime {
 
     selectFile(controller, file) {
         if (!file) return;
+        const selectionGeneration = ++controller.selectionGeneration;
         if (!file.name?.toLowerCase().endsWith('.ifc')) {
             controller.status.textContent = 'Choose a file with the .ifc extension.';
             return;
@@ -315,6 +322,7 @@ export class IfcEditorRuntime {
         controller.jumpTargetId = null;
         file.arrayBuffer()
             .then((bytes) => {
+                if (controller.disposed || selectionGeneration !== controller.selectionGeneration) return;
                 controller.selectedBytes = bytes;
                 controller.selectedFilename = file.name;
                 if (controller.ready) {
@@ -325,6 +333,7 @@ export class IfcEditorRuntime {
                 }
             })
             .catch(() => {
+                if (controller.disposed || selectionGeneration !== controller.selectionGeneration) return;
                 controller.status.textContent = 'Unable to read the selected file.';
             });
     }
@@ -624,6 +633,8 @@ export class IfcEditorRuntime {
     dispose(controller) {
         if (controller.disposed) return;
         controller.disposed = true;
+        controller.selectionGeneration += 1;
+        controller.selectedBytes = null;
         this.stopWorker(controller);
         this.revokeActiveDownload(controller);
         for (const { target, type, handler } of controller.listeners) {
@@ -639,11 +650,5 @@ export class IfcEditorRuntime {
 }
 
 if (typeof document !== 'undefined' && typeof globalThis.Worker !== 'undefined') {
-    const runtime = new IfcEditorRuntime();
-    const mount = (scope) => runtime.mount(scope ?? document);
-    document.addEventListener('DOMContentLoaded', () => mount(document));
-    document.body?.addEventListener('htmx:after:settle', () => mount(document));
-    document.body?.addEventListener('htmx:before:cleanup', (event) => {
-        runtime.unmountWithin(event.target);
-    });
+    bindWorkerPageLifecycle(new IfcEditorRuntime());
 }

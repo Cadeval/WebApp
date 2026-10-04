@@ -116,6 +116,26 @@ test('cleanup cancels in-flight work, drops queued records and prevents detached
     f.controller.dispose(); assert.equal(f.state.disconnected, 1);
 });
 
+test('passive page replacement prunes detached thumbnails without starting their queued requests', async () => {
+    const f = fixture(), hosts = Array.from({length: 4}, (_, index) => f.thumbnail('/preview/' + index));
+    hosts.forEach(host => { host.isConnected = true; });
+    f.controller.mount(f.root); f.intersect(...hosts);
+    f.state.pending[0].resolve(response()); await flush();
+    assert.equal(f.state.requests.length, 3);
+    f.controller.mount(new Element(f.documentRoot));
+    assert.equal(f.controller.size, 4, 'A connected inline update retains existing previews');
+    hosts.forEach(host => { host.isConnected = false; });
+    f.controller.mount(new Element(f.documentRoot));
+    await flush();
+    assert.equal(f.controller.size, 0);
+    assert.equal(f.state.requests.length, 3, 'Detached queued previews are never requested');
+    assert.equal(f.state.requests[1].options.signal.aborted, true);
+    assert.equal(f.state.requests[2].options.signal.aborted, true);
+    assert.equal(f.state.revoked.length, 1);
+    assert.equal(f.state.observed.size, 0);
+    f.controller.dispose();
+});
+
 test('HTTP, authentication HTML and oversized failures stay local and allow the queue to continue', async () => {
     for (const invalid of [response({ok: false}), response({type: 'text/html'}), response({declared: '3000000'}), response({size: 0})]) {
         const f = fixture(), host = f.thumbnail('/broken'); f.controller.mount(f.root); f.intersect(host);

@@ -72,6 +72,10 @@ export async function initializeRecording(root) {
   }
   function cleanup(event){if(event.target===root || event.target?.contains(root))dispose();}
   document.body.addEventListener('htmx:before:cleanup',cleanup);
+  // Passive HTMX ancestors do not emit before:cleanup. An accepted swap can
+  // still remove this public demo, so check its actual attachment afterwards.
+  listen(document,'htmx:after:swap',()=>{if(!root.isConnected)dispose();});
+  if(typeof window!=='undefined')listen(window,'pagehide',dispose);
   try {
     const recordingUrl=new URL(root.dataset.recordingUrl,location.href);
     const response=await fetch(recordingUrl,{signal:abortLoad.signal,credentials:'same-origin'});
@@ -225,5 +229,6 @@ export async function initializeRecording(root) {
 }
 if(typeof document!=='undefined') {
   initializeRecording(document.querySelector('[data-recorded-demo]'));
-  document.body.addEventListener('htmx:after:settle',()=>initializeRecording(document.querySelector('[data-recorded-demo]')));
+  document.addEventListener('htmx:after:settle',()=>initializeRecording(document.querySelector('[data-recorded-demo]')));
+  if(typeof window!=='undefined')window.addEventListener('pageshow',event=>{if(event.persisted)initializeRecording(document.querySelector('[data-recorded-demo]'));});
 }

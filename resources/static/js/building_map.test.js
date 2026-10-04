@@ -100,12 +100,19 @@ function fixture(rows) {
         htmx: { process: (link) => state.processed.push(link) },
         requestAnimationFrame: (callback) => { state.layoutFrames.set(++frameId, callback); return frameId; },
         cancelAnimationFrame: (identifier) => state.layoutFrames.delete(identifier) }, createElement: () => new Node(document) };
+    for (const target of [document, document.defaultView]) {
+        target.listeners = new Map();
+        target.addEventListener = Node.prototype.addEventListener;
+        target.removeEventListener = Node.prototype.removeEventListener;
+        target.emit = Node.prototype.emit;
+    }
     document.defaultView.ResizeObserver = class {
         constructor(callback) { state.resizeCallback = callback; }
         observe() {}
         disconnect() { state.observersDisconnected += 1; }
     };
     const root = new Node(document, { tileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' });
+    root.isConnected = true;
     root.selectors = new Map();
     for (const selector of ['#building-map-data', '[data-map-status]', '[data-map-search]', '[data-map-canvas]',
         '[data-map-selection]', '[data-map-context-host]', '[data-map-fit]', '[data-map-retry]', '[data-map-basemap]', '[data-map-results]',
@@ -374,4 +381,25 @@ test('navigation while Leaflet is loading prevents stale map creation after the 
     await controller.ready;
     assert.equal(state.mapCreated, undefined);
     assert.equal(root.dataset.mapInitialized, undefined);
+});
+
+test('pagehide releases a map and an attached restored root can initialize cleanly again', async () => {
+    const { root, state, loadLeaflet } = fixture([{ id: 'a', latitude: 48, longitude: 16 }]);
+    const first = initializeBuildingMap(root, { loadLeaflet });
+    await first.ready;
+    root.ownerDocument.emit('htmx:after:swap');
+    assert.equal(state.mapRemoved, 0);
+    root.ownerDocument.defaultView.emit('pagehide');
+    assert.equal(state.mapRemoved, 1);
+    assert.equal(root.dataset.mapInitialized, undefined);
+    const restored = initializeBuildingMap(root, { loadLeaflet });
+    assert.notEqual(restored, first);
+    await restored.ready;
+    assert.equal(state.mapCreated, 2);
+    root.isConnected = false;
+    root.ownerDocument.emit('htmx:after:swap');
+    assert.equal(state.mapRemoved, 2);
+    assert.equal(state.tileHandlers.size, 0);
+    assert.equal([...root.ownerDocument.listeners.values()].every(listeners => listeners.size === 0), true);
+    assert.equal([...root.ownerDocument.defaultView.listeners.values()].every(listeners => listeners.size === 0), true);
 });

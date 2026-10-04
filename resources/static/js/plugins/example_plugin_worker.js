@@ -5,6 +5,27 @@ export const MAX_LIST_LIMIT = 100;
 export const MAX_FILENAME_LENGTH = 255;
 export const MAX_REQUEST_ID_LENGTH = 128;
 
+// Numeric ErrorCode values exported by apps/plugins/example_plugin/src/lib.rs.
+// ifc_last_error does not write text into the module's shared output buffer.
+const IFC_ERROR_MESSAGES = Object.freeze({
+    2: 'The entity or attribute index is out of range.',
+    3: 'No entity with that STEP id was found.',
+    4: 'That attribute is read-only.',
+    5: 'The IFC data contains an invalid editable STEP value.',
+    6: 'The IFC data exceeds the 32 MiB size limit.',
+    7: 'The IFC file exceeds the 100,000 entity limit.',
+    8: 'The IFC data exceeds the allowed nesting depth of 64.',
+    9: 'The IFC file is missing required STEP section markers.',
+    10: 'The IFC file contains an unterminated string.',
+    11: 'The IFC file contains an unterminated comment.',
+    12: 'The IFC file contains unbalanced parentheses.',
+    13: 'The IFC file contains duplicate STEP ids.',
+    14: 'The IFC file contains an entity without a STEP id.',
+    15: 'The IFC file contains a malformed STEP id.',
+    16: 'The IFC file contains a STEP id outside the unsigned 32-bit range.',
+    17: 'The IFC file contains a truncated STEP statement.',
+});
+
 export const REQUIRED_EXPORTS = [
     'memory',
     'ifc_input_reserve',
@@ -138,11 +159,9 @@ export class IfcEditorEngine {
 
     readLastError() {
         try {
-            const length = this.exports.ifc_last_error();
-            if (!isBoundedInteger(length, 1, MAX_STRING_BYTES)) {
-                return 'The IFC module reported an error.';
-            }
-            return this.readOutputString(length);
+            const code = this.exports.ifc_last_error();
+            return isBoundedInteger(code, 2, 17) ? IFC_ERROR_MESSAGES[code]
+                : 'The IFC module reported an error.';
         } catch {
             return 'The IFC module reported an error.';
         }
@@ -245,7 +264,7 @@ export class IfcEditorEngine {
         const encoded = new TextEncoder().encode(value);
         if (encoded.byteLength > MAX_STRING_BYTES) throw new Error('The attribute value exceeds the size limit.');
         this.writeInput(encoded);
-        const result = this.exports.ifc_update_attribute(entityId, attributeIndex, encoded.byteLength);
+        const result = this.exports.ifc_update_attribute(entityIndex, attributeIndex, encoded.byteLength);
         if (!Number.isInteger(result) || result < 0) this.fail('Updating the attribute');
 
         const stored = this.readAttribute(entityIndex, attributeIndex);

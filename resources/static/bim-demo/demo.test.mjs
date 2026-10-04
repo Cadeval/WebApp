@@ -56,11 +56,12 @@ function node() {
 }
 
 function environment() {
-    const nodes = new Map(), body = node();
-    const root = { dataset: { recordingUrl: '/recording.json' }, querySelector(selector) { if (!nodes.has(selector)) nodes.set(selector, node()); return nodes.get(selector); } };
+    const nodes = new Map(), body = node(), document = node(), window = node();
+    const root = { isConnected: true, dataset: { recordingUrl: '/recording.json' }, querySelector(selector) { if (!nodes.has(selector)) nodes.set(selector, node()); return nodes.get(selector); } };
     const before = { document: globalThis.document, location: globalThis.location, fetch: globalThis.fetch, cancelAnimationFrame: globalThis.cancelAnimationFrame };
-    globalThis.document = { body }; globalThis.location = { href: 'https://example.test/demo' }; globalThis.cancelAnimationFrame = () => {};
-    return { root, nodes, body, restore() { for (const [key, value] of Object.entries(before)) { if (value === undefined) delete globalThis[key]; else globalThis[key] = value; } } };
+    before.window = globalThis.window;
+    document.body = body; globalThis.document = document; globalThis.window = window; globalThis.location = { href: 'https://example.test/demo' }; globalThis.cancelAnimationFrame = () => {};
+    return { root, nodes, body, document, window, restore() { for (const [key, value] of Object.entries(before)) { if (value === undefined) delete globalThis[key]; else globalThis[key] = value; } } };
 }
 
 test('leaving the demo aborts its recording fetch and clears the loading state', async () => {
@@ -97,5 +98,45 @@ test('leaving a ready demo releases its pending play listener without starting l
         assert.equal(fetches, 1);
         assert.equal(env.nodes.get('[data-demo-play]').listeners.has('click'), false);
         assert.equal(env.nodes.get('.demo-scene').attributes.get('aria-busy'), 'false');
+    } finally { env.restore(); }
+});
+
+test('accepted replacement of a passive demo ancestor aborts loading and removes lifecycle listeners', async () => {
+    const env = environment();
+    let signal;
+    globalThis.fetch = (_, options) => new Promise((_, reject) => {
+        signal = options.signal;
+        signal.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')));
+    });
+    try {
+        const initialized = initializeRecording(env.root);
+        env.document.listeners.get('htmx:after:swap')({ target: {} });
+        assert.equal(signal.aborted, false, 'An inline update keeps the connected demo alive');
+        env.root.isConnected = false;
+        env.document.listeners.get('htmx:after:swap')({ target: {} });
+        await initialized;
+        assert.equal(signal.aborted, true);
+        assert.equal(env.nodes.get('.demo-scene').attributes.get('aria-busy'), 'false');
+        assert.equal(env.document.listeners.has('htmx:after:swap'), false);
+        assert.equal(env.window.listeners.has('pagehide'), false);
+    } finally { env.restore(); }
+});
+
+test('pagehide releases a ready demo and allows its attached root to initialize again', async () => {
+    const env = environment();
+    let fetches = 0;
+    globalThis.fetch = async () => { fetches++; return { ok: true, async json() { return { kind: 'prerecorded-controlled-fixture-demo', models: [{ report: 'a.json' }, { report: 'b.json' }], houses: [] }; } }; };
+    try {
+        const first = initializeRecording(env.root);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        env.window.listeners.get('pagehide')();
+        await first;
+        assert.equal(env.nodes.get('[data-demo-play]').listeners.has('click'), false);
+        const restored = initializeRecording(env.root);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        assert.equal(fetches, 2);
+        assert.equal(env.nodes.get('[data-demo-play]').listeners.has('click'), true);
+        env.window.listeners.get('pagehide')();
+        await restored;
     } finally { env.restore(); }
 });

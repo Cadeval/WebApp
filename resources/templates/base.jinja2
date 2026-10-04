@@ -12,7 +12,6 @@
     <meta name="msapplication-TileColor" content="#ffffff"/>
     <meta name="theme-color" content="#ffffff"/>
 
-    {# NOTE: Not sure yet if I should keep this #}
     {# HTMX transitions preserve the shared page shell during content swaps. #}
     <meta name="htmx-config" content='{"transitions": false, "mode": "same-origin", "defaultTimeout": 0}'/>
 
@@ -46,7 +45,6 @@
         <script type="module" src="{% static 'js/ifc_editor_controller.js' %}?v=20261003-journey"></script>
         <script defer src="{% static 'js/plotly-2.35.3.min.js' %}"></script>
         <script defer src="{% static 'js/svg-pan-zoom.min.js' %}"></script>
-        <script defer src="{% static 'js/utils.js' %}?v=20261003-journey"></script>
     {% endif %}
 
     <!-- Language information -->
@@ -91,7 +89,6 @@
     <meta name="description" content="Cadevil - Computer Aided Design."/>
     <meta name="author" content="Iuliia Radynska"/>
 
-    {# FIXME: Check what this shit does #}
     <meta property="og:description" content="Cadevil - Computer Aided Design and Building Comparison."/>
     <meta property="og:image" content="{% static 'images/favicon.png' %}"/>
     <meta property="og:site_name" content="cadevil.at"/>
@@ -127,9 +124,6 @@
 {% include 'shared/admin_logs_popover.html' %}
 
 <nav popover class='popover-small left-anchor' id='menu-popover' aria-label="Main navigation" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
-    {# <input type="checkbox" id="toggleMode">#}
-    {# <label for="toggleMode" class="toggleDark">Dark Mode</label>#}
-    {# <label for="toggleMode" class="toggleLight">Light Mode</label>#}
     {% if user.is_authenticated %}
 
         <a class="button-wide fa fa-home" href="/" hx-get="/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"{% if request.path == '/' %} aria-current="page"{% endif %}>Home</a>
@@ -161,53 +155,7 @@
     {% endif %}
 </nav>
 
-{#<div popover class="popover-big center-anchor-big" id="filemanager-popover">#}
-{#    <div class="popover-content" id="upload-popover-content">#}
-{#        <h4>File Upload</h4>#}
-{#        <form method="post" class="form" action="{% url 'upload_model' %}" enctype="multipart/form-data">#}
-{#            {% csrf_token %}#}
-{#            <div class="flexgrid-container">#}
-{#                <label for="id_description">Description:</label><br>#}
-{#                <input type="text" name="description" maxlength="255" id="id_description">#}
-{#            </div>#}
-{#            <div>#}
-{#                <input class="button-wide" type="file" name="document" required="" id="id_document">#}
-{#            </div>#}
-{##}
-{#            <button class="button-wide" type="submit">Upload</button>#}
-{#        </form>#}
-{#        <hr>#}
-{#        {% for item in files %}#}
-{#            <li> {{ item.description }}#}
-{##}
-{#                <form#}
-{#                        id="deletion-form-{{ item.id }}"#}
 
-{#                        hx-target="#cadevil-document-grid"#}
-{#                        hx-swap="update">#}
-{#                    {% csrf_token %}#}
-{#                    <label for="epw-file-{{ item.id }}">Weather for energy simulation</label>#}
-{#                    <select id="epw-file-{{ item.id }}" name="epw_file_id" class="button-wide">#}
-{#                        <option value="">No energy simulation</option>#}
-{#                        {% for epw in epw_files %}#}
-{#                            <option value="{{ epw.id }}">#}
-{#                                {{ epw.description|default:epw.document.name }}#}
-{#                            </option>#}
-{#                        {% endfor %}#}
-{#                    </select>#}
-{#                    <button type="submit" class="button-wide fa fa-bolt" value={{ item.id }} name="calculate"> Calculate#}
-{#                    </button>#}
-{#                </form>#}
-
-{#                    {% csrf_token %}#}
-{#                    <button type="submit" class="button-wide fa fa-trash" value={{ item.id }} name="delete_file"> Delete#}
-{#                    </button>#}
-{#                </form>#}
-{#                <hr>#}
-{#            </li>#}
-{#        {% endfor %}#}
-{#    </div>#}
-{#</div>#}
 
 <p id="request-notice" class="request-notice" role="alert" hidden></p>
 <aside id="task-activity" class="task-activity" hidden aria-label="Current tasks">
@@ -217,9 +165,6 @@
 <main id="main-content" tabindex="-1" hx-boost:inherited="true" hx-target:inherited="#content-container" hx-swap:inherited="outerHTML" hx-push-url:inherited="true">
     <div id="content-container">
 
-        <!-- This is where the Debug Toolbar will be injected -->
-        {# {% if debug %}#}
-        {# {% endif %}#}
         <!-- Main Container -->
         {% block content %}{% endblock %}
     </div>

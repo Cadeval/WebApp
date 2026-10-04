@@ -130,6 +130,10 @@ export function createThumbnailController(documentRoot, options = {}) {
 
     function mount(root = documentRoot) {
         if (disposed) return;
+        // A passive HTMX boundary emits no before:cleanup for its thumbnails.
+        // Release detached consumers before mounting the replacement page.
+        for (const host of records.keys()) if (host.isConnected === false) removeWithin(host, false);
+        pump();
         const hosts = [...(root.matches?.(SELECTOR) ? [root] : []), ...root.querySelectorAll(SELECTOR)];
         for (const host of hosts) {
             if (records.has(host)) continue;
@@ -146,7 +150,7 @@ export function createThumbnailController(documentRoot, options = {}) {
         }
     }
 
-    function removeWithin(root) {
+    function removeWithin(root, resume = true) {
         for (const [host, record] of records) {
             if (host !== root && !root.contains?.(host)) continue;
             observer?.unobserve(host);
@@ -156,7 +160,7 @@ export function createThumbnailController(documentRoot, options = {}) {
             records.delete(host);
             if (record.job) { record.job.records.delete(record); retire(record.job); }
         }
-        pump();
+        if (resume) pump();
     }
 
     return { mount, removeWithin, get active() { return active; }, get size() { return records.size; },

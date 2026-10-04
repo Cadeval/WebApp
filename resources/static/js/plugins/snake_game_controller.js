@@ -1,3 +1,5 @@
+import { bindWorkerPageLifecycle } from '../worker_page_lifecycle.js';
+
 const DIRECTION_BY_NAME = Object.freeze({ up: 0, right: 1, down: 2, left: 3 });
 const DIRECTION_BY_KEY = Object.freeze({
     ArrowUp: 0,
@@ -94,6 +96,9 @@ export class SnakeGameRuntime {
     }
 
     mount(scope) {
+        for (const [game, controller] of this.controllers) {
+            if (game.isConnected === false) this.dispose(controller);
+        }
         const games = [];
         if (scope?.matches?.('[data-snake-game]')) games.push(scope);
         for (const game of scope?.querySelectorAll?.('[data-snake-game]') ?? []) games.push(game);
@@ -316,11 +321,5 @@ export class SnakeGameRuntime {
 }
 
 if (typeof document !== 'undefined' && typeof globalThis.Worker !== 'undefined') {
-    const runtime = new SnakeGameRuntime();
-    const mount = (scope) => runtime.mount(scope ?? document);
-    document.addEventListener('DOMContentLoaded', () => mount(document));
-    document.body?.addEventListener('htmx:after:settle', () => mount(document));
-    document.body?.addEventListener('htmx:before:cleanup', (event) => {
-        runtime.unmountWithin(event.target);
-    });
+    bindWorkerPageLifecycle(new SnakeGameRuntime());
 }
