@@ -290,16 +290,19 @@ fn parse_entity_header(
             Err(ErrorCode::MalformedId)
         };
     }
+    pos = trim_leading(bytes, pos, end)?;
     if bytes.get(pos) != Some(&b'=') {
         return Err(ErrorCode::MalformedId);
     }
     pos += 1; // skip '='
+    pos = trim_leading(bytes, pos, end)?;
 
     let type_start = pos;
     while pos < end && (bytes[pos].is_ascii_alphanumeric() || bytes[pos] == b'_') {
         pos += 1;
     }
     let type_end = pos;
+    pos = trim_leading(bytes, pos, end)?;
     if type_end == type_start || bytes.get(pos) != Some(&b'(') {
         return Err(ErrorCode::TruncatedStatement);
     }

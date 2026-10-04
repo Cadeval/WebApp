@@ -87,6 +87,32 @@ fn parses_typical_header_metadata_without_indexing_it() {
 }
 
 #[test]
+fn parses_exporter_spacing_and_comments_between_entity_header_tokens() {
+    // AC20-FZK-Haus exports `#id= IFCTYPE(...)`. STEP whitespace and
+    // comments between tokens must not change the indexed byte offsets.
+    let doc = bytes(concat!(
+        "ISO-10303-21;\r\nHEADER;\r\nENDSEC;\r\nDATA;\r\n",
+        "#12= IFCPERSON($,'Example',$,$,$,$,$,$);\r\n",
+        "#13 \t/* id separator */ =\r\n/* type separator */ IFCWALL /* attributes */ ('Wall',42,#12);\r\n",
+        "ENDSEC;\r\nEND-ISO-10303-21;\r\n",
+    ));
+    assert_eq!(load(&doc), 0);
+    assert_eq!(ifc_entity_count(), 2);
+    assert_eq!(ifc_entity_id(0), 12);
+    assert_eq!(ifc_entity_id(1), 13);
+    let type_len = ifc_entity_type(1);
+    assert_eq!(read_output(type_len as usize), b"IFCWALL");
+    assert_eq!(ifc_entity_attribute_count(1), 3);
+    let value_len = ifc_entity_attribute(1, 0);
+    assert_eq!(read_output(value_len as usize), b"'Wall'");
+    let len = ifc_serialize();
+    assert_eq!(read_output(len as usize), doc);
+    assert_eq!(ifc_update_attribute(1, 0, write_value("'Updated'")), 0);
+    let len = ifc_serialize();
+    assert_eq!(read_output(len as usize), String::from_utf8(doc).unwrap().replace("'Wall'", "'Updated'").as_bytes());
+}
+
+#[test]
 fn indexes_every_editable_attribute_kind() {
     let doc = bytes(concat!(
         "ISO-10303-21;\n",
