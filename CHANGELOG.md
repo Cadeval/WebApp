@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.14.0 — Unreleased
+
+- Add a Compose frontend on external `swagnet`, with the application, PostgreSQL and Redis on a separate private network and no published backend ports.
+- Gate application startup on healthy services and completed migrations; retain separate application, database and Redis volumes.
+- Add locked database/cache clients, mounted service secrets and Redis session caching backed by durable database records.
+- Close database connections at HTTP and WebSocket permission-check boundaries so workers recover after database restarts.
+- Preserve the exact Docker build input allowlist and refresh the release inventories.
+
 ## 0.13.0 — Unreleased
 
 - Package the production application in a digest-pinned Docker image with an exact build-context allowlist, runtime secrets, an unprivileged user and separate persistent storage.
