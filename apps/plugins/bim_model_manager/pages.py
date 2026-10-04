@@ -10,7 +10,7 @@ from uuid import UUID
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.http import FileResponse, HttpResponse, JsonResponse, Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods, require_POST
 from django.views.decorators.vary import vary_on_headers
 from django.contrib.auth.decorators import login_required
@@ -37,7 +37,8 @@ from apps.shared.page_views import render_page as page
 @bim_page
 @require_http_methods(['GET', 'POST'])
 def model_manager(request):
-    form = UploadForm(request.POST or None, request.FILES or None, user=request.user)
+    form = UploadForm(request.POST if request.method == 'POST' else None,
+                      request.FILES if request.method == 'POST' else None, user=request.user)
     if request.method == 'POST' and form.is_valid():
         upload = form.save(commit=False)
         upload.user = request.user
@@ -68,7 +69,8 @@ def configuration(data):
 @bim_page
 @require_http_methods(['GET', 'POST'])
 def library(request):
-    form = ConfigUploadForm(request.POST or None, request.FILES or None, user=request.user)
+    form = ConfigUploadForm(request.POST if request.method == 'POST' else None,
+                            request.FILES if request.method == 'POST' else None, user=request.user)
     if request.method == 'POST' and form.is_valid():
         try:
             data = read_upload(form.cleaned_data['document'])
@@ -110,7 +112,7 @@ def select_config(request):
         with upload.document.open('rb') as source:
             data = read_upload(source)
     except (ValueError, OSError, StopIteration, IndexError, KeyError, BadZipFile) as error:
-        return HttpResponse(str(error) or 'Reference table is invalid.', status=400)
+        return HttpResponse(str(error) or 'Reference table is invalid.', status=400, content_type='text/plain; charset=utf-8')
     CalculationConfig.objects.update_or_create(user=request.user,
         defaults={'upload': upload, 'config': configuration(data)})
     return redirect('bim:config_editor')
@@ -133,7 +135,7 @@ def csv_content(config, inert=False):
     writer = csv.writer(stream, delimiter=';')
     def value(v):
         # Numbers, including negative environmental values, remain numeric.
-        if inert and isinstance(v, str) and number(v) is None and v.startswith(('=', '+', '-', '@')):
+        if inert and isinstance(v, str) and number(v) is None and v.lstrip().startswith(('=', '+', '-', '@')):
             return "'" + v
         return '' if v is None else v
     writer.writerow(['Material'] + [value(h) for h in config['header']])

@@ -89,6 +89,37 @@ class ChartPlotterTests(TestCase):
         self.assertIn("Concrete", html)
         self.assertIn(f"decay_simulation_{str(self.mat2.id).replace('-', '_')}", html)
 
+    def test_material_names_cannot_close_chart_scripts_or_create_html_nodes(self):
+        from html.parser import HTMLParser
+
+        class Nodes(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.tags = []
+                self.script_ends = 0
+
+            def handle_starttag(self, tag, attrs):
+                self.tags.append(tag)
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.script_ends += 1
+
+        hostile = '</script><img src=x onerror="alert(1)">&\u2028\u2029'
+        self.mat1.name = hostile
+        self.mat1.save(update_fields=["name"])
+        config = {hostile: self.config["Steel"]}
+        outputs = [plot_material_costs(self.doc),
+                   simulate_material_decay_plotly(self.doc, config, material_id=self.mat1.pk),
+                   simulate_material_cost_projection_plotly(self.doc, config, material_id=self.mat1.pk)]
+        for output in outputs:
+            with self.subTest(chart=output[:100]):
+                parser = Nodes()
+                parser.feed(output)
+                self.assertNotIn("img", parser.tags)
+                self.assertNotIn(hostile, output)
+                self.assertEqual(parser.tags.count("script"), parser.script_ends)
+
     def test_select_by_id(self):
         # Explicitly select Steel
         html = simulate_material_decay_plotly(self.doc, self.config, years=100, material_id=self.mat1.id)

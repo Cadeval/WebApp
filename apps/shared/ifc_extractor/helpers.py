@@ -944,10 +944,6 @@ def ifc_product_walk(
                     geometry=element_geometry,
                     axis="Z",
                 )
-                length: float = ifcopenshell.util.shape.get_max_xy(
-                    geometry=element_geometry
-                )
-
             except Exception as e:
                 if DEBUG_VERBOSE:
                     pprint.pprint(

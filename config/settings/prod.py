@@ -6,6 +6,9 @@ DEBUG = False
 
 # Required — no insecure default in production.
 SECRET_KEY = os.environ["SECRET_KEY"]
+if len(SECRET_KEY) < 50 or len(set(SECRET_KEY)) < 5 or SECRET_KEY.startswith("django-insecure-"):
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured("Production SECRET_KEY must be random, at least 50 characters, and not a development key.")
 
 # Required — set to your domain(s), e.g. ALLOWED_HOSTS=myapp.com,www.myapp.com
 ALLOWED_HOSTS = [
@@ -37,34 +40,17 @@ CORS_ALLOWED_ORIGINS = [
     if o.strip()
 ]
 
-# Allow all origins (development only!)
-CORS_ALLOW_ALL_ORIGINS = True
+# Credentialed requests use only the explicitly configured production origins.
+CORS_ALLOW_ALL_ORIGINS = False
 
 # Additional settings
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
 CORS_ALLOW_HEADERS = ["Content-Type", "Authorization", "X-Requested-With"]
 CORS_EXPOSE_HEADERS = ["X-Total-Count", "X-Page-Count"]
-CORS_MAX_AGE = 86400  # 24 hours
+CORS_PREFLIGHT_MAX_AGE = 86400  # 24 hours; Bolt's supported setting name
 
-# State channel layer — InMemoryChannelLayer works for single-process deploys.
-# For multi-process or multi-server, switch to RedisChannelLayer:
-#   pip install channels-redis
-#   CHANNEL_LAYERS = {
-#       "default": {
-#           "BACKEND": "channels_redis.core.RedisChannelLayer",
-#           "CONFIG": {
-#               "hosts": [os.environ.get("REDIS_URL", "redis://localhost:6379/0")]
-#           },
-#       }
-#   }
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
-}
-
-# Cache — Redis recommended under load. Swap channel layer at the same time.
+# Optional shared Redis cache for deployments with multiple HTTP workers.
 _redis_url = os.environ.get("REDIS_URL", "")
 if _redis_url:
     CACHES = {

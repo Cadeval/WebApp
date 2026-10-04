@@ -15,6 +15,7 @@ modules under ``src`` by path, so this module is picked up automatically.
 import math
 import os
 import tempfile
+from unittest.mock import patch
 
 import ifcopenshell
 import ifcopenshell.api
@@ -804,6 +805,16 @@ class FacadeExtractionTests(SimpleTestCase):
             _, metrics = ifc_product_walk(user_id="test", user_config={}, ifc_file_path=ifc_path)
 
         self.assertAlmostEqual(metrics.fassadenflaeche, 15.0)
+
+    def test_unused_length_failure_does_not_discard_facade_or_volume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = os.path.join(directory, "facade.ifc")
+            self._build_facade_ifc(source)
+            with patch("ifcopenshell.util.shape.get_max_xy", side_effect=RuntimeError("No length available")):
+                _, metrics = ifc_product_walk(user_id="test", user_config={}, ifc_file_path=source)
+        self.assertAlmostEqual(metrics.brutto_rauminhalt, 0.625)
+        self.assertAlmostEqual(metrics.fassadenflaeche, 70.0)
+        self.assertAlmostEqual(metrics.fassaden_oeffnungsflaeche, 10.0)
 
     def test_window_inherits_external_status_from_host_wall(self):
         ifc_file = ifcopenshell.api.project.create_file(version="IFC4")

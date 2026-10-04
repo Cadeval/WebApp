@@ -1,37 +1,16 @@
-import functools
 import logging
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpRequest
 from django.utils import timezone
+
+from apps.shared.services import staff_required as staff_required
 
 from apps.plugin_manager.forms import PluginUploadForm
 from apps.plugin_manager.models import PluginRecord
 from apps.plugin_manager.registry import DiscoveryResult, registry
 
 logger = logging.getLogger("plugin_manager")
-
-
-def _is_staff(user) -> bool:
-    return bool(user and user.is_active and user.is_staff)
-
-
-def staff_required(view_func):
-    """Require staff access: redirect anonymous users to login, but return a
-    403 (rather than redirecting) for authenticated users who are not staff.
-    """
-
-    @login_required(login_url="/accounts/login/")
-    @functools.wraps(view_func)
-    def _wrapped(request: HttpRequest, *args, **kwargs):
-        if not _is_staff(request.user):
-            raise PermissionDenied("Only staff users may manage plugins.")
-        return view_func(request, *args, **kwargs)
-
-    return _wrapped
 
 
 def manage_plugin(plugin_id: str, action: str) -> bool:

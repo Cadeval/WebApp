@@ -117,12 +117,6 @@ def _clamped_rate(
     return max(minimum, min(maximum, rate))
 
 
-# def debug_show_plot(plt):
-
-
-def single_building_metrics_pie() -> None:
-    pass
-
 
 @lru_cache(maxsize=1000)
 def plot_mass(

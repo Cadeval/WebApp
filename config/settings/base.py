@@ -2,11 +2,9 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
-from django_bolt import IsAuthenticated, JWTAuthentication
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# SECURITY — set SECRET_KEY in .env before deploying to production.
+# Production requires a strong SECRET_KEY from the process environment.
 SECRET_KEY = os.environ.get("SECRET_KEY", "changeme")
 
 # Comma-separated list of allowed hostnames. In production add your domain.
@@ -36,12 +34,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "daphne",
     "django.contrib.staticfiles",
-    "django_bolt",  # Core LiveView framework
-    "django_htmx",
-    "apps.shared",  # BaseLiveView, context processors, theming
-    "apps.mycelium",  # Home page — your first LiveView
+    "django_bolt",  # Native HTTP/WebSocket router
+    "apps.shared",  # Models, assessments and browser pages
+    "apps.mycelium",  # Home, sessions and user settings
     "apps.plugin_manager",
 ]
 
@@ -62,14 +58,15 @@ LOGOUT_REDIRECT_URL = "/"
 # Paths and Directories
 # =======================
 
-STATIC_URL: str = "static/"
+STATIC_URL: str = "/static/"
 STATICFILES_DIRS: list[Path] = [BASE_DIR / "resources/static"]
 STATIC_ROOT: str = os.path.join(BASE_DIR, "resources/collected_static/")
 
-TEMPLATE_URL: str = "templates/"
-TEMPLATEFILES_DIRS: list[Path] = [BASE_DIR / "resources/templates"]
-
-MEDIA_URL: str = "user_uploads/"
+# Bolt automatically mounts MEDIA_ROOT ahead of route guards when MEDIA_URL
+# has a nonempty prefix. An absolute "/" disables that mount in Bolt 0.11;
+# an empty string would be expanded by Django to SCRIPT_NAME and is unsafe.
+# Uploaded files are delivered only by the owner-checked download routes.
+MEDIA_URL: str = "/"
 MEDIA_ROOT: Path = BASE_DIR / "data/user_uploads/"
 
 # OpenStudio energy simulations. Leave the CLI path empty to let the
@@ -108,7 +105,6 @@ TEMPLATES = [
 # =======================
 
 AUTH_USER_MODEL = "shared.CadevilUser"
-# AUTH_GROUP_MODEL = "model_manager.CadevilGroup"
 
 AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
@@ -129,19 +125,7 @@ AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
 # django-bolt Settings
 # =======================
 
-# Global defaults applied to every BoltAPI route that doesn't override
-# `auth=`/`guards=` explicitly (see apps/mycelium/api.py). Routes that must
-# stay public (e.g. the login page/endpoint) opt out with `guards=[AllowAny()]`.
-# `secret=SECRET_KEY` is passed explicitly (instead of leaving JWTAuthentication
-# fall back to `django.conf.settings.SECRET_KEY` on its own) because settings
-# are still being assembled at this point — reading `django.conf.settings`
-# here would re-enter Django's settings setup.
-# BOLT_AUTHENTICATION_CLASSES = [
-#     JWTAuthentication(cookie="access_token", secret=SECRET_KEY),
-#     JWTAuthentication(secret=SECRET_KEY),
-# ]
-# BOLT_DEFAULT_PERMISSION_CLASSES = [IsAuthenticated()]
-
+# Browser pages use Django sessions, CSRF checks and explicit route guards.
 MESSAGE_STORAGE: str = "django.contrib.messages.storage.cookie.CookieStorage"
 
 # Do not keep the session open indefinitely
@@ -203,10 +187,6 @@ else:
         }
     }
 
-STATIC_URL = "/static/"
-# STATIC_ROOT = str(BASE_DIR / "resources/static")
-STATICFILES_DIRS = [BASE_DIR / "resources/static"]
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"  # e.g. "America/New_York", "Europe/London"
@@ -243,14 +223,8 @@ PLUGIN_BUILTINS: dict[str, str] = {
     "cadevil.mcp.git": "development_mcp:git_manifest",
     "cadevil.mcp.native": "development_mcp:native_manifest",
     "cadevil.mcp.ui_ux": "development_mcp:ui_ux_manifest",
+    "cadevil.mcp.code_audit": "development_mcp:code_audit_manifest",
 }
-
-# =======================
-# Celery Settings
-# =======================
-
-CELERY_RESULT_BACKEND: str = "django-db"
-CELERY_CACHE_BACKEND: str = "django-cache"
 
 # Native geometry workers per assessment; bounded to avoid oversubscribing HTTP workers.
 IFC_GEOMETRY_THREADS = int(os.environ.get('IFC_GEOMETRY_THREADS', '4'))
