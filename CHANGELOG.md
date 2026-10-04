@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.12.0 — Unreleased
+
+- Publish a security policy, RFC 9116 disclosure metadata and the release SBOM through public routes.
+- Add reproducible CycloneDX inventories for application dependencies and development audit tooling.
+- Improve keyboard and assistive-technology navigation, including HTMX focus/history, form errors and a building-part selector in the 3D viewer.
+- Add request correlation, bounded redacted logging and safer administrator log storage.
+
+## 0.11.0 — Unreleased
+
+- Add the debug-only offline Semgrep/Ruff code audit MCP and document the whole-code audit.
+- Remove 2,162 verified unused files while retaining migration history, supported runtime code and user data.
+- Correct private-media access, IFC editor ABI and allocation limits, input validation, calculation units and browser resource cleanup.
+- Update PyJWT, trim retired dependencies and restore locked build/test verification.
+
 ## 0.10.0 — Unreleased
 
 - Consolidate BIM Workspace into one navigation entry with URL-backed tabs for its model, map, reference, calculation and comparison pages.

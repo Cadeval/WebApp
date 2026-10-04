@@ -48,6 +48,23 @@ This runs native Bolt/Django integration tests, Node browser/worker tests, and b
 
 See [the code audit](docs/CODE_AUDIT.md) for deletion evidence, security fixes, scan scope and remaining limitations. The local audit MCP provides repeatable read-only Semgrep and Ruff checks during `make debug`.
 
+## Security, accessibility and operations
+
+The [security policy](SECURITY.md) is also available on `/security`; public
+disclosure metadata is served as UTF-8 text at `/.well-known/security.txt`.
+Configure the deployment contact, HTTPS canonical/policy URLs and expiry using
+the documented `SECURITY_TXT_*` environment variables. Review the expiry before
+4 January 2027 rather than automatically renewing stale contact details.
+
+Download the release CycloneDX inventory at `/security/sbom.json`, or regenerate
+it with `make sbom`; [SBOM documentation](docs/SBOM.md) distinguishes application
+components, development tooling and scan coverage. The `/accessibility` page
+documents supported keyboard navigation and remaining limitations.
+
+[Logging documentation](docs/LOGGING.md) explains request correlation IDs,
+redaction, output settings and the permission-gated admin log popover. Use the
+response's `X-Request-ID` to relate a reported failure to its server events.
+
 ## Structure
 
 - `manage.py`, `config/`: settings and native route composition.
