@@ -24,7 +24,7 @@ def plugin_manifest() -> PluginManifest:
         name="Cadevil Rust Snake Plugin",
         compatibility="both",
         type="WebPlugin",
-        version="2.0.0",
+        version="2.0.1",
         api_version="1.0",
         priority=20,
         register=register,

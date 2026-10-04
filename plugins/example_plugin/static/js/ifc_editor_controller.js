@@ -1,4 +1,4 @@
-import { bindWorkerPageLifecycle } from './worker_page_lifecycle.js';
+import {bindWorkerPageLifecycle,prepareVerifiedWorker as loadVerifiedWorker,settleVerification} from './worker_page_lifecycle.js';
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_LIST_LIMIT = 100;
@@ -116,6 +116,7 @@ export class IfcEditorRuntime {
         BlobClass = globalThis.Blob,
         createObjectUrl = (blob) => globalThis.URL.createObjectURL(blob),
         revokeObjectUrl = (url) => globalThis.URL.revokeObjectURL(url),
+        prepareWorker = loadVerifiedWorker,
     } = {}) {
         this.WorkerClass = WorkerClass;
         this.setTimer = setTimer;
@@ -125,6 +126,7 @@ export class IfcEditorRuntime {
         this.BlobClass = BlobClass;
         this.createObjectUrl = createObjectUrl;
         this.revokeObjectUrl = revokeObjectUrl;
+        this.prepareWorker = prepareWorker;
         this.controllers = new Map();
     }
 
@@ -247,13 +249,21 @@ export class IfcEditorRuntime {
         this.stopWorker(controller);
         controller.generation += 1;
         controller.generationField.textContent = String(controller.generation);
-        controller.status.textContent = 'Loading isolated IFC worker…';
+        controller.status.textContent = 'Verifying IFC worker certificate and signed files…';
         this.setControlsEnabled(controller, false);
         try {
             const workerUrl = requireSameOrigin(controller.root.dataset.workerUrl);
             const wasmUrl = requireSameOrigin(controller.root.dataset.wasmUrl);
+            const generation=controller.generation,abort=new AbortController();
+            controller.verificationAbort=abort;
+            const current = () => !controller.disposed && controller.generation===generation && !abort.signal.aborted;
+            controller.initializationTimer=this.setTimer(() => {if(current())this.fail(controller,'IFC worker verification or initialization timed out.');},this.operationTimeoutMs);
+            settleVerification(this.prepareWorker({pluginId:'cadevil.example.editor',trustUrl:controller.root.dataset.trustUrl,
+                workerUrl,wasmUrl,signal:abort.signal}),verified => {
+            if(!current()) {verified.dispose();return;}
+            controller.verified=verified;
             const worker = new this.WorkerClass(
-                withReloadVersion(workerUrl, controller.generation),
+                withReloadVersion(verified.bootstrapURL, controller.generation),
                 { type: 'module', name: 'cadevil-ifc-editor' },
             );
             controller.worker = worker;
@@ -266,7 +276,10 @@ export class IfcEditorRuntime {
             worker.onmessageerror = () => {
                 if (controller.worker === worker) this.fail(controller, 'The IFC worker sent an unreadable message.');
             };
-            worker.postMessage({ type: 'initialize', wasmUrl });
+            const bytes=verified.wasmBytes.slice(0);
+            worker.postMessage({type:'cadevil-verified-boot',entry_url:verified.entryURL,
+                initialize:{ type: 'initialize', wasmBytes:bytes }},[bytes]);
+            },error => {if(current())this.fail(controller,error.message);});
         } catch (error) {
             this.fail(controller, error instanceof Error ? error.message : 'Unable to start the IFC worker.');
         }
@@ -278,7 +291,12 @@ export class IfcEditorRuntime {
         const requestId = `ifc-${controller.generation}-${controller.requestCounter}`;
         const timer = this.setTimer(() => this.handleTimeout(controller, requestId), this.operationTimeoutMs);
         controller.pending.set(requestId, { type: message.type, timer });
-        controller.worker.postMessage({ ...message, requestId }, transfer);
+        const worker=controller.worker;
+        try {
+            settleVerification(controller.verified.recheck(), () => {
+                if(controller.worker===worker && controller.pending.has(requestId)) worker.postMessage({ ...message, requestId }, transfer);
+            },error => {if(controller.worker===worker)this.fail(controller,error.message);});
+        } catch(error) {this.fail(controller,error.message);}
         return requestId;
     }
 
@@ -289,6 +307,8 @@ export class IfcEditorRuntime {
     }
 
     onReady(controller) {
+        this.clearTimer?.(controller.initializationTimer);
+        controller.initializationTimer=null;
         controller.ready = true;
         this.setControlsEnabled(controller, true);
         if (controller.selectedBytes) {
@@ -610,6 +630,12 @@ export class IfcEditorRuntime {
     }
 
     stopWorker(controller) {
+        controller.verificationAbort?.abort();
+        controller.verificationAbort=null;
+        controller.verified?.dispose();
+        controller.verified=null;
+        if(controller.initializationTimer!=null)this.clearTimer?.(controller.initializationTimer);
+        controller.initializationTimer=null;
         for (const entry of controller.pending.values()) this.clearTimer?.(entry.timer);
         controller.pending.clear();
         controller.ready = false;

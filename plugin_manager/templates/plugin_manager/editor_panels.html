@@ -3,6 +3,7 @@
             {% for editor_plugin in plugin_editor_items %}
                 <article class="editor-plugin-card"
                          data-editor-plugin="{{ editor_plugin.id }}"
+                         data-trust-url="/plugins/{{ editor_plugin.id }}/trust.json"
                          data-worker-url="{{ editor_plugin.worker_url }}"
                          data-wasm-url="{{ editor_plugin.wasm_url }}"
                          data-artifact-type="{{ editor_plugin.artifact_type }}"

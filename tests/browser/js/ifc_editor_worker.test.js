@@ -87,9 +87,9 @@ test('worker message protocol initializes the real WASM and returns correct upda
     const messages = [];
     const worker = new IfcEditorWorker({
         postMessage: (message, transfer) => messages.push({ message, transfer }),
-        fetchFn: async () => ({ ok: true, headers: { get: () => String(wasm.byteLength) }, arrayBuffer: async () => wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength) }),
+
     });
-    await worker.handleMessage({ type: 'initialize', wasmUrl: '/static/wasm/example_plugin.wasm' });
+    await worker.handleMessage({ type: 'initialize', wasmBytes: wasm.buffer.slice(wasm.byteOffset, wasm.byteOffset + wasm.byteLength) });
     assert.equal(messages.at(-1).message.type, 'ready');
     await worker.handleMessage({ type: 'load', bytes: encoder.encode(document()).buffer, filename: 'materials.ifc', requestId: 'load-1' });
     assert.deepEqual(messages.at(-1).message, { type: 'loaded', requestId: 'load-1', filename: 'materials.ifc', entityCount: 2 });

@@ -1,4 +1,4 @@
-import { bindWorkerPageLifecycle } from '../worker_page_lifecycle.js';
+import {bindWorkerPageLifecycle,prepareVerifiedWorker as loadVerifiedWorker,settleVerification} from '../worker_page_lifecycle.js';
 
 const DIRECTION_BY_NAME = Object.freeze({ up: 0, right: 1, down: 2, left: 3 });
 const DIRECTION_BY_KEY = Object.freeze({
@@ -87,11 +87,15 @@ export class SnakeGameRuntime {
         clearIntervalFn = globalThis.clearInterval?.bind(globalThis),
         seedFactory = () => globalThis.crypto?.getRandomValues?.(new Uint32Array(1))[0]
             ?? Date.now() >>> 0,
+        prepareWorker = loadVerifiedWorker,
+        setTimer=globalThis.setTimeout?.bind(globalThis),clearTimer=globalThis.clearTimeout?.bind(globalThis),
     } = {}) {
         this.WorkerClass = WorkerClass;
         this.setIntervalFn = setIntervalFn;
         this.clearIntervalFn = clearIntervalFn;
         this.seedFactory = seedFactory;
+        this.prepareWorker = prepareWorker;
+        this.setTimer = setTimer;this.clearTimeout=clearTimer;
         this.controllers = new Map();
     }
 
@@ -140,7 +144,7 @@ export class SnakeGameRuntime {
             const direction = DIRECTION_BY_KEY[normalizedKey];
             if (direction === undefined || !controller.running || !controller.worker) return;
             event.preventDefault?.();
-            controller.worker.postMessage({ type: 'direction', direction });
+            this.sendVerified(controller,{ type: 'direction', direction });
         };
         controller.focusHandler = () => game.focus?.({ preventScroll: true });
         controller.restartHandler = () => this.restart(controller);
@@ -148,7 +152,7 @@ export class SnakeGameRuntime {
             const direction = DIRECTION_BY_NAME[button.dataset.snakeDirection];
             const handler = () => {
                 if (direction !== undefined && controller.running && controller.worker) {
-                    controller.worker.postMessage({ type: 'direction', direction });
+                    this.sendVerified(controller,{ type: 'direction', direction });
                 }
             };
             button.addEventListener('click', handler);
@@ -167,12 +171,20 @@ export class SnakeGameRuntime {
         controller.generation += 1;
         controller.running = false;
         for (const button of controller.directionButtons) button.disabled = true;
-        controller.status.textContent = 'Loading isolated game worker…';
+        controller.status.textContent = 'Verifying game worker certificate and signed files…';
         try {
             const workerUrl = requireSameOrigin(controller.game.dataset.workerUrl);
             const wasmUrl = requireSameOrigin(controller.game.dataset.wasmUrl);
+            const generation=controller.generation,abort=new AbortController();
+            controller.verificationAbort=abort;
+            const current = () => !controller.disposed && controller.generation===generation && !abort.signal.aborted;
+            controller.initializationTimer=this.setTimer(() => {if(current())this.fail(controller,'Game worker verification or initialization timed out.');},10000);
+            settleVerification(this.prepareWorker({pluginId:'cadevil.rust-example.editor',trustUrl:controller.game.dataset.trustUrl,
+                workerUrl,wasmUrl,signal:abort.signal}),verified => {
+            if(!current()){verified.dispose();return;}
+            controller.verified=verified;
             const worker = new this.WorkerClass(
-                withReloadVersion(workerUrl, controller.generation),
+                withReloadVersion(verified.bootstrapURL, controller.generation),
                 { type: 'module', name: 'cadevil-rust-snake' },
             );
             controller.worker = worker;
@@ -189,11 +201,11 @@ export class SnakeGameRuntime {
                     this.fail(controller, 'The Snake worker sent an unreadable message.');
                 }
             };
-            worker.postMessage({
-                type: 'initialize',
-                wasmUrl,
-                seed: Number(this.seedFactory()) >>> 0,
-            });
+            const bytes=verified.wasmBytes.slice(0);
+            worker.postMessage({type:'cadevil-verified-boot',entry_url:verified.entryURL,initialize:{
+                type: 'initialize',wasmBytes:bytes,seed: Number(this.seedFactory()) >>> 0,
+            }},[bytes]);
+            },error => {if(current())this.fail(controller,error.message);});
         } catch (error) {
             this.fail(controller, error instanceof Error ? error.message : 'Unable to start Snake.');
         }
@@ -215,6 +227,7 @@ export class SnakeGameRuntime {
             return;
         }
 
+        this.clearTimeout?.(controller.initializationTimer);controller.initializationTimer=null;
         this.render(controller, message.state);
         controller.running = message.state.status === 0;
         for (const button of controller.directionButtons) {
@@ -227,8 +240,21 @@ export class SnakeGameRuntime {
     startTimer(controller) {
         if (controller.interval !== null || typeof this.setIntervalFn !== 'function') return;
         controller.interval = this.setIntervalFn(() => {
-            controller.worker?.postMessage({ type: 'tick' });
+            this.sendVerified(controller,{ type: 'tick' });
         }, 140);
+    }
+
+    sendVerified(controller,message) {
+        if(!controller.worker || controller.checkingTrust)return;
+        if(Date.now() < controller.verified.expires) {controller.worker.postMessage(message);return;}
+        const worker=controller.worker;
+        controller.checkingTrust=true;
+        try {
+            settleVerification(controller.verified.recheck(),() => {
+                if(controller.worker!==worker)return;
+                controller.checkingTrust=false;worker.postMessage(message);
+            },error => {if(controller.worker===worker){controller.checkingTrust=false;this.fail(controller,error.message);}});
+        } catch(error) {controller.checkingTrust=false;this.fail(controller,error.message);}
     }
 
     clearTimer(controller) {
@@ -282,6 +308,11 @@ export class SnakeGameRuntime {
     }
 
     stopWorker(controller) {
+        controller.verificationAbort?.abort();controller.verificationAbort=null;
+        controller.verified?.dispose();controller.verified=null;
+        if(controller.initializationTimer!=null)this.clearTimeout?.(controller.initializationTimer);
+        controller.initializationTimer=null;
+        controller.checkingTrust=false;
         this.clearTimer(controller);
         controller.running = false;
         for (const button of controller.directionButtons) button.disabled = true;

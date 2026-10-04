@@ -3,6 +3,7 @@
 <div {% if fragment %}id="content-container"{% endif %}>
     <section class="ifc-editor"
              data-ifc-editor
+             data-trust-url="/plugins/cadevil.example.editor/trust.json"
              data-worker-url="{% static 'js/plugins/example_plugin_worker.js' %}"
              data-wasm-url="{% static 'wasm/example_plugin.wasm' %}"
              tabindex="0"

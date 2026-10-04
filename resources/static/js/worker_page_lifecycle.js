@@ -39,3 +39,12 @@ export function bindPageResourceLifecycle(root, dispose, documentRef = root?.own
         listeners.length = 0;
     };
 }
+
+/** Fetch the maintained crypto/parser bundle only when a plugin worker is opened. */
+export function prepareVerifiedWorker(options) {
+    return import('./verified_plugin_worker.js').then(module => module.loadVerifiedWorker(options));
+}
+export function settleVerification(value,success,failure) {
+    if (value && typeof value.then === 'function') value.then(success).catch(failure);
+    else {try {success(value);} catch(error) {failure(error);}}
+}

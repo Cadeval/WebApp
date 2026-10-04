@@ -1,3 +1,4 @@
+import {preverifiedWorker} from './fixtures/verified_worker.js';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -129,14 +130,14 @@ const runningSnapshot = {
     food: { x: 12, y: 10 },
 };
 
-function mountRuntime() {
+function mountRuntime(options={}) {
     FakeWorker.instances = [];
     const game = new FakeGame();
     const intervalCallbacks = new Map();
     const clearedIntervals = [];
     let nextInterval = 1;
     const runtime = new SnakeGameRuntime({
-        WorkerClass: FakeWorker,
+        WorkerClass: FakeWorker, prepareWorker:preverifiedWorker,
         setIntervalFn(callback) {
             const id = nextInterval;
             nextInterval += 1;
@@ -148,6 +149,7 @@ function mountRuntime() {
             intervalCallbacks.delete(id);
         },
         seedFactory: () => 7,
+        ...options,
     });
     runtime.mount({
         querySelectorAll(selector) {
@@ -167,7 +169,7 @@ test('reload version preserves existing query parameters', () => {
 test('snake worker accepts only the declared message protocol', () => {
     assert.doesNotThrow(() => assertWorkerMessage({
         type: 'initialize',
-        wasmUrl: '/static/wasm/rust_example_plugin.wasm',
+        wasmBytes: new ArrayBuffer(8),
         seed: 7,
     }));
     assert.doesNotThrow(() => assertWorkerMessage({ type: 'tick' }));
@@ -190,11 +192,9 @@ test('snake runtime initializes, renders, ticks, and scopes direction input', ()
     const worker = FakeWorker.instances[0];
 
     assert.deepEqual(worker.options, { type: 'module', name: 'cadevil-rust-snake' });
-    assert.deepEqual(worker.messages[0], {
-        type: 'initialize',
-        wasmUrl: '/static/wasm/rust_example_plugin.wasm',
-        seed: 7,
-    });
+    assert.deepEqual(worker.messages[0], {type:'cadevil-verified-boot',entry_url:'blob:trusted-fixture',initialize:{
+        type: 'initialize',wasmBytes: new ArrayBuffer(8),seed: 7,
+    }});
     game.dispatch('keydown', { key: 'ArrowUp' });
     game.directionButtons[0].dispatch('click');
     assert.equal(worker.messages.length, 1);
@@ -306,4 +306,17 @@ test('Rust snake WebAssembly owns movement, growth, reset, and collision rules',
         game.snake_tick();
     }
     assert.equal(game.snake_status(), 1);
+});
+
+test('Snake waits for verification and disposes a late proof after cleanup',async()=>{
+    let finish,signal,disposed=0;
+    const env=mountRuntime({prepareWorker:options=>{signal=options.signal;return new Promise(resolve=>{finish=()=>resolve({...preverifiedWorker(options),dispose(){disposed++;}});});}});
+    assert.equal(FakeWorker.instances.length,0);env.runtime.destroy();assert(signal.aborted);finish();await new Promise(resolve=>setImmediate(resolve));assert.equal(FakeWorker.instances.length,0);assert.equal(disposed,1);
+});
+test('Snake pauses at the CRL deadline and stops on a revoked fresh certificate',async()=>{
+    let reject;
+    const env=mountRuntime({prepareWorker:options=>({...preverifiedWorker(options),expires:0,recheck:()=>new Promise((resolve,failed)=>{reject=failed;})})});
+    const worker=FakeWorker.instances[0];worker.onmessage({data:{type:'ready',state:runningSnapshot}});
+    const tick=env.intervalCallbacks.values().next().value;tick();tick();assert.equal(worker.messages.length,1);
+    reject(Error('Certificate revoked'));await new Promise(resolve=>setImmediate(resolve));assert(worker.terminated);assert.equal(env.intervalCallbacks.size,0);assert.match(env.game.status.textContent,/revoked/);env.runtime.destroy();
 });

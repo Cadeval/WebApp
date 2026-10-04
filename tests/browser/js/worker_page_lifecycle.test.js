@@ -1,3 +1,4 @@
+import {preverifiedWorker} from './fixtures/verified_worker.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { bindWorkerPageLifecycle, bindPageResourceLifecycle } from './worker_page_lifecycle.js';
@@ -33,7 +34,7 @@ test('page resources survive connected swaps but release on real removal or page
     assert.equal([...window.listeners.values()].every(listeners => listeners.size === 0), true);
 });
 
-function editor() {
+function editor(options={}) {
     const root = new EventTarget(), controls = new Map();
     root.isConnected = true;
     root.dataset = { workerUrl: '/static/js/plugins/ifc_editor_worker.js', wasmUrl: '/static/wasm/example_plugin.wasm' };
@@ -53,8 +54,8 @@ function editor() {
         terminate() { this.terminated = true; }
     }
     let nextTimer = 0;
-    const runtime = new IfcEditorRuntime({ WorkerClass: Worker, setTimer: cb => { timers.set(++nextTimer, cb); return nextTimer; },
-        clearTimer: id => timers.delete(id), revokeObjectUrl: url => revoked.push(url) });
+    const runtime = new IfcEditorRuntime({ WorkerClass: Worker, prepareWorker:preverifiedWorker, setTimer: cb => { timers.set(++nextTimer, cb); return nextTimer; },
+        clearTimer: id => timers.delete(id), revokeObjectUrl: url => revoked.push(url), ...options });
     const document = new EventTarget(), window = new EventTarget();
     document.readyState = 'complete';
     document.querySelectorAll = () => root.isConnected ? [root] : [];
@@ -64,6 +65,7 @@ function editor() {
 test('IFC editor passive swaps release workers, operation timers, object URLs and controls', () => {
     const env = editor(), unbind = bindWorkerPageLifecycle(env.runtime, env.document, env.window);
     const controller = env.runtime.controllers.get(env.root);
+    env.workers[0].onmessage({data:{type:'ready'}});
     env.runtime.postRequest(controller, { type: 'list' });
     controller.activeDownloadUrl = 'blob:editor-output';
     assert.equal(env.timers.size, 1);
@@ -133,4 +135,18 @@ test('disposed IFC editors ignore late local-file reads and release retained inp
     assert.equal(controller.selectedBytes, null);
     assert.equal(controller.status.textContent, status);
     assert.equal(controller.pending.size, 0);
+});
+
+test('IFC editor waits for signed-byte verification and cancels a late loader on cleanup',async()=>{
+    let finish,signal,disposed=0;
+    const env=editor({prepareWorker:options=>{signal=options.signal;return new Promise(resolve=>{finish=()=>resolve({...preverifiedWorker(options),dispose(){disposed++;}});});}});
+    env.runtime.mount(env.document);assert.equal(env.workers.length,0);env.runtime.destroy();assert(signal.aborted);
+    finish();await new Promise(resolve=>setImmediate(resolve));assert.equal(env.workers.length,0);assert.equal(disposed,1);assert.equal(env.timers.size,0);
+});
+test('IFC operations reverify trust and never send IFC data after a certificate is revoked',async()=>{
+    let reject;
+    const env=editor({prepareWorker:options=>({...preverifiedWorker(options),recheck:()=>new Promise((resolve,failed)=>{reject=failed;})})});
+    env.runtime.mount(env.document);const worker=env.workers[0],controller=env.runtime.controllers.get(env.root);
+    worker.onmessage({data:{type:'ready'}});env.runtime.postRequest(controller,{type:'list'});assert.equal(worker.messages.length,1);
+    reject(Error('Certificate revoked'));await new Promise(resolve=>setImmediate(resolve));assert(worker.terminated);assert.equal(worker.messages.length,1);assert.equal(env.timers.size,0);env.runtime.destroy();
 });

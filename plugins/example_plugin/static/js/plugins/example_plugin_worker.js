@@ -66,8 +66,9 @@ function isRequestId(value) {
 export function assertHostMessage(message) {
     switch (message?.type) {
         case 'initialize':
-            if (!hasExactKeys(message, ['type', 'wasmUrl'])
-                || !isBoundedString(message.wasmUrl, 1, 2048)) {
+            if (!hasExactKeys(message, ['type', 'wasmBytes'])
+                || !(message.wasmBytes instanceof ArrayBuffer)
+                || message.wasmBytes.byteLength < 8 || message.wasmBytes.byteLength > MAX_WASM_BYTES) {
                 throw new Error('Invalid initialize message.');
             }
             break;
@@ -118,7 +119,7 @@ export function assertHostMessage(message) {
 /**
  * Wraps an already-instantiated IFC WebAssembly ABI (see the Rust ABI contract) and exposes
  * host-friendly, bounds-checked operations. Kept separate from message plumbing so it can be
- * exercised directly against a fake ABI in tests without going through fetch/WebAssembly.
+ * exercised directly against a fake ABI in tests without going through WebAssembly.
  */
 export class IfcEditorEngine {
     constructor() {
@@ -281,33 +282,22 @@ export class IfcEditorEngine {
     }
 }
 
-function resolveSameOrigin(url) {
-    if (typeof globalThis.location === 'undefined') return url;
-    const resolved = new URL(url, globalThis.location.href);
-    if (resolved.origin !== globalThis.location.origin) {
-        throw new Error('IFC editor assets must use the application origin.');
-    }
-    return url;
-}
-
 function hasWorkingMemory(candidate) {
     return Boolean(candidate) && candidate.buffer instanceof ArrayBuffer;
 }
 
 /**
- * Orchestrates the message protocol: fetching/validating/instantiating the sandboxed
+ * Orchestrates the message protocol: validating/instantiating the verified sandboxed
  * WebAssembly module, and delegating parsed requests to an `IfcEditorEngine`. Dependencies are
  * injectable so the full protocol can be exercised deterministically against a fake ABI in tests.
  */
 export class IfcEditorWorker {
     constructor({
         postMessage = () => {},
-        fetchFn = globalThis.fetch ? globalThis.fetch.bind(globalThis) : undefined,
         webAssembly = globalThis.WebAssembly,
         engine = new IfcEditorEngine(),
     } = {}) {
         this.postMessage = postMessage;
-        this.fetchFn = fetchFn;
         this.webAssembly = webAssembly;
         this.engine = engine;
         this.initialized = false;
@@ -318,7 +308,7 @@ export class IfcEditorWorker {
             assertHostMessage(message);
             switch (message.type) {
                 case 'initialize':
-                    await this.initialize(message.wasmUrl);
+                    await this.initialize(message.wasmBytes);
                     this.postMessage({ type: 'ready' });
                     return;
                 case 'load': {
@@ -372,16 +362,9 @@ export class IfcEditorWorker {
         }
     }
 
-    async initialize(wasmUrl) {
+    async initialize(bytes) {
         if (this.initialized) throw new Error('The IFC editor worker is already initialized.');
-        if (typeof this.fetchFn !== 'function') throw new Error('No fetch implementation is available.');
-        const assetUrl = resolveSameOrigin(wasmUrl);
-        const response = await this.fetchFn(assetUrl, { credentials: 'same-origin', redirect: 'error' });
-        if (!response.ok) throw new Error(`Unable to load the IFC WebAssembly module (${response.status}).`);
-        const declaredSize = Number(response.headers?.get?.('Content-Length') || 0);
-        if (declaredSize > MAX_WASM_BYTES) throw new Error('The IFC WebAssembly module exceeds the size limit.');
-        const bytes = await response.arrayBuffer();
-        if (bytes.byteLength > MAX_WASM_BYTES) throw new Error('The IFC WebAssembly module exceeds the size limit.');
+        if (!(bytes instanceof ArrayBuffer) || bytes.byteLength < 8 || bytes.byteLength > MAX_WASM_BYTES) throw new Error('Invalid verified IFC WebAssembly bytes.');
 
         const module = await this.webAssembly.compile(bytes);
         const imports = this.webAssembly.Module.imports(module);

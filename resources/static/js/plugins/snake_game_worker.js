@@ -27,8 +27,9 @@ function hasExactKeys(value, keys) {
 export function assertWorkerMessage(message) {
     switch (message?.type) {
         case 'initialize':
-            if (!hasExactKeys(message, ['type', 'wasmUrl', 'seed'])
-                || typeof message.wasmUrl !== 'string'
+            if (!hasExactKeys(message, ['type', 'wasmBytes', 'seed'])
+                || !(message.wasmBytes instanceof ArrayBuffer)
+                || message.wasmBytes.byteLength < 8 || message.wasmBytes.byteLength > MAX_WASM_BYTES
                 || !Number.isInteger(message.seed)
                 || message.seed < 0
                 || message.seed > 0xffffffff) {
@@ -102,21 +103,9 @@ function readSnapshot() {
     };
 }
 
-async function initialize(wasmUrl, seed) {
+async function initialize(bytes, seed) {
     if (game) throw new Error('Snake worker is already initialized.');
-    const assetUrl = new URL(wasmUrl, self.location.href);
-    if (assetUrl.origin !== self.location.origin) {
-        throw new Error('Snake WebAssembly must be loaded from the application origin.');
-    }
-    const response = await fetch(assetUrl, {
-        credentials: 'same-origin',
-        redirect: 'error',
-    });
-    if (!response.ok) throw new Error(`Unable to load Snake WebAssembly (${response.status}).`);
-    const declaredSize = Number(response.headers.get('Content-Length') || 0);
-    if (declaredSize > MAX_WASM_BYTES) throw new Error('Snake WebAssembly exceeds the size limit.');
-    const bytes = await response.arrayBuffer();
-    if (bytes.byteLength > MAX_WASM_BYTES) throw new Error('Snake WebAssembly exceeds the size limit.');
+    if (!(bytes instanceof ArrayBuffer) || bytes.byteLength < 8 || bytes.byteLength > MAX_WASM_BYTES) throw new Error('Invalid verified Snake WebAssembly bytes.');
 
     const result = await WebAssembly.instantiate(bytes, {});
     const exports = result.instance?.exports ?? result.exports;
@@ -135,7 +124,7 @@ if (typeof self !== 'undefined') {
             assertWorkerMessage(message);
             switch (message.type) {
                 case 'initialize':
-                    await initialize(message.wasmUrl, message.seed);
+                    await initialize(message.wasmBytes, message.seed);
                     return;
                 case 'tick':
                     assertReady();

@@ -3,6 +3,7 @@
 <div {% if fragment %}id="content-container"{% endif %}>
     <section class="snake-game"
              data-snake-game
+             data-trust-url="/plugins/cadevil.rust-example.editor/trust.json"
              data-worker-url="{% static 'js/plugins/snake_game_worker.js' %}"
              data-wasm-url="{% static 'wasm/rust_example_plugin.wasm' %}"
              tabindex="0"

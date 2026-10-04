@@ -61,7 +61,11 @@ def main() -> int:
         for source in sorted(test_root.rglob("*")):
             if source.is_symlink():
                 raise SystemExit(f"Browser tests must not be symlinks: {source}")
-            if not source.is_file() or not source.name.endswith((".test.js", ".test.mjs")):
+            if not source.is_file():
+                continue
+            is_test = source.name.endswith((".test.js", ".test.mjs"))
+            is_fixture = "fixtures" in source.relative_to(test_root).parts and source.suffix in {".json", ".js"}
+            if not is_test and not is_fixture:
                 continue
             relative = source.relative_to(test_root)
             if relative in seen:
@@ -69,7 +73,8 @@ def main() -> int:
             target = assets / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, target)
-            tests.append(target)
+            if is_test:
+                tests.append(target)
 
         (workspace / "package.json").write_text(json.dumps({"type": "module"}) + "\n")
         (workspace / "node_modules").symlink_to(dependencies.resolve(), target_is_directory=True)

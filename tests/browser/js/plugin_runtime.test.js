@@ -1,3 +1,4 @@
+import {preverifiedWorker} from './fixtures/verified_worker.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -78,7 +79,7 @@ test('editor plugin runtime isolates work and hot reloads its worker', () => {
     FakeWorker.instances = [];
     const plugin = new FakePluginElement();
     const root = { querySelectorAll() { return [plugin]; } };
-    const runtime = new EditorPluginRuntime({ WorkerClass: FakeWorker });
+    const runtime = new EditorPluginRuntime({ WorkerClass: FakeWorker, prepareWorker:preverifiedWorker });
 
     runtime.mount(root);
 
@@ -88,8 +89,7 @@ test('editor plugin runtime isolates work and hot reloads its worker', () => {
         name: 'fake.calculator.editor',
     });
     assert.deepEqual(FakeWorker.instances[0].messages[0], {
-        type: 'initialize',
-        wasmUrl: '/static/wasm/fake_calculator.wasm',
+        type:'cadevil-verified-boot',entry_url:'blob:trusted-fixture',initialize:{type:'initialize',wasmBytes:new ArrayBuffer(8)},
     });
 
     FakeWorker.instances[0].onmessage({ data: { type: 'ready' } });
@@ -109,7 +109,7 @@ test('editor plugin runtime rejects malformed worker messages', () => {
     FakeWorker.instances = [];
     const plugin = new FakePluginElement();
     const root = { querySelectorAll() { return [plugin]; } };
-    const runtime = new EditorPluginRuntime({ WorkerClass: FakeWorker });
+    const runtime = new EditorPluginRuntime({ WorkerClass: FakeWorker, prepareWorker:preverifiedWorker });
     runtime.mount(root);
 
     FakeWorker.instances[0].onmessage({ data: { type: 'result', value: { unsafe: true } } });
@@ -124,7 +124,7 @@ test('editor plugin runtime terminates workers that exceed their time limit', ()
     const plugin = new FakePluginElement();
     const root = { querySelectorAll() { return [plugin]; } };
     const runtime = new EditorPluginRuntime({
-        WorkerClass: FakeWorker,
+        WorkerClass: FakeWorker, prepareWorker:preverifiedWorker,
         setTimer(callback) { callbacks.push(callback); return callbacks.length; },
         clearTimer() {},
         maxRunMs: 1000,
@@ -143,7 +143,7 @@ function fixture(options = {}) {
     FakeWorker.instances = [];
     const plugin = new FakePluginElement();
     const timers = new Map(); let id = 0;
-    const runtime = new EditorPluginRuntime({WorkerClass: FakeWorker,
+    const runtime = new EditorPluginRuntime({WorkerClass: FakeWorker, prepareWorker:preverifiedWorker,
         setTimer(callback) { timers.set(++id,callback); return id; },
         clearTimer(id) { timers.delete(id); }, logger: {}, ...options});
     const root = {querySelectorAll() {return [plugin];}};
@@ -225,4 +225,48 @@ test('BFCache pagehide releases workers and persisted pageshow remounts', () => 
     window.listeners.get('pageshow')({persisted:true});
     assert.equal(runtime.controllers.size,1);assert.equal(plugin.controls.reload.listeners.size,1);
     runtime.destroy();
+});
+
+const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('async verification creates no worker until its certificate and bytes are verified',async()=>{
+    let finish;const f=fixture({prepareWorker:options=>new Promise(resolve=>{finish=()=>resolve(preverifiedWorker(options));})});
+    assert.equal(FakeWorker.instances.length,0);assert.equal(f.plugin.controls.run.disabled,true);
+    finish();await flush();assert.equal(FakeWorker.instances.length,1);f.runtime.destroy();
+});
+test('verification rejection creates no executable worker and reports its reason',async()=>{
+    const f=fixture({prepareWorker:()=>Promise.reject(Error('Signing certificate was revoked'))});
+    await flush();assert.equal(FakeWorker.instances.length,0);assert.match(f.plugin.controls.status.textContent,/revoked/);assert.equal(f.timers.size,0);f.runtime.destroy();
+});
+test('cleanup aborts pending verification and revokes a late verified result',async()=>{
+    let finish,signal,disposed=0;
+    const f=fixture({prepareWorker:options=>{signal=options.signal;return new Promise(resolve=>{finish=()=>resolve({...preverifiedWorker(options),dispose(){disposed++;}});});}});
+    f.runtime.destroy();assert.equal(signal.aborted,true);finish();await flush();
+    assert.equal(FakeWorker.instances.length,0);assert.equal(disposed,1);assert.equal(f.timers.size,0);
+});
+test('reload rejects a slower verification from the previous generation',async()=>{
+    const jobs=[],disposed=[];
+    const f=fixture({prepareWorker:options=>new Promise(resolve=>{jobs.push(()=>resolve({...preverifiedWorker(options),dispose(){disposed.push(options.signal.aborted);}}));})});
+    f.plugin.controls.reload.click();jobs[0]();await flush();assert.equal(FakeWorker.instances.length,0);assert.deepEqual(disposed,[true]);
+    jobs[1]();await flush();assert.equal(FakeWorker.instances.length,1);f.runtime.destroy();
+});
+test('Run waits for fresh CRL verification and sends no calculation when revocation fails',async()=>{
+    let reject;const f=fixture({prepareWorker:options=>({...preverifiedWorker(options),recheck:()=>new Promise((resolve,failed)=>{reject=failed;})})});
+    const worker=FakeWorker.instances[0];worker.onmessage({data:{type:'ready'}});f.plugin.controls.run.click();
+    assert.equal(worker.messages.length,1);assert.equal(f.plugin.controls.run.disabled,true);
+    reject(Error('Fresh CRL revoked the signing certificate'));await flush();assert.equal(worker.terminated,true);assert.equal(worker.messages.length,1);assert.match(f.plugin.controls.status.textContent,/revoked/);f.runtime.destroy();
+});
+test('cleanup during Run cancels a successful late recheck before it dispatches',async()=>{
+    let finish;const f=fixture({prepareWorker:options=>({...preverifiedWorker(options),recheck:()=>new Promise(resolve=>{finish=resolve;})})});
+    const worker=FakeWorker.instances[0];worker.onmessage({data:{type:'ready'}});f.plugin.controls.run.click();f.runtime.destroy();finish(true);await flush();
+    assert.equal(worker.messages.length,1);assert.equal(worker.terminated,true);
+});
+test('fresh-trust fetch during Run has a watchdog and cannot leave the user stuck',()=>{
+    const f=fixture({prepareWorker:options=>({...preverifiedWorker(options),recheck:()=>new Promise(()=>{})})});
+    const worker=FakeWorker.instances[0];worker.onmessage({data:{type:'ready'}});f.plugin.controls.run.click();
+    assert.equal(f.timers.size,1);[...f.timers.values()][0]();assert.equal(worker.terminated,true);assert.match(f.plugin.controls.status.textContent,/verification timed out/i);f.runtime.destroy();
+});
+
+test('a stale queued verification watchdog cannot stop a new pending generation',()=>{
+    const f=fixture({prepareWorker:()=>new Promise(()=>{})});const oldTimer=[...f.timers.values()][0];
+    f.plugin.controls.reload.click();oldTimer();assert.equal(f.plugin.controls.run.disabled,true);assert.match(f.plugin.controls.status.textContent,/Verifying plugin certificate/);assert.equal(f.timers.size,1);f.runtime.destroy();
 });
