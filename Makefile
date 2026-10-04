@@ -2,6 +2,7 @@
 	rebuild build-example-plugin-wasm build-rust-example-plugin-wasm flush superuser
 
 .PHONY: sbom-setup sbom sbom-check sbom-capture-tools
+.PHONY: docker-build docker-check
 
 # Keep export/validation tooling separate from application dependencies.
 SBOM_TOOL_DIR ?= sbom
@@ -24,6 +25,14 @@ sbom-check:
 sbom-capture-tools:
 	@test -n "$(CADEVIL_MCP_TOOL_ROOT)" || (echo "Set CADEVIL_MCP_TOOL_ROOT to the installed MCP tool directory."; exit 1)
 	"$(SBOM_PYTHON)" scripts/generate_sbom.py --uv "$(SBOM_UV)" --capture-tools "$(CADEVIL_MCP_TOOL_ROOT)"
+
+# The helper sends an exact archive and creates local image attestations.
+docker-build:
+	uv run --locked --no-sync python scripts/build_docker.py
+
+docker-check:
+	uv run --locked --no-sync python docker/context.py
+	uv run --locked --no-sync python scripts/check_docker_context.py
 
 install:
 	uv sync --locked

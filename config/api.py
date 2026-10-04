@@ -20,5 +20,8 @@ api.mount("", browser_plugin_api)
 from apps.shared.security_metadata import api as security_api
 api.mount('', security_api)
 
+from apps.shared.container_health import api as health_api
+api.mount('', health_api)
+
 from apps.shared.development_mcp import mount_development_mcp
 mount_development_mcp(api)
