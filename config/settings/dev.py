@@ -1,3 +1,5 @@
+import os
+
 from .base import *  # noqa: F401, F403
 
 DEBUG = True
@@ -5,13 +7,6 @@ DEBUG = True
 # Permissive in dev — DEBUG=True already excludes this settings module from
 # production. Lets you hit the server via 0.0.0.0, ngrok tunnels, LAN IP, etc.
 ALLOWED_HOSTS = ["*"]
-
-# State channel layer — in-process, no Redis needed in dev.
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
-}
 
 # Native WebSockets reject browser Origins unless explicitly configured.
 # The log handler additionally requires Origin to equal the request Host.
@@ -26,3 +21,4 @@ DEVELOPMENT_MCP_CONTEXT7_PORT = 8017
 DEVELOPMENT_MCP_GIT_PORT = 8018
 
 DEVELOPMENT_MCP_UI_UX_PORT = 8019
+DEVELOPMENT_MCP_CODE_AUDIT_PORT = 8020

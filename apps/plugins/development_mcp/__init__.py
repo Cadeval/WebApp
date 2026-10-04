@@ -25,10 +25,19 @@ def register_ui_ux(registry):
                              '--server', str(server), '--project', str(settings.BASE_DIR)),
                    ('uiux_audit_local', 'uiux_guidance'), settings.DEVELOPMENT_MCP_UI_UX_PORT))
 
+def register_code_audit(registry):
+    root = Path(settings.DEVELOPMENT_MCP_TOOL_ROOT) / 'code-audit'
+    bridge = Path(settings.BASE_DIR) / 'apps/plugin_manager/code_audit_bridge.py'
+    registry.register_extension(MCP_PROCESS_EXTENSION_POINT, CODE_AUDIT_ID,
+        MCPProcess(CODE_AUDIT_ID, (sys.executable, str(bridge), '--runtime', str(root),
+                                  '--project', str(settings.BASE_DIR)),
+                   ('code_audit_local', 'code_audit_info'), settings.DEVELOPMENT_MCP_CODE_AUDIT_PORT))
+
 CONTEXT7_ID = "cadevil.mcp.context7"
 GIT_ID = "cadevil.mcp.git"
 NATIVE_ID = "cadevil.mcp.native"
 UI_UX_ID = "cadevil.mcp.ui_ux"
+CODE_AUDIT_ID = "cadevil.mcp.code_audit"
 
 def context7_manifest():
     return PluginManifest(id=CONTEXT7_ID, name="Context7 documentation MCP", type="MCP subprocess", version="4.1.1", compatibility="debug", priority=200, register=register_context7)
@@ -42,3 +51,7 @@ def native_manifest():
 def ui_ux_manifest():
     return PluginManifest(id=UI_UX_ID, name="UI/UX static audit MCP", type="MCP subprocess",
         version="0.6.1", compatibility="debug", priority=203, register=register_ui_ux)
+
+def code_audit_manifest():
+    return PluginManifest(id=CODE_AUDIT_ID, name="Local code audit MCP", type="MCP subprocess",
+        version="1.0.0", compatibility="debug", priority=204, register=register_code_audit)

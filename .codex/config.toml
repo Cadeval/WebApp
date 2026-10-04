@@ -27,3 +27,11 @@ url = "http://127.0.0.1:8019/mcp/"
 enabled = true
 enabled_tools = ["uiux_audit_local", "uiux_guidance"]
 startup_timeout_sec = 30
+
+[mcp_servers.cadevil_code_audit]
+# Offline, read-only audits; debug-only plugin and supervisor own the process.
+url = "http://127.0.0.1:8020/mcp/"
+enabled = true
+enabled_tools = ["code_audit_local", "code_audit_info"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120

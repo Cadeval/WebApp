@@ -46,7 +46,10 @@ def main():
     async def lifespan(app):
         nonlocal upstream, tools
         command, *args = spec['command']
-        params = StdioServerParameters(command=command, args=args, cwd=spec['cwd'])
+        # The SDK filters inherited variables; pass only the launch marker
+        # already checked above so guarded local adapters can initialize.
+        params = StdioServerParameters(command=command, args=args, cwd=spec['cwd'],
+                                       env={'CADEVIL_DEBUG_MCP': '1'})
         # SDK owns/reaps the upstream process group, including on SIGTERM shutdown.
         async with stdio_client(params) as (read, write):
             async with ClientSession(read, write) as session:

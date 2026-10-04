@@ -3,9 +3,9 @@
 Developer MCP plugins remain controlled by the administrator/debug launcher;
 they do not participate in personal browser workflows.
 """
-from .models import PluginRecord, UserPluginSelection
+from .models import PluginRecord
 
-DEVELOPMENT_TOOLS = {"cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.native", "cadevil.mcp.ui_ux"}
+DEVELOPMENT_TOOLS = {"cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.native", "cadevil.mcp.ui_ux", "cadevil.mcp.code_audit"}
 
 
 def is_workflow_plugin(record):
