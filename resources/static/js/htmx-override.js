@@ -123,8 +123,11 @@ document.body.addEventListener('htmx:before:request', event => {
 
 function updateNavigationState() {
     const path = location.pathname;
+    const workspaceUrl = document.querySelector('[data-plugin-workspace]')?.dataset.pluginWorkspaceUrl;
     document.querySelectorAll('#menu-popover a[href]').forEach(link => {
-        const current = new URL(link.href, location.href).pathname === path;
+        const current = workspaceUrl && link.dataset.pluginWorkspaceUrl
+            ? new URL(link.dataset.pluginWorkspaceUrl, location.href).pathname === new URL(workspaceUrl, location.href).pathname
+            : new URL(link.href, location.href).pathname === path;
         if (current) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
