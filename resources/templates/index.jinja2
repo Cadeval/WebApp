@@ -1,45 +1,13 @@
 <div {% if fragment %}id="content-container"{% endif %} class="journey-page home-page">
-    <section class="journey-hero" aria-labelledby="home-title">
-        <h1 id="home-title">Explore your building models</h1>
-        <p>Cadevil connects IFC geometry with material quantities, environmental impacts and recovery costs.</p>
-        <div class="journey-actions">
-            {% if user.is_authenticated %}
+    {% if user.is_authenticated %}
+        <section class="journey-hero" aria-labelledby="home-title">
+            <h1 id="home-title">Your workspace</h1>
+            <p>Continue with your enabled tools or update your workflow and account settings.</p>
+            <div class="journey-actions">
                 <a class="journey-button" href="/plugins/manage/" hx-get="/plugins/manage/" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Choose workflow tools</a>
                 <a href="/mycelium/settings" hx-get="/mycelium/settings" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">User settings</a>
-            {% else %}
-                <a class="journey-button" href="/mycelium/login" hx-get="/mycelium/login" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Log in to your workspace</a>
-            {% endif %}
-        </div>
-    </section>
-
-    <section aria-labelledby="home-about-title">
-        <div class="journey-section-heading">
-            <h2 id="home-about-title">What is Cadevil?</h2>
-            <p>Cadevil is an open-source building assessment platform for architects and engineers. Developed from a master's thesis project, it helps you understand and compare buildings using their IFC models.</p>
-        </div>
-        <div class="journey-grid">
-            <article class="journey-card">
-                <h3>Understand your models</h3>
-                <p>Upload IFC or CityJSON files, explore buildings in 3D and inspect their material properties. Select validation warnings to locate the affected elements in the viewer.</p>
-            </article>
-            <article class="journey-card">
-                <h3>Assess materials and recovery</h3>
-                <p>Calculate material quantities and environmental impacts, create material passports and compare saved reports. Review costs in EUR and how recovery grades affect the estimates.</p>
-            </article>
-            <article class="journey-card">
-                <h3>Build your workflow</h3>
-                <p>Choose the plugins you need for your workspace. The BIM Workspace brings models, maps, reference data, material passports and comparisons together in one place.</p>
-            </article>
-        </div>
-    </section>
-
-    <section class="journey-card" aria-labelledby="home-mycelium-title">
-        <h2 id="home-mycelium-title">The Mycelium plugin framework</h2>
-        <p>Mycelium is the plugin framework behind Cadevil. Choose approved tools from the shared catalog to build your own workflow. Administrators manage which plugins are available, and your workspace shows the tools you have enabled.</p>
-        <p>The BIM Workspace connects models, maps and assessments. Signed plugin packages can add more tools as your workflow grows.</p>
-    </section>
-
-    {% if user.is_authenticated %}
+            </div>
+        </section>
         <section aria-labelledby="home-workflow-title">
             <div class="journey-section-heading"><h2 id="home-workflow-title">Your workflow</h2><p>Open a chosen tool or add another from Plugins.</p></div>
             <div class="journey-grid">
@@ -50,11 +18,17 @@
                 {% endfor %}
             </div>
         </section>
+    {% else %}
+        <section class="journey-hero home-demo" aria-labelledby="home-title">
+            <h1 id="home-title">Explore your building models</h1>
+            <div class="journey-actions">
+                <a class="journey-button" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
+                <a href="/mycelium/login" hx-get="/mycelium/login" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Log in to your workspace</a>
+            </div>
+            <p>Explore the A–D house geometry and a recorded calculation walkthrough. The demo includes provisional material, environmental and cost estimates.</p>
+        </section>
+        {% for template in landing_overview_templates %}
+            {% include template %}
+        {% endfor %}
     {% endif %}
-
-    <section class="journey-card home-demo" aria-labelledby="home-demo-title">
-        <h2 id="home-demo-title">See the models and calculations</h2>
-        <p>Explore the A–D house geometry and a recorded calculation walkthrough. The demo includes provisional material, environmental and cost estimates.</p>
-        <a class="journey-button" href="/demo" hx-get="/demo" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Open demo</a>
-    </section>
 </div>

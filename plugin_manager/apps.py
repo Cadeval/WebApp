@@ -11,6 +11,10 @@ class PluginManagerConfig(AppConfig):
     verbose_name = "Plugin Manager"
 
     def ready(self) -> None:
+        from .django_resources import register_landing_overview
+        from .resource_registry import OverviewTemplate
+
+        register_landing_overview(self, OverviewTemplate("plugin_manager/overview.html"))
         # Run plugin discovery/sync as soon as the app is ready. Discovery
         # and hook errors are already isolated per-plugin inside the
         # registry, but we defensively wrap the call as well so that an

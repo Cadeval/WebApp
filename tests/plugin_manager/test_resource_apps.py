@@ -30,6 +30,7 @@ from plugin_manager.resource_registry import ResourceBundle, ResourceRegistry
 ROOT = Path(__file__).resolve().parents[2]
 BIM_ROOT = ROOT / "plugins/bim_model_manager"
 EDITOR_ROOT = ROOT / "plugins/example_plugin"
+SNAKE_ROOT = ROOT / "plugins/rust_example_plugin"
 
 
 @override_settings(STATIC_URL="/static/")
@@ -40,6 +41,7 @@ class DjangoPluginResourceTests(SimpleTestCase):
                         "shared/material_passport_report.html",
                         "shared/assessment_diagnostics.html")),
             (EDITOR_ROOT, ("example_plugin/ifc_editor.jinja2",)),
+            (SNAKE_ROOT, ("rust_example_plugin/overview.html",)),
         ):
             for name in names:
                 with self.subTest(template=name):
@@ -68,6 +70,7 @@ class DjangoPluginResourceTests(SimpleTestCase):
         self.assertEqual(set(configs), {
             "plugins.bim_model_manager.django",
             "plugins.example_plugin.resources",
+            "plugins.rust_example_plugin.resources",
         })
         bim = configs["plugins.bim_model_manager.django"]
         editor = configs["plugins.example_plugin.resources"]
@@ -179,7 +182,7 @@ print(json.dumps({'base_unchanged': tuple(base.INSTALLED_APPS) == baseline,
         result = subprocess.run([sys.executable, "-c", script], cwd=ROOT,
                                 check=True, capture_output=True, text=True, timeout=10)
         observed = json.loads(result.stdout)
-        expected = {"plugins.bim_model_manager.django", "plugins.example_plugin.resources"}
+        expected = {"plugins.bim_model_manager.django", "plugins.example_plugin.resources", "plugins.rust_example_plugin.resources"}
         self.assertTrue(observed["base_unchanged"])
         for key in ("dev_names", "prod_names", "repeated_names"):
             self.assertEqual(set(observed[key]), expected)

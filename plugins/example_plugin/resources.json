@@ -1,1 +1,1 @@
-{"version":1,"plugin_id":"cadevil.example.editor","package":"plugins.example_plugin"}
+{"version":1,"plugin_id":"cadevil.example.editor","package":"plugins.example_plugin","overview":{"template":"example_plugin/overview.html","compatibility":"both"}}

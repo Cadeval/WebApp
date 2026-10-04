@@ -1,1 +1,1 @@
-{"version":1,"plugin_id":"cadevil.bim.model_manager","package":"plugins.bim_model_manager"}
+{"version":1,"plugin_id":"cadevil.bim.model_manager","package":"plugins.bim_model_manager","overview":{"template":"bim_model_manager/overview.html","compatibility":"both"}}
