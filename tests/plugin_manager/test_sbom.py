@@ -109,11 +109,16 @@ class PluginBuiltinInventoryTests(TestCase):
         inventory = plugin_inventory(self.record("cadevil.bim.model_manager"))
         self.assertIn("Shared application runtime", inventory["scope"])
         self.assertGreater(inventory["component_count"], 50)
-        for plugin_id in ["cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.ui_ux", "cadevil.mcp.code_audit", "cadevil.mcp.native"]:
+        for plugin_id in ["cadevil.mcp.context7", "cadevil.mcp.git", "cadevil.mcp.ui_ux", "cadevil.mcp.code_audit", "cadevil.mcp.native", "cadevil.mcp.docker"]:
             with self.subTest(plugin=plugin_id):
                 development = plugin_inventory(self.record(plugin_id, compatibility="debug"))
                 self.assertGreater(development["component_count"], 1)
                 self.assertNotIn("/Users/", development["content"].decode())
+                if plugin_id == "cadevil.mcp.docker":
+                    components = {(component["name"], component.get("version"))
+                                  for component in json.loads(development["content"])["components"]}
+                    self.assertIn(("mcp-server-docker", "0.3.0"), components)
+                    self.assertIn(("mcp", "2.3.0"), components)
 
 
 class PluginSBOMPageTests(TestCase):

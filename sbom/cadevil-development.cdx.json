@@ -44,6 +44,23 @@
       "version": "snapshot"
     },
     {
+      "bom-ref": "pkg:generic/cadevil-docker-environment@snapshot",
+      "name": "cadevil-docker-environment",
+      "properties": [
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:inventory:selection",
+          "value": "captured installed macOS arm64 CPython 3.14 tool environment; not a universal lock"
+        }
+      ],
+      "scope": "optional",
+      "type": "application",
+      "version": "snapshot"
+    },
+    {
       "bom-ref": "pkg:generic/cadevil-git-mcp-environment@snapshot",
       "name": "cadevil-git-mcp-environment",
       "properties": [
@@ -3821,6 +3838,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -3914,6 +3935,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -4078,6 +4103,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -4089,6 +4118,43 @@
       "scope": "optional",
       "type": "library",
       "version": "26.1.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/bcrypt@5.0.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "bcrypt",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "8b477d56972f624b96f5ab80002f130b97c6105212dd2126e88db80dc6ee884d"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"mypy; extra == \\\"typecheck\\\"\", \"pytest!=3.3.0,>=3.2.1; extra == \\\"tests\\\"\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/bcrypt@5.0.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "5.0.0"
     },
     {
       "bom-ref": "pkg:pypi/bolt-mcp@0.2.3",
@@ -4361,6 +4427,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "dependency-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -5047,6 +5117,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -5093,6 +5167,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "dependency-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         }
       ],
       "purl": "pkg:pypi/charset-normalizer@3.5.2",
@@ -5287,6 +5365,10 @@
         {
           "name": "cadevil:tool:conditional-dependencies",
           "value": "[]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -5837,6 +5919,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -6186,6 +6272,41 @@
       "scope": "optional",
       "type": "library",
       "version": "5.2.17"
+    },
+    {
+      "bom-ref": "pkg:pypi/docker@7.2.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "name": "docker",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "8f7ef7a09bf45e724742b4f3fafd448c168eb151ed575ac93a1215c8bf2bd9e6"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License-Expression"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"coverage==7.2.7; extra == 'dev'\", \"myst-parser==0.18.0; extra == 'docs'\", \"paramiko>=2.4.3; extra == 'ssh'\", \"pytest-cov==4.1.0; extra == 'dev'\", \"pytest-timeout==2.1.0; extra == 'dev'\", \"pytest==7.4.2; extra == 'dev'\", \"pywin32>=304; sys_platform == 'win32'\", \"requests>=2.26.0\", \"ruff==0.1.8; extra == 'dev'\", \"sphinx==5.1.1; extra == 'docs'\", \"urllib3>=1.26.0\", \"websocket-client>=1.3.0; extra == 'websockets'\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/docker@7.2.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "7.2.0"
     },
     {
       "bom-ref": "pkg:pypi/et-xmlfile@2.0.0",
@@ -6588,6 +6709,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -6595,6 +6720,41 @@
       "scope": "optional",
       "type": "library",
       "version": "0.16.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/httpcore2@2.13.1",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "httpcore2",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "37a0ea0674e98b7c3a1f99c17d9bb5457de27a0f93c8b6560c9d17d525139abb"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License-Expression"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"anyio<5.0,>=4.5.0; extra == 'asyncio'\", \"h11>=0.16\", \"h2<5,>=3; extra == 'http2'\", \"socksio==1.*; extra == 'socks'\", \"trio<1.0,>=0.34.0; extra == 'trio'\", \"truststore>=0.10\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/httpcore2@2.13.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.13.1"
     },
     {
       "bom-ref": "pkg:pypi/httpcore@1.0.9",
@@ -6709,6 +6869,41 @@
       "scope": "optional",
       "type": "library",
       "version": "0.4.3"
+    },
+    {
+      "bom-ref": "pkg:pypi/httpx2@2.13.1",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "name": "httpx2",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "b75b03a003b5593e000907cf7239fcc3f688b8f17db4ecff883d11221ea988fc"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License-Expression"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"anyio>=4.10; sys_platform != 'emscripten'\", \"backports-zstd>=1.0.0; (python_version <= '3.13') and extra == 'zstd'\", \"brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'\", \"brotlicffi>=1.2.0.2; (platform_python_implementation != 'CPython') and extra == 'brotli'\", \"click>=8.4.2; extra == 'cli'\", \"h2<5,>=3; extra == 'http2'\", \"httpcore2==2.13.1; sys_platform != 'emscripten'\", \"httpx2-jsfetch; sys_platform == 'emscripten' and python_version >= '3.12'\", \"idna>=3.18\", \"pygments==2.*; extra == 'cli'\", \"rich<16,>=10; extra == 'cli'\", \"socksio==1.*; extra == 'socks'\", \"truststore>=0.10; sys_platform != 'emscripten'\", \"typing-extensions>=4.5.0; python_version < '3.13'\", \"wsproto>=1.2; extra == 'ws'\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/httpx2@2.13.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.13.1"
     },
     {
       "bom-ref": "pkg:pypi/httpx@0.28.1",
@@ -6870,6 +7065,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "dependency-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -7505,6 +7704,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -7610,6 +7813,10 @@
         {
           "name": "cadevil:tool:conditional-dependencies",
           "value": "[\"attrs>=22.2.0\", \"fqdn; extra == 'format'\", \"fqdn; extra == 'format-nongpl'\", \"idna; extra == 'format'\", \"idna; extra == 'format-nongpl'\", \"isoduration; extra == 'format'\", \"isoduration; extra == 'format-nongpl'\", \"jsonpointer>1.13; extra == 'format'\", \"jsonpointer>1.13; extra == 'format-nongpl'\", \"jsonschema-specifications>=2023.03.6\", \"referencing>=0.28.4\", \"rfc3339-validator; extra == 'format'\", \"rfc3339-validator; extra == 'format-nongpl'\", \"rfc3986-validator>0.1.0; extra == 'format-nongpl'\", \"rfc3987-syntax>=1.1.0; extra == 'format-nongpl'\", \"rfc3987; extra == 'format'\", \"rpds-py>=0.25.0\", \"uri-template; extra == 'format'\", \"uri-template; extra == 'format-nongpl'\", \"webcolors>=1.11; extra == 'format'\", \"webcolors>=24.6.0; extra == 'format-nongpl'\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -7775,6 +7982,43 @@
       "version": "4.2.0"
     },
     {
+      "bom-ref": "pkg:pypi/mcp-server-docker@0.3.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "GNU GENERAL PUBLIC LICENSE"
+          }
+        }
+      ],
+      "name": "mcp-server-docker",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "f204839afd6c7b909662445a5b5214eb003d68573c1d74147920432a8bd80c4e"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"docker>=7.1.0\", \"mcp<3,>=2\", \"paramiko<4.0,>=3.5.1\", \"pydantic>=2.12\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/mcp-server-docker@0.3.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.3.0"
+    },
+    {
       "bom-ref": "pkg:pypi/mcp-server-git@2026.8.18",
       "licenses": [
         {
@@ -7810,6 +8054,43 @@
       "scope": "optional",
       "type": "library",
       "version": "2026.8.18"
+    },
+    {
+      "bom-ref": "pkg:pypi/mcp-types@2.3.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ],
+      "name": "mcp-types",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "eb973e8b7f53d52ab1df9d1f18854ffa84f074f6052e310089e2655961c48ca9"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"pydantic>=2.12.0\", \"typing-extensions>=4.13.0\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/mcp-types@2.3.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.3.0"
     },
     {
       "bom-ref": "pkg:pypi/mcp@1.29.0",
@@ -7884,6 +8165,43 @@
       "scope": "optional",
       "type": "library",
       "version": "1.30.0"
+    },
+    {
+      "bom-ref": "pkg:pypi/mcp@2.3.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ],
+      "name": "mcp",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "a94577513a4fa0cb639c279c1ad6f4d49650872d45f2f4ab9bb2d9c2a505d457"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"anyio>=4.10; python_version >= '3.14'\", \"anyio>=4.9; python_version < '3.14'\", \"httpx2>=2.10.0\", \"jsonschema>=4.20.0\", \"mcp-types==2.3.0\", \"opentelemetry-api>=1.28.0\", \"pydantic>=2.12.0\", \"pyjwt[crypto]>=2.10.1\", \"python-dotenv>=1.0.0; extra == 'cli'\", \"python-multipart>=0.0.9\", \"pywin32>=311; sys_platform == 'win32'\", \"rich>=13.9.4; extra == 'rich'\", \"sse-starlette>=3.0.0\", \"starlette>=0.27; python_version < '3.14'\", \"starlette>=0.48.0; python_version >= '3.14'\", \"typer>=0.16.0; extra == 'cli'\", \"typing-extensions>=4.13.0\", \"typing-inspection>=0.4.1\", \"uvicorn>=0.31.1; sys_platform != 'emscripten'\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/mcp@2.3.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "2.3.0"
     },
     {
       "bom-ref": "pkg:pypi/mdurl@0.1.2",
@@ -8975,6 +9293,41 @@
       "version": "1.37.0"
     },
     {
+      "bom-ref": "pkg:pypi/opentelemetry-api@1.45.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "name": "opentelemetry-api",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "a05106d3a686244448191983a1d38701270190bab7687298f981135e387ba234"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License-Expression"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"typing-extensions>=4.5.0\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/opentelemetry-api@1.45.0",
+      "scope": "optional",
+      "type": "library",
+      "version": "1.45.0"
+    },
+    {
       "bom-ref": "pkg:pypi/opentelemetry-exporter-otlp-proto-common@1.37.0",
       "licenses": [
         {
@@ -9851,6 +10204,43 @@
       "scope": "optional",
       "type": "library",
       "version": "3.0.6"
+    },
+    {
+      "bom-ref": "pkg:pypi/paramiko@3.5.1",
+      "licenses": [
+        {
+          "license": {
+            "name": "LGPL"
+          }
+        }
+      ],
+      "name": "paramiko",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "b417a01e4fb9255137be33a7cd1e9dea454fe1408b04a5c965d09c597f3f0460"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"bcrypt>=3.2\", \"cryptography>=3.3\", \"gssapi>=1.4.1; platform_system != \\\"Windows\\\" and extra == \\\"all\\\"\", \"gssapi>=1.4.1; platform_system != \\\"Windows\\\" and extra == \\\"gssapi\\\"\", \"invoke>=2.0; extra == \\\"all\\\"\", \"invoke>=2.0; extra == \\\"invoke\\\"\", \"pyasn1>=0.1.7; extra == \\\"all\\\"\", \"pyasn1>=0.1.7; extra == \\\"gssapi\\\"\", \"pynacl>=1.5\", \"pywin32>=2.1.8; platform_system == \\\"Windows\\\" and extra == \\\"all\\\"\", \"pywin32>=2.1.8; platform_system == \\\"Windows\\\" and extra == \\\"gssapi\\\"\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/paramiko@3.5.1",
+      "scope": "optional",
+      "type": "library",
+      "version": "3.5.1"
     },
     {
       "bom-ref": "pkg:pypi/peewee@3.19.0",
@@ -11321,6 +11711,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -11361,6 +11755,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -11439,6 +11837,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -11580,6 +11982,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -11587,6 +11993,43 @@
       "scope": "optional",
       "type": "library",
       "version": "2.15.1"
+    },
+    {
+      "bom-ref": "pkg:pypi/pynacl@1.6.2",
+      "licenses": [
+        {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "pynacl",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "143914f93191bef3bff7ba953dea6a38fb05f7f9e38e2a2e6ae31bd14ba81709"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License (first line; full METADATA hash retained)"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[\"cffi>=1.4.1; platform_python_implementation != \\\"PyPy\\\" and python_version < \\\"3.9\\\"\", \"cffi>=2.0.0; platform_python_implementation != \\\"PyPy\\\" and python_version >= \\\"3.9\\\"\", \"hypothesis>=3.27.0; extra == \\\"tests\\\"\", \"pytest-cov>=2.10.1; extra == \\\"tests\\\"\", \"pytest-xdist>=3.5.0; extra == \\\"tests\\\"\", \"pytest>=7.4.0; extra == \\\"tests\\\"\", \"sphinx<7; extra == \\\"docs\\\"\", \"sphinx_rtd_theme; extra == \\\"docs\\\"\"]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/pynacl@1.6.2",
+      "scope": "optional",
+      "type": "library",
+      "version": "1.6.2"
     },
     {
       "bom-ref": "pkg:pypi/pyparsing@3.3.3",
@@ -12475,6 +12918,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -12926,6 +13373,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -12972,6 +13423,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "dependency-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         }
       ],
       "purl": "pkg:pypi/requests@2.34.2",
@@ -13910,6 +14365,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         },
         {
@@ -14703,6 +15162,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -14739,6 +15202,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -14825,6 +15292,41 @@
       "scope": "optional",
       "type": "library",
       "version": "2.4.1"
+    },
+    {
+      "bom-ref": "pkg:pypi/truststore@0.10.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "name": "truststore",
+      "properties": [
+        {
+          "name": "cadevil:evidence:metadata-sha256",
+          "value": "509a7b67bff99f2d04f57251b5bdb761bd9429467e1cebc453b7f96be4108f5b"
+        },
+        {
+          "name": "cadevil:evidence:source",
+          "value": "sbom/inputs/python-tools.json"
+        },
+        {
+          "name": "cadevil:license:evidence",
+          "value": "distribution METADATA License-Expression"
+        },
+        {
+          "name": "cadevil:tool:conditional-dependencies",
+          "value": "[]"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
+        }
+      ],
+      "purl": "pkg:pypi/truststore@0.10.4",
+      "scope": "optional",
+      "type": "library",
+      "version": "0.10.4"
     },
     {
       "bom-ref": "pkg:pypi/types-pyyaml@6.0.12.20260724",
@@ -14940,6 +15442,10 @@
         },
         {
           "name": "cadevil:tool:environment",
+          "value": "docker"
+        },
+        {
+          "name": "cadevil:tool:environment",
           "value": "git-mcp"
         }
       ],
@@ -14976,6 +15482,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -15141,6 +15651,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "dependency-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         }
       ],
       "purl": "pkg:pypi/urllib3@2.8.0",
@@ -15211,6 +15725,10 @@
         {
           "name": "cadevil:tool:environment",
           "value": "code-audit"
+        },
+        {
+          "name": "cadevil:tool:environment",
+          "value": "docker"
         },
         {
           "name": "cadevil:tool:environment",
@@ -15896,6 +16414,48 @@
         "pkg:pypi/annotated-types@0.8.0",
         "pkg:pypi/anyio@4.15.1",
         "pkg:pypi/attrs@26.1.0",
+        "pkg:pypi/bcrypt@5.0.0",
+        "pkg:pypi/certifi@2026.7.22",
+        "pkg:pypi/cffi@2.1.1",
+        "pkg:pypi/charset-normalizer@3.5.2",
+        "pkg:pypi/click@8.5.0",
+        "pkg:pypi/cryptography@50.0.2",
+        "pkg:pypi/docker@7.2.0",
+        "pkg:pypi/h11@0.16.0",
+        "pkg:pypi/httpcore2@2.13.1",
+        "pkg:pypi/httpx2@2.13.1",
+        "pkg:pypi/idna@3.20",
+        "pkg:pypi/jsonschema-specifications@2025.9.1",
+        "pkg:pypi/jsonschema@4.26.0",
+        "pkg:pypi/mcp-server-docker@0.3.0",
+        "pkg:pypi/mcp-types@2.3.0",
+        "pkg:pypi/mcp@2.3.0",
+        "pkg:pypi/opentelemetry-api@1.45.0",
+        "pkg:pypi/paramiko@3.5.1",
+        "pkg:pypi/pycparser@3.0",
+        "pkg:pypi/pydantic-core@2.46.5",
+        "pkg:pypi/pydantic@2.13.5",
+        "pkg:pypi/pyjwt@2.15.1",
+        "pkg:pypi/pynacl@1.6.2",
+        "pkg:pypi/python-multipart@0.0.32",
+        "pkg:pypi/referencing@0.37.0",
+        "pkg:pypi/requests@2.34.2",
+        "pkg:pypi/rpds-py@2026.6.3",
+        "pkg:pypi/sse-starlette@3.5.0",
+        "pkg:pypi/starlette@1.7.0",
+        "pkg:pypi/truststore@0.10.4",
+        "pkg:pypi/typing-extensions@4.16.0",
+        "pkg:pypi/typing-inspection@0.4.4",
+        "pkg:pypi/urllib3@2.8.0",
+        "pkg:pypi/uvicorn@0.54.0"
+      ],
+      "ref": "pkg:generic/cadevil-docker-environment@snapshot"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/annotated-types@0.8.0",
+        "pkg:pypi/anyio@4.15.1",
+        "pkg:pypi/attrs@26.1.0",
         "pkg:pypi/certifi@2026.7.22",
         "pkg:pypi/cffi@2.1.1",
         "pkg:pypi/click@8.5.0",
@@ -15973,6 +16533,7 @@
         "pkg:generic/cadevil-code-audit-environment@snapshot",
         "pkg:generic/cadevil-context7-environment@snapshot",
         "pkg:generic/cadevil-dependency-audit-environment@snapshot",
+        "pkg:generic/cadevil-docker-environment@snapshot",
         "pkg:generic/cadevil-git-mcp-environment@snapshot",
         "pkg:generic/cadevil-sbom-generator-environment@snapshot",
         "pkg:generic/cadevil-ui-ux-suite-environment@snapshot",
@@ -16703,6 +17264,10 @@
       "ref": "pkg:pypi/attrs@26.1.0"
     },
     {
+      "dependsOn": [],
+      "ref": "pkg:pypi/bcrypt@5.0.0"
+    },
+    {
       "dependsOn": [
         "pkg:pypi/django-bolt@0.11.1",
         "pkg:pypi/msgspec@0.21.1",
@@ -16780,6 +17345,7 @@
     },
     {
       "dependsOn": [
+        "pkg:pypi/bcrypt@5.0.0",
         "pkg:pypi/cffi@2.1.1",
         "pkg:pypi/typing-extensions@4.16.0"
       ],
@@ -16839,6 +17405,14 @@
       "ref": "pkg:pypi/django@5.2.17"
     },
     {
+      "dependsOn": [
+        "pkg:pypi/paramiko@3.5.1",
+        "pkg:pypi/requests@2.34.2",
+        "pkg:pypi/urllib3@2.8.0"
+      ],
+      "ref": "pkg:pypi/docker@7.2.0"
+    },
+    {
       "dependsOn": [],
       "ref": "pkg:pypi/et-xmlfile@2.0.0"
     },
@@ -16895,6 +17469,14 @@
     {
       "dependsOn": [
         "pkg:pypi/anyio@4.15.1",
+        "pkg:pypi/h11@0.16.0",
+        "pkg:pypi/truststore@0.10.4"
+      ],
+      "ref": "pkg:pypi/httpcore2@2.13.1"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/anyio@4.15.1",
         "pkg:pypi/certifi@2026.7.22",
         "pkg:pypi/h11@0.16.0"
       ],
@@ -16903,6 +17485,17 @@
     {
       "dependsOn": [],
       "ref": "pkg:pypi/httpx-sse@0.4.3"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/anyio@4.15.1",
+        "pkg:pypi/click@8.5.0",
+        "pkg:pypi/httpcore2@2.13.1",
+        "pkg:pypi/idna@3.20",
+        "pkg:pypi/truststore@0.10.4",
+        "pkg:pypi/typing-extensions@4.16.0"
+      ],
+      "ref": "pkg:pypi/httpx2@2.13.1"
     },
     {
       "dependsOn": [
@@ -17025,12 +17618,28 @@
     },
     {
       "dependsOn": [
+        "pkg:pypi/docker@7.2.0",
+        "pkg:pypi/mcp@2.3.0",
+        "pkg:pypi/paramiko@3.5.1",
+        "pkg:pypi/pydantic@2.13.5"
+      ],
+      "ref": "pkg:pypi/mcp-server-docker@0.3.0"
+    },
+    {
+      "dependsOn": [
         "pkg:pypi/click@8.5.0",
         "pkg:pypi/gitpython@3.2.0",
         "pkg:pypi/mcp@1.30.0",
         "pkg:pypi/pydantic@2.13.5"
       ],
       "ref": "pkg:pypi/mcp-server-git@2026.8.18"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/pydantic@2.13.5",
+        "pkg:pypi/typing-extensions@4.16.0"
+      ],
+      "ref": "pkg:pypi/mcp-types@2.3.0"
     },
     {
       "dependsOn": [
@@ -17072,6 +17681,24 @@
       "ref": "pkg:pypi/mcp@1.30.0"
     },
     {
+      "dependsOn": [
+        "pkg:pypi/anyio@4.15.1",
+        "pkg:pypi/httpx2@2.13.1",
+        "pkg:pypi/jsonschema@4.26.0",
+        "pkg:pypi/mcp-types@2.3.0",
+        "pkg:pypi/opentelemetry-api@1.45.0",
+        "pkg:pypi/pydantic@2.13.5",
+        "pkg:pypi/pyjwt@2.15.1",
+        "pkg:pypi/python-multipart@0.0.32",
+        "pkg:pypi/sse-starlette@3.5.0",
+        "pkg:pypi/starlette@1.7.0",
+        "pkg:pypi/typing-extensions@4.16.0",
+        "pkg:pypi/typing-inspection@0.4.4",
+        "pkg:pypi/uvicorn@0.54.0"
+      ],
+      "ref": "pkg:pypi/mcp@2.3.0"
+    },
+    {
       "dependsOn": [],
       "ref": "pkg:pypi/mdurl@0.1.2"
     },
@@ -17103,6 +17730,12 @@
         "pkg:pypi/typing-extensions@4.16.0"
       ],
       "ref": "pkg:pypi/opentelemetry-api@1.37.0"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/typing-extensions@4.16.0"
+      ],
+      "ref": "pkg:pypi/opentelemetry-api@1.45.0"
     },
     {
       "dependsOn": [
@@ -17189,6 +17822,14 @@
         "pkg:pypi/tzdata@2026.3"
       ],
       "ref": "pkg:pypi/pandas@3.0.6"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/bcrypt@5.0.0",
+        "pkg:pypi/cryptography@50.0.2",
+        "pkg:pypi/pynacl@1.6.2"
+      ],
+      "ref": "pkg:pypi/paramiko@3.5.1"
     },
     {
       "dependsOn": [],
@@ -17307,6 +17948,12 @@
         "pkg:pypi/typing-extensions@4.16.0"
       ],
       "ref": "pkg:pypi/pyjwt@2.15.1"
+    },
+    {
+      "dependsOn": [
+        "pkg:pypi/cffi@2.1.1"
+      ],
+      "ref": "pkg:pypi/pynacl@1.6.2"
     },
     {
       "dependsOn": [],
@@ -17486,8 +18133,10 @@
     {
       "dependsOn": [
         "pkg:pypi/anyio@4.15.1",
+        "pkg:pypi/httpx2@2.13.1",
         "pkg:pypi/httpx@0.28.1",
         "pkg:pypi/opentelemetry-api@1.37.0",
+        "pkg:pypi/opentelemetry-api@1.45.0",
         "pkg:pypi/python-multipart@0.0.32",
         "pkg:pypi/typing-extensions@4.16.0"
       ],
@@ -17500,6 +18149,10 @@
     {
       "dependsOn": [],
       "ref": "pkg:pypi/tomli@2.4.1"
+    },
+    {
+      "dependsOn": [],
+      "ref": "pkg:pypi/truststore@0.10.4"
     },
     {
       "dependsOn": [],
@@ -17613,12 +18266,20 @@
         "value": "ac3b8238297fc31e43e9895e8fdefc31c46a4e4afaadb45b859f087d84851b67"
       },
       {
+        "name": "cadevil:input:sha256:sbom/inputs/docker-provenance.json",
+        "value": "de23d4fa662a1002463faf99d59b6e106e5193e054f2c9a9eeb70239c262e797"
+      },
+      {
+        "name": "cadevil:input:sha256:sbom/inputs/docker.requirements.lock",
+        "value": "be7cabae91f3c4a97e320e0ff41d8e296b2cc04497a957762c38512b6a6ccb56"
+      },
+      {
         "name": "cadevil:input:sha256:sbom/inputs/python-license-evidence.json",
-        "value": "08f6c1e4a3d6cfde75726d4388f7d7c3b579189848eb5a72a33d3f8355e93f50"
+        "value": "7e241b61d8a66b267ec5b45df3f65b4b7c70acd66eac037c3b9de535a668169d"
       },
       {
         "name": "cadevil:input:sha256:sbom/inputs/python-tools.json",
-        "value": "8c5689ae5921c6e7feb0e0e8e0adf307c37863b6a2b266d60af24ca640b91cc5"
+        "value": "27c158591e6bc52326297c902098931c316dbeea67bbb33c15f2c8b14e74dc2a"
       },
       {
         "name": "cadevil:input:sha256:sbom/inputs/ui-ux-suite.package-lock.json",
@@ -17630,7 +18291,7 @@
       },
       {
         "name": "cadevil:input:sha256:scripts/generate_sbom.py",
-        "value": "e4cfd7545d1029d9be7a1b834ed3c8d4994c9d737296e17d4b8c3144f363d5ef"
+        "value": "a73e0541e16f79f468952ee847f4255c0ecf5dffc4a89c524b895fe271939056"
       },
       {
         "name": "cadevil:input:sha256:uv.lock",

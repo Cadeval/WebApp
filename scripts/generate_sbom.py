@@ -118,6 +118,7 @@ def capture_inputs(tool_root: Path, application_env: Path) -> None:
         "git-mcp": tool_root / "python/mcp-server-git",
         "code-audit": tool_root / "code-audit/.venv",
         "dependency-audit": tool_root / "dependency-audit/.venv",
+        "docker": tool_root / "docker/.venv",
         "sbom-generator": Path(sys.prefix),
     }
     snapshot = {"formatVersion": 1, "environments": {name: installed_snapshot(path) for name, path in environments.items()}}
@@ -130,11 +131,18 @@ def capture_inputs(tool_root: Path, application_env: Path) -> None:
     (INPUTS / "python-license-evidence.json").write_text(serialized(licenses))
     for name in ["context7", "ui-ux-suite"]:
         (INPUTS / f"{name}.package-lock.json").write_bytes((tool_root / name / "package-lock.json").read_bytes())
-    for name in ["code-audit", "dependency-audit"]:
+    for name in ["code-audit", "dependency-audit", "docker"]:
         (INPUTS / f"{name}.requirements.lock").write_bytes((tool_root / name / "requirements.lock").read_bytes())
     provenance = json.loads((tool_root / "code-audit/provenance.json").read_text())
     safe_fields = ["semgrep", "ruff", "semgrep_rules_commit", "semgrep_rules_archive_url", "semgrep_rules_archive_sha256", "requirements_lock_sha256"]
     (INPUTS / "code-audit-provenance.json").write_text(serialized({key: provenance[key] for key in safe_fields}))
+    docker = json.loads((tool_root / "docker/provenance.json").read_text())
+    docker_fields = ["provider", "version", "license", "repository", "pypi",
+                     "wheel_sha256", "requirements_sha256", "installed_packages",
+                     "production_dependencies_added"]
+    if docker["requirements_sha256"] != digest(tool_root / "docker/requirements.lock"):
+        raise ValueError("Docker development lock differs from its reviewed provenance.")
+    (INPUTS / "docker-provenance.json").write_text(serialized({key: docker[key] for key in docker_fields}))
 
 
 class Inventory:
@@ -444,7 +452,7 @@ def development_tools(inventory: Inventory, licenses: dict) -> None:
             dependencies = [names[canonicalize_name(Requirement(requirement).name)] for requirement in record["requiresDist"] if canonicalize_name(Requirement(requirement).name) in names]
             inventory.add(component, dependencies)
             inventory.dependencies[container_ref].add(ref)
-        if name in {"code-audit", "dependency-audit", "sbom-generator"}:
+        if name in {"code-audit", "dependency-audit", "docker", "sbom-generator"}:
             lock_path = SBOM / "tools-requirements.lock" if name == "sbom-generator" else INPUTS / f"{name}.requirements.lock"
             locked = {}
             for line in lock_path.read_text().splitlines():

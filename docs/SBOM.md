@@ -3,7 +3,7 @@
 The repository contains two reproducible [CycloneDX 1.6 JSON](https://github.com/CycloneDX/specification/blob/1.6/schema/bom-1.6.schema.json) inventories:
 
 - [`sbom/cadevil.cdx.json`](../sbom/cadevil.cdx.json): locked Python application dependencies, browser packages, vendored assets, and the two bundled Rust/WASM plugins.
-- [`sbom/cadevil-development.cdx.json`](../sbom/cadevil-development.cdx.json): Python development groups and their dependency closure, plus separately captured local Git MCP, Context7, UI/UX Suite, Semgrep/Ruff, dependency-audit, and SBOM tool environments.
+- [`sbom/cadevil-development.cdx.json`](../sbom/cadevil-development.cdx.json): Python development groups and their dependency closure, plus separately captured local Git MCP, Context7, UI/UX Suite, Docker MCP, Semgrep/Ruff, dependency-audit, and SBOM tool environments.
 
 These are dependency inventories for auditing. They do not assert that packages are vulnerability-free, prove a build is reproducible, or attest that CDN responses match local archives. There is no vulnerability scan or hosted source upload in generation.
 
@@ -54,7 +54,7 @@ make sbom-capture-tools CADEVIL_MCP_TOOL_ROOT=/path/to/mcp_tools
 make sbom-check
 ```
 
-The selected directory must contain `context7/package-lock.json`, `ui-ux-suite/package-lock.json`, `python/mcp-server-git`, `code-audit/.venv`, and `dependency-audit/.venv`, plus the code/dependency-audit locks and code-audit provenance. The SBOM tool snapshot comes from the isolated environment executing the generator. The application environment defaults to `.venv`; the script also accepts `--application-env` for a different location. Capture reads only dependency locks and installed distribution metadata. It copies no application code, settings, executable binaries or model data into the evidence snapshots.
+The selected directory must contain `context7/package-lock.json`, `ui-ux-suite/package-lock.json`, `python/mcp-server-git`, `code-audit/.venv`, `dependency-audit/.venv`, and `docker/.venv`, plus their code/dependency-audit/Docker locks and reviewed provenance. The Docker snapshot includes mcp-server-docker 0.3.0 and its GPL-3.0-only metadata; it is used only by the development catalog and is excluded from production runtime inventories. The SBOM tool snapshot comes from the isolated environment executing the generator. The application environment defaults to `.venv`; the script also accepts `--application-env` for a different location. Capture reads only dependency locks and installed distribution metadata. It copies no application code, settings, executable binaries or model data into the evidence snapshots.
 
 Review the input and BOM diffs before committing refreshed evidence. Keep `tools-requirements.in` and its hash-locked output together when upgrading the generator/validator. Generator and validator version constants are intentional compatibility checks and must match the reviewed tool upgrade.
 

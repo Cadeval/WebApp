@@ -42,6 +42,7 @@ DEVELOPMENT_ENVIRONMENTS = {
     "cadevil.mcp.git": "cadevil-git-mcp-environment",
     "cadevil.mcp.ui_ux": "cadevil-ui-ux-suite-environment",
     "cadevil.mcp.code_audit": "cadevil-code-audit-environment",
+    "cadevil.mcp.docker": "cadevil-docker-environment",
 }
 
 

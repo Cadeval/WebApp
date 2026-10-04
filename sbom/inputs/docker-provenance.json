@@ -1,0 +1,11 @@
+{
+  "installed_packages": 37,
+  "license": "GPL-3.0-only",
+  "production_dependencies_added": false,
+  "provider": "mcp-server-docker",
+  "pypi": "https://pypi.org/project/mcp-server-docker/0.3.0/",
+  "repository": "https://github.com/ckreiling/mcp-server-docker",
+  "requirements_sha256": "be7cabae91f3c4a97e320e0ff41d8e296b2cc04497a957762c38512b6a6ccb56",
+  "version": "0.3.0",
+  "wheel_sha256": "fc8d13aad09f5d689941eb442296a6a756d67644d4413596d67f7bf2357bde5c"
+}
