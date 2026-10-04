@@ -22,7 +22,6 @@
 .building-map-list-location { font-style: italic; }
 .building-map-list-links { display: flex; flex-wrap: wrap; gap: .35rem 1rem; font-size: .8rem; margin-top: .35rem; }
 .building-map-selection { padding: 1rem 1.1rem; border-block: 1px solid var(--border-low-contrast); background: var(--primary-bg); }
-.building-map-eyebrow { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; }
 .building-map-selection h3 { margin: .45rem 0; overflow-wrap: anywhere; }
 .building-map-selection p { margin: .4rem 0; overflow-wrap: anywhere; }
 .building-map-location { margin: .8rem 0; font-size: .85rem; }

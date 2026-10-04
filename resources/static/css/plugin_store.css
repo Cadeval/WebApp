@@ -32,7 +32,6 @@
 .plugin-manager-shell .plugin-store-search {margin:1rem 0;}
 .plugin-manager-shell .plugin-catalog-card > .plugin-store-search {margin:1rem 1.5rem;}
 .plugin-manager-shell .plugin-manager-hero p,.plugin-manager-shell .plugin-section-heading p,.plugin-manager-shell .plugin-help-text,.plugin-manager-shell .plugin-identity code,.plugin-manager-shell .plugin-field-error,.plugin-manager-shell .plugin-reload-status,.plugin-manager-shell .plugin-status--enabled,.plugin-manager-shell .plugin-status--error,.plugin-manager-shell .plugin-row--error .plugin-error-cell {color:var(--primary-color);}
-.plugin-manager-shell .viewer-eyebrow,.plugin-store .viewer-eyebrow {color:var(--primary-color);opacity:.75;}
 .plugin-manager-shell .plugin-store-search input {flex:1;min-width:10rem;padding:.55rem .75rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);}
 .plugin-manager-shell .plugin-store-search button,.plugin-manager-shell .plugin-actions form button,.plugin-manager-shell .plugin-collection-actions button {padding:.55rem .9rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;color:var(--primary-color);background:var(--secondary-bg);cursor:pointer;}
 .plugin-manager-shell .plugin-store-search button:hover,.plugin-manager-shell .plugin-actions form button:hover,.plugin-manager-shell .plugin-collection-actions button:hover {background:var(--primary-bg);}

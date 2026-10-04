@@ -2,7 +2,7 @@
 <section {% if fragment %}id="content-container"{% endif %} class="plugin-manager-shell journey-page" aria-labelledby="plugin-sbom-title">
     <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261005-sbom">
     <a href="{% url 'plugin_manager:plugin_list' %}" hx-get="{% url 'plugin_manager:plugin_list' %}" hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true">Back to Plugins</a>
-    <div class="journey-section-heading"><span class="viewer-eyebrow">Software bill of materials</span><h1 id="plugin-sbom-title">{{ record.name|default:record.plugin_id }} SBOM</h1><p><code>{{ record.plugin_id }}</code> · Plugin version {{ record.version|default:'unknown' }}</p></div>
+    <div class="journey-section-heading"><h1 id="plugin-sbom-title">{{ record.name|default:record.plugin_id }} SBOM</h1><p><code>{{ record.plugin_id }}</code> · Plugin version {{ record.version|default:'unknown' }}</p></div>
     {% if inventory %}
         <section class="journey-card" aria-labelledby="sbom-evidence-title">
             <h2 id="sbom-evidence-title">Inventory evidence</h2><p>{{ inventory.source }}</p><p>{{ inventory.scope }}</p>

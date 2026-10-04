@@ -22,7 +22,7 @@ body[data-theme=dark] {color-scheme:dark;--primary-bg:#2a2d31;--secondary-bg:#1d
 .journey-button,.journey-page button {display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem 1rem;border:1px solid var(--border-low-contrast);border-radius:.5rem;background:var(--primary-bg);color:var(--primary-color);font:inherit;text-decoration:none;cursor:pointer;}
 .journey-page button:disabled {opacity:1;color:var(--muted-text);background:var(--primary-bg);border-style:dashed;cursor:wait;}
 .journey-page input:disabled,.journey-page select:disabled {opacity:1;color:var(--muted-text);background:var(--primary-bg);}
-.journey-page .viewer-eyebrow,.journey-page .plugin-help-text,.journey-page .plugin-identity code {color:var(--muted-text);}
+.journey-page .plugin-help-text,.journey-page .plugin-identity code {color:var(--muted-text);}
 .journey-page button.fa::before {font-family:FontAwesome;}
 .journey-page button:hover,.journey-button:hover {background:var(--secondary-bg);border-color:var(--primary-color);}
 .journey-page a:focus-visible,.journey-page button:focus-visible,.journey-page input:focus-visible,.journey-page select:focus-visible,.journey-page summary:focus-visible {outline:2px solid var(--primary-color);outline-offset:3px;}

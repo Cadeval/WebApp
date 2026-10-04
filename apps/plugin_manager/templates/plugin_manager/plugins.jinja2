@@ -1,7 +1,7 @@
 {% load static %}
 <section {% if fragment %}id="content-container"{% endif %} class="plugin-manager-shell journey-page" aria-labelledby="plugins-title">
     <link rel="stylesheet" href="{% static 'css/plugin_store.css' %}?v=20261003-journey">
-    <div class="journey-section-heading"><span class="viewer-eyebrow">Your workspace tools</span><h1 id="plugins-title">Plugins</h1><p>Choose the tools you need. Selected tools appear in your navigation.</p></div>
+    <div class="journey-section-heading"><h1 id="plugins-title">Plugins</h1><p>Choose the tools you need. Selected tools appear in your navigation.</p></div>
     {% if notice %}<p class="journey-notice" role="status" aria-live="polite">{{ notice }}</p>{% endif %}
     {% if reload_summary %}<p class="journey-notice" role="status" aria-live="polite">{{ reload_summary }}</p>{% endif %}
     {% if request.method == 'POST' %}{% include 'plugin_manager/_plugin_nav_items.jinja2' with plugin_nav_oob=True %}{% endif %}

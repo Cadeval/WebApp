@@ -436,15 +436,6 @@ h4 {
     margin: 0.15rem 0 0.35rem;
 }
 
-.settings-eyebrow {
-    margin: 0;
-    color: var(--accent-color);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
 .user-settings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
@@ -1406,14 +1397,6 @@ tbody tr:hover {
     flex-direction: column;
 }
 
-.viewer-eyebrow {
-    color: var(--accent-color);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-}
-
 #viewer-title {
     margin: 0;
     overflow: hidden;
@@ -2121,8 +2104,7 @@ code {
 .viewer-summary { margin-top:1rem; }
 .selection-empty[hidden], .selection-details[hidden] { display:none; }
 .viewer-sidebar .viewer-data-note, .viewer-sidebar .selection-status,
-.viewer-sidebar dt, .viewer-sidebar .selection-empty,
-.viewer-shell .viewer-eyebrow, .viewer-header-slot .viewer-eyebrow {
+.viewer-sidebar dt, .viewer-sidebar .selection-empty {
     color:color-mix(in srgb,var(--primary-color) 75%,var(--secondary-bg));
 }
 .viewer-assessment > summary { margin-bottom:.45rem; }

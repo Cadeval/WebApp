@@ -1,5 +1,5 @@
 <section {% if fragment %}id="content-container"{% endif %} data-user-theme="{{ user.theme }}" class="journey-page settings-page" aria-labelledby="user-settings-title">
-    <div class="journey-section-heading"><span class="viewer-eyebrow">{{ user.username }}</span><h1 id="user-settings-title">User settings</h1><p>Manage your account, security and workspace access.</p></div>
+    <div class="journey-section-heading"><h1 id="user-settings-title">User settings</h1><p>Manage your account, security and workspace access.</p></div>
     {% include 'mycelium/_settings_notices.html' %}
     {% if request.method == 'POST' %}{% include 'plugin_manager/_plugin_nav_items.jinja2' with plugin_nav_oob=True %}{% endif %}
     <nav class="settings-section-nav" aria-label="User settings sections">

@@ -14,7 +14,6 @@
            hx-target="#content-container" hx-swap="outerHTML" hx-push-url="true"
            title="Back to {% if from_map %}Building Map{% else %}Model Manager{% endif %}"> Back</a>
         <div class="viewer-heading">
-            <span class="viewer-eyebrow">3D model</span>
             <h1 id="viewer-title">{{ document.description|default:'3D model viewer' }}</h1>
         </div>
         <div class="viewer-tools" role="toolbar" aria-label="Viewer controls">
@@ -67,7 +66,6 @@
             <aside id="viewer-sidebar" class="viewer-sidebar" aria-labelledby="selection-heading">
                 <div class="viewer-sidebar-header">
                     <div>
-                        <span class="viewer-eyebrow">Inspector</span>
                         <h2 id="selection-heading">Building part</h2>
                     </div>
                     <button class="viewer-icon-button fa fa-times" type="button"
