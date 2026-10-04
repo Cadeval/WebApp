@@ -4,7 +4,7 @@
 
 Container requests close Django database connections in the same thread that runs ORM work, including failed requests. WebSocket permission refreshes have their own connection boundaries. After PostgreSQL returns from a restart, subsequent requests open fresh connections; requests during the outage can still fail. Redis caches session reads while PostgreSQL keeps their durable records.
 
-The frontend, PostgreSQL and Redis images use verified official multi-platform digests: Nginx 1.30.5 Alpine, PostgreSQL 18.6 Trixie and Redis 8.4.7 Alpine. The application defaults to the locally built `cadevil:0.15.0` image. Compose does not rebuild or transmit a checkout. Its exact image input list still excludes deployment configuration and every secret file; runtime config files are narrowly bind-mounted read-only. The frontend runs as UID 101, Cadevil as UID 10001, PostgreSQL as UID 999 and Redis as UID 999. Services drop capabilities, use read-only root filesystems and bounded container logs; writable state lives in named volumes or tmpfs.
+The frontend, PostgreSQL and Redis images use verified official multi-platform digests: Nginx 1.30.5 Alpine, PostgreSQL 18.6 Trixie and Redis 8.4.7 Alpine. The application defaults to the locally built `cadevil:0.15.1` image. Compose does not rebuild or transmit a checkout. Its exact image input list still excludes deployment configuration and every secret file; runtime config files are narrowly bind-mounted read-only. The frontend runs as UID 101, Cadevil as UID 10001, PostgreSQL as UID 999 and Redis as UID 999. Services drop capabilities, use read-only root filesystems and bounded container logs; writable state lives in named volumes or tmpfs.
 
 ## Prepare configuration and runtime secrets
 

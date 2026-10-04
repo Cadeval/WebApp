@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.15.1 — 2026-10-04
+
+- Remove decorative eyebrow labels from landing, settings, plugin and BIM pages while retaining the demo step counter.
+- Explain the Mycelium plugin framework on the landing page and in the README.
+- Bump BIM Workspace to 2.0.1; the existing 0.15 database schema and user data remain compatible.
+
 ## 0.15.0 — 2026-10-04
 
 - Simplify demo statistic labels and keep one walkthrough link on the landing page.
