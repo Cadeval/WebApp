@@ -23,7 +23,7 @@ def plugin_manifest() -> PluginManifest:
         id=EXAMPLE_PLUGIN_ID,
         name="Cadevil Rust IFC Editor",
         compatibility="both",
-        version="2.0.1",
+        version="2.0.2",
         uploader="",
         api_version="1.0",
         priority=10,

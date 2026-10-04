@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.14.1 — 2026-10-04
+
+- Isolate BIM Workspace and IFC editor templates, widgets, styles and browser assets in their owning plugin directories while preserving public URLs.
+- Register trusted resource bundles through the plugin manager's framework-independent registry and separate Django adapter; use Django's app loaders without importing historical plugin models or migrations.
+- Restore the landing-page explanation and update setup, plugin-resource and packaging documentation.
+- Bump BIM Workspace to 1.7.1 and IFC editor to 2.0.2.
+
 ## 0.14.0 — Unreleased
 
 - Add a Compose frontend on external `swagnet`, with the application, PostgreSQL and Redis on a separate private network and no published backend ports.

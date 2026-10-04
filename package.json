@@ -1,13 +1,13 @@
 {
   "name": "cadevil-frontend-tests",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test resources/static/js/*.test.js resources/static/js/*.test.mjs resources/static/bim-demo/*.test.mjs"
+    "test": "python3 scripts/test_browser_assets.py"
   },
   "devDependencies": {
     "three": "0.184.0"

@@ -15775,7 +15775,7 @@
     {
       "aggregate": "incomplete",
       "assemblies": [
-        "pkg:generic/cadevil-webapp-development-tools@0.14.0"
+        "pkg:generic/cadevil-webapp-development-tools@0.14.1"
       ]
     }
   ],
@@ -15997,7 +15997,7 @@
         "pkg:pypi/shapely@2.1.2",
         "pkg:pypi/watchdog@6.0.0"
       ],
-      "ref": "pkg:generic/cadevil-webapp-development-tools@0.14.0"
+      "ref": "pkg:generic/cadevil-webapp-development-tools@0.14.1"
     },
     {
       "dependsOn": [],
@@ -17574,7 +17574,7 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/cadevil-webapp-development-tools@0.14.0",
+      "bom-ref": "pkg:generic/cadevil-webapp-development-tools@0.14.1",
       "description": "Application development groups and separately captured local MCP, audit and SBOM tool environments",
       "licenses": [
         {
@@ -17585,7 +17585,7 @@
       ],
       "name": "cadevil-webapp-development-tools",
       "type": "application",
-      "version": "0.14.0"
+      "version": "0.14.1"
     },
     "properties": [
       {
@@ -17594,7 +17594,7 @@
       },
       {
         "name": "cadevil:input:sha256:pyproject.toml",
-        "value": "77a55045539ce9b546fba4990b095a553396f0f0861980751b46892c5784bef6"
+        "value": "b60887949a1300215b1ca90e1a9026937c28bf0a44b7050355507a47b176209f"
       },
       {
         "name": "cadevil:input:sha256:sbom/inputs/code-audit-provenance.json",
@@ -17630,11 +17630,11 @@
       },
       {
         "name": "cadevil:input:sha256:scripts/generate_sbom.py",
-        "value": "6ce7dcab909ac9ba3ca05476391f2abcbbb61d050066269ce5478185d58b750d"
+        "value": "a2aea368e1eea307ee3dc2717616d850918389a170a14f868d16c9425a3f7b9e"
       },
       {
         "name": "cadevil:input:sha256:uv.lock",
-        "value": "9a065d3207b943ed623e0bb81a8efdef6a6937af05747ceac8ca6ec5e445f3cd"
+        "value": "5d34bde63065c6852f17c92abce6fccb0e747131a0e8ffc714a7b146f9f4176a"
       },
       {
         "name": "cadevil:inventory:completeness",
