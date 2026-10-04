@@ -7,8 +7,8 @@ from unittest.mock import Mock
 from django.test import SimpleTestCase, override_settings
 from .ux_mcp_bridge import (AUDIT_TOOL, GUIDANCE_TOOL, TOOLS, MAX_FILE_BYTES,
                             source_snapshot, validate_arguments, serve)
-from .registry import PluginRegistry
-from .debug_processes import MCP_PROCESS_EXTENSION_POINT
+from apps.plugin_manager.registry import PluginRegistry
+from apps.plugin_manager.debug_processes import MCP_PROCESS_EXTENSION_POINT
 from apps.plugins.development_mcp import ui_ux_manifest, UI_UX_ID
 
 

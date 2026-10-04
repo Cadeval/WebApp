@@ -12,11 +12,11 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from .code_audit_bridge import (AUDIT_TOOL, INFO_TOOL, TOOLS, MAX_FILE_BYTES,
     LocalAudit, analyzer_command, analyzer_environment, bounded_process,
     normalize_report, read_source, serve, source_snapshot, validate_arguments)
-from .debug_processes import MCP_PROCESS_EXTENSION_POINT
-from .models import PluginRecord, UserPluginSelection
-from .registry import PluginRegistry
-from .workflows import is_workflow_plugin, selectable_plugin, selected_plugin_ids
-from . import tests as existing_tests
+from apps.plugin_manager.debug_processes import MCP_PROCESS_EXTENSION_POINT
+from apps.plugin_manager.models import PluginRecord, UserPluginSelection
+from apps.plugin_manager.registry import PluginRegistry
+from apps.plugin_manager.workflows import is_workflow_plugin, selectable_plugin, selected_plugin_ids
+from apps.plugin_manager import tests as existing_tests
 from apps.plugins.development_mcp import CODE_AUDIT_ID, code_audit_manifest
 
 
@@ -66,8 +66,8 @@ class CodeAuditBoundaryTests(SimpleTestCase):
             (root/'apps/large.py').write_bytes(b'x'*(MAX_FILE_BYTES+1))
             with self.assertRaisesMessage(ValueError,'1 MiB'): source_snapshot(root,Path(folder)/'snapshot')
 
-    @patch('apps.plugin_manager.code_audit_bridge.Path.is_file', return_value=True)
-    @patch('apps.plugin_manager.code_audit_bridge.sys.platform', 'darwin')
+    @patch('apps.plugins.development_mcp.code_audit_bridge.Path.is_file', return_value=True)
+    @patch('apps.plugins.development_mcp.code_audit_bridge.sys.platform', 'darwin')
     def test_commands_use_fixed_local_rules_and_network_denial_without_autofix(self, _sandbox_exists):
         for engine in ('semgrep','ruff'):
             command=analyzer_command(engine,'/tools','/snapshot')
@@ -76,9 +76,9 @@ class CodeAuditBoundaryTests(SimpleTestCase):
         command=analyzer_command('semgrep','/tools','/snapshot')
         self.assertIn('/tools/upstream-rules',command); self.assertIn('--metrics=off',command)
         self.assertIn('--disable-version-check',command); self.assertIn('--no-trace',command)
-        with patch('apps.plugin_manager.code_audit_bridge.sys.platform','linux'):
+        with patch('apps.plugins.development_mcp.code_audit_bridge.sys.platform','linux'):
             with self.assertRaisesMessage(ValueError,'no-network'): analyzer_command('semgrep','/tools','/snapshot')
-        with patch('apps.plugin_manager.code_audit_bridge.Path.is_file', return_value=False):
+        with patch('apps.plugins.development_mcp.code_audit_bridge.Path.is_file', return_value=False):
             with self.assertRaisesMessage(ValueError,'no-network'): analyzer_command('semgrep','/tools','/snapshot')
 
     def test_environment_never_inherits_project_tokens_proxies_or_user_configuration(self):
@@ -107,7 +107,7 @@ class CodeAuditBoundaryTests(SimpleTestCase):
         self.assertEqual(report['findings'][0]['path'],'apps/app.py')
         self.assertEqual(report['scanned'],['apps/app.py']); self.assertEqual(report['errors'],[])
 
-    @patch('apps.plugin_manager.code_audit_bridge.analyzer_command', return_value=['fixed-tool'])
+    @patch('apps.plugins.development_mcp.code_audit_bridge.analyzer_command', return_value=['fixed-tool'])
     def test_pagination_reuses_unchanged_snapshot_but_source_changes_invalidate_cache(self, _command):
         with TemporaryDirectory() as folder:
             root=Path(folder); project=root/'project'; (project/'apps').mkdir(parents=True)
@@ -129,7 +129,7 @@ class CodeAuditBoundaryTests(SimpleTestCase):
             audit.call(AUDIT_TOOL,{'engine':'ruff'})
             self.assertEqual(runner.call_count,2)
 
-    @patch('apps.plugin_manager.code_audit_bridge.analyzer_command', return_value=['fixed-tool'])
+    @patch('apps.plugins.development_mcp.code_audit_bridge.analyzer_command', return_value=['fixed-tool'])
     def test_scan_failure_reports_incomplete_and_never_claims_zero_clean_findings(self, _command):
         with TemporaryDirectory() as folder:
             root=Path(folder); (root/'apps').mkdir(); (root/'apps/app.py').write_text('pass\n')
@@ -162,7 +162,7 @@ class CodeAuditBoundaryTests(SimpleTestCase):
             contribution=registry.get_extensions(MCP_PROCESS_EXTENSION_POINT)[0]
             self.assertEqual(contribution.plugin_id,CODE_AUDIT_ID); self.assertEqual(contribution.value.port,8020)
             self.assertEqual(set(contribution.value.tools),{AUDIT_TOOL,INFO_TOOL})
-            self.assertIn('/checkout/apps/plugin_manager/code_audit_bridge.py',contribution.value.command)
+            self.assertIn('/checkout/apps/plugins/development_mcp/code_audit_bridge.py',contribution.value.command)
 
 
 @override_settings(DEBUG=True,STATIC_URL='/static/')

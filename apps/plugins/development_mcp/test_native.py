@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.test import SimpleTestCase, override_settings
 from django_bolt import BoltAPI
 from django_bolt.testing import TestClient
-from .development_mcp import mount_development_mcp
+from .native import mount_development_mcp
 
 
 class DevelopmentMCPTests(SimpleTestCase):
@@ -27,7 +27,7 @@ class DevelopmentMCPTests(SimpleTestCase):
                 api=BoltAPI();self.assertFalse(mount_development_mcp(api));self.assertEqual(api._mcp_mounts,[])
                 with TestClient(api) as client:self.assertEqual(client.post('/dev/mcp',json={}).status_code,404)
 
-    @override_settings(DEBUG=True,DEVELOPMENT_MCP_ENABLED=True,BASE_DIR=Path(__file__).resolve().parents[2])
+    @override_settings(DEBUG=True,DEVELOPMENT_MCP_ENABLED=True,BASE_DIR=Path(__file__).resolve().parents[3])
     def test_native_protocol_lists_only_read_only_tools_and_reads_public_demo(self):
         api=BoltAPI();self.assertTrue(mount_development_mcp(api))
         with TestClient(api,base_url='http://localhost') as client:

@@ -25,6 +25,8 @@ FRONTEND_ROOTS = (
     "resources/static/css", "resources/templates", "apps/shared/templates",
     "apps/plugin_manager/templates", "apps/plugins/bim_model_manager/templates",
     "apps/plugins/example_plugin/templates", "apps/plugins/rust_example_plugin/templates",
+    "apps/plugins/bim_model_manager/static/css", "apps/plugins/bim_model_manager/static/bim-demo",
+    "apps/plugins/example_plugin/static/css",
 )
 SOURCE_SUFFIXES = {".css", ".scss", ".sass", ".html", ".htm", ".jinja2"}
 MAX_FILES = 512

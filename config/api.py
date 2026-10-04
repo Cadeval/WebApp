@@ -1,5 +1,6 @@
 """Compose native plugin routes for the Bolt runtime."""
 from django_bolt import BoltAPI
+from django.conf import settings
 from apps.shared.request_logging import configure_api_logging
 
 api = BoltAPI(trailing_slash='keep', django_middleware=True)
@@ -23,5 +24,6 @@ api.mount('', security_api)
 from apps.shared.container_health import api as health_api
 api.mount('', health_api)
 
-from apps.shared.development_mcp import mount_development_mcp
-mount_development_mcp(api)
+if settings.DEBUG and getattr(settings, 'DEVELOPMENT_MCP_ENABLED', False):
+    from apps.plugins.development_mcp.native import mount_development_mcp
+    mount_development_mcp(api)

@@ -18,7 +18,7 @@ def register_git(registry):
 def register_ui_ux(registry):
     root = Path(settings.DEVELOPMENT_MCP_TOOL_ROOT)
     node = shutil.which('node') or '/opt/homebrew/bin/node'
-    bridge = Path(settings.BASE_DIR) / 'apps/plugin_manager/ux_mcp_bridge.py'
+    bridge = Path(settings.BASE_DIR) / 'apps/plugins/development_mcp/ux_mcp_bridge.py'
     server = root / 'ui-ux-suite/node_modules/ui-ux-suite/lib/mcp-server.js'
     registry.register_extension(MCP_PROCESS_EXTENSION_POINT, UI_UX_ID,
         MCPProcess(UI_UX_ID, (sys.executable, str(bridge), '--node', node,
@@ -27,7 +27,7 @@ def register_ui_ux(registry):
 
 def register_code_audit(registry):
     root = Path(settings.DEVELOPMENT_MCP_TOOL_ROOT) / 'code-audit'
-    bridge = Path(settings.BASE_DIR) / 'apps/plugin_manager/code_audit_bridge.py'
+    bridge = Path(settings.BASE_DIR) / 'apps/plugins/development_mcp/code_audit_bridge.py'
     registry.register_extension(MCP_PROCESS_EXTENSION_POINT, CODE_AUDIT_ID,
         MCPProcess(CODE_AUDIT_ID, (sys.executable, str(bridge), '--runtime', str(root),
                                   '--project', str(settings.BASE_DIR)),
