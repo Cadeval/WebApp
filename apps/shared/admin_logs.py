@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
+from django.db import close_old_connections
 from django.http import HttpRequest
 from django_bolt import AllowAny, BoltAPI
 from .request_logging import configure_api_logging
@@ -31,11 +32,17 @@ def log_view(request):
     return response
 
 def staff_session(cookies):
-    request = HttpRequest()
-    SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
-    request.session = SessionStore(session_key=cookies.get(settings.SESSION_COOKIE_NAME))
-    user = get_user(request)
-    return bool(user.is_authenticated and user.is_active and user.is_staff and user.has_perm('shared.view_application_logs'))
+    close_old_connections()
+    try:
+        request = HttpRequest()
+        SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
+        request.session = SessionStore(session_key=cookies.get(settings.SESSION_COOKIE_NAME))
+        user = get_user(request)
+        return bool(user.is_authenticated and user.is_active and user.is_staff and user.has_perm('shared.view_application_logs'))
+    finally:
+        # A WebSocket outlives an HTTP request; every permission refresh needs
+        # its own connection boundary, including revoked access and errors.
+        close_old_connections()
 
 def same_origin(headers):
     try:

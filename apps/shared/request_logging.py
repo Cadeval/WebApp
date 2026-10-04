@@ -3,6 +3,7 @@ import logging
 import time
 from uuid import UUID, uuid4
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django_bolt import BoltAPI
 from django_bolt.exceptions import HTTPException, ResponseValidationError, ValidationException
@@ -88,5 +89,9 @@ def configure_api_logging(api: BoltAPI) -> BoltAPI:
         raise RuntimeError('Configure API logging before serving requests.')
     if RequestLoggingMiddleware not in api._middleware:
         api._middleware.insert(0, RequestLoggingMiddleware)
+    if getattr(settings, 'DATABASE_CONNECTION_LIFECYCLE', False):
+        from .database_connections import DatabaseConnectionMiddleware
+        if DatabaseConnectionMiddleware not in api._middleware:
+            api._middleware.insert(1, DatabaseConnectionMiddleware)
     api._has_python_global_middleware = True
     return api

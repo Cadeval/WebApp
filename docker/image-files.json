@@ -103,6 +103,7 @@
     "apps/shared/cityjson_schemas/metadata.schema.json",
     "apps/shared/container_health.py",
     "apps/shared/conversion_signals.py",
+    "apps/shared/database_connections.py",
     "apps/shared/development_mcp.py",
     "apps/shared/ifc_extractor/__init__.py",
     "apps/shared/ifc_extractor/assessment_futures.py",

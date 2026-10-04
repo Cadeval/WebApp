@@ -204,6 +204,7 @@ apps/shared/templatetags/**
 !apps/shared/cityjson_import.py
 !apps/shared/container_health.py
 !apps/shared/conversion_signals.py
+!apps/shared/database_connections.py
 !apps/shared/development_mcp.py
 !apps/shared/ifc_viewer.py
 !apps/shared/live_logs.py

@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -164,9 +164,9 @@ if _database_url:
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": _parsed.path.lstrip("/"),
-                "USER": _parsed.username or "",
-                "PASSWORD": _parsed.password or "",
+                "NAME": unquote(_parsed.path.lstrip("/")),
+                "USER": unquote(_parsed.username or ""),
+                "PASSWORD": unquote(_parsed.password or ""),
                 "HOST": _parsed.hostname or "localhost",
                 "PORT": str(_parsed.port or 5432),
             }

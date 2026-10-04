@@ -682,6 +682,20 @@
     },
     "metadataSha256": "6f3b31fd64380f5e60ed10f5a2954699bcc1f6266eb74316f0ba96702d30546f"
   },
+  "pkg:pypi/psycopg-binary@3.3.6": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "LGPL-3.0-only"
+    },
+    "metadataSha256": "0a1fb529c1e27ca41655413e669c964bd0d7069e8cc2ab32b192fc98baf37fd5"
+  },
+  "pkg:pypi/psycopg@3.3.6": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "LGPL-3.0-only"
+    },
+    "metadataSha256": "351960397d6b386beae931f5bfd945e8c1212e9505017d1b15c72d4c33bb00af"
+  },
   "pkg:pypi/py-serializable@2.1.0": {
     "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
     "license": {
@@ -796,6 +810,13 @@
       }
     },
     "metadataSha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+  },
+  "pkg:pypi/redis@7.4.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "338d94f6f8ac0aa7765a45a1434aea2c86254a852abbdb4fdbe70e5d1780c9a1"
   },
   "pkg:pypi/referencing@0.37.0": {
     "evidence": "distribution METADATA License-Expression",
