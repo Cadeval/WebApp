@@ -1,6 +1,6 @@
 [project]
 name = "cadevil-webapp"
-version = "0.14.1"
+version = "0.15.0"
 description = "IFC building assessment, material passports and signed workflow plugins"
 readme = "README.md"
 requires-python = ">=3.13"

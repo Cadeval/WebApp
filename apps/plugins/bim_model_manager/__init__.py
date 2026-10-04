@@ -9,5 +9,5 @@ def register(registry: PluginRegistry) -> None:
         NavItem(label="BIM Workspace", url="/plugins/bim/", icon="fa-cube", priority=80))
 
 def plugin_manifest() -> PluginManifest:
-    return PluginManifest(id=PLUGIN_ID, name="BIM Workspace", compatibility="both", version="1.7.1",
+    return PluginManifest(id=PLUGIN_ID, name="BIM Workspace", compatibility="both", version="2.0.0",
         uploader="", api_version="1.0", priority=10, register=register)

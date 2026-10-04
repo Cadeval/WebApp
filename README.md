@@ -31,7 +31,7 @@ Sign in and add **BIM Workspace** to your workflow on `/plugins/manage/`. Its ta
 
 The map provides Austria/Vienna location lookup, utility pricing and planning context with provider dates and limitations. Live provider failures remain visible. Building thumbnails, job progress and result exports reuse the same protected workflow and owner checks.
 
-Independent OpenStudio/EnergyPlus helpers remain available under `apps/shared/ifc_extractor`. They use documented residential assumptions and require a separately installed OpenStudio CLI and weather data. The current browser workflow does not provide an EPW upload or energy simulation action.
+Independent OpenStudio/EnergyPlus helpers remain available under `apps/plugins/bim_model_manager/ifc_extractor`. They use documented residential assumptions and require a separately installed OpenStudio CLI and weather data. The current browser workflow does not provide an EPW upload or energy simulation action.
 
 ## Plugins and signing
 
@@ -52,7 +52,7 @@ make rebuild
 
 The IFC/BIM workspace keeps its templates in `apps/plugins/bim_model_manager/templates/` and its browser assets and demo recordings in `apps/plugins/bim_model_manager/static/`. The IFC editor owns the corresponding `templates/` and `static/` directories under `apps/plugins/example_plugin/`.
 
-Each declares its resource ownership in `resources.json`. A plugin-manager startup hook registers resource-only Django applications, so Django discovers their templates, form widgets and static files automatically. The adapter also registers the static directories with Bolt's native server. Resource registration is independent of personal workflow activation; the existing route and ownership checks determine access. See [plugin resource registration](docs/PLUGIN_RESOURCES.md) for the declaration format, Django hook and loader behavior.
+Each declares its resource ownership in `resources.json`. A plugin-manager hook registers the configured Django application: BIM Workspace owns its models and migrations, while the IFC editor uses a resource-only application. Django discovers their templates, form widgets and static files automatically. The adapter also registers the static directories with Bolt's native server. Resource registration is independent of personal workflow activation; the existing route and ownership checks determine access. See [plugin resource registration](docs/PLUGIN_RESOURCES.md) for the declaration format, Django hook and loader behavior.
 
 ## Verification
 
@@ -84,13 +84,14 @@ response's `X-Request-ID` to relate a reported failure to its server events.
 ## Structure
 
 - `manage.py`, `config/`: settings and native route composition.
-- `apps/shared/`: persistent models, migrations, assessments, exchanges and browser services.
+- `apps/shared/`: shared identity models and fresh authentication migrations, plus generic page, access and logging services.
 - `apps/mycelium/`: landing page, demo, sessions and user/admin settings.
 - `apps/plugin_manager/`: discovery, user selections, signed packages, resource registration and debug supervisors.
 - `apps/plugins/`: plugin implementations, trusted MCP manifests and the Rust browser plugins.
-- `apps/plugins/bim_model_manager/`: IFC/BIM workspace routes, `templates/`, `static/`, and its resource declaration.
+- `apps/plugins/bim_model_manager/`: IFC/BIM routes, assessment/geometry/CityJSON/location services, `ifc_extractor/`, domain models and upload helpers under `django/`, plus `templates/`, `static/` and its resource declaration.
 - `apps/plugins/example_plugin/`: IFC editor Rust source, `templates/`, `static/`, and its resource declaration.
+- `apps/plugins/development_mcp/`: debug-only native tools and UI/UX/code-audit MCP bridges.
 - `resources/`: shared application templates and static assets, including the page shell and landing page.
 - `tests/`: Bolt transport helpers and integration settings.
 
-Database migrations and historical model callables are retained even when their original views have been retired. Runtime uploads, databases and generated caches are excluded from source cleanup. The project uses the [MIT license](LICENSE).
+BIM Workspace owns the `bim_model_manager` Django app label, its `bim_model_manager_*` tables and its initial migrations under `apps/plugins/bim_model_manager/django/migrations/`. Shared authentication remains separate; the old BIM re-exports, callable wrappers and migration histories are removed. Version 0.15.0 requires an empty application database, rather than an in-place upgrade from 0.14. Back up existing state, initialize the new schema and recreate login access before importing the models or packages you want to use. Runtime uploads, databases and generated caches are excluded from source cleanup. The project uses the [MIT license](LICENSE).

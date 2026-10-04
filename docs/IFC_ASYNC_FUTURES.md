@@ -16,7 +16,7 @@ Configuration:
 Async usage:
 
 ```python
-from apps.shared.ifc_extractor.assessment_futures import assess_ifc_async
+from apps.plugins.bim_model_manager.ifc_extractor.assessment_futures import assess_ifc_async
 
 report = await assess_ifc_async(path, reference, options)
 ```

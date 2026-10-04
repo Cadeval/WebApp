@@ -17,7 +17,7 @@ exploit details publicly. Response and fix dates depend on the issue and are
 agreed during triage; this policy does not promise a response deadline or a
 paid bounty. Test only instances and accounts you are authorized to assess.
 
-Security fixes target the current `0.14.x` release and the current development
+Security fixes target the current `0.15.x` release and the current development
 branch. Older versions require an upgrade unless the maintainer explicitly
 agrees to a backport. Installed third-party plugins and deployment-specific
 database/cache drivers need their own updates and review.

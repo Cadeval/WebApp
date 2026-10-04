@@ -31,7 +31,7 @@ RUN python docker/context.py --received-context /build \
 
 FROM base AS runtime
 LABEL org.opencontainers.image.title="Cadevil" \
-      org.opencontainers.image.version="0.14.1" \
+      org.opencontainers.image.version="0.15.0" \
       org.opencontainers.image.description="IFC building assessment and signed workflow plugins" \
       org.opencontainers.image.licenses="MIT"
 WORKDIR /app

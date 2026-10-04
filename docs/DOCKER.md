@@ -12,10 +12,10 @@ Build using a context archive outside the checkout so no directory walk is sent 
 make docker-build
 ```
 
-This creates the local `cadevil:0.14.1` image with BuildKit SBOM and minimal
+This creates the local `cadevil:0.15.0` image with BuildKit SBOM and minimal
 provenance attestations. The helper removes its temporary archive after the
 build. For a specific platform or tag, run
-`uv run --locked --no-sync python scripts/build_docker.py --platform linux/amd64 --tag cadevil:0.14.1`.
+`uv run --locked --no-sync python scripts/build_docker.py --platform linux/amd64 --tag cadevil:0.15.0`.
 Attestations require a compatible BuildKit builder and containerd image store;
 the tested Docker Desktop installation has both. No registry push is performed.
 
@@ -24,7 +24,7 @@ The explicit archive commands remain available:
 ```sh
 python docker/context.py
 python docker/context.py --archive /tmp/cadevil-context.tar
-docker build --platform linux/arm64 --tag cadevil:0.14.1 - < /tmp/cadevil-context.tar
+docker build --platform linux/arm64 --tag cadevil:0.15.0 - < /tmp/cadevil-context.tar
 ```
 
 Use `--platform linux/amd64` for an x86-64 host. Docker Desktop must be running. A regular `docker build .` uses the same exact `.dockerignore`, and the builder verifies the received source list before collecting static assets. Build context controls, uv, dependency locks, the static collector and packaging validator remain in intermediate stages. No compiler, Node modules, local virtual environment, test files, development SBOM, MCP subprocess programs, `.env`, Git history, keys, uploaded plugins or user data are copied into the runtime. `pytest` remains an application dependency because IfcOpenShell EXPRESS validation imports it; dependencies may contain their own upstream testing modules.
@@ -61,14 +61,14 @@ docker volume create cadevil-data
 docker run --rm --init --read-only --tmpfs /tmp:rw,nosuid,size=256m \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
-  cadevil:0.14.1 python manage.py migrate --noinput
+  cadevil:0.15.0 python manage.py migrate --noinput
 docker run --rm --init -it --read-only --tmpfs /tmp:rw,nosuid,size=256m \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
-  cadevil:0.14.1 python manage.py createsuperuser
+  cadevil:0.15.0 python manage.py createsuperuser
 ```
 
-`/app/data` holds the SQLite database, uploads/private plugin archives, log store and generated caches. It starts empty; no local database or accounts are bundled. Back up the volume separately. For an existing deployment, restore its database and files into the volume with UID/GID 10001 permissions and then apply migrations. Do not mount production state into a build. Automatic migration on every web-worker startup is deliberately avoided.
+`/app/data` holds the SQLite database, uploads/private plugin archives, log store and generated caches. It starts empty; no local database or accounts are bundled. Back up the volume separately. For a restore within a compatible release, restore its database and files into the volume with UID/GID 10001 permissions and then apply migrations. Version 0.15.0 starts a new authentication/BIM migration history and requires an empty application database; retain the old database and files as a separate backup, then recreate login access and import the models or packages needed in the new schema. Running these initial migrations over a 0.14 database is unsupported. Do not mount production state into a build. Automatic migration on every web-worker startup is deliberately avoided.
 
 The standalone defaults use SQLite; locked Psycopg and Redis clients also support PostgreSQL and shared caching. [Docker Compose](COMPOSE.md) provisions those services on a private network and connects a frontend proxy to external `swagnet`. Mounted `DATABASE_PASSWORD_FILE` and `REDIS_PASSWORD_FILE` provide service credentials without putting passwords in Compose environment values. PostgreSQL retains session records while Redis caches session reads. OpenStudio is optional and is not bundled; energy simulations which require it need a separately configured runtime installation and weather input.
 
@@ -80,7 +80,7 @@ docker run --detach --name cadevil --init --read-only \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
   --publish 127.0.0.1:8080:8000 \
-  cadevil:0.14.1
+  cadevil:0.15.0
 ```
 
 Terminate TLS at a reverse proxy and proxy HTTP/WebSocket traffic to this private backend. When `CADEVIL_TRUST_PROXY_HTTPS=true`, the application trusts `X-Forwarded-Proto: https`. Enable it only if the proxy strips client-supplied forwarded headers and supplies its own. Keep the backend reachable only by that proxy; do not expose a trusted-header backend directly to clients. The proxy must forward the configured Host and support WebSocket upgrades. HTTPS redirects, secure cookies and HSTS remain enabled.

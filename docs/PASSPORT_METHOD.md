@@ -6,7 +6,7 @@ semicolon-separated combination lists, service lives, and prices per m², m³, m
 The workbook is imported without changing it. Blank coefficients remain unavailable.
 
 Calculation code is migrated from `reference/_src/ifc_extractor` into
-`apps/shared/ifc_extractor`. The original reference snapshot is retained. The
+`apps/plugins/bim_model_manager/ifc_extractor`. The original reference snapshot is retained. The
 existing BIM plugin contributes a Material Passport menu item, and its enabled
 state gates the calculation, report and comparison routes at runtime. Existing Rust/Bolt API
 work is preserved. The assessment route uses normal Django request handling,
@@ -62,10 +62,12 @@ Each report stores IFC/reference/configuration hashes, the configuration snapsho
 separate core/adapter/quantity-resolution code hashes,
 exclusions, assumptions and quantity diagnostics.
 
-Database changes make material results nullable and add the persistent report to
-BuildingMetrics. Apply the migration before using the new UI; no existing database
-is migrated automatically by this change. Historical zero values are not relabelled
-as verified assessments. Recalculate to produce coverage diagnostics.
+The BIM plugin owns `BuildingMetrics` and nullable material results under its
+`bim_model_manager` Django app label. The initial migrations live in the plugin's
+`django/migrations/` namespace. Application 0.15.0 starts a fresh schema; initialize
+an empty Cadevil database rather than applying it over an existing 0.14 database.
+Keep an independent backup, recreate login access and import the inputs needed
+for new assessments. Calculations produce new reports with coverage diagnostics.
 
 ## Verification
 
@@ -80,8 +82,10 @@ No four-house performance result is claimed merely from passing these tests.
 
 The original thesis remains authoritative across its introduction, methodology,
 case-study boundary and discussion. `THESIS_REQUIREMENTS.md` maps requirements to
-code and validation. The broader reporting phase retains the earlier calculations,
-local report migration, database backup and ongoing Rust/Bolt rewrite.
+code and validation. The broader reporting phase retained the earlier calculations
+and recorded its local report migration, database backup and Rust/Bolt work.
+The verification counts below describe those historical phases; current persistence
+uses the plugin-owned schema introduced in 0.15.0.
 
 Reports now include element summaries, geometric/semantic inventory, storey identity
 and elevation, CSV export, all three cost totals, initial and observation-period

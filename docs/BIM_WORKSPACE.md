@@ -59,11 +59,11 @@ Rust work and user data are preserved. No commit or deployment was performed.
 Reproduce the isolated checks:
 
 ```sh
-uv run --inexact python -m django test apps.shared.test_bim_pages \
-  apps.shared.ifc_extractor.test_material_assessment \
-  apps.shared.test_material_passport_web \
-  apps.shared.ifc_extractor.test_thesis_alignment \
-  apps.shared.test_thesis_alignment_web \
+uv run --inexact python -m django test apps.plugins.bim_model_manager.test_bim_pages \
+  apps.plugins.bim_model_manager.ifc_extractor.test_material_assessment \
+  apps.plugins.bim_model_manager.test_material_passport_web \
+  apps.plugins.bim_model_manager.ifc_extractor.test_thesis_alignment \
+  apps.plugins.bim_model_manager.test_thesis_alignment_web \
   --settings=tests.passport_test_settings
 uv run --inexact python tests/bolt_runtime_smoke.py
 uv run --inexact python -m django check --settings=config.settings.dev

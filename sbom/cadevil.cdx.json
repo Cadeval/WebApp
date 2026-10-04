@@ -8794,7 +8794,7 @@
     {
       "aggregate": "incomplete",
       "assemblies": [
-        "pkg:generic/cadevil-webapp@0.14.1"
+        "pkg:generic/cadevil-webapp@0.15.0"
       ]
     }
   ],
@@ -8840,7 +8840,7 @@
         "pkg:pypi/shapely@2.1.2",
         "pkg:pypi/watchdog@6.0.0"
       ],
-      "ref": "pkg:generic/cadevil-webapp@0.14.1"
+      "ref": "pkg:generic/cadevil-webapp@0.15.0"
     },
     {
       "dependsOn": [],
@@ -9255,7 +9255,7 @@
   ],
   "metadata": {
     "component": {
-      "bom-ref": "pkg:generic/cadevil-webapp@0.14.1",
+      "bom-ref": "pkg:generic/cadevil-webapp@0.15.0",
       "description": "Cadevil application dependency and declared browser/WASM inventory",
       "licenses": [
         {
@@ -9266,7 +9266,7 @@
       ],
       "name": "cadevil-webapp",
       "type": "application",
-      "version": "0.14.1"
+      "version": "0.15.0"
     },
     "properties": [
       {
@@ -9299,11 +9299,11 @@
       },
       {
         "name": "cadevil:input:sha256:package-lock.json",
-        "value": "c942253e6e265bab67df6eeec31d5fbdead9d5459d412579a602b0405b0fbd7b"
+        "value": "1effe3b244d16f31343fff02281359a6882929cf6bb8aa69edd39bc364414f93"
       },
       {
         "name": "cadevil:input:sha256:pyproject.toml",
-        "value": "b60887949a1300215b1ca90e1a9026937c28bf0a44b7050355507a47b176209f"
+        "value": "ea076fa1043b455250177780da9abb0b4547b894256c9af7619c82bb5b6284c8"
       },
       {
         "name": "cadevil:input:sha256:resources/static/css/vendor/normalize.LICENSE.md",
@@ -9383,7 +9383,7 @@
       },
       {
         "name": "cadevil:input:sha256:uv.lock",
-        "value": "5d34bde63065c6852f17c92abce6fccb0e747131a0e8ffc714a7b146f9f4176a"
+        "value": "06b4157c60491d768abe69768a15048d7f6eb2a4e383286d9866ebc8dff28167"
       },
       {
         "name": "cadevil:inventory:completeness",

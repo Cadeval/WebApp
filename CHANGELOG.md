@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.15.0 — 2026-10-04
+
+- Move IFC calculation, assessment, geometry, CityJSON and location services and their tests into BIM Workspace, alongside its templates and browser assets.
+- Register BIM Workspace as its own Django application through the plugin manager hook, with plugin-owned domain models, upload helpers and initial migrations.
+- Remove shared BIM compatibility wrappers and legacy migrations; use the `bim_model_manager` model/permission label and table prefix.
+- Move development MCP implementations to their own plugin directory and update source, test and packaging documentation.
+- Bump BIM Workspace to 2.0.0.
+
+### Breaking changes
+
+- Persistence starts from fresh shared-auth and BIM migration histories. Existing 0.14 databases are not upgraded in place; back up the deployment and initialize an empty Cadevil database for this release. Recreate login access and import any models or packages that should remain available.
+
 ## 0.14.1 — 2026-10-04
 
 - Isolate BIM Workspace and IFC editor templates, widgets, styles and browser assets in their owning plugin directories while preserving public URLs.
