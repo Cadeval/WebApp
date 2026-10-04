@@ -3,8 +3,6 @@
 .ipynb_checkpoints
 __pycache__
 /data/
-/src/apps/plugins/example_plugin/target/
-/src/apps/plugins/rust_example_plugin/target/
 *.rdb
 # Development MCP process logs and launcher lock
 data/debug-mcp/
@@ -23,3 +21,8 @@ node_modules/
 .idea/workspace.xml
 /tests/data/*.sqlite3*
 /tests/data/cityjson-cache/
+
+# Python distribution artifacts
+/dist/
+/build/
+*.egg-info/

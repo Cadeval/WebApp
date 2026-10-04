@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.16.0 — 2026-10-04
+
+- Build reviewed Python distributions through `uv build`, with a pinned Hatch hook compiling both WebAssembly workers through Rustup.
+- Keep generated WebAssembly and its derived inventory in build outputs; preserve the source checkout.
+- Build the production image from the verified wheel payload; exclude compilers, Rust sources, tests and development MCP code from runtime layers.
+- Move `plugins`, `plugin_manager`, `shared` and `mycelium` to the repository root; update imports and resource registration without changing Django labels or the 0.15 database schema.
+- Move Python, browser and Rust tests into the root `tests/` directory and update test discovery and CI.
+- Bump BIM Workspace to 2.0.2 and the IFC editor plugin to 2.0.3.
+
+### Breaking changes
+
+- Python integrations must import the root packages rather than the former `apps.*` paths. No compatibility aliases remain. Existing 0.15 database state stays compatible.
+
 ## 0.15.1 — 2026-10-04
 
 - Remove decorative eyebrow labels from landing, settings, plugin and BIM pages while retaining the demo step counter.

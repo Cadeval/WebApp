@@ -29,10 +29,10 @@ BOLT_MAX_UPLOAD_SIZE = 256 * 1024 * 1024
     from django.core.management import call_command
     from django.contrib.auth import get_user_model
     from django.test import Client
-    from apps.plugin_manager.models import PluginRecord
-    from apps.plugins.bim_model_manager import PLUGIN_ID
-    from apps.plugins.bim_model_manager.django.models import CalculationConfig, FileUpload, CadevilDocument
-    from apps.plugins.bim_model_manager.ifc_extractor.test_material_assessment import IfcPassportTests, reference
+    from plugin_manager.models import PluginRecord
+    from plugins.bim_model_manager import PLUGIN_ID
+    from plugins.bim_model_manager.django.models import CalculationConfig, FileUpload, CadevilDocument
+    from tests.plugins.bim_model_manager.ifc_extractor.test_material_assessment import IfcPassportTests, reference
     call_command('migrate', verbosity=0)
     user = get_user_model().objects.create_user(username='runtime-qa', password='temporary-runtime-password')
     other = get_user_model().objects.create_user(username='runtime-other')
@@ -224,9 +224,9 @@ BOLT_MAX_UPLOAD_SIZE = 256 * 1024 * 1024
                     # symlinks; never copy/edit the user's original IFC files.
                     from django.conf import settings
                     from django.core.files.base import ContentFile
-                    from apps.plugins.bim_model_manager.django.models import ConfigUpload
-                    from apps.plugins.bim_model_manager.ifc_extractor.material_assessment import load_reference
-                    from apps.plugins.bim_model_manager.pages import configuration
+                    from plugins.bim_model_manager.django.models import ConfigUpload
+                    from plugins.bim_model_manager.ifc_extractor.material_assessment import load_reference
+                    from plugins.bim_model_manager.pages import configuration
                     real_dir = Path('/Users/mia/Desktop/projects/cadevil-data/IFC')
                     media = Path(settings.MEDIA_ROOT) / 'browser-models'
                     media.mkdir(parents=True, exist_ok=True)
@@ -243,7 +243,7 @@ BOLT_MAX_UPLOAD_SIZE = 256 * 1024 * 1024
                     note.write_text(json.dumps({'url': f'http://127.0.0.1:{port}', 'model': str(upload.pk), 'reports': documents, 'real_models': browser_models}))
                     if '--viewer-real' in sys.argv:
                         import struct
-                        from apps.plugins.bim_model_manager.ifc_extractor.material_assessment import file_hash
+                        from plugins.bim_model_manager.ifc_extractor.material_assessment import file_hash
                         session = Client(); session.force_login(user)
                         client.cookies.set('sessionid', session.cookies['sessionid'].value)
                         viewer_results = []

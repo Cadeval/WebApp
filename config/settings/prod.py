@@ -78,5 +78,5 @@ if _admins_raw:
 # Development subprocess plugins must not contribute production resource apps.
 PLUGIN_BUILTINS = {key: value for key, value in PLUGIN_BUILTINS.items()
                    if not key.startswith("cadevil.mcp.")}
-from apps.plugin_manager.django_resources import resource_app_configs
+from plugin_manager.django_resources import resource_app_configs
 INSTALLED_APPS = [*INSTALLED_APPS, *resource_app_configs(BASE_DIR, PLUGIN_BUILTINS)]

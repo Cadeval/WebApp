@@ -10,9 +10,9 @@ from django.test import SimpleTestCase, override_settings
 from django_bolt import AllowAny, BoltAPI, Request
 from django_bolt.testing import TestClient
 
-from apps.shared.bolt_pages import page_endpoint
-from apps.shared.database_connections import DatabaseConnectionMiddleware
-from apps.shared.request_logging import configure_api_logging
+from shared.bolt_pages import page_endpoint
+from shared.database_connections import DatabaseConnectionMiddleware
+from shared.request_logging import configure_api_logging
 
 
 @override_settings(DATABASE_CONNECTION_LIFECYCLE=True, ALLOWED_HOSTS=['testserver'])
@@ -30,7 +30,7 @@ class DatabaseConnectionTests(SimpleTestCase):
                 raise DatabaseError('connection unavailable')
             return JsonResponse({'status': 'ok'})
 
-        with patch('apps.shared.database_connections.close_old_connections',
+        with patch('shared.database_connections.close_old_connections',
                    side_effect=lambda: events.append(('close', threading.get_ident()))):
             with TestClient(api, base_url='http://testserver', raise_server_exceptions=False) as client:
                 self.assertEqual(client.get('/connection/ok').status_code, 200)
@@ -47,7 +47,7 @@ class DatabaseConnectionTests(SimpleTestCase):
         async def handler(request: Request):
             raise AssertionError('Security middleware should return first')
 
-        with patch('apps.shared.database_connections.close_old_connections') as cleanup:
+        with patch('shared.database_connections.close_old_connections') as cleanup:
             with TestClient(api, base_url='http://testserver') as client:
                 response = client.get('/secure', follow_redirects=False)
         self.assertEqual(response.status_code, 301)
@@ -74,16 +74,16 @@ class DatabaseConnectionTests(SimpleTestCase):
             with self.assertRaises(asyncio.CancelledError):
                 await DatabaseConnectionMiddleware(cancelled)(None)
 
-        with patch('apps.shared.database_connections.close_old_connections') as cleanup:
+        with patch('shared.database_connections.close_old_connections') as cleanup:
             async_to_sync(run)()
         self.assertEqual(cleanup.call_count, 6)
 
     def test_websocket_permission_errors_close_in_the_same_thread(self):
-        from apps.shared.admin_logs import staff_session
+        from shared.admin_logs import staff_session
         events = []
-        with patch('apps.shared.admin_logs.close_old_connections',
+        with patch('shared.admin_logs.close_old_connections',
                    side_effect=lambda: events.append(threading.get_ident())), \
-                patch('apps.shared.admin_logs.get_user', side_effect=DatabaseError('unavailable')):
+                patch('shared.admin_logs.get_user', side_effect=DatabaseError('unavailable')):
             with self.assertRaises(DatabaseError):
                 async_to_sync(sync_to_async(staff_session, thread_sensitive=True))({})
         self.assertEqual(len(events), 2)

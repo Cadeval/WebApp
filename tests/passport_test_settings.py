@@ -5,7 +5,7 @@ SECRET_KEY='passport-tests-only'
 DEBUG=False
 ALLOWED_HOSTS=['testserver']
 INSTALLED_APPS=['django.contrib.auth','django.contrib.contenttypes','django.contrib.sessions',
-                'django.contrib.messages','django.contrib.admin','apps.shared','apps.plugin_manager']
+                'django.contrib.messages','django.contrib.admin','shared','plugin_manager']
 AUTH_USER_MODEL='shared.CadevilUser'
 DATABASES={'default':{'ENGINE':'django.db.backends.sqlite3','NAME':':memory:'}}
 ROOT_URLCONF='tests.passport_test_urls'
@@ -21,7 +21,7 @@ PLUGIN_BUILTINS={'cadevil.bim.model_manager':'bim_model_manager:plugin_manifest'
 
 ADMIN_LOG_ENABLED=False
 
-from apps.plugin_manager.django_resources import resource_app_configs
+from plugin_manager.django_resources import resource_app_configs
 INSTALLED_APPS += resource_app_configs(BASE_DIR.parent, {
     **PLUGIN_BUILTINS, "example_plugin": "example_plugin:plugin_manifest",
 })

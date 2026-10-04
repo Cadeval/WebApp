@@ -24,5 +24,5 @@ DEVELOPMENT_MCP_UI_UX_PORT = 8019
 DEVELOPMENT_MCP_CODE_AUDIT_PORT = 8020
 
 # Register resource bundles after choosing the environment's installed plugins.
-from apps.plugin_manager.django_resources import resource_app_configs
+from plugin_manager.django_resources import resource_app_configs
 INSTALLED_APPS = [*INSTALLED_APPS, *resource_app_configs(BASE_DIR, PLUGIN_BUILTINS)]

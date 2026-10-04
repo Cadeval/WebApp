@@ -16,9 +16,9 @@ def main():
         root = Path(directory) / "input"
         output = Path(directory) / "output"
         root.mkdir()
-        allowed = ["apps/runtime.py", "apps/shared/runtime.py", "resources/static/demo/public.json",
-                   "apps/plugins/bim_model_manager/static/bim-demo/public.json",
-                   "apps/plugins/example_plugin/static/js/public.js"]
+        allowed = ["plugin_manager/runtime.py", "shared/runtime.py", "resources/static/demo/public.json",
+                   "plugins/bim_model_manager/static/bim-demo/public.json",
+                   "plugins/example_plugin/static/js/public.js"]
         manifest = {"version": 1, "runtime": allowed, "build_only": ["Dockerfile", ".dockerignore", "docker/image-files.json"]}
         for relative in allowed:
             target = root / relative
@@ -28,11 +28,13 @@ def main():
         (root / "docker/image-files.json").write_text(json.dumps(manifest))
         (root / "Dockerfile").write_text("FROM scratch\nCOPY . /context/\n")
         (root / ".dockerignore").write_text(context.dockerignore(manifest))
-        canaries = [".env", ".git/config", ".aws/credentials", "apps/private.py", "apps/shared/private.py", "apps/shared/nested/private.py", "resources/static/private.json", "resources/static/demo/private.json", "docker/private.py", "data/user_uploads/private.ifc",
-                    "apps/plugins/bim_model_manager/private.py",
-                    "apps/plugins/bim_model_manager/static/bim-demo/private.ifc",
-                    "apps/plugins/example_plugin/static/js/private.js",
-                    "apps/plugins/example_plugin/resources/private.py"]
+        canaries = [".env", ".git/config", ".aws/credentials", "plugin_manager/private.py", "shared/private.py", "shared/nested/private.py", "resources/static/private.json", "resources/static/demo/private.json", "docker/private.py", "data/user_uploads/private.ifc",
+                    "plugins/bim_model_manager/private.py",
+                    "plugins/bim_model_manager/static/bim-demo/private.ifc",
+                    "plugins/example_plugin/static/js/private.js",
+                    "plugins/example_plugin/resources/private.py",
+                    "plugins/example_plugin/src/private.rs",
+                    "tests/private.py", "tests/browser/private.test.js", "tests/rust/private.rs"]
         for relative in canaries:
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)

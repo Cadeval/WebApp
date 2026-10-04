@@ -36,9 +36,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_bolt",  # Native HTTP/WebSocket router
-    "apps.shared",  # Models, assessments and browser pages
-    "apps.mycelium",  # Home, sessions and user settings
-    "apps.plugin_manager",
+    "shared",  # Identity, access, logging and generic pages
+    "mycelium",  # Home, sessions and user settings
+    "plugin_manager",
 ]
 
 # =======================
@@ -85,8 +85,8 @@ _context_processors = [
     "django.template.context_processors.request",
     "django.contrib.auth.context_processors.auth",
     "django.contrib.messages.context_processors.messages",
-    "apps.plugin_manager.context_processors.plugin_nav_items",
-    "apps.plugin_manager.context_processors.plugin_editor_items",
+    "plugin_manager.context_processors.plugin_nav_items",
+    "plugin_manager.context_processors.plugin_editor_items",
 ]
 
 TEMPLATES = [
@@ -248,14 +248,14 @@ ADMIN_LOG_PATH = Path(os.environ.get('ADMIN_LOG_PATH', str(BASE_DIR / 'data/live
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {'correlation': {'()': 'apps.shared.logging_utils.CorrelationFilter'}},
+    'filters': {'correlation': {'()': 'shared.logging_utils.CorrelationFilter'}},
     'formatters': {
-        'json': {'()': 'apps.shared.logging_utils.SafeJSONFormatter'},
-        'live': {'()': 'apps.shared.logging_utils.SafeTextFormatter'},
+        'json': {'()': 'shared.logging_utils.SafeJSONFormatter'},
+        'live': {'()': 'shared.logging_utils.SafeTextFormatter'},
     },
     'handlers': {
         'console': {'class': 'logging.StreamHandler', 'formatter': 'json', 'filters': ['correlation']},
-        'live': {'class': 'apps.shared.live_logs.SharedLogHandler', 'formatter': 'live', 'level': 'INFO'},
+        'live': {'class': 'shared.live_logs.SharedLogHandler', 'formatter': 'live', 'level': 'INFO'},
         'null': {'class': 'logging.NullHandler'},
     },
     'root': {'handlers': ['console', 'live'], 'level': LOG_LEVEL},

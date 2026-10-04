@@ -27,3 +27,5 @@ jobs:
         run: make install
       - name: Verify Python, browser workers and Rust
         run: make test
+      - name: Build reviewed Python and WebAssembly distributions
+        run: make build
