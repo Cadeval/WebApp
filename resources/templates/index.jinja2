@@ -14,6 +14,27 @@
         </div>
     </section>
 
+    <section aria-labelledby="home-about-title">
+        <div class="journey-section-heading">
+            <h2 id="home-about-title">What is Cadevil?</h2>
+            <p>Cadevil is an open-source building assessment platform for architects and engineers. Developed from a master's thesis project, it helps you understand and compare buildings using their IFC models.</p>
+        </div>
+        <div class="journey-grid">
+            <article class="journey-card">
+                <h3>Understand your models</h3>
+                <p>Upload IFC or CityJSON files, explore buildings in 3D and inspect their material properties. Select validation warnings to locate the affected elements in the viewer.</p>
+            </article>
+            <article class="journey-card">
+                <h3>Assess materials and recovery</h3>
+                <p>Calculate material quantities and environmental impacts, create material passports and compare saved reports. Review costs in EUR and how recovery grades affect the estimates.</p>
+            </article>
+            <article class="journey-card">
+                <h3>Build your workflow</h3>
+                <p>Choose the plugins you need for your workspace. The BIM Workspace brings models, maps, reference data, material passports and comparisons together in one place.</p>
+            </article>
+        </div>
+    </section>
+
     {% if user.is_authenticated %}
         <section aria-labelledby="home-workflow-title">
             <div class="journey-section-heading"><h2 id="home-workflow-title">Your workflow</h2><p>Open a chosen tool or add another from Plugins.</p></div>

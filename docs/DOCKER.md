@@ -12,10 +12,10 @@ Build using a context archive outside the checkout so no directory walk is sent 
 make docker-build
 ```
 
-This creates the local `cadevil:0.14.0` image with BuildKit SBOM and minimal
+This creates the local `cadevil:0.14.1` image with BuildKit SBOM and minimal
 provenance attestations. The helper removes its temporary archive after the
 build. For a specific platform or tag, run
-`uv run --locked --no-sync python scripts/build_docker.py --platform linux/amd64 --tag cadevil:0.14.0`.
+`uv run --locked --no-sync python scripts/build_docker.py --platform linux/amd64 --tag cadevil:0.14.1`.
 Attestations require a compatible BuildKit builder and containerd image store;
 the tested Docker Desktop installation has both. No registry push is performed.
 
@@ -24,7 +24,7 @@ The explicit archive commands remain available:
 ```sh
 python docker/context.py
 python docker/context.py --archive /tmp/cadevil-context.tar
-docker build --platform linux/arm64 --tag cadevil:0.14.0 - < /tmp/cadevil-context.tar
+docker build --platform linux/arm64 --tag cadevil:0.14.1 - < /tmp/cadevil-context.tar
 ```
 
 Use `--platform linux/amd64` for an x86-64 host. Docker Desktop must be running. A regular `docker build .` uses the same exact `.dockerignore`, and the builder verifies the received source list before collecting static assets. Build context controls, uv, dependency locks, the static collector and packaging validator remain in intermediate stages. No compiler, Node modules, local virtual environment, test files, development SBOM, MCP subprocess programs, `.env`, Git history, keys, uploaded plugins or user data are copied into the runtime. `pytest` remains an application dependency because IfcOpenShell EXPRESS validation imports it; dependencies may contain their own upstream testing modules.
@@ -61,11 +61,11 @@ docker volume create cadevil-data
 docker run --rm --init --read-only --tmpfs /tmp:rw,nosuid,size=256m \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
-  cadevil:0.14.0 python manage.py migrate --noinput
+  cadevil:0.14.1 python manage.py migrate --noinput
 docker run --rm --init -it --read-only --tmpfs /tmp:rw,nosuid,size=256m \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
-  cadevil:0.14.0 python manage.py createsuperuser
+  cadevil:0.14.1 python manage.py createsuperuser
 ```
 
 `/app/data` holds the SQLite database, uploads/private plugin archives, log store and generated caches. It starts empty; no local database or accounts are bundled. Back up the volume separately. For an existing deployment, restore its database and files into the volume with UID/GID 10001 permissions and then apply migrations. Do not mount production state into a build. Automatic migration on every web-worker startup is deliberately avoided.
@@ -80,12 +80,12 @@ docker run --detach --name cadevil --init --read-only \
   --mount type=volume,src=cadevil-data,dst=/app/data \
   --env-file /secure/cadevil/runtime.env \
   --publish 127.0.0.1:8080:8000 \
-  cadevil:0.14.0
+  cadevil:0.14.1
 ```
 
 Terminate TLS at a reverse proxy and proxy HTTP/WebSocket traffic to this private backend. When `CADEVIL_TRUST_PROXY_HTTPS=true`, the application trusts `X-Forwarded-Proto: https`. Enable it only if the proxy strips client-supplied forwarded headers and supplies its own. Keep the backend reachable only by that proxy; do not expose a trusted-header backend directly to clients. The proxy must forward the configured Host and support WebSocket upgrades. HTTPS redirects, secure cookies and HSTS remain enabled.
 
-Django admin assets are collected during the build. Bolt 0.11.1's [native static server](https://github.com/dj-bolt/django-bolt/blob/v0.11.1/src/server.rs#L368-L429) searches both `STATIC_ROOT` and `STATICFILES_DIRS` in production, so first-party public assets remain in their original directory without a second copy of the large demo models. Private media remains accessible only through owner-checked routes. Debug mode and all MCP plugins are disabled by container settings regardless of an environment variable opt-in; `/dev/mcp` has no production route.
+Django admin assets are collected during the build. Bundled IFC/BIM assets stay in their owning plugin's `static/` directory, registered by the [plugin manager's Django adapter](PLUGIN_RESOURCES.md). Bolt 0.11.1's [native static server](https://github.com/dj-bolt/django-bolt/blob/v0.11.1/src/server.rs#L368-L429) searches both `STATIC_ROOT` and `STATICFILES_DIRS` in production, so first-party public assets remain in their original directory without a second copy of the large demo models. Private media remains accessible only through owner-checked routes. Debug mode and all MCP plugins are disabled by container settings regardless of an environment variable opt-in; `/dev/mcp` has no production route.
 
 The fixed public `/healthz` checks HTTP worker dispatch and database connectivity with `SELECT 1`, returning only `ready` or `unavailable`. It is the sole HTTPS redirect exception for internal probes. It does not validate pending migrations, simulation dependencies or third-party service availability. The built-in health check runs every 30 seconds with a 60-second startup allowance. Request/log metadata contains no model attributes or credentials; structured diagnostic output goes to standard error and the bounded admin log store remains under `/app/data`.
 

@@ -1,6 +1,8 @@
 # Cadevil
 
-Cadevil assesses IFC buildings, presents material passports and recovery costs in EUR, and supports signed browser workflow plugins. Django sessions and Django-Bolt serve the full pages, HTMX fragments, background job status and admin log WebSocket. The public `/demo` presents recorded results and provisional estimates for the A–D house geometry.
+Cadevil is an open-source building assessment platform for architects and engineers, developed from a master's thesis project. It connects IFC geometry with material quantities, environmental impacts, material passports and recovery costs in EUR. Users choose signed workflow plugins for their own workspace.
+
+The landing page `/` explains the platform and links to the public `/demo`, which presents recorded results and provisional estimates for the A–D house geometry. Django sessions and Django-Bolt serve full pages, HTMX fragments, background job status and the admin log WebSocket.
 
 ## Local setup
 
@@ -48,13 +50,17 @@ rustup target add wasm32-unknown-unknown
 make rebuild
 ```
 
+The IFC/BIM workspace keeps its templates in `apps/plugins/bim_model_manager/templates/` and its browser assets and demo recordings in `apps/plugins/bim_model_manager/static/`. The IFC editor owns the corresponding `templates/` and `static/` directories under `apps/plugins/example_plugin/`.
+
+Each declares its resource ownership in `resources.json`. A plugin-manager startup hook registers resource-only Django applications, so Django discovers their templates, form widgets and static files automatically. The adapter also registers the static directories with Bolt's native server. Resource registration is independent of personal workflow activation; the existing route and ownership checks determine access. See [plugin resource registration](docs/PLUGIN_RESOURCES.md) for the declaration format, Django hook and loader behavior.
+
 ## Verification
 
 ```sh
 make test
 ```
 
-This runs native Bolt/Django integration tests, Node browser/worker tests, and both dependency-free Rust crates. Test discovery is limited to `apps` and `tests`; historical sources in ignored `reference/` are not the running application. `npm ci --ignore-scripts` uses the pinned Three.js test dependency. WebAssembly builds write to `resources/static/wasm/`.
+This runs native Bolt/Django integration tests, Node browser/worker tests, and both dependency-free Rust crates. Test discovery is limited to `apps` and `tests`; historical sources in ignored `reference/` are not the running application. `npm ci --ignore-scripts` uses the pinned Three.js test dependency. `npm test` temporarily merges the registered static roots, preserving the browser's relative imports and fixture paths. IFC editor WebAssembly builds write to `apps/plugins/example_plugin/static/wasm/`; Snake builds write to `resources/static/wasm/`.
 
 See [the code audit](docs/CODE_AUDIT.md) for deletion evidence, security fixes, scan scope and remaining limitations. The local audit MCP provides repeatable read-only Semgrep and Ruff checks during `make debug`.
 
@@ -80,9 +86,11 @@ response's `X-Request-ID` to relate a reported failure to its server events.
 - `manage.py`, `config/`: settings and native route composition.
 - `apps/shared/`: persistent models, migrations, assessments, exchanges and browser services.
 - `apps/mycelium/`: landing page, demo, sessions and user/admin settings.
-- `apps/plugin_manager/`: discovery, user selections, signed packages and debug supervisors.
-- `apps/plugins/`: BIM routes, trusted MCP manifests and the Rust browser plugins.
-- `resources/`: active Django templates and static browser assets.
+- `apps/plugin_manager/`: discovery, user selections, signed packages, resource registration and debug supervisors.
+- `apps/plugins/`: plugin implementations, trusted MCP manifests and the Rust browser plugins.
+- `apps/plugins/bim_model_manager/`: IFC/BIM workspace routes, `templates/`, `static/`, and its resource declaration.
+- `apps/plugins/example_plugin/`: IFC editor Rust source, `templates/`, `static/`, and its resource declaration.
+- `resources/`: shared application templates and static assets, including the page shell and landing page.
 - `tests/`: Bolt transport helpers and integration settings.
 
 Database migrations and historical model callables are retained even when their original views have been retired. Runtime uploads, databases and generated caches are excluded from source cleanup. The project uses the [MIT license](LICENSE).

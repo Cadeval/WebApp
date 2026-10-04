@@ -85,7 +85,7 @@ Official Normalize.css 8.0.1 is vendored at
 `resources/static/css/vendor/normalize.css`, with its MIT license alongside it.
 The base and index templates load it before application styles; standalone
 passport pages also load it. No CDN request is needed.
-`resources/static/css/bim.css` provides the shared BIM presentation, including
+`apps/plugins/bim_model_manager/static/css/bim.css` provides the shared BIM presentation, including
 light/dark colors, visible focus states, forms, model cards, scrollable tables,
 sticky configuration headings and bounded validation diagnostics. Safari visual
 review covers the model manager, actual MP reference editor, passport report
@@ -100,8 +100,9 @@ uv run --inexact python tests/bolt_runtime_smoke.py --real-models
 This reads the originals under `/Users/mia/Desktop/projects/cadevil-data/IFC/`
 and uses `MP_indicators_and_modfications_short.csv` from the adjacent schema
 folder. It writes individual upload/assessment outcomes to
-`docs/BIM_REAL_MODEL_VALIDATION.json`. Invalid models retain the existing strict
-validation behavior and do not produce saved reports.
+`docs/BIM_REAL_MODEL_VALIDATION.json`. Validation warnings are grouped and
+nonfatal, and affected IFC elements can be selected in the viewer. Reports
+identify provisional calculations and unresolved quantities or material data.
 
 The isolated server uses a temporary 256 MiB Bolt request limit for these large
 files. The application currently retains Bolt's default 1 MiB transport limit,
