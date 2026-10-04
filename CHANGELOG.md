@@ -2,6 +2,7 @@
 
 ## 0.15.0 — 2026-10-04
 
+- Simplify demo statistic labels and keep one walkthrough link on the landing page.
 - Move IFC calculation, assessment, geometry, CityJSON and location services and their tests into BIM Workspace, alongside its templates and browser assets.
 - Register BIM Workspace as its own Django application through the plugin manager hook, with plugin-owned domain models, upload helpers and initial migrations.
 - Remove shared BIM compatibility wrappers and legacy migrations; use the `bim_model_manager` model/permission label and table prefix.

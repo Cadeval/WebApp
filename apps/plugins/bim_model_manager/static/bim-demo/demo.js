@@ -88,7 +88,7 @@ export async function initializeRecording(root) {
     status.textContent='Ready';play.disabled=false;play.textContent='Load and play demo';
     loading.finish();
     pick('[data-demo-title]').textContent='Actual house geometry and a recorded calculation workflow';
-    pick('[data-demo-caption]').textContent='Play to load the A–D geometry previews. House values are provisional known subtotals with validation warnings; the walkthrough also includes verified controlled examples.';
+    pick('[data-demo-caption]').textContent='Play to load the A–D geometry previews. House values are provisional estimates with validation warnings; the walkthrough also includes verified controlled examples.';
     await new Promise(resolve=>{launch=()=>{play.removeEventListener('click',launch);abortLoad.signal.removeEventListener('abort',resolve);play.disabled=true;status.textContent='Loading saved geometry…';resolve();};play.addEventListener('click',launch);abortLoad.signal.addEventListener('abort',resolve,{once:true});});
     if(disposed)return;
     const entries=[...recording.models,...recording.houses];
@@ -146,10 +146,10 @@ export async function initializeRecording(root) {
       const stats=modelStatistics(recording,active);
       panel.append(text('strong',`${stats.name} · provisional, unvalidated`));
       const rows=stats.metrics.map(metric=>[metric.label,
-        metric.value==null ? 'Unavailable' : `${formatted(metric.value)} ${metric.unit}${metric.subtotal?' · known subtotal; total unavailable':''}`]);
+        metric.value==null ? 'Unavailable' : `${formatted(metric.value)} ${metric.unit}`]);
       panel.append(definition(rows.filter((_,index)=>[0,3,9].includes(index))));
       pick('[data-demo-title]').textContent=`${stats.name} · provisional statistics`;
-      pick('[data-demo-caption]').textContent='Pre-calculated values for the house currently shown. Strict IFC validation failed. Known subtotals include only available contributions and are not complete house totals.';
+      pick('[data-demo-caption]').textContent='Pre-calculated values for the house currently shown. Strict IFC validation failed. Estimates may be incomplete.';
       detail.replaceChildren(definition(rows));
       const warning=`${formatted(stats.schemaDiagnostics)} schema diagnostics · ${formatted(stats.issueCount)} calculation issues. ${stats.complete?'Calculation data complete':'Incomplete calculation data'}.`;
       panel.append(text('p',warning));detail.append(text('p',warning));

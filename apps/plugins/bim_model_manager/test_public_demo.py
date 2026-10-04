@@ -38,7 +38,7 @@ class PublicDemoTests(TestCase):
             else:
                 self.assertNotContains(full,'data-recorded-demo')
                 self.assertNotContains(full,'bim-demo/demo.js')
-                self.assertContains(full,'href="/demo"')
+                self.assertContains(full,'>Open demo</a>',count=1)
             fragment=self.client.get(path,HTTP_HX_REQUEST='true')
             self.assertNotContains(fragment,'<html');self.assertContains(fragment,'id="content-container"',count=1)
             if path == '/demo':
@@ -46,7 +46,7 @@ class PublicDemoTests(TestCase):
             else:
                 self.assertNotContains(fragment,'data-recorded-demo')
                 self.assertNotContains(fragment,'bim-demo/demo.js')
-                self.assertContains(fragment,'hx-get="/demo"')
+                self.assertContains(fragment,'hx-get="/demo"',count=1)
             self.assertIn(self.client.post('/demo',{}).status_code,(404,405))
         self.assertEqual(before,[table.objects.count() for table in tables])
         self.assertEqual(self.client.get(f'/plugins/bim/models/{self.private.pk}/viewer/').status_code,302)
