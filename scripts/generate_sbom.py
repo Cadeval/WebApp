@@ -418,7 +418,8 @@ def cargo_inventory(inventory: Inventory) -> None:
         inventory.dependencies[inventory.component["bom-ref"]].add(root_ref)
         for path in [directory / "Cargo.lock", directory / "Cargo.toml"]:
             inventory.evidence_file(path)
-        filename = f"resources/static/wasm/{wasm}.wasm"
+        filename = (f"apps/plugins/{wasm}/static/wasm/{wasm}.wasm"
+                    if wasm == "example_plugin" else f"resources/static/wasm/{wasm}.wasm")
         asset_ref = f"urn:cadevil:asset:{filename}"
         inventory.add({"type": "file", "bom-ref": asset_ref, "name": filename, "hashes": [{"alg": "SHA-256", "content": digest(ROOT / filename)}], "scope": "required", "properties": properties({"cadevil:evidence:source": "tracked compiled WASM bytes; source/build equivalence unverified"})})
         inventory.dependencies[root_ref].add(asset_ref)

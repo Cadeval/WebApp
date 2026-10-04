@@ -74,3 +74,9 @@ DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@example.com")
 _admins_raw = os.environ.get("ADMINS", "")
 if _admins_raw:
     ADMINS = [tuple(a.split(":", 1)) for a in _admins_raw.split(",") if ":" in a]
+
+# Development subprocess plugins must not contribute production resource apps.
+PLUGIN_BUILTINS = {key: value for key, value in PLUGIN_BUILTINS.items()
+                   if not key.startswith("cadevil.mcp.")}
+from apps.plugin_manager.django_resources import resource_app_configs
+INSTALLED_APPS = [*INSTALLED_APPS, *resource_app_configs(BASE_DIR, PLUGIN_BUILTINS)]

@@ -79,3 +79,153 @@
 
 .bim-diagnostic-group summary { cursor:pointer; overflow-wrap:anywhere; }
 .bim-diagnostic-message { white-space:pre-wrap; overflow-wrap:anywhere; max-height:24rem; overflow:auto; background:var(--bim-bg); color:var(--bim-text); padding:.75rem; }
+
+/* -------------------- Model Detail -------------------- */
+.model-detail {
+    width: min(100%, 96rem);
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 2rem);
+}
+
+.model-detail__header {
+    margin-bottom: 1.25rem;
+}
+
+.model-detail__header h2 {
+    margin: 0.15rem 0 0;
+}
+
+.model-detail__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: 1rem;
+    align-items: start;
+}
+
+.model-detail__card {
+    min-width: 0;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border: 1px solid var(--border-low-contrast);
+    border-radius: var(--border-radius);
+    background: var(--secondary-bg);
+    box-shadow: var(--box-shadow);
+}
+
+.model-detail__card--wide {
+    grid-column: 1 / -1;
+}
+
+.model-detail__card h3 {
+    margin-top: 0;
+}
+
+.model-detail__properties {
+    display: grid;
+    grid-template-columns: minmax(9rem, 0.9fr) minmax(0, 1.1fr);
+    gap: 0;
+    margin: 0;
+}
+
+.model-detail__properties dt,
+.model-detail__properties dd {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border-low-contrast);
+}
+
+.model-detail__properties dt {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.model-detail__properties dd {
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+}
+
+.model-detail__long-value {
+    white-space: pre-line;
+}
+
+.model-detail__table-scroll,
+.model-detail__plot {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.model-detail__table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.model-detail__table th,
+.model-detail__table td {
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--border-low-contrast);
+    text-align: right;
+}
+
+.model-detail__table th:first-child,
+.model-detail__table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--secondary-bg);
+    text-align: left;
+}
+
+.model-detail__empty {
+    color: var(--accent-color);
+    line-height: 1.5;
+}
+
+.energy-form {
+    margin: 0 0 1rem;
+    padding: 1rem;
+    background: var(--primary-bg);
+    border: 1px solid var(--border-low-contrast);
+    border-radius: var(--border-radius);
+}
+
+.energy-form .form-group,
+.material-selector {
+    display: grid;
+    gap: 0.45rem;
+    margin-bottom: 1rem;
+}
+
+.energy-form select,
+.material-selector select {
+    width: 100%;
+    padding: 0.55rem;
+    border: 1px solid var(--border-low-contrast);
+    border-radius: calc(var(--border-radius) / 2);
+    background: var(--primary-bg);
+    color: var(--primary-color);
+}
+
+
+
+.thumbnail-large {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 36rem) {
+    .model-detail__properties {
+        grid-template-columns: 1fr;
+    }
+
+    .model-detail__properties dt {
+        padding-bottom: 0.1rem;
+        border-bottom: 0;
+    }
+
+    .model-detail__properties dd {
+        padding-top: 0.1rem;
+        text-align: left;
+    }
+}

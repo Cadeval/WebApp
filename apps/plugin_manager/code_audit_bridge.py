@@ -24,7 +24,7 @@ RUFF_VERSION = "0.16.10"
 RULES_COMMIT = "a84ff9cc2453ca91d581380de4b8b3f272f6f4be"
 AUDIT_TOOL = "code_audit_local"
 INFO_TOOL = "code_audit_info"
-SOURCE_ROOTS = ("apps", "config", "resources/static/js", "resources/static/bim-demo",
+SOURCE_ROOTS = ("apps", "config", "resources/static/js",
                 "resources/static/css", "resources/styles", "resources/templates", "tests", ".github/workflows")
 TOP_LEVEL_FILES = {"manage.py", "pyproject.toml", "Makefile", "package.json", "package-lock.json",
                    "uv.lock", "Dockerfile", "compose.yml", "compose.yaml"}

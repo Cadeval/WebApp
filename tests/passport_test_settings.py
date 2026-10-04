@@ -20,3 +20,8 @@ DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
 PLUGIN_BUILTINS={'cadevil.bim.model_manager':'bim_model_manager:plugin_manifest'}
 
 ADMIN_LOG_ENABLED=False
+
+from apps.plugin_manager.django_resources import resource_app_configs
+INSTALLED_APPS += resource_app_configs(BASE_DIR.parent, {
+    **PLUGIN_BUILTINS, "example_plugin": "example_plugin:plugin_manifest",
+})

@@ -41,7 +41,7 @@ async def demo_report(model: Literal['house-a', 'house-b', 'house-c', 'house-d',
     await require_native_plugin()
     if model not in DEMO_REPORTS:
         raise ValueError('Choose a listed public demo model.')
-    root = Path(settings.BASE_DIR) / 'resources/static/bim-demo'
+    root = Path(settings.BASE_DIR) / 'apps/plugins/bim_model_manager/static/bim-demo'
     report = json.loads((root / DEMO_REPORTS[model]).read_text())
     keys = ['building', 'lca_averages', 'recovery_cost_analysis', 'complete', 'calculation_complete', 'status', 'issue_count', 'quantity_warning_count', 'units', 'method', 'grade_note']
     return {'model': model, 'provisional': model.startswith('house-'), 'currency': 'EUR', **{key: report[key] for key in keys if key in report}}

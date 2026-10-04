@@ -6,7 +6,7 @@ import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = "docker/image-files.json"
-PUBLIC_IFC = {"resources/static/bim-demo/example-a.ifc", "resources/static/bim-demo/example-b.ifc"}
+PUBLIC_IFC = {"apps/plugins/bim_model_manager/static/bim-demo/example-a.ifc", "apps/plugins/bim_model_manager/static/bim-demo/example-b.ifc"}
 FORBIDDEN_PARTS = {
     ".git", ".env", ".venv", "node_modules", "__pycache__", "data", "media", "reference",
     "target", "tests", "test", "src", ".ssh", ".aws", ".codex", ".agents", "backups",

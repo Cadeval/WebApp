@@ -16,7 +16,9 @@ def main():
         root = Path(directory) / "input"
         output = Path(directory) / "output"
         root.mkdir()
-        allowed = ["apps/runtime.py", "apps/shared/runtime.py", "resources/static/demo/public.json"]
+        allowed = ["apps/runtime.py", "apps/shared/runtime.py", "resources/static/demo/public.json",
+                   "apps/plugins/bim_model_manager/static/bim-demo/public.json",
+                   "apps/plugins/example_plugin/static/js/public.js"]
         manifest = {"version": 1, "runtime": allowed, "build_only": ["Dockerfile", ".dockerignore", "docker/image-files.json"]}
         for relative in allowed:
             target = root / relative
@@ -26,7 +28,11 @@ def main():
         (root / "docker/image-files.json").write_text(json.dumps(manifest))
         (root / "Dockerfile").write_text("FROM scratch\nCOPY . /context/\n")
         (root / ".dockerignore").write_text(context.dockerignore(manifest))
-        canaries = [".env", ".git/config", ".aws/credentials", "apps/private.py", "apps/shared/private.py", "apps/shared/nested/private.py", "resources/static/private.json", "resources/static/demo/private.json", "docker/private.py", "data/user_uploads/private.ifc"]
+        canaries = [".env", ".git/config", ".aws/credentials", "apps/private.py", "apps/shared/private.py", "apps/shared/nested/private.py", "resources/static/private.json", "resources/static/demo/private.json", "docker/private.py", "data/user_uploads/private.ifc",
+                    "apps/plugins/bim_model_manager/private.py",
+                    "apps/plugins/bim_model_manager/static/bim-demo/private.ifc",
+                    "apps/plugins/example_plugin/static/js/private.js",
+                    "apps/plugins/example_plugin/resources/private.py"]
         for relative in canaries:
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -38,7 +44,7 @@ def main():
         for path in (output / "context").rglob("*"):
             if path.is_file() and b"PRIVATE_CANARY_DO_NOT_PACKAGE" in path.read_bytes():
                 raise SystemExit("A private canary reached Docker's exported context.")
-        print("Docker excluded all ten private/new-file canaries and retained every reviewed public input.")
+        print(f"Docker excluded all {len(canaries)} private/new-file canaries and retained every reviewed public input.")
 
 
 if __name__ == "__main__":

@@ -33,7 +33,11 @@ class DockerContextPolicyTests(SimpleTestCase):
         manifest = context.validate()
         self.assertNotIn("config/settings/dev.py", manifest["runtime"])
         self.assertNotIn("apps/plugin_manager/debug_processes.py", manifest["runtime"])
-        self.assertIn("resources/static/bim-demo/house-a.glb", manifest["runtime"])
+        self.assertIn("apps/plugins/bim_model_manager/static/bim-demo/house-a.glb", manifest["runtime"])
+        self.assertIn("apps/plugins/example_plugin/static/css/ifc_editor.css", manifest["runtime"])
+        self.assertIn("apps/plugin_manager/resource_registry.py", manifest["runtime"])
+        self.assertIn("apps/plugin_manager/django_resources.py", manifest["runtime"])
+        self.assertNotIn("apps/plugins/resources.py", manifest["runtime"])
         self.assertIn("apps/shared/migrations/0001_initial.py", manifest["runtime"])
         self.assertIn("sbom/cadevil.cdx.json", manifest["runtime"])
 
@@ -41,7 +45,7 @@ class DockerContextPolicyTests(SimpleTestCase):
         with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as output:
             root = Path(source)
             manifest = self.fixture(root)
-            for path in (".env", ".git/config", "apps/credentials.py", "apps/nested/new.py", "resources/static/secret.txt", "data/user_uploads/private.ifc"):
+            for path in (".env", ".git/config", "apps/credentials.py", "apps/nested/new.py", "resources/static/secret.txt", "apps/plugins/bim_model_manager/static/bim-demo/private.ifc", "apps/plugins/example_plugin/static/js/private.js", "data/user_uploads/private.ifc"):
                 target = root / path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("PRIVATE_CANARY_DO_NOT_PACKAGE")

@@ -92,7 +92,9 @@ class PluginBuiltinInventoryTests(TestCase):
                 inventory = plugin_inventory(self.record(plugin_id))
                 document = json.loads(inventory["content"])
                 names = {component["name"] for component in document["components"]}
-                self.assertEqual(names, {crate, f"resources/static/wasm/{wasm}.wasm"})
+                filename = (f"apps/plugins/{wasm}/static/wasm/{wasm}.wasm"
+                            if wasm == "example_plugin" else f"resources/static/wasm/{wasm}.wasm")
+                self.assertEqual(names, {crate, filename})
                 self.assertIn("source-to-binary equivalence", inventory["scope"])
                 self.assertEqual(inventory["component_count"], 2)
                 self.assertEqual(document["compositions"][0]["aggregate"], "incomplete")

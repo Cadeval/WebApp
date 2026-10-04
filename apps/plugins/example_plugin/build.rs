@@ -20,7 +20,7 @@ fn build_module() -> Result<(), BuildError> {
     let cargo = env::var_os("CARGO").unwrap_or_else(|| OsString::from("cargo"));
     let crate_root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let child_target_dir = child_target_dir(crate_root);
-    let output_path = output_path(crate_root)?;
+    let output_path = output_path(crate_root);
 
     println!("Building Rust WASM module...");
     let status = Command::new(&cargo)
@@ -78,13 +78,8 @@ fn built_module_path(target_dir: &Path) -> PathBuf {
         .join(MODULE_FILENAME)
 }
 
-fn output_path(crate_root: &Path) -> Result<PathBuf, BuildError> {
-    let source_root = crate_root
-        .ancestors().nth(3)
-        .ok_or_else(|| BuildError::InvalidCrateRoot(crate_root.to_path_buf()))?;
-    Ok(source_root
-        .join("resources/static/wasm")
-        .join(MODULE_FILENAME))
+fn output_path(crate_root: &Path) -> PathBuf {
+    crate_root.join("static/wasm").join(MODULE_FILENAME)
 }
 
 #[derive(Debug)]
@@ -92,7 +87,6 @@ enum BuildError {
     CargoNotFound,
     CargoStart(io::Error),
     CargoFailed(ExitStatus),
-    InvalidCrateRoot(PathBuf),
     CreateOutput {
         path: PathBuf,
         source: io::Error,
@@ -122,11 +116,6 @@ impl fmt::Display for BuildError {
             ),
             Self::CargoStart(source) => write!(formatter, "Failed to execute Cargo: {source}"),
             Self::CargoFailed(status) => write!(formatter, "Cargo build failed with {status}"),
-            Self::InvalidCrateRoot(path) => write!(
-                formatter,
-                "Example plugin crate has no source-directory parent: {}",
-                path.display()
-            ),
             Self::CreateOutput { path, source } => write!(
                 formatter,
                 "Failed to create output directory {}: {source}",
@@ -163,10 +152,10 @@ mod tests {
     }
 
     #[test]
-    fn output_is_copied_to_static_resources() {
+    fn output_is_copied_to_plugin_static_resources() {
         assert_eq!(
-            output_path(Path::new("apps/plugins/example_plugin")).unwrap(),
-            PathBuf::from("resources/static/wasm/example_plugin.wasm")
+            output_path(Path::new("apps/plugins/example_plugin")),
+            PathBuf::from("apps/plugins/example_plugin/static/wasm/example_plugin.wasm")
         );
     }
 }

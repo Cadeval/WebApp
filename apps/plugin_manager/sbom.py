@@ -226,7 +226,8 @@ def _builtin_inventory(record):
     if record.plugin_id in RUST_PLUGINS:
         folder, package_name = RUST_PLUGINS[record.plugin_id]
         roots = [component["bom-ref"] for component in document["components"] if component["name"] == package_name]
-        filename = f"resources/static/wasm/{folder}.wasm"
+        filename = (f"apps/plugins/{folder}/static/wasm/{folder}.wasm"
+                    if folder == "example_plugin" else f"resources/static/wasm/{folder}.wasm")
         files = [component for component in document["components"] if component["name"] == filename]
         try:
             expected = next(digest["content"] for digest in files[0]["hashes"] if digest["alg"] == "SHA-256")
