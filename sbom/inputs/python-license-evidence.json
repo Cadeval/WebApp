@@ -1,0 +1,1083 @@
+{
+  "pkg:pypi/annotated-types@0.8.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298"
+  },
+  "pkg:pypi/anyio@4.14.2": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "c5e6fc4dfd833319913b287be7a30d9935e9208c7ef917630621855aaac4d419"
+  },
+  "pkg:pypi/anyio@4.15.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "043aecb571af7189e8a6c528f5d8e32545f1b2cdfaaf761d51e6d5b67ea3ca81"
+  },
+  "pkg:pypi/arrow@1.4.0": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: Apache Software License"
+      }
+    },
+    "metadataSha256": "36407a40cd6a7f3147f8c8ab802d516fb4c152d7e2aabab52718ff3407a1706d"
+  },
+  "pkg:pypi/asgiref@3.12.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "2d1028c0faba0f391a7c23fab960661c9b03387ef1a0d70e04b820ddb3bfa294"
+  },
+  "pkg:pypi/attrs@26.1.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc"
+  },
+  "pkg:pypi/bolt-mcp@0.2.3": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "1c415aa4cd769e800c254bf103078330fa2f532d569548defcbfbfeab187e87f"
+  },
+  "pkg:pypi/boltons@21.0.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD"
+      }
+    },
+    "metadataSha256": "b9ccb8eb0a23e20e345c4f7fd7852ba4b5f6105d155a7b34e3c3eac0b495c6ab"
+  },
+  "pkg:pypi/boolean-py@5.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-2-Clause"
+      }
+    },
+    "metadataSha256": "9e43aeae17a73073abee61deb5fb267dfdf0eeb67d6e3123270b52aac5ed87fa"
+  },
+  "pkg:pypi/bracex@3.0.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "09c5edb7c8ffe84b1cdb4df8d6cd045655b237eef85bb567056c1f3385abea9a"
+  },
+  "pkg:pypi/cachecontrol@0.14.4": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "a3b797a601ffe3505ce4b0c635363ccf26a9959f2490e902f841a4b5996b5cc4"
+  },
+  "pkg:pypi/certifi@2026.7.22": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MPL-2.0"
+      }
+    },
+    "metadataSha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090"
+  },
+  "pkg:pypi/cffi@2.1.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT-0"
+    },
+    "metadataSha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918"
+  },
+  "pkg:pypi/charset-normalizer@3.5.2": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb"
+  },
+  "pkg:pypi/cjio@0.9.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "f56956565e9540f69062ecff4fbf4907744617770c345a8ea2dd8b8020563bfe"
+  },
+  "pkg:pypi/click-option-group@0.5.9": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "776b38c567188e480227e3b9050867a585aba8c7dde5559f7260e8d30b492c13"
+  },
+  "pkg:pypi/click@8.4.2": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "194c9dd81d567f9081f026c7e401060fbafa7bc147c8e0a58b3668b40a64c031"
+  },
+  "pkg:pypi/click@8.5.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "e87bce0bd194de70dfb8e708e0a6b0483009f25611804eaf87bfeb63e6c20501"
+  },
+  "pkg:pypi/colorama@0.4.6": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: BSD License"
+      }
+    },
+    "metadataSha256": "7baed29eb50c3b29bdb33ff84e3177bf1bc05784f7685ecdcaa4471c7dd810cc"
+  },
+  "pkg:pypi/cryptography@50.0.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0 OR BSD-3-Clause"
+    },
+    "metadataSha256": "8e9b5570da4686848ee5c6bb83fffc224bcddf9793136731dd050ce0c05fffe2"
+  },
+  "pkg:pypi/cryptography@50.0.2": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0 OR BSD-3-Clause"
+    },
+    "metadataSha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee"
+  },
+  "pkg:pypi/cyclonedx-python-lib@11.12.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "c7ce95aa4f8d1a8b762354ef93d6e3ec72cfd01ecf1db7ebb7997fd0b6568251"
+  },
+  "pkg:pypi/defusedxml@0.7.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "PSFL"
+      }
+    },
+    "metadataSha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1"
+  },
+  "pkg:pypi/django-bolt@0.11.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "4e8f69f1d41a57f7f98ab188356e4c8fcd01c0bde35e5da8eef04a8a7099d580"
+  },
+  "pkg:pypi/django-stubs-ext@6.1.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "2603a40ef45c349f57feae93591c36e1e635890f05c6359553f9fe557be51cc5"
+  },
+  "pkg:pypi/django-stubs@6.1.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "b2a9d5b2fe319075391e4f088cbec94f78d618522530ac7d30ba444c6f57e283"
+  },
+  "pkg:pypi/django@5.2.17": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "99b5f9e14ccc1eec8d89ef623738a27d0b12f0d7e096d61ae98605fe3ed43693"
+  },
+  "pkg:pypi/et-xmlfile@2.0.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "0e97d7ea909ed0fbe03d88bc8b6f58677cee1b07bd3353ce361cd2405915204e"
+  },
+  "pkg:pypi/exceptiongroup@1.2.2": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: MIT License"
+      }
+    },
+    "metadataSha256": "19ad5a03e2ca47b4816786159e0bc4d214612dff63562837f2b2ce1cd82c0e5b"
+  },
+  "pkg:pypi/face@26.0.1": {
+    "evidence": "distribution METADATA has no license declaration",
+    "metadataSha256": "88f878d48da97b0e1f5dcf0499bf4671abebd3e89cc446185132c26726ad6323"
+  },
+  "pkg:pypi/filelock@4.0.10": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "2c579e8e54b946d6186305e5f49bd5d6522b073b1e9da9c0f9f3d12927d58648"
+  },
+  "pkg:pypi/fqdn@1.6.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MPL-2.0"
+    },
+    "metadataSha256": "3baa3c9f310023b1ea28d08f35a2179ca4dd624149902d0e0dbdd68dcac58db0"
+  },
+  "pkg:pypi/gitdb@4.0.12": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD License"
+      }
+    },
+    "metadataSha256": "9670d2dc866039d6b7c91f52cd81c7f224cd7467f7685c7c29e6c4691d1bf3d9"
+  },
+  "pkg:pypi/gitpython@3.2.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "5dd8b3a06a6134b7e37343470028f6456c418133096c419314234e482f527baf"
+  },
+  "pkg:pypi/glom@25.12.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "UNKNOWN"
+      }
+    },
+    "metadataSha256": "48bde626f7bb38c8e20ed33bec319234ef4a275dcfceba3abdd319191f92fd60"
+  },
+  "pkg:pypi/googleapis-common-protos@1.75.5": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "972d4190abd8f2109a51aa590721a3d499a36b49b013e213466ba04f508e3736"
+  },
+  "pkg:pypi/h11@0.16.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64"
+  },
+  "pkg:pypi/httpcore@1.0.9": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21"
+  },
+  "pkg:pypi/httpx-sse@0.4.3": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "d4c6d804ee5ac46e9b3b6595c27ab8ae2ba7cfb5f692c78b16ff463e4bd1a81e"
+  },
+  "pkg:pypi/httpx@0.28.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25"
+  },
+  "pkg:pypi/idna@3.18": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "46dfe6e5ac462d0f680ecd9abcf66e829b6a2334824b4d9e3979b31135caf281"
+  },
+  "pkg:pypi/idna@3.20": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85"
+  },
+  "pkg:pypi/ifccityjson@0.8.5": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)"
+      }
+    },
+    "metadataSha256": "602c270f3225bf867221cad486792050935c8af8cb73f7bf0d8f0d2959a28467"
+  },
+  "pkg:pypi/ifcopenshell@0.8.5": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)"
+      }
+    },
+    "metadataSha256": "47e15e8e0d28d1c9403ee374f90e3f7fef8bf87845c5865916e39b10e682ebfc"
+  },
+  "pkg:pypi/importlib-metadata@8.7.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "a3e38b9ee4326289d4864704f30e299ee769e2309ce9f4a75f0de1a50ad0a356"
+  },
+  "pkg:pypi/iniconfig@2.3.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "40d773f84e4e112f495bbf4f1be9cbd2d456c0aeb6ef5311f75d1bf322f2165b"
+  },
+  "pkg:pypi/isodate@0.7.2": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Copyright (c) 2021, Hugo van Kemenade and contributors"
+      }
+    },
+    "metadataSha256": "90bc9d1eee7c3c97fd3a52001dece07c0f9b480cfc8fbbf767ca4ae0ab848529"
+  },
+  "pkg:pypi/isoduration@20.11.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "UNKNOWN"
+      }
+    },
+    "metadataSha256": "440045201154827793cad24bafbd54deca6800819259e3b17f6edbc06ca7b56b"
+  },
+  "pkg:pypi/jsonpointer@3.1.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Modified BSD License"
+      }
+    },
+    "metadataSha256": "b461427459b7a1d595585ba05a9d0466b134b849204f4ddfbc1b1ed20775ba5d"
+  },
+  "pkg:pypi/jsonschema-specifications@2025.9.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d"
+  },
+  "pkg:pypi/jsonschema@4.25.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "31f83c1579e46e1af62269cefa5d83534ef155f3ee21914f7881bbd544bc125c"
+  },
+  "pkg:pypi/jsonschema@4.26.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2"
+  },
+  "pkg:pypi/lark@1.3.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "730d3f056045a9096bc0a65e4faccae53fe7f3634055174d4b8245cd19cb4cde"
+  },
+  "pkg:pypi/license-expression@30.4.4": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "1f8fc95adb7c2fead6d6b52cc2da09d4177b24bfac067f7a4dbdc666e72495fb"
+  },
+  "pkg:pypi/markdown-it-py@4.2.0": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: MIT License"
+      }
+    },
+    "metadataSha256": "72c36ff516755443b1ecb61e17b2567a990230b49a504b0eb0c42d5f82448a9c"
+  },
+  "pkg:pypi/mcp-server-git@2026.8.18": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "dc338b64b29f01344b60342db6f0571d13a31064f02eaf0d312aa7f8627a9254"
+  },
+  "pkg:pypi/mcp@1.29.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "bc4b33ed1eea597cacf79c959094a51f127407cd82f776cb3430a7e7a92a8333"
+  },
+  "pkg:pypi/mcp@1.30.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "3880c29896149862971af57942e3e5c0ad2a909696a66b9811c62f6e47e65111"
+  },
+  "pkg:pypi/mdurl@0.1.2": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: MIT License"
+      }
+    },
+    "metadataSha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d"
+  },
+  "pkg:pypi/msgpack@1.2.3": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "f47c09192e9f4f81b8b4a63979473a13f7a63c67dcdc41be2e0f97353a9dc5b4"
+  },
+  "pkg:pypi/msgspec@0.21.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "1af055cfd85d7d0ab1505abdba5eaf8c1306ed143e7b2c2113fc0affebaf426d"
+  },
+  "pkg:pypi/narwhals@2.24.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "c8aa441e88f6ee9e37ac5232c33552426f87a6a200c6c66038d37c17b3c1ca56"
+  },
+  "pkg:pypi/numpy@2.5.2": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0"
+    },
+    "metadataSha256": "9a895d801184d2176f926af84eb47f2db1af2756afac99d64a2bf482d5d5e024"
+  },
+  "pkg:pypi/openpyxl@3.1.5": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "23f80ca9830dd89435da1710f26deda8f81e5409287e74540210c72627a4ad96"
+  },
+  "pkg:pypi/opentelemetry-api@1.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "9fee7664c1c4835f53603aff734bcd47d06308727fbfd34a92844ccfd1f0aa62"
+  },
+  "pkg:pypi/opentelemetry-exporter-otlp-proto-common@1.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "7b2a122f4902f3a67f148264236a06578ebc88f02708e6ecacc217a6aa44572f"
+  },
+  "pkg:pypi/opentelemetry-exporter-otlp-proto-http@1.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "e16ad067cd38c2f6c42104d9c748013bec22205c75d16c9de1656a12ef78e73b"
+  },
+  "pkg:pypi/opentelemetry-instrumentation-requests@0.58b0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "b96485dfc471415445429c74850a7a68b0e20947cefe95a18012da5526dd9f80"
+  },
+  "pkg:pypi/opentelemetry-instrumentation-threading@0.58b0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "9d19f3b4fbdeb3f4a2e51098aed56642c899476ac4fd2a4ff078d427d7fb3bfb"
+  },
+  "pkg:pypi/opentelemetry-instrumentation@0.58b0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "72f2315425ea51acb69b20788d53b5041f585acd6eb6833ca068f337a7550413"
+  },
+  "pkg:pypi/opentelemetry-proto@1.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "53bc03c52d2963184f57bce77c1e98087a4f8fdbcf42e6cb795f0b0827f9bf70"
+  },
+  "pkg:pypi/opentelemetry-sdk@1.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "381d6335eec6f6481b0da3bc4ee9c64bd71843b7d1d887a60b8c0af64a43307c"
+  },
+  "pkg:pypi/opentelemetry-semantic-conventions@0.58b0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "2a542b1dbe3764057df136a8358a51a100a7ec2c35f81abde3d7cf235a6a832e"
+  },
+  "pkg:pypi/opentelemetry-util-http@0.58b0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "8a934f28bc3bb146682ca202b1190a46b0ac0090547eff74b0084d5097bd2f79"
+  },
+  "pkg:pypi/packageurl-python@0.17.6": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "f7b3575011c7bd1a1375919e1ecd1258ad4541c6e757c77ff55ba06e3035ec94"
+  },
+  "pkg:pypi/packaging@26.3": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0 OR BSD-2-Clause"
+    },
+    "metadataSha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763"
+  },
+  "pkg:pypi/pandas@3.0.6": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD 3-Clause License"
+      }
+    },
+    "metadataSha256": "c2e8c472e1f49c30b7b00dc1cde8b8ed384b1b6d85b4d5ffe163e800e71dbc61"
+  },
+  "pkg:pypi/peewee@3.19.0": {
+    "evidence": "distribution METADATA has no license declaration",
+    "metadataSha256": "d4d1e8cc189458ab14132dc8d874ac4fa3a8e8778cda4b51ba5b58ab96ff112d"
+  },
+  "pkg:pypi/pillow@12.3.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT-CMU"
+    },
+    "metadataSha256": "8fc07146cab33ef7582361dab6eac596d340b03ec648f18217da7894f73838c8"
+  },
+  "pkg:pypi/pip-api@0.0.35": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache License"
+      }
+    },
+    "metadataSha256": "9884da12db9dd1e7d25e1618528bf5e5518ab7e3114698a57c362e3a4c9c6395"
+  },
+  "pkg:pypi/pip-audit@2.10.1": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: Apache Software License"
+      }
+    },
+    "metadataSha256": "1f06472185a91042bc510b1b2afd2f08fdb14482729b02f4d9ac21a10f547ba4"
+  },
+  "pkg:pypi/pip-requirements-parser@32.0.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "e21f49c644814ff1bba064a641768f2f534c806cff523e2403652793794ab46d"
+  },
+  "pkg:pypi/pip@26.2.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "3a561005822841f2c45f442f6c7a7505172c8c376c9fe274d876c8ac912968cb"
+  },
+  "pkg:pypi/platformdirs@4.12.3": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "5b28a4e5ed5d077a5972c38ab5e5b25e10c378f6829676636c343187709d5be5"
+  },
+  "pkg:pypi/plotly@7.0.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "26cdf97ba719ec39222bc87c76aa0f309fb830560cf3c89b85bc2c5a767ed0dd"
+  },
+  "pkg:pypi/pluggy@1.6.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "7438c35ee25a095eb7416f84b461c2d74425c5e734ad54c3912453c65244e01c"
+  },
+  "pkg:pypi/protobuf@6.33.6": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "3-Clause BSD License"
+      }
+    },
+    "metadataSha256": "6f3b31fd64380f5e60ed10f5a2954699bcc1f6266eb74316f0ba96702d30546f"
+  },
+  "pkg:pypi/py-serializable@2.1.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "37f9f541366de7038094960f301642ed46dc82f3701358542dd8e200bd5bef57"
+  },
+  "pkg:pypi/pycparser@3.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93"
+  },
+  "pkg:pypi/pydantic-core@2.46.5": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028"
+  },
+  "pkg:pypi/pydantic-settings@2.15.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "5ac12e408df62f1d4c7643146d9df04ace749f1fe5cf28b3b794be0b2834ca6d"
+  },
+  "pkg:pypi/pydantic@2.13.5": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "0685830d13647bd6f3f05526043d32a8b2a221d86b53773053d6c52bb17a9c07"
+  },
+  "pkg:pypi/pygments@2.21.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-2-Clause"
+    },
+    "metadataSha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43"
+  },
+  "pkg:pypi/pyjwt@2.15.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "1ea0c9f139b8c928276b3628af165955f6f764491448a6ad8f103cdcbb382da3"
+  },
+  "pkg:pypi/pyparsing@3.3.3": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "f2ca34052d720622d300023472ef8ae94fe5b57d69acbb28a8667f6dd0e13497"
+  },
+  "pkg:pypi/pyproj@3.8.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "836b51705e613c29ae7829b61a37789b226cf0f8576cc49e86aaad8d9aaf5967"
+  },
+  "pkg:pypi/pyrefly@1.3.0": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: MIT License"
+      }
+    },
+    "metadataSha256": "031efffd3beb4f08118d772266b61527af6c4dc7b0baa385a8f2d77f1d98160e"
+  },
+  "pkg:pypi/pytest@9.1.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "c5d032518012789cabc870d46589aca3aeda36cf9fa4399ee88bda3d10438451"
+  },
+  "pkg:pypi/python-dateutil@2.9.0.post0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Dual License"
+      }
+    },
+    "metadataSha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93"
+  },
+  "pkg:pypi/python-dotenv@1.2.4": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "87cfee6042412d48df1100ea7822684988c3f2b79de7a250f4717f4df3026d6f"
+  },
+  "pkg:pypi/python-multipart@0.0.32": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86"
+  },
+  "pkg:pypi/pyyaml@6.0.3": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "03c3b415ed38d09faedc49360e930769b40c58f68585e6de00e2e4916a858d34"
+  },
+  "pkg:pypi/referencing@0.37.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a"
+  },
+  "pkg:pypi/requests@2.34.2": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "8c384ba3e979480faae2859d3c5e6c1276dd2c3616e322e124d52c8cfc556f27"
+  },
+  "pkg:pypi/rfc3339-validator@0.1.4": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT license"
+      }
+    },
+    "metadataSha256": "ac4dc2cdea6a8b61c16babbf35c0e9fa6e22e45f1c0338e66e089108dde872d2"
+  },
+  "pkg:pypi/rfc3986-validator@0.1.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT license"
+      }
+    },
+    "metadataSha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c"
+  },
+  "pkg:pypi/rfc3987-syntax@1.1.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "7a518ae5bb5685568b537061e8207a4dbba766ae785b16ad26d930ad3853cb0d"
+  },
+  "pkg:pypi/rich@15.0.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b"
+  },
+  "pkg:pypi/rpds-py@2026.6.3": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "f8be7b17da3980b2c48596941411a43c70ac41b1e2d530aa531f2c15eab2eb1c"
+  },
+  "pkg:pypi/ruamel-yaml-clib@0.2.15": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "1f59e721f351ceb296e3311698a52e4388bc12f97ac709926fecaddea02e8a05"
+  },
+  "pkg:pypi/ruamel-yaml@0.19.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "1ecd311518266882ede8804686f758255d6dff89a71a646bb6970a69615e39f6"
+  },
+  "pkg:pypi/ruff@0.16.10": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "2f914c8907d59fc48255be1689e1edca6679a52962fa321fb6ddea08b4a25046"
+  },
+  "pkg:pypi/semantic-version@2.10.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD"
+      }
+    },
+    "metadataSha256": "7414d469a569046b6a246bfb1f105aab1b7abfdc32a95253f15432ea30159aa6"
+  },
+  "pkg:pypi/semgrep@1.179.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "LGPL-2.1-or-later"
+    },
+    "metadataSha256": "b258c60b1436ac0690fd98cf451ab344d3f2b683caf1960e45daa90ca34bae1d"
+  },
+  "pkg:pypi/shapely@2.1.2": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD 3-Clause"
+      }
+    },
+    "metadataSha256": "0dc2e9aed9d57f314be60e8855a0caec53865cbd4c96752b8ac4fff571d1a2da"
+  },
+  "pkg:pypi/six@1.17.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT"
+      }
+    },
+    "metadataSha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468"
+  },
+  "pkg:pypi/smmap@5.0.3": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "761d62d78dbca38efb80f17b95a5aef5224d8288aedf980ca99c453db95047b9"
+  },
+  "pkg:pypi/sortedcontainers@2.4.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache 2.0"
+      }
+    },
+    "metadataSha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473"
+  },
+  "pkg:pypi/sqlparse@0.6.0": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: BSD License"
+      }
+    },
+    "metadataSha256": "e6602750b4216135d9a788ac53c4caaf9f4534f9f8347ba73f92e37509b1b24f"
+  },
+  "pkg:pypi/sse-starlette@3.5.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "6dc401682bdae1a3e1f31b1c320b7f926c354643993840393875ebfc171c9014"
+  },
+  "pkg:pypi/starlette@1.7.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "f7870fc19ab7c2e364887057340b9fb47e9bda74d24b06c58ca399494abfe019"
+  },
+  "pkg:pypi/tomli-w@1.2.0": {
+    "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+    "license": {
+      "license": {
+        "name": "OSI Approved :: MIT License"
+      }
+    },
+    "metadataSha256": "66e81ac2e41775b5ebddcfbb9f4ae77158e4c5739fd52d231e14f2fffda9c8de"
+  },
+  "pkg:pypi/tomli@2.4.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "1428a97e0c90b9ed2958e9e487db976c4c450932f7334630aebb5bc04e01aa59"
+  },
+  "pkg:pypi/types-pyyaml@6.0.12.20260724": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "Apache-2.0"
+    },
+    "metadataSha256": "33a77e4f8632a46c623564441b10ab9b18675914f241cc50dc2751130d3dddbe"
+  },
+  "pkg:pypi/typing-extensions@4.16.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "PSF-2.0"
+    },
+    "metadataSha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46"
+  },
+  "pkg:pypi/typing-inspection@0.4.4": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da"
+  },
+  "pkg:pypi/tzdata@2026.5": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "e0780e8b6dc8882ce87e871a9d4589d59cb05a0c2d64f58b1ba62cde1ee91f6a"
+  },
+  "pkg:pypi/uri-template@1.3.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT License"
+      }
+    },
+    "metadataSha256": "3a8c53a915e5755c13b09faa29a4211fcff0c6ee188a169fc02cc092d89f46bc"
+  },
+  "pkg:pypi/urllib3@2.8.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4"
+  },
+  "pkg:pypi/uv@0.12.22": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT OR Apache-2.0"
+    },
+    "metadataSha256": "bd87452b7786f5588584b827dca166e57e269c655f5ea0228b47e83fb703fd27"
+  },
+  "pkg:pypi/uvicorn@0.54.0": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "BSD-3-Clause"
+    },
+    "metadataSha256": "9399e5ddda3d26e842d6fb5420c38b0857aac568d53badbdc224b3a21339efa8"
+  },
+  "pkg:pypi/uvloop@0.22.1": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "MIT License"
+      }
+    },
+    "metadataSha256": "7106328da9670776c358802971b7dc41c0b86ed3673bf9cc4c0d5e11ff2f3583"
+  },
+  "pkg:pypi/watchdog@6.0.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "Apache-2.0"
+      }
+    },
+    "metadataSha256": "54ae86eb02734fe6a2abcb14b25b180bbc9a961d905e55bf3c08b7c363ae93b1"
+  },
+  "pkg:pypi/wcmatch@8.5.2": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "f448abc05b247f9f113f86f803d5bdb713b77d2cdf3eccddc036df7899b23a31"
+  },
+  "pkg:pypi/webcolors@25.10.0": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD-3-Clause"
+      }
+    },
+    "metadataSha256": "53b0da874b2e90dd8f1ccaa9c75c41e8db9107eb2568fc7a4e605b71c955d099"
+  },
+  "pkg:pypi/wrapt@1.17.3": {
+    "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+    "license": {
+      "license": {
+        "name": "BSD"
+      }
+    },
+    "metadataSha256": "40db244fa00f49f0f1ab8f0c66ccdac11db164c7ba4d7c468299f0dff575f4f4"
+  },
+  "pkg:pypi/zipp@4.1.1": {
+    "evidence": "distribution METADATA License-Expression",
+    "license": {
+      "expression": "MIT"
+    },
+    "metadataSha256": "3080f93de17d4bd784cd33afc0933db91c28cbec1cb444e1ffdfec5c7e0f5d90"
+  }
+}

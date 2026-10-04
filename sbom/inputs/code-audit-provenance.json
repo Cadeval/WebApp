@@ -1,0 +1,8 @@
+{
+  "requirements_lock_sha256": "ba0b80b8cd323c789f38ddbbabc806c1a83a4a47207b8006643f33cf00c30939",
+  "ruff": "0.16.10",
+  "semgrep": "1.179.0",
+  "semgrep_rules_archive_sha256": "b227c2d234ffd9c84c4dbd6619a5897a7192637c141baeace3bfc37b0715a887",
+  "semgrep_rules_archive_url": "https://codeload.github.com/semgrep/semgrep-rules/tar.gz/a84ff9cc2453ca91d581380de4b8b3f272f6f4be",
+  "semgrep_rules_commit": "a84ff9cc2453ca91d581380de4b8b3f272f6f4be"
+}

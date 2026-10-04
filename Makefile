@@ -1,6 +1,30 @@
 .PHONY: install debug run migrate test test-django test-javascript test-rust \
 	rebuild build-example-plugin-wasm build-rust-example-plugin-wasm flush superuser
 
+.PHONY: sbom-setup sbom sbom-check sbom-capture-tools
+
+# Keep export/validation tooling separate from application dependencies.
+SBOM_TOOL_DIR ?= sbom
+SBOM_PYTHON = $(SBOM_TOOL_DIR)/.venv/bin/python
+SBOM_UV = $(SBOM_TOOL_DIR)/.venv/bin/uv
+
+sbom-setup:
+	uv venv --allow-existing --python 3.14 "$(SBOM_TOOL_DIR)/.venv"
+	uv pip sync --require-hashes --python "$(SBOM_PYTHON)" sbom/tools-requirements.lock
+
+sbom:
+	"$(SBOM_PYTHON)" scripts/generate_sbom.py --uv "$(SBOM_UV)"
+
+sbom-check:
+	"$(SBOM_PYTHON)" scripts/test_generate_sbom.py
+	"$(SBOM_PYTHON)" scripts/generate_sbom.py --uv "$(SBOM_UV)" --check
+
+# Refresh only dependency metadata and locks after a reviewed tool update.
+# Usage: make sbom-capture-tools CADEVIL_MCP_TOOL_ROOT=/path/to/mcp_tools
+sbom-capture-tools:
+	@test -n "$(CADEVIL_MCP_TOOL_ROOT)" || (echo "Set CADEVIL_MCP_TOOL_ROOT to the installed MCP tool directory."; exit 1)
+	"$(SBOM_PYTHON)" scripts/generate_sbom.py --uv "$(SBOM_UV)" --capture-tools "$(CADEVIL_MCP_TOOL_ROOT)"
+
 install:
 	uv sync --locked
 	npm ci --ignore-scripts

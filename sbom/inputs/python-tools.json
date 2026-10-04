@@ -1,0 +1,2504 @@
+{
+  "environments": {
+    "code-audit": [
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298",
+        "name": "annotated-types",
+        "requiresDist": [],
+        "version": "0.8.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "043aecb571af7189e8a6c528f5d8e32545f1b2cdfaaf761d51e6d5b67ea3ca81",
+        "name": "anyio",
+        "requiresDist": [
+          "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+          "idna>=2.8",
+          "trio>=0.32.0; extra == \"trio\"",
+          "typing_extensions>=4.16.0; python_version < \"3.15\""
+        ],
+        "version": "4.15.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc",
+        "name": "attrs",
+        "requiresDist": [],
+        "version": "26.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD"
+          }
+        },
+        "metadataSha256": "b9ccb8eb0a23e20e345c4f7fd7852ba4b5f6105d155a7b34e3c3eac0b495c6ab",
+        "name": "boltons",
+        "requiresDist": [],
+        "version": "21.0.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "09c5edb7c8ffe84b1cdb4df8d6cd045655b237eef85bb567056c1f3385abea9a",
+        "name": "bracex",
+        "requiresDist": [],
+        "version": "3.0.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MPL-2.0"
+          }
+        },
+        "metadataSha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090",
+        "name": "certifi",
+        "requiresDist": [],
+        "version": "2026.7.22"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT-0"
+        },
+        "metadataSha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918",
+        "name": "cffi",
+        "requiresDist": [
+          "pycparser; implementation_name != \"PyPy\""
+        ],
+        "version": "2.1.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb",
+        "name": "charset-normalizer",
+        "requiresDist": [],
+        "version": "3.5.2"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "194c9dd81d567f9081f026c7e401060fbafa7bc147c8e0a58b3668b40a64c031",
+        "name": "click",
+        "requiresDist": [
+          "colorama; platform_system == 'Windows'"
+        ],
+        "version": "8.4.2"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "776b38c567188e480227e3b9050867a585aba8c7dde5559f7260e8d30b492c13",
+        "name": "click-option-group",
+        "requiresDist": [
+          "click>=7.0",
+          "m2r2; extra == 'docs'",
+          "pallets-sphinx-themes; extra == 'docs'",
+          "pre-commit; extra == 'dev'",
+          "pytest-cov; extra == 'test-cov'",
+          "pytest; extra == 'dev'",
+          "pytest; extra == 'test'",
+          "pytest; extra == 'test-cov'",
+          "sphinx; extra == 'docs'"
+        ],
+        "version": "0.5.9"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: BSD License"
+          }
+        },
+        "metadataSha256": "7baed29eb50c3b29bdb33ff84e3177bf1bc05784f7685ecdcaa4471c7dd810cc",
+        "name": "colorama",
+        "requiresDist": [],
+        "version": "0.4.6"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0 OR BSD-3-Clause"
+        },
+        "metadataSha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee",
+        "name": "cryptography",
+        "requiresDist": [
+          "bcrypt>=3.1.5 ; extra == 'ssh'",
+          "cffi>=2.0.0 ; platform_python_implementation != 'PyPy'",
+          "typing-extensions>=4.13.2 ; python_full_version < '3.11'"
+        ],
+        "version": "50.0.2"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "19ad5a03e2ca47b4816786159e0bc4d214612dff63562837f2b2ce1cd82c0e5b",
+        "name": "exceptiongroup",
+        "requiresDist": [
+          "pytest >= 6 ; extra == \"test\""
+        ],
+        "version": "1.2.2"
+      },
+      {
+        "evidence": "distribution METADATA has no license declaration",
+        "metadataSha256": "88f878d48da97b0e1f5dcf0499bf4671abebd3e89cc446185132c26726ad6323",
+        "name": "face",
+        "requiresDist": [
+          "boltons>=20.0.0"
+        ],
+        "version": "26.0.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "UNKNOWN"
+          }
+        },
+        "metadataSha256": "48bde626f7bb38c8e20ed33bec319234ef4a275dcfceba3abdd319191f92fd60",
+        "name": "glom",
+        "requiresDist": [
+          "PyYAML ; extra == 'yaml'",
+          "attrs",
+          "boltons >=19.3.0",
+          "face >=20.1.1",
+          "tomli ; (python_version < \"3.11\") and extra == 'toml'"
+        ],
+        "version": "25.12.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "972d4190abd8f2109a51aa590721a3d499a36b49b013e213466ba04f508e3736",
+        "name": "googleapis-common-protos",
+        "requiresDist": [
+          "grpcio<2.0.0,>=1.59.0; extra == \"grpc\"",
+          "protobuf<8.0.0,>=6.33.5"
+        ],
+        "version": "1.75.5"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64",
+        "name": "h11",
+        "requiresDist": [],
+        "version": "0.16.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21",
+        "name": "httpcore",
+        "requiresDist": [
+          "anyio<5.0,>=4.0; extra == 'asyncio'",
+          "certifi",
+          "h11>=0.16",
+          "h2<5,>=3; extra == 'http2'",
+          "socksio==1.*; extra == 'socks'",
+          "trio<1.0,>=0.22.0; extra == 'trio'"
+        ],
+        "version": "1.0.9"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25",
+        "name": "httpx",
+        "requiresDist": [
+          "anyio",
+          "brotli; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+          "brotlicffi; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+          "certifi",
+          "click==8.*; extra == 'cli'",
+          "h2<5,>=3; extra == 'http2'",
+          "httpcore==1.*",
+          "idna",
+          "pygments==2.*; extra == 'cli'",
+          "rich<14,>=10; extra == 'cli'",
+          "socksio==1.*; extra == 'socks'",
+          "zstandard>=0.18.0; extra == 'zstd'"
+        ],
+        "version": "0.28.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "d4c6d804ee5ac46e9b3b6595c27ab8ae2ba7cfb5f692c78b16ff463e4bd1a81e",
+        "name": "httpx-sse",
+        "requiresDist": [],
+        "version": "0.4.3"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85",
+        "name": "idna",
+        "requiresDist": [
+          "coverage >= 7.10.0 ; extra == \"all\"",
+          "hypothesis >= 6.141.1 ; extra == \"all\"",
+          "mypy >= 1.11.2 ; extra == \"all\"",
+          "pytest >= 8.3.2 ; extra == \"all\"",
+          "ruff >= 0.16.0 ; extra == \"all\"",
+          "ty >= 0.0.37 ; extra == \"all\""
+        ],
+        "version": "3.20"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "a3e38b9ee4326289d4864704f30e299ee769e2309ce9f4a75f0de1a50ad0a356",
+        "name": "importlib-metadata",
+        "requiresDist": [
+          "flufl.flake8; extra == \"test\"",
+          "furo; extra == \"doc\"",
+          "ipython; extra == \"perf\"",
+          "jaraco.packaging>=9.3; extra == \"doc\"",
+          "jaraco.test>=5.4; extra == \"test\"",
+          "jaraco.tidelift>=1.4; extra == \"doc\"",
+          "mypy<1.19; platform_python_implementation == \"PyPy\" and extra == \"type\"",
+          "packaging; extra == \"test\"",
+          "pyfakefs; extra == \"test\"",
+          "pytest!=8.1.*,>=6; extra == \"test\"",
+          "pytest-checkdocs>=2.4; extra == \"check\"",
+          "pytest-cov; extra == \"cover\"",
+          "pytest-enabler>=3.4; extra == \"enabler\"",
+          "pytest-mypy>=1.0.1; extra == \"type\"",
+          "pytest-perf>=0.9.2; extra == \"test\"",
+          "pytest-ruff>=0.2.1; sys_platform != \"cygwin\" and extra == \"check\"",
+          "rst.linker>=1.9; extra == \"doc\"",
+          "sphinx-lint; extra == \"doc\"",
+          "sphinx>=3.5; extra == \"doc\"",
+          "zipp>=3.20"
+        ],
+        "version": "8.7.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "31f83c1579e46e1af62269cefa5d83534ef155f3ee21914f7881bbd544bc125c",
+        "name": "jsonschema",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "fqdn; extra == 'format'",
+          "fqdn; extra == 'format-nongpl'",
+          "idna; extra == 'format'",
+          "idna; extra == 'format-nongpl'",
+          "isoduration; extra == 'format'",
+          "isoduration; extra == 'format-nongpl'",
+          "jsonpointer>1.13; extra == 'format'",
+          "jsonpointer>1.13; extra == 'format-nongpl'",
+          "jsonschema-specifications>=2023.03.6",
+          "referencing>=0.28.4",
+          "rfc3339-validator; extra == 'format'",
+          "rfc3339-validator; extra == 'format-nongpl'",
+          "rfc3986-validator>0.1.0; extra == 'format-nongpl'",
+          "rfc3987-syntax>=1.1.0; extra == 'format-nongpl'",
+          "rfc3987; extra == 'format'",
+          "rpds-py>=0.7.1",
+          "uri-template; extra == 'format'",
+          "uri-template; extra == 'format-nongpl'",
+          "webcolors>=1.11; extra == 'format'",
+          "webcolors>=24.6.0; extra == 'format-nongpl'"
+        ],
+        "version": "4.25.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d",
+        "name": "jsonschema-specifications",
+        "requiresDist": [
+          "referencing>=0.31.0"
+        ],
+        "version": "2025.9.1"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "72c36ff516755443b1ecb61e17b2567a990230b49a504b0eb0c42d5f82448a9c",
+        "name": "markdown-it-py",
+        "requiresDist": [
+          "commonmark~=0.9 ; extra == \"compare\"",
+          "coverage ; extra == \"testing\"",
+          "gprof2dot ; extra == \"profiling\"",
+          "ipykernel ; extra == \"rtd\"",
+          "jupyter_sphinx ; extra == \"rtd\"",
+          "linkify-it-py>=1,<3 ; extra == \"linkify\"",
+          "markdown-it-pyrs ; extra == \"compare\"",
+          "markdown~=3.4 ; extra == \"compare\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"plugins\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"rtd\"",
+          "mdurl~=0.1",
+          "mistletoe~=1.0 ; extra == \"compare\"",
+          "mistune~=3.0 ; extra == \"compare\"",
+          "myst-parser ; extra == \"rtd\"",
+          "panflute~=2.3 ; extra == \"compare\"",
+          "psutil ; extra == \"benchmarking\"",
+          "pytest ; extra == \"benchmarking\"",
+          "pytest ; extra == \"testing\"",
+          "pytest-benchmark ; extra == \"benchmarking\"",
+          "pytest-cov ; extra == \"testing\"",
+          "pytest-regressions ; extra == \"testing\"",
+          "pytest-timeout ; extra == \"testing\"",
+          "pyyaml ; extra == \"rtd\"",
+          "requests ; extra == \"testing\"",
+          "sphinx ; extra == \"rtd\"",
+          "sphinx-book-theme~=1.0 ; extra == \"rtd\"",
+          "sphinx-copybutton ; extra == \"rtd\"",
+          "sphinx-design ; extra == \"rtd\""
+        ],
+        "version": "4.2.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "bc4b33ed1eea597cacf79c959094a51f127407cd82f776cb3430a7e7a92a8333",
+        "name": "mcp",
+        "requiresDist": [
+          "anyio>=4.5",
+          "httpx-sse>=0.4",
+          "httpx<1.0.0,>=0.27.1",
+          "jsonschema>=4.20.0",
+          "pydantic-settings>=2.5.2",
+          "pydantic<3.0.0,>=2.11.0; python_version < '3.14'",
+          "pydantic<3.0.0,>=2.12.0; python_version >= '3.14'",
+          "pyjwt[crypto]>=2.10.1",
+          "python-dotenv>=1.0.0; extra == 'cli'",
+          "python-multipart>=0.0.9",
+          "pywin32>=310; sys_platform == 'win32' and python_version < '3.14'",
+          "pywin32>=311; sys_platform == 'win32' and python_version >= '3.14'",
+          "rich>=13.9.4; extra == 'rich'",
+          "sse-starlette>=1.6.1",
+          "starlette>=0.27; python_version < '3.14'",
+          "starlette>=0.48.0; python_version >= '3.14'",
+          "typer>=0.16.0; extra == 'cli'",
+          "typing-extensions>=4.9.0",
+          "typing-inspection>=0.4.1",
+          "uvicorn>=0.31.1; sys_platform != 'emscripten'",
+          "websockets>=15.0.1; extra == 'ws'"
+        ],
+        "version": "1.29.0"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d",
+        "name": "mdurl",
+        "requiresDist": [],
+        "version": "0.1.2"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "9fee7664c1c4835f53603aff734bcd47d06308727fbfd34a92844ccfd1f0aa62",
+        "name": "opentelemetry-api",
+        "requiresDist": [
+          "importlib-metadata<8.8.0,>=6.0",
+          "typing-extensions>=4.5.0"
+        ],
+        "version": "1.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "7b2a122f4902f3a67f148264236a06578ebc88f02708e6ecacc217a6aa44572f",
+        "name": "opentelemetry-exporter-otlp-proto-common",
+        "requiresDist": [
+          "opentelemetry-proto==1.37.0"
+        ],
+        "version": "1.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "e16ad067cd38c2f6c42104d9c748013bec22205c75d16c9de1656a12ef78e73b",
+        "name": "opentelemetry-exporter-otlp-proto-http",
+        "requiresDist": [
+          "googleapis-common-protos~=1.52",
+          "opentelemetry-api~=1.15",
+          "opentelemetry-exporter-otlp-proto-common==1.37.0",
+          "opentelemetry-proto==1.37.0",
+          "opentelemetry-sdk~=1.37.0",
+          "requests~=2.7",
+          "typing-extensions>=4.5.0"
+        ],
+        "version": "1.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "72f2315425ea51acb69b20788d53b5041f585acd6eb6833ca068f337a7550413",
+        "name": "opentelemetry-instrumentation",
+        "requiresDist": [
+          "opentelemetry-api~=1.4",
+          "opentelemetry-semantic-conventions==0.58b0",
+          "packaging>=18.0",
+          "wrapt<2.0.0,>=1.0.0"
+        ],
+        "version": "0.58b0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "b96485dfc471415445429c74850a7a68b0e20947cefe95a18012da5526dd9f80",
+        "name": "opentelemetry-instrumentation-requests",
+        "requiresDist": [
+          "opentelemetry-api~=1.12",
+          "opentelemetry-instrumentation==0.58b0",
+          "opentelemetry-semantic-conventions==0.58b0",
+          "opentelemetry-util-http==0.58b0",
+          "requests~=2.0; extra == 'instruments'"
+        ],
+        "version": "0.58b0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "9d19f3b4fbdeb3f4a2e51098aed56642c899476ac4fd2a4ff078d427d7fb3bfb",
+        "name": "opentelemetry-instrumentation-threading",
+        "requiresDist": [
+          "opentelemetry-api~=1.12",
+          "opentelemetry-instrumentation==0.58b0",
+          "wrapt<2.0.0,>=1.0.0"
+        ],
+        "version": "0.58b0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "53bc03c52d2963184f57bce77c1e98087a4f8fdbcf42e6cb795f0b0827f9bf70",
+        "name": "opentelemetry-proto",
+        "requiresDist": [
+          "protobuf<7.0,>=5.0"
+        ],
+        "version": "1.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "381d6335eec6f6481b0da3bc4ee9c64bd71843b7d1d887a60b8c0af64a43307c",
+        "name": "opentelemetry-sdk",
+        "requiresDist": [
+          "opentelemetry-api==1.37.0",
+          "opentelemetry-semantic-conventions==0.58b0",
+          "typing-extensions>=4.5.0"
+        ],
+        "version": "1.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "2a542b1dbe3764057df136a8358a51a100a7ec2c35f81abde3d7cf235a6a832e",
+        "name": "opentelemetry-semantic-conventions",
+        "requiresDist": [
+          "opentelemetry-api==1.37.0",
+          "typing-extensions>=4.5.0"
+        ],
+        "version": "0.58b0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "8a934f28bc3bb146682ca202b1190a46b0ac0090547eff74b0084d5097bd2f79",
+        "name": "opentelemetry-util-http",
+        "requiresDist": [],
+        "version": "0.58b0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0 OR BSD-2-Clause"
+        },
+        "metadataSha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763",
+        "name": "packaging",
+        "requiresDist": [],
+        "version": "26.3"
+      },
+      {
+        "evidence": "distribution METADATA has no license declaration",
+        "metadataSha256": "d4d1e8cc189458ab14132dc8d874ac4fa3a8e8778cda4b51ba5b58ab96ff112d",
+        "name": "peewee",
+        "requiresDist": [
+          "psycopg2-binary; extra == \"postgres\"",
+          "psycopg[binary]; extra == \"psycopg3\"",
+          "pymysql; extra == \"mysql\""
+        ],
+        "version": "3.19.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "3-Clause BSD License"
+          }
+        },
+        "metadataSha256": "6f3b31fd64380f5e60ed10f5a2954699bcc1f6266eb74316f0ba96702d30546f",
+        "name": "protobuf",
+        "requiresDist": [],
+        "version": "6.33.6"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93",
+        "name": "pycparser",
+        "requiresDist": [],
+        "version": "3.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "0685830d13647bd6f3f05526043d32a8b2a221d86b53773053d6c52bb17a9c07",
+        "name": "pydantic",
+        "requiresDist": [
+          "annotated-types>=0.6.0",
+          "email-validator>=2.0.0; extra == 'email'",
+          "pydantic-core==2.46.5",
+          "typing-extensions>=4.14.1",
+          "typing-inspection>=0.4.2",
+          "tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'"
+        ],
+        "version": "2.13.5"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028",
+        "name": "pydantic-core",
+        "requiresDist": [
+          "typing-extensions>=4.14.1"
+        ],
+        "version": "2.46.5"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "5ac12e408df62f1d4c7643146d9df04ace749f1fe5cf28b3b794be0b2834ca6d",
+        "name": "pydantic-settings",
+        "requiresDist": [
+          "azure-identity>=1.16.0; extra == 'azure-key-vault'",
+          "azure-keyvault-secrets>=4.8.0; extra == 'azure-key-vault'",
+          "boto3>=1.35.0; extra == 'aws-secrets-manager'",
+          "google-cloud-secret-manager>=2.23.1; extra == 'gcp-secret-manager'",
+          "pydantic>=2.7.0",
+          "python-dotenv>=0.21.0",
+          "pyyaml>=6.0.1; extra == 'yaml'",
+          "tomli>=2.0.1; extra == 'toml'",
+          "typing-inspection>=0.4.0"
+        ],
+        "version": "2.15.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-2-Clause"
+        },
+        "metadataSha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43",
+        "name": "pygments",
+        "requiresDist": [
+          "colorama>=0.4.6; extra == 'windows-terminal'"
+        ],
+        "version": "2.21.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "1ea0c9f139b8c928276b3628af165955f6f764491448a6ad8f103cdcbb382da3",
+        "name": "pyjwt",
+        "requiresDist": [
+          "cryptography>=3.4.0; extra == \"crypto\"",
+          "typing_extensions>=4.0; python_version < \"3.11\""
+        ],
+        "version": "2.15.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "87cfee6042412d48df1100ea7822684988c3f2b79de7a250f4717f4df3026d6f",
+        "name": "python-dotenv",
+        "requiresDist": [
+          "click>=5.0; extra == \"cli\""
+        ],
+        "version": "1.2.4"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86",
+        "name": "python-multipart",
+        "requiresDist": [],
+        "version": "0.0.32"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a",
+        "name": "referencing",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "rpds-py>=0.7.0",
+          "typing-extensions>=4.4.0; python_version < '3.13'"
+        ],
+        "version": "0.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "8c384ba3e979480faae2859d3c5e6c1276dd2c3616e322e124d52c8cfc556f27",
+        "name": "requests",
+        "requiresDist": [
+          "PySocks!=1.5.7,>=1.5.6; extra == \"socks\"",
+          "certifi>=2023.5.7",
+          "chardet<8,>=3.0.2; extra == \"use-chardet-on-py3\"",
+          "charset_normalizer<4,>=2",
+          "idna<4,>=2.5",
+          "urllib3<3,>=1.26"
+        ],
+        "version": "2.34.2"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b",
+        "name": "rich",
+        "requiresDist": [
+          "ipywidgets (>=7.5.1,<9) ; extra == \"jupyter\"",
+          "markdown-it-py (>=2.2.0)",
+          "pygments (>=2.13.0,<3.0.0)"
+        ],
+        "version": "15.0.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "f8be7b17da3980b2c48596941411a43c70ac41b1e2d530aa531f2c15eab2eb1c",
+        "name": "rpds-py",
+        "requiresDist": [],
+        "version": "2026.6.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "1ecd311518266882ede8804686f758255d6dff89a71a646bb6970a69615e39f6",
+        "name": "ruamel-yaml",
+        "requiresDist": [
+          "mercurial>5.7; extra == \"docs\"",
+          "ruamel.yaml.clib; platform_python_implementation == \"CPython\" and extra == \"oldlibyaml\"",
+          "ruamel.yaml.clibz>=0.3.7; platform_python_implementation == \"CPython\" and extra == \"libyaml\"",
+          "ruamel.yaml.jinja2>=0.2; extra == \"jinja2\"",
+          "ryd; extra == \"docs\""
+        ],
+        "version": "0.19.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "1f59e721f351ceb296e3311698a52e4388bc12f97ac709926fecaddea02e8a05",
+        "name": "ruamel-yaml-clib",
+        "requiresDist": [],
+        "version": "0.2.15"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "2f914c8907d59fc48255be1689e1edca6679a52962fa321fb6ddea08b4a25046",
+        "name": "ruff",
+        "requiresDist": [],
+        "version": "0.16.10"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD"
+          }
+        },
+        "metadataSha256": "7414d469a569046b6a246bfb1f105aab1b7abfdc32a95253f15432ea30159aa6",
+        "name": "semantic-version",
+        "requiresDist": [
+          "Django (>=1.11) ; extra == 'dev'",
+          "Sphinx ; extra == 'doc'",
+          "check-manifest ; extra == 'dev'",
+          "colorama (<=0.4.1) ; (python_version == \"3.4\") and extra == 'dev'",
+          "coverage ; extra == 'dev'",
+          "flake8 ; extra == 'dev'",
+          "nose2 ; extra == 'dev'",
+          "readme-renderer (<25.0) ; (python_version == \"3.4\") and extra == 'dev'",
+          "sphinx-rtd-theme ; extra == 'doc'",
+          "tox ; extra == 'dev'",
+          "wheel ; extra == 'dev'",
+          "zest.releaser[recommended] ; extra == 'dev'"
+        ],
+        "version": "2.10.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "LGPL-2.1-or-later"
+        },
+        "metadataSha256": "b258c60b1436ac0690fd98cf451ab344d3f2b683caf1960e45daa90ca34bae1d",
+        "name": "semgrep",
+        "requiresDist": [
+          "attrs>=21.3",
+          "boltons~=21.0",
+          "click-option-group~=0.5",
+          "click~=8.4.2",
+          "colorama~=0.4.0",
+          "exceptiongroup~=1.2.0",
+          "glom>=23.3",
+          "jsonschema~=4.25.1",
+          "mcp==1.29.0",
+          "opentelemetry-api~=1.37.0",
+          "opentelemetry-exporter-otlp-proto-http~=1.37.0",
+          "opentelemetry-instrumentation-requests~=0.58b0",
+          "opentelemetry-instrumentation-threading~=0.58b0",
+          "opentelemetry-sdk~=1.37.0",
+          "packaging>=21.0",
+          "peewee~=3.14",
+          "pyjwt[crypto]<3,>=2.15.0",
+          "pywin32==311; sys_platform == \"win32\"",
+          "requests~=2.22",
+          "rich>=13.5.2",
+          "ruamel.yaml.clib==0.2.15",
+          "ruamel.yaml>=0.18.15",
+          "semantic-version~=2.10.0",
+          "tomli~=2.4.0",
+          "typing-extensions~=4.2",
+          "urllib3~=2.0",
+          "wcmatch~=8.3"
+        ],
+        "version": "1.179.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "6dc401682bdae1a3e1f31b1c320b7f926c354643993840393875ebfc171c9014",
+        "name": "sse-starlette",
+        "requiresDist": [
+          "aiosqlite>=0.21.0; extra == \"examples-db\"",
+          "anyio>=4.7.0",
+          "daphne>=4.2.0; extra == \"daphne\"",
+          "fastapi>=0.115.12; extra == \"examples\"",
+          "granian>=2.3.1; extra == \"granian\"",
+          "pydantic>=2; extra == \"examples\"",
+          "sqlalchemy[asyncio]>=2.0.41; extra == \"examples-db\"",
+          "starlette>=0.49.1",
+          "uvicorn>=0.34.0; extra == \"examples\"",
+          "uvicorn>=0.34.0; extra == \"uvicorn\""
+        ],
+        "version": "3.5.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "f7870fc19ab7c2e364887057340b9fb47e9bda74d24b06c58ca399494abfe019",
+        "name": "starlette",
+        "requiresDist": [
+          "anyio<5,>=4.0.0",
+          "httpx2>=2.0.0; extra == 'full'",
+          "httpx<0.29.0,>=0.27.0; extra == 'full'",
+          "itsdangerous; extra == 'full'",
+          "jinja2; extra == 'full'",
+          "opentelemetry-api; extra == 'full'",
+          "python-multipart>=0.0.18; extra == 'full'",
+          "pyyaml; extra == 'full'",
+          "typing-extensions>=4.10.0; python_version < '3.13'"
+        ],
+        "version": "1.7.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "1428a97e0c90b9ed2958e9e487db976c4c450932f7334630aebb5bc04e01aa59",
+        "name": "tomli",
+        "requiresDist": [],
+        "version": "2.4.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "PSF-2.0"
+        },
+        "metadataSha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46",
+        "name": "typing-extensions",
+        "requiresDist": [],
+        "version": "4.16.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da",
+        "name": "typing-inspection",
+        "requiresDist": [
+          "typing-extensions>=4.15.0"
+        ],
+        "version": "0.4.4"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4",
+        "name": "urllib3",
+        "requiresDist": [
+          "backports-zstd>=1.0.0; (python_version < '3.14') and extra == 'zstd'",
+          "brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+          "brotlicffi>=1.2.0.0; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+          "h2<5,>=4; extra == 'h2'",
+          "pysocks!=1.5.7,<2.0,>=1.5.6; extra == 'socks'"
+        ],
+        "version": "2.8.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "9399e5ddda3d26e842d6fb5420c38b0857aac568d53badbdc224b3a21339efa8",
+        "name": "uvicorn",
+        "requiresDist": [
+          "click>=7.0",
+          "h11>=0.8",
+          "httptools>=0.8.0; extra == 'standard'",
+          "python-dotenv>=0.13; extra == 'standard'",
+          "pyyaml>=5.1; extra == 'standard'",
+          "typing-extensions>=4.0; python_version < '3.11'",
+          "uvloop>=0.15.1; (sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')) and extra == 'standard'",
+          "watchfiles>=0.20; extra == 'standard'",
+          "websockets>=13.0; extra == 'standard'"
+        ],
+        "version": "0.54.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "f448abc05b247f9f113f86f803d5bdb713b77d2cdf3eccddc036df7899b23a31",
+        "name": "wcmatch",
+        "requiresDist": [
+          "bracex>=2.1.1"
+        ],
+        "version": "8.5.2"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD"
+          }
+        },
+        "metadataSha256": "40db244fa00f49f0f1ab8f0c66ccdac11db164c7ba4d7c468299f0dff575f4f4",
+        "name": "wrapt",
+        "requiresDist": [],
+        "version": "1.17.3"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "3080f93de17d4bd784cd33afc0933db91c28cbec1cb444e1ffdfec5c7e0f5d90",
+        "name": "zipp",
+        "requiresDist": [
+          "big-O; extra == \"test\"",
+          "furo; extra == \"doc\"",
+          "jaraco.functools; extra == \"test\"",
+          "jaraco.itertools; extra == \"test\"",
+          "jaraco.packaging>=9.3; extra == \"doc\"",
+          "jaraco.test; extra == \"test\"",
+          "jaraco.tidelift>=1.4; extra == \"doc\"",
+          "more_itertools; extra == \"test\"",
+          "pytest!=8.1.*,>=6; extra == \"test\"",
+          "pytest-checkdocs>=2.14; extra == \"check\"",
+          "pytest-cov; extra == \"cover\"",
+          "pytest-enabler>=3.4; extra == \"enabler\"",
+          "pytest-ignore-flaky; extra == \"test\"",
+          "pytest-mypy>=1.0.1; platform_python_implementation != \"PyPy\" and extra == \"type\"",
+          "pytest-ruff>=0.2.1; sys_platform != \"cygwin\" and extra == \"check\"",
+          "rst.linker>=1.9; extra == \"doc\"",
+          "sphinx-lint; extra == \"doc\"",
+          "sphinx>=3.5; extra == \"doc\""
+        ],
+        "version": "4.1.1"
+      }
+    ],
+    "dependency-audit": [
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-2-Clause"
+          }
+        },
+        "metadataSha256": "9e43aeae17a73073abee61deb5fb267dfdf0eeb67d6e3123270b52aac5ed87fa",
+        "name": "boolean-py",
+        "requiresDist": [
+          "Sphinx>=3.3.1; extra == \"docs\"",
+          "black; extra == \"linting\"",
+          "build; extra == \"dev\"",
+          "doc8>=0.8.1; extra == \"docs\"",
+          "isort; extra == \"linting\"",
+          "pycodestyle; extra == \"linting\"",
+          "pytest!=7.0.0,>=6; extra == \"testing\"",
+          "pytest-xdist>=2; extra == \"testing\"",
+          "sphinx-rtd-theme>=0.5.0; extra == \"docs\"",
+          "sphinxcontrib-apidoc>=0.3.0; extra == \"docs\"",
+          "twine; extra == \"dev\""
+        ],
+        "version": "5.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "a3b797a601ffe3505ce4b0c635363ccf26a9959f2490e902f841a4b5996b5cc4",
+        "name": "cachecontrol",
+        "requiresDist": [
+          "cachecontrol[filecache,redis] ; extra == 'dev'",
+          "cheroot>=11.1.2 ; extra == 'dev'",
+          "cherrypy ; extra == 'dev'",
+          "codespell ; extra == 'dev'",
+          "filelock>=3.8.0 ; extra == 'filecache'",
+          "furo ; extra == 'dev'",
+          "msgpack>=0.5.2,<2.0.0",
+          "mypy ; extra == 'dev'",
+          "pytest ; extra == 'dev'",
+          "pytest-cov ; extra == 'dev'",
+          "redis>=2.10.5 ; extra == 'redis'",
+          "requests>=2.16.0",
+          "ruff ; extra == 'dev'",
+          "sphinx ; extra == 'dev'",
+          "sphinx-copybutton ; extra == 'dev'",
+          "types-redis ; extra == 'dev'",
+          "types-requests ; extra == 'dev'"
+        ],
+        "version": "0.14.4"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MPL-2.0"
+          }
+        },
+        "metadataSha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090",
+        "name": "certifi",
+        "requiresDist": [],
+        "version": "2026.7.22"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "89ce6362bb7be88558f4be99a98f5d1b4da93d19cd0323e5ee0bac05cf883dfb",
+        "name": "charset-normalizer",
+        "requiresDist": [],
+        "version": "3.5.2"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "c7ce95aa4f8d1a8b762354ef93d6e3ec72cfd01ecf1db7ebb7997fd0b6568251",
+        "name": "cyclonedx-python-lib",
+        "requiresDist": [
+          "jsonschema[format-nongpl] (>=4.25,<5.0) ; extra == \"validation\" or extra == \"json-validation\"",
+          "license-expression (>=30,<31)",
+          "lxml (>=4,<7) ; extra == \"validation\" or extra == \"xml-validation\"",
+          "packageurl-python (>=0.11,<2)",
+          "py-serializable (>=2.1.0,<3.0.0)",
+          "referencing (>=0.28.4) ; extra == \"validation\" or extra == \"json-validation\"",
+          "sortedcontainers (>=2.4.0,<3.0.0)",
+          "typing_extensions (>=4.6,<5.0) ; python_version < \"3.13\""
+        ],
+        "version": "11.12.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "PSFL"
+          }
+        },
+        "metadataSha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1",
+        "name": "defusedxml",
+        "requiresDist": [],
+        "version": "0.7.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "2c579e8e54b946d6186305e5f49bd5d6522b073b1e9da9c0f9f3d12927d58648",
+        "name": "filelock",
+        "requiresDist": [],
+        "version": "4.0.10"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85",
+        "name": "idna",
+        "requiresDist": [
+          "coverage >= 7.10.0 ; extra == \"all\"",
+          "hypothesis >= 6.141.1 ; extra == \"all\"",
+          "mypy >= 1.11.2 ; extra == \"all\"",
+          "pytest >= 8.3.2 ; extra == \"all\"",
+          "ruff >= 0.16.0 ; extra == \"all\"",
+          "ty >= 0.0.37 ; extra == \"all\""
+        ],
+        "version": "3.20"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "1f8fc95adb7c2fead6d6b52cc2da09d4177b24bfac067f7a4dbdc666e72495fb",
+        "name": "license-expression",
+        "requiresDist": [
+          "Sphinx>=5.0.2; extra == \"dev\"",
+          "boolean.py>=4.0",
+          "doc8>=0.11.2; extra == \"dev\"",
+          "pytest-xdist>=2; extra == \"dev\"",
+          "pytest>=7.0.1; extra == \"dev\"",
+          "ruff; extra == \"dev\"",
+          "sphinx-autobuild; extra == \"dev\"",
+          "sphinx-copybutton; extra == \"dev\"",
+          "sphinx-reredirects>=0.1.2; extra == \"dev\"",
+          "sphinx-rtd-dark-mode>=1.3.0; extra == \"dev\"",
+          "sphinx-rtd-theme>=1.0.0; extra == \"dev\"",
+          "sphinxcontrib-apidoc>=0.4.0; extra == \"dev\"",
+          "twine; extra == \"dev\""
+        ],
+        "version": "30.4.4"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "72c36ff516755443b1ecb61e17b2567a990230b49a504b0eb0c42d5f82448a9c",
+        "name": "markdown-it-py",
+        "requiresDist": [
+          "commonmark~=0.9 ; extra == \"compare\"",
+          "coverage ; extra == \"testing\"",
+          "gprof2dot ; extra == \"profiling\"",
+          "ipykernel ; extra == \"rtd\"",
+          "jupyter_sphinx ; extra == \"rtd\"",
+          "linkify-it-py>=1,<3 ; extra == \"linkify\"",
+          "markdown-it-pyrs ; extra == \"compare\"",
+          "markdown~=3.4 ; extra == \"compare\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"plugins\"",
+          "mdit-py-plugins>=0.5.0 ; extra == \"rtd\"",
+          "mdurl~=0.1",
+          "mistletoe~=1.0 ; extra == \"compare\"",
+          "mistune~=3.0 ; extra == \"compare\"",
+          "myst-parser ; extra == \"rtd\"",
+          "panflute~=2.3 ; extra == \"compare\"",
+          "psutil ; extra == \"benchmarking\"",
+          "pytest ; extra == \"benchmarking\"",
+          "pytest ; extra == \"testing\"",
+          "pytest-benchmark ; extra == \"benchmarking\"",
+          "pytest-cov ; extra == \"testing\"",
+          "pytest-regressions ; extra == \"testing\"",
+          "pytest-timeout ; extra == \"testing\"",
+          "pyyaml ; extra == \"rtd\"",
+          "requests ; extra == \"testing\"",
+          "sphinx ; extra == \"rtd\"",
+          "sphinx-book-theme~=1.0 ; extra == \"rtd\"",
+          "sphinx-copybutton ; extra == \"rtd\"",
+          "sphinx-design ; extra == \"rtd\""
+        ],
+        "version": "4.2.0"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "b53b29d48f499367053fda3c81e7ce27d2558380ebbf83e66023b02eb7ddd25d",
+        "name": "mdurl",
+        "requiresDist": [],
+        "version": "0.1.2"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "f47c09192e9f4f81b8b4a63979473a13f7a63c67dcdc41be2e0f97353a9dc5b4",
+        "name": "msgpack",
+        "requiresDist": [],
+        "version": "1.2.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "f7b3575011c7bd1a1375919e1ecd1258ad4541c6e757c77ff55ba06e3035ec94",
+        "name": "packageurl-python",
+        "requiresDist": [
+          "black; extra == \"lint\"",
+          "isort; extra == \"lint\"",
+          "mypy; extra == \"lint\"",
+          "pytest; extra == \"test\"",
+          "setuptools; extra == \"build\"",
+          "sqlalchemy>=2.0.0; extra == \"sqlalchemy\"",
+          "wheel; extra == \"build\""
+        ],
+        "version": "0.17.6"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0 OR BSD-2-Clause"
+        },
+        "metadataSha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763",
+        "name": "packaging",
+        "requiresDist": [],
+        "version": "26.3"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "3a561005822841f2c45f442f6c7a7505172c8c376c9fe274d876c8ac912968cb",
+        "name": "pip",
+        "requiresDist": [],
+        "version": "26.2.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache License"
+          }
+        },
+        "metadataSha256": "9884da12db9dd1e7d25e1618528bf5e5518ab7e3114698a57c362e3a4c9c6395",
+        "name": "pip-api",
+        "requiresDist": [
+          "pip"
+        ],
+        "version": "0.0.35"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: Apache Software License"
+          }
+        },
+        "metadataSha256": "1f06472185a91042bc510b1b2afd2f08fdb14482729b02f4d9ac21a10f547ba4",
+        "name": "pip-audit",
+        "requiresDist": [
+          "CacheControl[filecache] >= 0.13.0",
+          "build ; extra == \"dev\"",
+          "coverage[toml] ~= 7.0, != 7.3.3 ; extra == \"cov\"",
+          "cyclonedx-python-lib >= 5,< 12",
+          "interrogate ~= 1.6 ; extra == \"lint\"",
+          "mypy ; extra == \"lint\"",
+          "packaging>=23.0.0",
+          "pdoc ; extra == \"doc\"",
+          "pip-api>=0.0.28",
+          "pip-audit[cov] ; extra == \"test\"",
+          "pip-audit[doc, test, lint] ; extra == \"dev\"",
+          "pip-requirements-parser>=32.0.0",
+          "platformdirs >= 4.2.0",
+          "pretend ; extra == \"test\"",
+          "pytest ; extra == \"test\"",
+          "requests >= 2.31.0",
+          "rich >= 12.4",
+          "ruff >= 0.14 ; extra == \"lint\"",
+          "tomli >= 2.2.1",
+          "tomli-w >= 1.2.0",
+          "types-requests ; extra == \"lint\"",
+          "types-toml ; extra == \"lint\"",
+          "typos ; extra == \"lint\""
+        ],
+        "version": "2.10.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "e21f49c644814ff1bba064a641768f2f534c806cff523e2403652793794ab46d",
+        "name": "pip-requirements-parser",
+        "requiresDist": [
+          "Sphinx (>=3.3.1) ; extra == 'docs'",
+          "aboutcode-toolkit (>=6.0.0) ; extra == 'testing'",
+          "black ; extra == 'testing'",
+          "doc8 (>=0.8.1) ; extra == 'docs'",
+          "packaging",
+          "pyparsing",
+          "pytest (!=7.0.0,>=6) ; extra == 'testing'",
+          "pytest-xdist (>=2) ; extra == 'testing'",
+          "sphinx-rtd-theme (>=0.5.0) ; extra == 'docs'"
+        ],
+        "version": "32.0.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "5b28a4e5ed5d077a5972c38ab5e5b25e10c378f6829676636c343187709d5be5",
+        "name": "platformdirs",
+        "requiresDist": [],
+        "version": "4.12.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "37f9f541366de7038094960f301642ed46dc82f3701358542dd8e200bd5bef57",
+        "name": "py-serializable",
+        "requiresDist": [
+          "defusedxml (>=0.7.1,<0.8.0)"
+        ],
+        "version": "2.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-2-Clause"
+        },
+        "metadataSha256": "1dde075570136774c706bf0009183a793fe0ee262e4a5590cc6eff8453eedd43",
+        "name": "pygments",
+        "requiresDist": [
+          "colorama>=0.4.6; extra == 'windows-terminal'"
+        ],
+        "version": "2.21.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "f2ca34052d720622d300023472ef8ae94fe5b57d69acbb28a8667f6dd0e13497",
+        "name": "pyparsing",
+        "requiresDist": [
+          "jinja2 ; extra == \"diagrams\"",
+          "railroad-diagrams ; extra == \"diagrams\""
+        ],
+        "version": "3.3.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "8c384ba3e979480faae2859d3c5e6c1276dd2c3616e322e124d52c8cfc556f27",
+        "name": "requests",
+        "requiresDist": [
+          "PySocks!=1.5.7,>=1.5.6; extra == \"socks\"",
+          "certifi>=2023.5.7",
+          "chardet<8,>=3.0.2; extra == \"use-chardet-on-py3\"",
+          "charset_normalizer<4,>=2",
+          "idna<4,>=2.5",
+          "urllib3<3,>=1.26"
+        ],
+        "version": "2.34.2"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "fad34fc603fac4481bf81f8dd629492fc302c0ec31909c86644751512afb2e3b",
+        "name": "rich",
+        "requiresDist": [
+          "ipywidgets (>=7.5.1,<9) ; extra == \"jupyter\"",
+          "markdown-it-py (>=2.2.0)",
+          "pygments (>=2.13.0,<3.0.0)"
+        ],
+        "version": "15.0.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache 2.0"
+          }
+        },
+        "metadataSha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473",
+        "name": "sortedcontainers",
+        "requiresDist": [],
+        "version": "2.4.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "1428a97e0c90b9ed2958e9e487db976c4c450932f7334630aebb5bc04e01aa59",
+        "name": "tomli",
+        "requiresDist": [],
+        "version": "2.4.1"
+      },
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: MIT License"
+          }
+        },
+        "metadataSha256": "66e81ac2e41775b5ebddcfbb9f4ae77158e4c5739fd52d231e14f2fffda9c8de",
+        "name": "tomli-w",
+        "requiresDist": [],
+        "version": "1.2.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4",
+        "name": "urllib3",
+        "requiresDist": [
+          "backports-zstd>=1.0.0; (python_version < '3.14') and extra == 'zstd'",
+          "brotli>=1.2.0; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+          "brotlicffi>=1.2.0.0; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+          "h2<5,>=4; extra == 'h2'",
+          "pysocks!=1.5.7,<2.0,>=1.5.6; extra == 'socks'"
+        ],
+        "version": "2.8.0"
+      }
+    ],
+    "git-mcp": [
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "614985b278f601b8ef863f82783b991cc3ada4b89f592eb71c7c48c5f2ef2298",
+        "name": "annotated-types",
+        "requiresDist": [],
+        "version": "0.8.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "043aecb571af7189e8a6c528f5d8e32545f1b2cdfaaf761d51e6d5b67ea3ca81",
+        "name": "anyio",
+        "requiresDist": [
+          "exceptiongroup>=1.0.2; python_version < \"3.11\"",
+          "idna>=2.8",
+          "trio>=0.32.0; extra == \"trio\"",
+          "typing_extensions>=4.16.0; python_version < \"3.15\""
+        ],
+        "version": "4.15.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc",
+        "name": "attrs",
+        "requiresDist": [],
+        "version": "26.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MPL-2.0"
+          }
+        },
+        "metadataSha256": "ef5af1638fbb23676ac3c5777dfcfc2cd9c348fe4172ed5ba3d277655b248090",
+        "name": "certifi",
+        "requiresDist": [],
+        "version": "2026.7.22"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT-0"
+        },
+        "metadataSha256": "558bafb9093a8e790175d9ecff9688382981d744877dad86fd6770db0f4dc918",
+        "name": "cffi",
+        "requiresDist": [
+          "pycparser; implementation_name != \"PyPy\""
+        ],
+        "version": "2.1.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "e87bce0bd194de70dfb8e708e0a6b0483009f25611804eaf87bfeb63e6c20501",
+        "name": "click",
+        "requiresDist": [],
+        "version": "8.5.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0 OR BSD-3-Clause"
+        },
+        "metadataSha256": "047cfc71226409de4318b360aef15c63a2adf609731e3dcf7fe932f14ea042ee",
+        "name": "cryptography",
+        "requiresDist": [
+          "bcrypt>=3.1.5 ; extra == 'ssh'",
+          "cffi>=2.0.0 ; platform_python_implementation != 'PyPy'",
+          "typing-extensions>=4.13.2 ; python_full_version < '3.11'"
+        ],
+        "version": "50.0.2"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD License"
+          }
+        },
+        "metadataSha256": "9670d2dc866039d6b7c91f52cd81c7f224cd7467f7685c7c29e6c4691d1bf3d9",
+        "name": "gitdb",
+        "requiresDist": [
+          "smmap<6,>=3.0.1"
+        ],
+        "version": "4.0.12"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "5dd8b3a06a6134b7e37343470028f6456c418133096c419314234e482f527baf",
+        "name": "gitpython",
+        "requiresDist": [
+          "basedpyright==1.39.9; (python_version >= \"3.9\" and sys_platform != \"cygwin\") and extra == \"test\"",
+          "coverage[toml]; extra == \"test\"",
+          "ddt!=1.4.3,>=1.1.1; extra == \"test\"",
+          "gitdb<5,>=4.0.1",
+          "mock; extra == \"test\"",
+          "mypy==1.18.2; python_version >= \"3.9\" and extra == \"test\"",
+          "pre-commit; extra == \"test\"",
+          "pytest-cov; extra == \"test\"",
+          "pytest-instafail; extra == \"test\"",
+          "pytest-mock; extra == \"test\"",
+          "pytest-sugar; extra == \"test\"",
+          "pytest>=7.3.1; extra == \"test\"",
+          "typing-extensions; python_version < \"3.11\" and extra == \"test\"",
+          "typing-extensions>=3.10.0.2; python_version < \"3.10\""
+        ],
+        "version": "3.2.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "28f326098ac09fcba79b8f180f96087c841fe2456215cb7b872a9c7d5cd19d64",
+        "name": "h11",
+        "requiresDist": [],
+        "version": "0.16.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "fe2d4fda6199128978779e0cf27f3c045c531863fcdd987eacc74f3a18d41c21",
+        "name": "httpcore",
+        "requiresDist": [
+          "anyio<5.0,>=4.0; extra == 'asyncio'",
+          "certifi",
+          "h11>=0.16",
+          "h2<5,>=3; extra == 'http2'",
+          "socksio==1.*; extra == 'socks'",
+          "trio<1.0,>=0.22.0; extra == 'trio'"
+        ],
+        "version": "1.0.9"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "febb9b0f8f3e80d57c8199c304f35c4336e8581d1d18d7983c92766b82793b25",
+        "name": "httpx",
+        "requiresDist": [
+          "anyio",
+          "brotli; (platform_python_implementation == 'CPython') and extra == 'brotli'",
+          "brotlicffi; (platform_python_implementation != 'CPython') and extra == 'brotli'",
+          "certifi",
+          "click==8.*; extra == 'cli'",
+          "h2<5,>=3; extra == 'http2'",
+          "httpcore==1.*",
+          "idna",
+          "pygments==2.*; extra == 'cli'",
+          "rich<14,>=10; extra == 'cli'",
+          "socksio==1.*; extra == 'socks'",
+          "zstandard>=0.18.0; extra == 'zstd'"
+        ],
+        "version": "0.28.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "d4c6d804ee5ac46e9b3b6595c27ab8ae2ba7cfb5f692c78b16ff463e4bd1a81e",
+        "name": "httpx-sse",
+        "requiresDist": [],
+        "version": "0.4.3"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85",
+        "name": "idna",
+        "requiresDist": [
+          "coverage >= 7.10.0 ; extra == \"all\"",
+          "hypothesis >= 6.141.1 ; extra == \"all\"",
+          "mypy >= 1.11.2 ; extra == \"all\"",
+          "pytest >= 8.3.2 ; extra == \"all\"",
+          "ruff >= 0.16.0 ; extra == \"all\"",
+          "ty >= 0.0.37 ; extra == \"all\""
+        ],
+        "version": "3.20"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2",
+        "name": "jsonschema",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "fqdn; extra == 'format'",
+          "fqdn; extra == 'format-nongpl'",
+          "idna; extra == 'format'",
+          "idna; extra == 'format-nongpl'",
+          "isoduration; extra == 'format'",
+          "isoduration; extra == 'format-nongpl'",
+          "jsonpointer>1.13; extra == 'format'",
+          "jsonpointer>1.13; extra == 'format-nongpl'",
+          "jsonschema-specifications>=2023.03.6",
+          "referencing>=0.28.4",
+          "rfc3339-validator; extra == 'format'",
+          "rfc3339-validator; extra == 'format-nongpl'",
+          "rfc3986-validator>0.1.0; extra == 'format-nongpl'",
+          "rfc3987-syntax>=1.1.0; extra == 'format-nongpl'",
+          "rfc3987; extra == 'format'",
+          "rpds-py>=0.25.0",
+          "uri-template; extra == 'format'",
+          "uri-template; extra == 'format-nongpl'",
+          "webcolors>=1.11; extra == 'format'",
+          "webcolors>=24.6.0; extra == 'format-nongpl'"
+        ],
+        "version": "4.26.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d",
+        "name": "jsonschema-specifications",
+        "requiresDist": [
+          "referencing>=0.31.0"
+        ],
+        "version": "2025.9.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "3880c29896149862971af57942e3e5c0ad2a909696a66b9811c62f6e47e65111",
+        "name": "mcp",
+        "requiresDist": [
+          "anyio>=4.5",
+          "httpx-sse>=0.4",
+          "httpx<1.0.0,>=0.27.1",
+          "jsonschema>=4.20.0",
+          "pydantic-settings>=2.5.2",
+          "pydantic<3.0.0,>=2.11.0; python_version < '3.14'",
+          "pydantic<3.0.0,>=2.12.0; python_version >= '3.14'",
+          "pyjwt[crypto]>=2.10.1",
+          "python-dotenv>=1.0.0; extra == 'cli'",
+          "python-multipart>=0.0.9",
+          "pywin32>=310; sys_platform == 'win32' and python_version < '3.14'",
+          "pywin32>=311; sys_platform == 'win32' and python_version >= '3.14'",
+          "rich>=13.9.4; extra == 'rich'",
+          "sse-starlette>=1.6.1",
+          "starlette>=0.27; python_version < '3.14'",
+          "starlette>=0.48.0; python_version >= '3.14'",
+          "typer>=0.16.0; extra == 'cli'",
+          "typing-extensions>=4.9.0",
+          "typing-inspection>=0.4.1",
+          "uvicorn>=0.31.1; sys_platform != 'emscripten'",
+          "websockets>=15.0.1; extra == 'ws'"
+        ],
+        "version": "1.30.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "dc338b64b29f01344b60342db6f0571d13a31064f02eaf0d312aa7f8627a9254",
+        "name": "mcp-server-git",
+        "requiresDist": [
+          "click>=8.1.7",
+          "gitpython>=3.1.50",
+          "mcp<2,>=1.29.0",
+          "pydantic>=2.0.0"
+        ],
+        "version": "2026.8.18"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "f547a60b0ab54cc2f242213d1f87960ad80df7dd5dfeb98d17a444d48bfb6b93",
+        "name": "pycparser",
+        "requiresDist": [],
+        "version": "3.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "0685830d13647bd6f3f05526043d32a8b2a221d86b53773053d6c52bb17a9c07",
+        "name": "pydantic",
+        "requiresDist": [
+          "annotated-types>=0.6.0",
+          "email-validator>=2.0.0; extra == 'email'",
+          "pydantic-core==2.46.5",
+          "typing-extensions>=4.14.1",
+          "typing-inspection>=0.4.2",
+          "tzdata; (python_version >= '3.9' and platform_system == 'Windows') and extra == 'timezone'"
+        ],
+        "version": "2.13.5"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "29768c038c0bb3564c0a87ef50ef78d18a2372474bdef0ba356a8c0fd4bd6028",
+        "name": "pydantic-core",
+        "requiresDist": [
+          "typing-extensions>=4.14.1"
+        ],
+        "version": "2.46.5"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "5ac12e408df62f1d4c7643146d9df04ace749f1fe5cf28b3b794be0b2834ca6d",
+        "name": "pydantic-settings",
+        "requiresDist": [
+          "azure-identity>=1.16.0; extra == 'azure-key-vault'",
+          "azure-keyvault-secrets>=4.8.0; extra == 'azure-key-vault'",
+          "boto3>=1.35.0; extra == 'aws-secrets-manager'",
+          "google-cloud-secret-manager>=2.23.1; extra == 'gcp-secret-manager'",
+          "pydantic>=2.7.0",
+          "python-dotenv>=0.21.0",
+          "pyyaml>=6.0.1; extra == 'yaml'",
+          "tomli>=2.0.1; extra == 'toml'",
+          "typing-inspection>=0.4.0"
+        ],
+        "version": "2.15.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "1ea0c9f139b8c928276b3628af165955f6f764491448a6ad8f103cdcbb382da3",
+        "name": "pyjwt",
+        "requiresDist": [
+          "cryptography>=3.4.0; extra == \"crypto\"",
+          "typing_extensions>=4.0; python_version < \"3.11\""
+        ],
+        "version": "2.15.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "87cfee6042412d48df1100ea7822684988c3f2b79de7a250f4717f4df3026d6f",
+        "name": "python-dotenv",
+        "requiresDist": [
+          "click>=5.0; extra == \"cli\""
+        ],
+        "version": "1.2.4"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0"
+        },
+        "metadataSha256": "e9d399d7dea5eddf0e4d24b5c24687a82e7e50bf2c2b30f8f8a06a64d887dd86",
+        "name": "python-multipart",
+        "requiresDist": [],
+        "version": "0.0.32"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a",
+        "name": "referencing",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "rpds-py>=0.7.0",
+          "typing-extensions>=4.4.0; python_version < '3.13'"
+        ],
+        "version": "0.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "f8be7b17da3980b2c48596941411a43c70ac41b1e2d530aa531f2c15eab2eb1c",
+        "name": "rpds-py",
+        "requiresDist": [],
+        "version": "2026.6.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "761d62d78dbca38efb80f17b95a5aef5224d8288aedf980ca99c453db95047b9",
+        "name": "smmap",
+        "requiresDist": [],
+        "version": "5.0.3"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "6dc401682bdae1a3e1f31b1c320b7f926c354643993840393875ebfc171c9014",
+        "name": "sse-starlette",
+        "requiresDist": [
+          "aiosqlite>=0.21.0; extra == \"examples-db\"",
+          "anyio>=4.7.0",
+          "daphne>=4.2.0; extra == \"daphne\"",
+          "fastapi>=0.115.12; extra == \"examples\"",
+          "granian>=2.3.1; extra == \"granian\"",
+          "pydantic>=2; extra == \"examples\"",
+          "sqlalchemy[asyncio]>=2.0.41; extra == \"examples-db\"",
+          "starlette>=0.49.1",
+          "uvicorn>=0.34.0; extra == \"examples\"",
+          "uvicorn>=0.34.0; extra == \"uvicorn\""
+        ],
+        "version": "3.5.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "f7870fc19ab7c2e364887057340b9fb47e9bda74d24b06c58ca399494abfe019",
+        "name": "starlette",
+        "requiresDist": [
+          "anyio<5,>=4.0.0",
+          "httpx2>=2.0.0; extra == 'full'",
+          "httpx<0.29.0,>=0.27.0; extra == 'full'",
+          "itsdangerous; extra == 'full'",
+          "jinja2; extra == 'full'",
+          "opentelemetry-api; extra == 'full'",
+          "python-multipart>=0.0.18; extra == 'full'",
+          "pyyaml; extra == 'full'",
+          "typing-extensions>=4.10.0; python_version < '3.13'"
+        ],
+        "version": "1.7.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "PSF-2.0"
+        },
+        "metadataSha256": "b05084ca1d50879865178d9fff9fabeab61bdfb1f361bfbde95421ffc8f9be46",
+        "name": "typing-extensions",
+        "requiresDist": [],
+        "version": "4.16.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "bad3d9e6342ef6750cf5128ec942327b8bebdce0b6e4d6f67cb15b27ae5118da",
+        "name": "typing-inspection",
+        "requiresDist": [
+          "typing-extensions>=4.15.0"
+        ],
+        "version": "0.4.4"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "9399e5ddda3d26e842d6fb5420c38b0857aac568d53badbdc224b3a21339efa8",
+        "name": "uvicorn",
+        "requiresDist": [
+          "click>=7.0",
+          "h11>=0.8",
+          "httptools>=0.8.0; extra == 'standard'",
+          "python-dotenv>=0.13; extra == 'standard'",
+          "pyyaml>=5.1; extra == 'standard'",
+          "typing-extensions>=4.0; python_version < '3.11'",
+          "uvloop>=0.15.1; (sys_platform != 'win32' and (sys_platform != 'cygwin' and platform_python_implementation != 'PyPy')) and extra == 'standard'",
+          "watchfiles>=0.20; extra == 'standard'",
+          "websockets>=13.0; extra == 'standard'"
+        ],
+        "version": "0.54.0"
+      }
+    ],
+    "sbom-generator": [
+      {
+        "evidence": "distribution METADATA license classifiers; SPDX expression unverified",
+        "license": {
+          "license": {
+            "name": "OSI Approved :: Apache Software License"
+          }
+        },
+        "metadataSha256": "36407a40cd6a7f3147f8c8ab802d516fb4c152d7e2aabab52718ff3407a1706d",
+        "name": "arrow",
+        "requiresDist": [
+          "backports.zoneinfo==0.2.1;python_version<'3.9'",
+          "dateparser==1.* ; extra == \"test\"",
+          "doc8 ; extra == \"doc\"",
+          "pre-commit ; extra == \"test\"",
+          "pytest ; extra == \"test\"",
+          "pytest-cov ; extra == \"test\"",
+          "pytest-mock ; extra == \"test\"",
+          "python-dateutil>=2.7.0",
+          "pytz==2025.2 ; extra == \"test\"",
+          "simplejson==3.* ; extra == \"test\"",
+          "sphinx-autobuild ; extra == \"doc\"",
+          "sphinx-autodoc-typehints ; extra == \"doc\"",
+          "sphinx>=7.0.0 ; extra == \"doc\"",
+          "sphinx_rtd_theme>=1.3.0 ; extra == \"doc\"",
+          "tzdata;python_version>='3.9'"
+        ],
+        "version": "1.4.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "4cd40e690f23bf37cbcad34efd6758e062df1df07c86833f7e3ce95bf1fa38cc",
+        "name": "attrs",
+        "requiresDist": [],
+        "version": "26.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-2-Clause"
+          }
+        },
+        "metadataSha256": "9e43aeae17a73073abee61deb5fb267dfdf0eeb67d6e3123270b52aac5ed87fa",
+        "name": "boolean-py",
+        "requiresDist": [
+          "Sphinx>=3.3.1; extra == \"docs\"",
+          "black; extra == \"linting\"",
+          "build; extra == \"dev\"",
+          "doc8>=0.8.1; extra == \"docs\"",
+          "isort; extra == \"linting\"",
+          "pycodestyle; extra == \"linting\"",
+          "pytest!=7.0.0,>=6; extra == \"testing\"",
+          "pytest-xdist>=2; extra == \"testing\"",
+          "sphinx-rtd-theme>=0.5.0; extra == \"docs\"",
+          "sphinxcontrib-apidoc>=0.3.0; extra == \"docs\"",
+          "twine; extra == \"dev\""
+        ],
+        "version": "5.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "c7ce95aa4f8d1a8b762354ef93d6e3ec72cfd01ecf1db7ebb7997fd0b6568251",
+        "name": "cyclonedx-python-lib",
+        "requiresDist": [
+          "jsonschema[format-nongpl] (>=4.25,<5.0) ; extra == \"validation\" or extra == \"json-validation\"",
+          "license-expression (>=30,<31)",
+          "lxml (>=4,<7) ; extra == \"validation\" or extra == \"xml-validation\"",
+          "packageurl-python (>=0.11,<2)",
+          "py-serializable (>=2.1.0,<3.0.0)",
+          "referencing (>=0.28.4) ; extra == \"validation\" or extra == \"json-validation\"",
+          "sortedcontainers (>=2.4.0,<3.0.0)",
+          "typing_extensions (>=4.6,<5.0) ; python_version < \"3.13\""
+        ],
+        "version": "11.12.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "PSFL"
+          }
+        },
+        "metadataSha256": "369d3cef64870daf849fba711cb8d05a7efe3c8d9ab0f763adc34079fe378bb1",
+        "name": "defusedxml",
+        "requiresDist": [],
+        "version": "0.7.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MPL-2.0"
+        },
+        "metadataSha256": "3baa3c9f310023b1ea28d08f35a2179ca4dd624149902d0e0dbdd68dcac58db0",
+        "name": "fqdn",
+        "requiresDist": [
+          "cached-property>=1.3.0; python_version < \"3.8\"",
+          "myst-parser>=3.0; python_version >= \"3.9\" and extra == \"docs\"",
+          "sphinx>=7.2; python_version >= \"3.9\" and extra == \"docs\""
+        ],
+        "version": "1.6.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "BSD-3-Clause"
+        },
+        "metadataSha256": "dbd8c14c1e4ca1e0c9824a6dbc7cbbf78884f38eb52d91148cd3025f671e4b85",
+        "name": "idna",
+        "requiresDist": [
+          "coverage >= 7.10.0 ; extra == \"all\"",
+          "hypothesis >= 6.141.1 ; extra == \"all\"",
+          "mypy >= 1.11.2 ; extra == \"all\"",
+          "pytest >= 8.3.2 ; extra == \"all\"",
+          "ruff >= 0.16.0 ; extra == \"all\"",
+          "ty >= 0.0.37 ; extra == \"all\""
+        ],
+        "version": "3.20"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "UNKNOWN"
+          }
+        },
+        "metadataSha256": "440045201154827793cad24bafbd54deca6800819259e3b17f6edbc06ca7b56b",
+        "name": "isoduration",
+        "requiresDist": [
+          "arrow (>=0.15.0)"
+        ],
+        "version": "20.11.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Modified BSD License"
+          }
+        },
+        "metadataSha256": "b461427459b7a1d595585ba05a9d0466b134b849204f4ddfbc1b1ed20775ba5d",
+        "name": "jsonpointer",
+        "requiresDist": [],
+        "version": "3.1.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "05b189866ca98a96da3934bf6b83687ced3ff85325273b77e16b705f6d8b26d2",
+        "name": "jsonschema",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "fqdn; extra == 'format'",
+          "fqdn; extra == 'format-nongpl'",
+          "idna; extra == 'format'",
+          "idna; extra == 'format-nongpl'",
+          "isoduration; extra == 'format'",
+          "isoduration; extra == 'format-nongpl'",
+          "jsonpointer>1.13; extra == 'format'",
+          "jsonpointer>1.13; extra == 'format-nongpl'",
+          "jsonschema-specifications>=2023.03.6",
+          "referencing>=0.28.4",
+          "rfc3339-validator; extra == 'format'",
+          "rfc3339-validator; extra == 'format-nongpl'",
+          "rfc3986-validator>0.1.0; extra == 'format-nongpl'",
+          "rfc3987-syntax>=1.1.0; extra == 'format-nongpl'",
+          "rfc3987; extra == 'format'",
+          "rpds-py>=0.25.0",
+          "uri-template; extra == 'format'",
+          "uri-template; extra == 'format-nongpl'",
+          "webcolors>=1.11; extra == 'format'",
+          "webcolors>=24.6.0; extra == 'format-nongpl'"
+        ],
+        "version": "4.26.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "35abd41757f32b4ea24756920ded47b70173d77cbc052a5a6d3ab583b2e8d89d",
+        "name": "jsonschema-specifications",
+        "requiresDist": [
+          "referencing>=0.31.0"
+        ],
+        "version": "2025.9.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "730d3f056045a9096bc0a65e4faccae53fe7f3634055174d4b8245cd19cb4cde",
+        "name": "lark",
+        "requiresDist": [
+          "atomicwrites; extra == \"atomic-cache\"",
+          "interegular<0.4.0,>=0.3.1; extra == \"interegular\"",
+          "js2py; extra == \"nearley\"",
+          "regex; extra == \"regex\""
+        ],
+        "version": "1.3.1"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "1f8fc95adb7c2fead6d6b52cc2da09d4177b24bfac067f7a4dbdc666e72495fb",
+        "name": "license-expression",
+        "requiresDist": [
+          "Sphinx>=5.0.2; extra == \"dev\"",
+          "boolean.py>=4.0",
+          "doc8>=0.11.2; extra == \"dev\"",
+          "pytest-xdist>=2; extra == \"dev\"",
+          "pytest>=7.0.1; extra == \"dev\"",
+          "ruff; extra == \"dev\"",
+          "sphinx-autobuild; extra == \"dev\"",
+          "sphinx-copybutton; extra == \"dev\"",
+          "sphinx-reredirects>=0.1.2; extra == \"dev\"",
+          "sphinx-rtd-dark-mode>=1.3.0; extra == \"dev\"",
+          "sphinx-rtd-theme>=1.0.0; extra == \"dev\"",
+          "sphinxcontrib-apidoc>=0.4.0; extra == \"dev\"",
+          "twine; extra == \"dev\""
+        ],
+        "version": "30.4.4"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "f7b3575011c7bd1a1375919e1ecd1258ad4541c6e757c77ff55ba06e3035ec94",
+        "name": "packageurl-python",
+        "requiresDist": [
+          "black; extra == \"lint\"",
+          "isort; extra == \"lint\"",
+          "mypy; extra == \"lint\"",
+          "pytest; extra == \"test\"",
+          "setuptools; extra == \"build\"",
+          "sqlalchemy>=2.0.0; extra == \"sqlalchemy\"",
+          "wheel; extra == \"build\""
+        ],
+        "version": "0.17.6"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "Apache-2.0 OR BSD-2-Clause"
+        },
+        "metadataSha256": "70fdb89fc4d4a9a043bf7372b8972bcc883fddff34ab55e9cf80d73875384763",
+        "name": "packaging",
+        "requiresDist": [],
+        "version": "26.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "37f9f541366de7038094960f301642ed46dc82f3701358542dd8e200bd5bef57",
+        "name": "py-serializable",
+        "requiresDist": [
+          "defusedxml (>=0.7.1,<0.8.0)"
+        ],
+        "version": "2.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Dual License"
+          }
+        },
+        "metadataSha256": "a9d436da322be808332f98d88325998e87cb693a678a9969feb4cfad729a6e93",
+        "name": "python-dateutil",
+        "requiresDist": [
+          "six >=1.5"
+        ],
+        "version": "2.9.0.post0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a",
+        "name": "referencing",
+        "requiresDist": [
+          "attrs>=22.2.0",
+          "rpds-py>=0.7.0",
+          "typing-extensions>=4.4.0; python_version < '3.13'"
+        ],
+        "version": "0.37.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT license"
+          }
+        },
+        "metadataSha256": "ac4dc2cdea6a8b61c16babbf35c0e9fa6e22e45f1c0338e66e089108dde872d2",
+        "name": "rfc3339-validator",
+        "requiresDist": [
+          "six"
+        ],
+        "version": "0.1.4"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT license"
+          }
+        },
+        "metadataSha256": "feddd8265433ba7be465e1649b486ec83c4c78f593f36284e7ae6d655cae163c",
+        "name": "rfc3986-validator",
+        "requiresDist": [],
+        "version": "0.1.1"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "7a518ae5bb5685568b537061e8207a4dbba766ae785b16ad26d930ad3853cb0d",
+        "name": "rfc3987-syntax",
+        "requiresDist": [
+          "lark>=1.2.2",
+          "pytest>=8.3.5; extra == 'testing'"
+        ],
+        "version": "1.1.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT"
+        },
+        "metadataSha256": "f8be7b17da3980b2c48596941411a43c70ac41b1e2d530aa531f2c15eab2eb1c",
+        "name": "rpds-py",
+        "requiresDist": [],
+        "version": "2026.6.3"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT"
+          }
+        },
+        "metadataSha256": "562042078c2752549f6d8a7c86dbc5dd708088a7be6d80672ec7b07100b72468",
+        "name": "six",
+        "requiresDist": [],
+        "version": "1.17.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache 2.0"
+          }
+        },
+        "metadataSha256": "eedf115109e215001e904da0882851beae50b03c0b0161a8b9e74b7cfd679473",
+        "name": "sortedcontainers",
+        "requiresDist": [],
+        "version": "2.4.0"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "Apache-2.0"
+          }
+        },
+        "metadataSha256": "e0780e8b6dc8882ce87e871a9d4589d59cb05a0c2d64f58b1ba62cde1ee91f6a",
+        "name": "tzdata",
+        "requiresDist": [],
+        "version": "2026.5"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "MIT License"
+          }
+        },
+        "metadataSha256": "3a8c53a915e5755c13b09faa29a4211fcff0c6ee188a169fc02cc092d89f46bc",
+        "name": "uri-template",
+        "requiresDist": [
+          "flake8 ; extra == 'dev'",
+          "flake8-annotations ; extra == 'dev'",
+          "flake8-bandit ; extra == 'dev'",
+          "flake8-bugbear ; extra == 'dev'",
+          "flake8-commas ; extra == 'dev'",
+          "flake8-comprehensions ; extra == 'dev'",
+          "flake8-continuation ; extra == 'dev'",
+          "flake8-datetimez ; extra == 'dev'",
+          "flake8-docstrings ; extra == 'dev'",
+          "flake8-import-order ; extra == 'dev'",
+          "flake8-literal ; extra == 'dev'",
+          "flake8-modern-annotations ; extra == 'dev'",
+          "flake8-noqa ; extra == 'dev'",
+          "flake8-pyproject ; extra == 'dev'",
+          "flake8-requirements ; extra == 'dev'",
+          "flake8-typechecking-import ; extra == 'dev'",
+          "flake8-use-fstring ; extra == 'dev'",
+          "mypy ; extra == 'dev'",
+          "pep8-naming ; extra == 'dev'",
+          "types-PyYAML ; extra == 'dev'"
+        ],
+        "version": "1.3.0"
+      },
+      {
+        "evidence": "distribution METADATA License-Expression",
+        "license": {
+          "expression": "MIT OR Apache-2.0"
+        },
+        "metadataSha256": "bd87452b7786f5588584b827dca166e57e269c655f5ea0228b47e83fb703fd27",
+        "name": "uv",
+        "requiresDist": [],
+        "version": "0.12.22"
+      },
+      {
+        "evidence": "distribution METADATA License (first line; full METADATA hash retained)",
+        "license": {
+          "license": {
+            "name": "BSD-3-Clause"
+          }
+        },
+        "metadataSha256": "53b0da874b2e90dd8f1ccaa9c75c41e8db9107eb2568fc7a4e605b71c955d099",
+        "name": "webcolors",
+        "requiresDist": [],
+        "version": "25.10.0"
+      }
+    ]
+  },
+  "formatVersion": 1
+}
